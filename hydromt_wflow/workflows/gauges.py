@@ -17,7 +17,7 @@ __all__ = ["gauge_map_uparea"]
 def gauge_map_uparea(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
-    uparea_name: Optional[str] = "wflow_uparea",
+    uparea_name: Optional[str] = "meta_upstream_area",
     mask: Optional[np.ndarray] = None,
     wdw: Optional[int] = 1,
     rel_error: float = 0.05,
@@ -41,7 +41,7 @@ def gauge_map_uparea(
     gdf : gpd.GeoDataFrame
         GeoDataFrame with gauge points and uparea column.
     uparea_name : str, optional
-        Name of the upstream area variable in ``ds``, by default "wflow_uparea".
+        Name of the upstream area variable in ``ds``, by default "meta_upstream_area".
     mask : np.ndarray, optional
         Mask cells to apply the uparea snapping, by default None.
     wdw : int, optional

@@ -5,20 +5,26 @@ from typing import Tuple
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
-    "subelv": "dem_subgrid",
-    "uparea": "wflow_uparea",
-    "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
-    "soil_texture": "wflow_soil",
+    "glacareas": "meta_glacier_area_id",
 }
+
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
-    # additional hydromt outputs
-    "elevtn": "wflow_dem",
-    "uparea": "wflow_uparea",
-    "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
-    "soil": "wflow_soil",
+    "elevtn": "land_elevation",
 }
+
+HYDROMT_NAMES_COMMON = {
+    "subelv": "meta_subgrid_elevation",
+    "uparea": "meta_upstream_area",
+    "subare": "meta_subgrid_area",
+    "strord": "meta_streamorder",
+    "x_out": "meta_subgrid_outlet_x",
+    "y_out": "meta_subgrid_outlet_y",
+    "landuse": "meta_landuse",
+    "soil_texture": "meta_soil_texture",
+}
+
+HYDROMT_NAMES_DEFAULT.update(HYDROMT_NAMES_COMMON)
+HYDROMT_NAMES_DEFAULT_SEDIMENT.update(HYDROMT_NAMES_COMMON)
 
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
@@ -26,40 +32,44 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
 # {staticmap_name: (wflow_v0, wflow_v1)}
 WFLOW_NAMES = {
     # general input
-    "wflow_subcatch": {
+    "subcatchment": {
         "wflow_v0": "subcatchment",
-        "wflow_v1": "subcatchment_location__count",
+        "wflow_v1": "subbasin_location__count",
         "hydromt_name": "basins",
     },
-    "wflow_ldd": {
+    "local_drain_direction": {
         "wflow_v0": "ldd",
-        "wflow_v1": "local_drain_direction",
+        "wflow_v1": "basin__local_drain_direction",
         "hydromt_name": "flwdir",
     },
-    "wflow_lakeareas": {
+    "lake_area_id": {
         "wflow_v0": "lateral.river.lake.areas",
         "wflow_v1": "lake_area__count",
-        "hydromt_name": "lakeareas",
+        "hydromt_name": "lake_area_id",
     },
-    "wflow_lakelocs": {
+    "lake_outlet_id": {
         "wflow_v0": "lateral.river.lake.locs",
         "wflow_v1": "lake_location__count",
-        "hydromt_name": "lakelocs",
+        "hydromt_name": "lake_outlet_id",
     },
-    "wflow_reservoirareas": {
+    "reservoir_area_id": {
         "wflow_v0": "lateral.river.reservoir.areas",
         "wflow_v1": "reservoir_area__count",
-        "hydromt_name": "resareas",
+        "hydromt_name": "reservoir_area_id",
     },
-    "wflow_reservoirlocs": {
+    "reservoir_outlet_id": {
         "wflow_v0": "lateral.river.reservoir.locs",
         "wflow_v1": "reservoir_location__count",
-        "hydromt_name": "reslocs",
+        "hydromt_name": "reservoir_outlet_id",
     },
-    "wflow_river": {
+    "river_mask": {
         "wflow_v0": "river_location",
         "wflow_v1": "river_location__mask",
         "hydromt_name": "rivmsk",
+    },
+    "pits": {
+        "wflow_v0": "pits",
+        "wflow_v1": "basin_pit_location__mask ",
     },
     # atmosphere / forcing
     "precip": {
@@ -78,134 +88,134 @@ WFLOW_NAMES = {
         "hydromt_name": "pet",
     },
     # snow
-    "Cfmax": {
+    "snow_degree_day_coefficient": {
         "wflow_v0": "vertical.cfmax",
         "wflow_v1": "snowpack__degree-day_coefficient",
     },
-    "TT": {
+    "snow_tt": {
         "wflow_v0": "vertical.tt",
         "wflow_v1": "atmosphere_air__snowfall_temperature_threshold",
     },
-    "TTI": {
+    "snow_tti": {
         "wflow_v0": "vertical.tti",
         "wflow_v1": "atmosphere_air__snowfall_temperature_interval",
     },
-    "TTM": {
+    "snow_ttm": {
         "wflow_v0": "vertical.ttm",
         "wflow_v1": "snowpack__melting_temperature_threshold",
     },
-    "WHC": {
+    "snow_whc": {
         "wflow_v0": "vertical.water_holding_capacity",
         "wflow_v1": "snowpack__liquid_water_holding_capacity",
     },
     # glacier
-    "wflow_glacierfrac": {
+    "glacier_fraction": {
         "wflow_v0": "vertical.glacierfrac",
         "wflow_v1": "glacier_surface__area_fraction",
         "hydromt_name": "glacfracs",
     },
-    "wflow_glacierstore": {
+    "glacier_initial_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__initial_leq-depth",
         "hydromt_name": "glacstore",
     },
-    "G_TTM": {
+    "glacier_ttm": {
         "wflow_v0": "vertical.g_ttm",
         "wflow_v1": "glacier_ice__melting_temperature_threshold",
     },
-    "G_Cfmax": {
+    "glacier_degree_day_coefficient": {
         "wflow_v0": "vertical.g_cfmax",
         "wflow_v1": "glacier_ice__degree-day_coefficient",
     },
-    "G_SIfrac": {
+    "glacier_snow_to_ice_fraction": {
         "wflow_v0": "vertical.g_sifrac",
         "wflow_v1": "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction",
     },
     # vegetation
-    "EoverR": {
+    "vegetation_gash_e_r": {
         "wflow_v0": "vertical.e_r",
         "wflow_v1": "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio",  # noqa: E501
     },
-    "Kext": {
+    "vegetation_kext": {
         "wflow_v0": "vertical.kext",
         "wflow_v1": "vegetation_canopy__light-extinction_coefficient",
     },
-    "LAI": {
+    "vegetation_leaf_area_index": {
         "wflow_v0": "vertical.leaf_area_index",
         "wflow_v1": "vegetation__leaf-area_index",
         "hydromt_name": "LAI",
     },
-    "RootingDepth": {
+    "vegetation_root_depth": {
         "wflow_v0": "vertical.rootingdepth",
         "wflow_v1": "vegetation_root__depth",
     },
-    "Sl": {
+    "vegetation_leaf_storage": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": "vegetation__specific-leaf_storage",
-        "hydromt_name": "Sl",
+        "hydromt_name": "leaf_storage",
     },
-    "Swood": {
+    "vegetation_wood_storage": {
         "wflow_v0": "vertical.storage_wood",
         "wflow_v1": "vegetation_wood_water__storage_capacity",
-        "hydromt_name": "Swood",
+        "hydromt_name": "wood_storage",
     },
-    "kc": {
+    "vegetation_crop_factor": {
         "wflow_v0": "vertical.kc",
         "wflow_v1": "vegetation__crop_factor",
     },
-    "alpha_h1": {
+    "vegetation_feddes_alpha_h1": {
         "wflow_v0": "vertical.alpha_h1",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
     },
-    "h1": {
+    "vegetation_feddes_h1": {
         "wflow_v0": "vertical.h1",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~1",
     },
-    "h2": {
+    "vegetation_feddes_h2": {
         "wflow_v0": "vertical.h2",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~2",
     },
-    "h3_high": {
+    "vegetation_feddes_h3_high": {
         "wflow_v0": "vertical.h3_high",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~3~high",
     },
-    "h3_low": {
+    "vegetation_feddes_h3_low": {
         "wflow_v0": "vertical.h3_low",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~3~low",
     },
-    "h4": {
+    "vegetation_feddes_h4": {
         "wflow_v0": "vertical.h4",
         "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~4",
     },
     # soil
-    "c": {
+    "soil_brooks_corey_c": {
         "wflow_v0": "vertical.c",
         "wflow_v1": "soil_layer_water__brooks-corey_exponent",
-        "hydromt_name": "c",
+        "hydromt_name": "soil_brooks_corey_c",
     },
-    "cf_soil": {
+    "soil_cf": {
         "wflow_v0": "vertical.cf_soil",
         "wflow_v1": "soil_surface_water__infiltration_reduction_parameter",
     },
-    "KsatVer": {
+    "soil_ksat_vertical": {
         "wflow_v0": "vertical.kv_0",
         "wflow_v1": "soil_surface_water__vertical_saturated_hydraulic_conductivity",
         "hydromt_name": "ksat_vertical",
     },
-    "kvfrac": {
+    "soil_ksat_vertical_factor": {
         "wflow_v0": "vertical.kvfrac",
         "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_factor",
     },
-    "ksathorfrac": {
+    "subsurface_ksat_horizontal_ratio": {
         "wflow_v0": "lateral.subsurface.ksathorfrac",
         "wflow_v1": "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",  # noqa: E501
     },
-    "f": {
+    "soil_f": {
         "wflow_v0": "vertical.f",
         "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
         "hydromt_name": "f",
     },
-    "InfiltCapPath": {
+    "soil_compacted_infiltration_capacity": {
         "wflow_v0": "vertical.infiltcappath",
         "wflow_v1": "soil~compacted_surface_water__infiltration_capacity",
     },
@@ -213,101 +223,101 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.infiltcapsoil",
         "wflow_v1": None,
     },
-    "thetaR": {
+    "soil_theta_r": {
         "wflow_v0": "vertical.theta_r",
         "wflow_v1": "soil_water__residual_volume_fraction",
-        "hydromt_name": "thetaR",
+        "hydromt_name": "theta_r",
     },
-    "thetaS": {
+    "soil_theta_s": {
         "wflow_v0": "vertical.theta_s",
         "wflow_v1": "soil_water__saturated_volume_fraction",
-        "hydromt_name": "thetaS",
+        "hydromt_name": "theta_s",
     },
-    "MaxLeakage": {
+    "soil_max_leakage": {
         "wflow_v0": "vertical.maxleakage",
         "wflow_v1": "soil_water_sat-zone_bottom__max_leakage_volume_flux",
     },
-    "PathFrac": {
+    "soil_compacted_fraction": {
         "wflow_v0": "vertical.pathfrac",
         "wflow_v1": "soil~compacted__area_fraction",
     },
-    "rootdistpar": {
+    "soil_rootdistpar": {
         "wflow_v0": "vertical.rootdistpar",
         "wflow_v1": "soil_root~wet__sigmoid_function_shape_parameter",
     },
-    "SoilThickness": {
+    "soil_thickness": {
         "wflow_v0": "vertical.soilthickness",
         "wflow_v1": "soil__thickness",
     },
     # land
-    "WaterFrac": {
+    "land_water_fraction": {
         "wflow_v0": "vertical.waterfrac",
         "wflow_v1": "land~water-covered__area_fraction",
     },
-    "allocation_areas": {
+    "demand_allocation_area_id": {
         "wflow_v0": "vertical.allocation.areas",
-        "wflow_v1": "land_water_allocation_area__number",
+        "wflow_v1": "land_water_allocation_area__count",
         "hydromt_name": "allocation_areas",
     },
-    "frac_sw_used": {
+    "demand_surface_water_ratio": {
         "wflow_v0": "vertical.allocation.frac_sw_used",
         "wflow_v1": "land_surface_water__withdrawal_fraction",
     },
-    "domestic_gross": {
+    "demand_domestic_gross": {
         "wflow_v0": "vertical.domestic.demand_gross",
         "wflow_v1": "land~domestic__gross_water_demand_volume_flux",
-        "hydromt_name": "dom_gross",
+        "hydromt_name": "domestic_gross",
     },
-    "domestic_net": {
+    "demand_domestic_net": {
         "wflow_v0": "vertical.domestic.demand_net",
         "wflow_v1": "land~domestic__net_water_demand_volume_flux",
-        "hydromt_name": "dom_net",
+        "hydromt_name": "domestic_net",
     },
-    "industry_gross": {
+    "demand_industry_gross": {
         "wflow_v0": "vertical.industry.demand_gross",
         "wflow_v1": "land~industry__gross_water_demand_volume_flux",
-        "hydromt_name": "ind_gross",
+        "hydromt_name": "industry_gross",
     },
-    "industry_net": {
+    "demand_industry_net": {
         "wflow_v0": "vertical.industry.demand_net",
         "wflow_v1": "land~industry__net_water_demand_volume_flux",
-        "hydromt_name": "ind_net",
+        "hydromt_name": "industry_net",
     },
-    "livestock_gross": {
+    "demand_livestock_gross": {
         "wflow_v0": "vertical.livestock.demand_gross",
         "wflow_v1": "land~livestock__gross_water_demand_volume_flux",
-        "hydromt_name": "lsk_gross",
+        "hydromt_name": "livestock_gross",
     },
-    "livestock_net": {
+    "demand_livestock_net": {
         "wflow_v0": "vertical.livestock.demand_net",
         "wflow_v1": "land~livestock__net_water_demand_volume_flux",
-        "hydromt_name": "lsk_net",
+        "hydromt_name": "livestock_net",
     },
-    "h_min": {
+    "demand_paddy_h_min": {
         "wflow_v0": "vertical.paddy.h_min",
         "wflow_v1": "land~irrigated-paddy__min_depth",
     },
-    "h_opt": {
+    "demand_paddy_h_opt": {
         "wflow_v0": "vertical.paddy.h_opt",
         "wflow_v1": "land~irrigated-paddy__optimal_depth",
     },
-    "h_max": {
+    "demand_paddy_h_max": {
         "wflow_v0": "vertical.paddy.h_max",
         "wflow_v1": "land~irrigated-paddy__max_depth",
     },
-    "paddy_irrigation_areas": {
+    "demand_paddy_irrigated_mask": {
         "wflow_v0": "vertical.paddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-paddy_area__number",
+        "wflow_v1": "land~irrigated-paddy_area__count",
     },
-    "paddy_irrigation_trigger": {
+    "demand_paddy_irrigation_trigger": {
         "wflow_v0": "vertical.paddy.irrigation_trigger",
         "wflow_v1": "land~irrigated-paddy__irrigation_trigger_flag",
     },
-    "nonpaddy_irrigation_areas": {
+    "demand_nonpaddy_irrigated_mask": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-non-paddy_area__number",
+        "wflow_v1": "land~irrigated-non-paddy_area__count",
     },
-    "nonpaddy_irrigation_trigger": {
+    "demand_nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",
         "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
     },
@@ -316,12 +326,12 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
-    "wflow_dem": {
+    "land_elevation": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",
     },
-    "Slope": {
+    "land_slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",
         "hydromt_name": "lndslp",
@@ -332,189 +342,200 @@ WFLOW_NAMES = {
         "wflow_v1": "floodplain_water__sum_of_volume-per-depth",
         "hydromt_name": "floodplain_volume",
     },
-    "hydrodem": {
+    "river_bank_elevation": {
         "wflow_v0": "lateral.river.bankfull_elevation",
         "wflow_v1": "river_bank_water__elevation",
         "hydromt_name": "hydrodem",
     },
-    "inflow": {
+    "river_inflow": {
         "wflow_v0": "lateral.river.inflow",
         "wflow_v1": "river_water_inflow~external__volume_flow_rate",
-        "hydromt_name": "inflow",
     },
-    "RiverDepth": {
+    "river_depth": {
         "wflow_v0": "lateral.river.bankfull_depth",
         "wflow_v1": "river_bank_water__depth",
         "hydromt_name": "rivdph",
     },
-    "wflow_riverlength": {
+    "river_length": {
         "wflow_v0": "lateral.river.length",
         "wflow_v1": "river__length",
         "hydromt_name": "rivlen",
     },
-    "N_River": {
+    "river_manning_n": {
         "wflow_v0": "lateral.river.n",
         "wflow_v1": "river_water_flow__manning_n_parameter",
     },
-    "RiverSlope": {
+    "river_slope": {
         "wflow_v0": "lateral.river.slope",
         "wflow_v1": "river__slope",
         "hydromt_name": "rivslp",
     },
-    "wflow_riverwidth": {
+    "river_width": {
         "wflow_v0": "lateral.river.width",
         "wflow_v1": "river__width",
         "hydromt_name": "rivwth",
     },
     # lakes
-    "LakeArea": {
+    "lake_area": {
         "wflow_v0": "lateral.river.lake.area",
         "wflow_v1": "lake_surface__area",
-        "hydromt_name": "LakeArea",
+        "hydromt_name": "lake_area",
     },
-    "LakeAvgLevel": {
+    "lake_initial_depth": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__initial_elevation",
-        "hydromt_name": "LakeAvgLevel",
+        "hydromt_name": "lake_initial_depth",
     },
-    "LakeThreshold": {
+    "lake_outflow_threshold": {
         "wflow_v0": "lateral.river.lake.threshold",
         "wflow_v1": "lake_water_flow_threshold-level__elevation",
-        "hydromt_name": "LakeThreshold",
+        "hydromt_name": "lake_outflow_threshold",
     },
-    "Lake_b": {
+    "lake_b": {
         "wflow_v0": "lateral.river.lake.b",
         "wflow_v1": "lake_water__rating_curve_coefficient",
-        "hydromt_name": "Lake_b",
+        "hydromt_name": "lake_b",
     },
-    "Lake_e": {
+    "lake_e": {
         "wflow_v0": "lateral.river.lake.e",
         "wflow_v1": "lake_water__rating_curve_exponent",
-        "hydromt_name": "Lake_e",
+        "hydromt_name": "lake_e",
     },
-    "LakeOutflowFunc": {
+    "lake_rating_curve": {
         "wflow_v0": "lateral.river.lake.outflowfunc",
         "wflow_v1": "lake_water__rating_curve_type_count",
-        "hydromt_name": "LakeOutflowFunc",
+        "hydromt_name": "lake_rating_curve",
     },
-    "LakeStorFunc": {
+    "lake_storage_curve": {
         "wflow_v0": "lateral.river.lake.storfunc",
         "wflow_v1": "lake_water__storage_curve_type_count",
-        "hydromt_name": "LakeStorFunc",
+        "hydromt_name": "lake_storage_curve",
     },
-    "LinkedLakeLocs": {
+    "lake_lower_id": {
         "wflow_v0": "lateral.river.lake.linkedlakelocs",
         "wflow_v1": "lake~lower_location__count",
-        "hydromt_name": "LinkedLakeLocs",
+        "hydromt_name": "lake_lower_id",
     },
     # reservoirs
-    "ResSimpleArea": {
+    "reservoir_area": {
         "wflow_v0": "lateral.river.reservoir.area",
         "wflow_v1": "reservoir_surface__area",
-        "hydromt_name": "ResSimpleArea",
+        "hydromt_name": "reservoir_area",
     },
-    "ResDemand": {
+    "reservoir_demand": {
         "wflow_v0": "lateral.river.reservoir.demand",
         "wflow_v1": "reservoir_water_demand~required~downstream__volume_flow_rate",
-        "hydromt_name": "ResDemand",
+        "hydromt_name": "reservoir_demand",
     },
-    "ResMaxRelease": {
+    "reservoir_max_release": {
         "wflow_v0": "lateral.river.reservoir.maxrelease",
         "wflow_v1": "reservoir_water_release-below-spillway__max_volume_flow_rate",
-        "hydromt_name": "ResMaxRelease",
+        "hydromt_name": "reservoir_max_release",
     },
-    "ResMaxVolume": {
+    "reservoir_max_volume": {
         "wflow_v0": "lateral.river.reservoir.maxvolume",
         "wflow_v1": "reservoir_water__max_volume",
-        "hydromt_name": "ResMaxVolume",
+        "hydromt_name": "reservoir_max_volume",
     },
-    "ResTargetFullFrac": {
+    "reservoir_target_full_fraction": {
         "wflow_v0": "lateral.river.reservoir.targetfullfrac",
         "wflow_v1": "reservoir_water~full-target__volume_fraction",
-        "hydromt_name": "ResTargetFullFrac",
+        "hydromt_name": "reservoir_target_full_fraction",
     },
-    "ResTargetMinFrac": {
+    "reservoir_target_min_fraction": {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
         "wflow_v1": "reservoir_water~min-target__volume_fraction",
-        "hydromt_name": "ResTargetMinFrac",
+        "hydromt_name": "reservoir_target_min_fraction",
     },
     # gwf
-    "constant_head": {
+    "altitude": {
+        "wflow_v0": "altitude",
+        "wflow_v1": "land_surface__elevation",
+    },
+    "groundwater_constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
     },
-    "conductivity_profile": {
-        "wflow_v0": "lateral.subsurface.conductivity_profile",
-        "wflow_v1": "conductivity_profile",
-    },
-    "kh_surface": {
+    "groundwater_ksat_horizontal": {
         "wflow_v0": "lateral.subsurface.conductivity",
         "wflow_v1": "subsurface_surface_water__horizontal_saturated_hydraulic_conductivity",  # noqa: E501
     },
-    "zb_river": {
+    "river_bed_elevation": {
         "wflow_v0": "lateral.subsurface.river_bottom",
         "wflow_v1": "river_bottom__elevation",
     },
-    "riverbed_cond_infilt": {
+    "river_bed_exfiltration_conductance": {
         "wflow_v0": "lateral.subsurface.infiltration_conductance",
         "wflow_v1": "river_water__infiltration_conductance",
     },
-    "riverbed_cond_exfil": {
+    "river_bed_infiltration_conductance": {
         "wflow_v0": "lateral.subsurface.exfiltration_conductance",
         "wflow_v1": "river_water__exfiltration_conductance",
     },
-    "specific_yield": {
+    "groundwater_specific_yield": {
         "wflow_v0": "lateral.subsurface.specific_yield",
         "wflow_v1": "subsurface_water__specific_yield",
     },
-    "gwf_f": {
+    "groundwater_f": {
         "wflow_v0": "lateral.subsurface.gwf_f",
         "wflow_v1": "subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
+    },
+    "drain": {
+        "wflow_v0": "lateral.subsurface.drain",
+        "wflow_v1": "land_drain_location__mask",
+    },
+    "drain_conductance": {
+        "wflow_v0": "lateral.subsurface.drain_conductance",
+        "wflow_v1": "land_drain__conductance",
+    },
+    "drain_elevation": {
+        "wflow_v0": "lateral.subsurface.drain_elevation",
+        "wflow_v1": "land_drain__elevation",
     },
 }
 
 WFLOW_STATES_NAMES = {
-    "canopystorage": {
+    "vegetation_water_depth": {
         "wflow_v0": "vertical.canopystorage",
         "wflow_v1": "vegetation_canopy_water__depth",
     },
-    "satwaterdepth": {
+    "soil_saturated_depth": {
         "wflow_v0": "vertical.satwaterdepth",
         "wflow_v1": "soil_water_sat-zone__depth",
     },
-    "ustorelayerdepth": {
+    "soil_unsaturated_depth": {
         "wflow_v0": "vertical.ustorelayerdepth",
         "wflow_v1": "soil_layer_water_unsat-zone__depth",
     },
-    "tsoil": {
+    "soil_temp": {
         "wflow_v0": "vertical.tsoil",
         "wflow_v1": "soil_surface__temperature",
     },
-    "snow": {
+    "snow_leq_depth": {
         "wflow_v0": "vertical.snow",
         "wflow_v1": "snowpack~dry__leq-depth",
     },
-    "snowwater": {
+    "snow_water_depth": {
         "wflow_v0": "vertical.snowwater",
         "wflow_v1": "snowpack~liquid__depth",
     },
-    "glacierstore": {
+    "glacier_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__leq-depth",
     },
-    "q_land": {
+    "land_instantaneous_q": {
         "wflow_v0": "lateral.land.q",
         "wflow_v1": "land_surface_water__instantaneous_volume_flow_rate",
     },
-    "qx_land": {
+    "land_instantaneous_qx": {
         "wflow_v0": "lateral.land.qx",
         "wflow_v1": "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
     },
-    "qy_land": {
+    "land_instantaneous_qy": {
         "wflow_v0": "lateral.land.qy",
         "wflow_v1": "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
     },
-    "h_land": {
+    "land_instantaneous_h": {
         "wflow_v0": "lateral.land.h",
         "wflow_v1": "land_surface_water__instantaneous_depth",
     },
@@ -522,19 +543,19 @@ WFLOW_STATES_NAMES = {
         "wflow_v0": "lateral.land.h_av",
         "wflow_v1": None,
     },
-    "head": {
+    "groundwater_head": {
         "wflow_v0": "lateral.subsurface.flow.aquifer.head",
         "wflow_v1": "subsurface_water__hydraulic_head",
     },
-    "ssf": {
+    "subsurface_q": {
         "wflow_v0": "lateral.subsurface.ssf",
         "wflow_v1": "subsurface_water__volume_flow_rate",
     },
-    "q_river": {
+    "river_instantaneous_q": {
         "wflow_v0": "lateral.river.q",
         "wflow_v1": "river_water__instantaneous_volume_flow_rate",
     },
-    "h_river": {
+    "river_instantaneous_h": {
         "wflow_v0": "lateral.river.h",
         "wflow_v1": "river_water__instantaneous_depth",
     },
@@ -542,23 +563,23 @@ WFLOW_STATES_NAMES = {
         "wflow_v0": "lateral.river.h_av",
         "wflow_v1": None,
     },
-    "q_floodplain": {
+    "floodplain_instantaneous_q": {
         "wflow_v0": "lateral.river.floodplain.q",
         "wflow_v1": "floodplain_water__instantaneous_volume_flow_rate",
     },
-    "h_floodplain": {
+    "floodplain_instantaneous_h": {
         "wflow_v0": "lateral.river.floodplain.h",
         "wflow_v1": "floodplain_water__instantaneous_depth",
     },
-    "waterlevel_lake": {
+    "lake_instantaneous_water_level": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__instantaneous_elevation",
     },
-    "volume_reservoir": {
+    "reservoir_instantaneous_volume": {
         "wflow_v0": "lateral.river.reservoir.volume",
         "wflow_v1": "reservoir_water__instantaneous_volume",
     },
-    "h_paddy": {
+    "demand_paddy_h": {
         "wflow_v0": "vertical.paddy.h",
         "wflow_v1": "land_surface_water~paddy__depth",
     },
@@ -566,37 +587,37 @@ WFLOW_STATES_NAMES = {
 
 WFLOW_SEDIMENT_NAMES = {
     # general input
-    "wflow_subcatch": {
+    "subcatchment": {
         "wflow_v0": "subcatchment",
-        "wflow_v1": "subcatchment_location__count",
+        "wflow_v1": "subbasin_location__count",
         "hydromt_name": "basins",
     },
-    "wflow_ldd": {
+    "local_drain_direction": {
         "wflow_v0": "ldd",
-        "wflow_v1": "local_drain_direction",
+        "wflow_v1": "basin__local_drain_direction",
         "hydromt_name": "flwdir",
     },
-    "wflow_lakeareas": {
+    "lake_area_id": {
         "wflow_v0": "vertical.lakeareas",
         "wflow_v1": "lake_area__count",
-        "hydromt_name": "lakeareas",
+        "hydromt_name": "lake_area_id",
     },
-    "wflow_lakelocs": {
+    "lake_outlet_id": {
         "wflow_v0": "lateral.river.lakelocs",
         "wflow_v1": "lake_location__count",
-        "hydromt_name": "lakelocs",
+        "hydromt_name": "lake_outlet_id",
     },
-    "wflow_reservoirareas": {
+    "reservoir_area_id": {
         "wflow_v0": "vertical.resareas",
         "wflow_v1": "reservoir_area__count",
-        "hydromt_name": "resareas",
+        "hydromt_name": "reservoir_area_id",
     },
-    "wflow_reservoirlocs": {
+    "reservoir_outlet_id": {
         "wflow_v0": "lateral.river.reslocs",
         "wflow_v1": "reservoir_location__count",
-        "hydromt_name": "reslocs",
+        "hydromt_name": "reservoir_outlet_id",
     },
-    "wflow_river": {
+    "river_mask": {
         "wflow_v0": "river_location",
         "wflow_v1": "river_location__mask",
         "hydromt_name": "rivmsk",
@@ -607,303 +628,305 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v1": "atmosphere_water__precipitation_volume_flux",
         "hydromt_name": "precip",
     },
-    "interception": {
+    "vegetation_interception": {
         "wflow_v0": "vertical.interception",
         "wflow_v1": "vegetation_canopy_water__interception_volume_flux",
         "hydromt_name": "interception",
     },
-    "h_land": {
+    "land_h": {
         "wflow_v0": "vertical.h_land",
         "wflow_v1": "land_surface_water__depth",
     },
-    "q_land": {
+    "land_q": {
         "wflow_v0": "vertical.q_land",
         "wflow_v1": "land_surface_water__volume_flow_rate",
     },
-    "h_river": {
+    "river_h": {
         "wflow_v0": "lateral.river.h_riv",
         "wflow_v1": "river_water__depth",
     },
-    "q_river": {
+    "river_q": {
         "wflow_v0": "lateral.river.q_riv",
         "wflow_v1": "river_water__volume_flow_rate",
     },
     # land properties
-    "Slope": {
+    "land_slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",
         "hydromt_name": "lndslp",
     },
     # river properties
-    "wflow_riverlength": {
+    "river_length": {
         "wflow_v0": "lateral.river.length",
         "wflow_v1": "river__length",
         "hydromt_name": "rivlen",
     },
-    "RiverSlope": {
+    "river_slope": {
         "wflow_v0": "lateral.river.slope",
         "wflow_v1": "river__slope",
         "hydromt_name": "rivslp",
     },
-    "wflow_riverwidth": {
+    "river_width": {
         "wflow_v0": "lateral.river.width",
         "wflow_v1": "river__width",
         "hydromt_name": "rivwth",
     },
     # waterbodies
-    "ResSimpleArea": {
+    "reservoir_area": {
         "wflow_v0": "lateral.river.resarea",
         "wflow_v1": "reservoir_surface__area",
-        "hydromt_name": "ResSimpleArea",
+        "hydromt_name": "reservoir_area",
     },
-    "LakeArea": {
+    "lake_area": {
         "wflow_v0": "lateral.river.lakearea",
         "wflow_v1": "lake_surface__area",
-        "hydromt_name": "LakeArea",
+        "hydromt_name": "lake_area",
     },
-    "ResTrapEff": {
+    "reservoir_trapping_efficiency": {
         "wflow_v0": "lateral.river.restrapeff",
-        "wflow_v1": "reservoir_sediment~bedload__trapping_efficiency_coefficient",
-        "hydromt_name": "ResTrapEff",
+        "wflow_v1": "reservoir_water_sediment~bedload__trapping_efficiency",
+        "hydromt_name": "reservoir_trapping_efficiency",
     },
     # soil erosion
-    "CanopyGapFraction": {
+    "vegetation_gap_fraction": {
         "wflow_v0": "vertical.canopygapfraction",
         "wflow_v1": "vegetation_canopy__gap_fraction",
     },
-    "CanopyHeight": {
+    "vegetation_height": {
         "wflow_v0": "vertical.canopyheight",
         "wflow_v1": "vegetation_canopy__height",
     },
-    "Kext": {
+    "vegetation_kext": {
         "wflow_v0": "vertical.kext",
         "wflow_v1": None,
     },
-    "Sl": {
+    "leaf_storage": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": None,
+        "hydromt_name": "leaf_storage",
     },
-    "Swood": {
+    "vegetation_wood_storage": {
         "wflow_v0": "vertical.storage_wood",
         "wflow_v1": None,
+        "hydromt_name": "wood_storage",
     },
-    "PathFrac": {
+    "soil_compacted_fraction": {
         "wflow_v0": "vertical.pathfrac",
         "wflow_v1": "soil~compacted__area_fraction",
     },
-    "WaterFrac": {
+    "land_water_fraction": {
         "wflow_v0": None,
         "wflow_v1": "land~water-covered__area_fraction",
     },
-    "soil_detachability": {
+    "erosion_soil_detachability": {
         "wflow_v0": "vertical.erosk",
         "wflow_v1": "soil_erosion__rainfall_soil_detachability_factor",
     },
-    "eros_spl_EUROSEM": {
+    "erosion_eurosem_exp": {
         "wflow_v0": "vertical.erosspl",
         "wflow_v1": "soil_erosion__eurosem_exponent",
     },
-    "usle_k": {
+    "erosion_usle_k": {
         "wflow_v0": "vertical.usleK",
         "wflow_v1": "soil_erosion__usle_k_factor",
-        "hydromt_name": "usle_k",  # usle_k
+        "hydromt_name": "usle_k",
     },
-    "USLE_C": {
+    "erosion_usle_c": {
         "wflow_v0": "vertical.usleC",
         "wflow_v1": "soil_erosion__usle_c_factor",
-        "hydromt_name": "USLE_C",  # usle_c
+        "hydromt_name": "usle_c",
     },
-    "eros_ov": {
+    "erosion_answers_sheet_factor": {
         "wflow_v0": "vertical.erosov",
         "wflow_v1": "soil_erosion__answers_overland_flow_factor",
     },
+    "erosion_answers_rain_factor": {
+        "wflow_v0": None,
+        "wflow_v1": "soil_erosion__answers_rainfall_factor",
+    },
     # soil particles
-    "fclay_soil": {
+    "soil_clay_fraction": {
         "wflow_v0": None,
         "wflow_v1": "soil_clay__mass_fraction",
     },
-    "fsilt_soil": {
+    "soil_silt_fraction": {
         "wflow_v0": None,
         "wflow_v1": "soil_silt__mass_fraction",
     },
-    "fsand_soil": {
+    "soil_sand_fraction": {
         "wflow_v0": None,
         "wflow_v1": "soil_sand__mass_fraction",
     },
-    "fsagg_soil": {
+    "soil_sagg_fraction": {
         "wflow_v0": None,
         "wflow_v1": "soil_aggregates~small__mass_fraction",
     },
-    "flagg_soil": {
+    "soil_lagg_fraction": {
         "wflow_v0": None,
         "wflow_v1": "soil_aggregates~large__mass_fraction",
     },
     # land transport
-    "sediment_density_land": {
-        "wflow_v0": "vertical.rhos",
-        "wflow_v1": "land_surface_sediment__particle_density",
-    },
-    "c_govers": {
+    "land_govers_c": {
         "wflow_v0": None,
         "wflow_v1": "land_surface_water_sediment__govers_transport_capacity_coefficient",  # noqa: E501
     },
-    "n_govers": {
+    "land_govers_n": {
         "wflow_v0": None,
         "wflow_v1": "land_surface_water_sediment__govers_transport_capacity_exponent",
     },
-    "d50_soil": {
+    "soil_sediment_d50": {
         "wflow_v0": None,
-        "wflow_v1": "land_surface_sediment__d50_diameter",
+        "wflow_v1": "land_surface_sediment__median_diameter",
     },
     # river transport
-    "sediment_density_river": {
+    "sediment_density": {
         "wflow_v0": "lateral.river.rhos",
-        "wflow_v1": "river_water_sediment__particle_density",
+        "wflow_v1": "sediment__particle_density",
     },
-    "D50_Engelund": {
+    "river_sediment_d50": {
         "wflow_v0": "lateral.river.d50engelund",
-        "wflow_v1": "river_sediment__d50_diameter",
+        "wflow_v1": None,
     },
-    "c_Bagnold": {
+    "river_bagnold_c": {
         "wflow_v0": "lateral.river.cbagnold",
         "wflow_v1": "river_water_sediment__bagnold_transport_capacity_coefficient",
     },
-    "exp_Bagnold": {
+    "river_bagnold_exp": {
         "wflow_v0": "lateral.river.ebagnold",
         "wflow_v1": "river_water_sediment__bagnold_transport_capacity_exponent",
     },
-    "a_kodatie": {
+    "river_kodatie_a": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_a-coefficient",
     },
-    "b_kodatie": {
+    "river_kodatie_b": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_b-coefficient",
     },
-    "c_kodatie": {
+    "river_kodatie_c": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_c-coefficient",
     },
-    "d_kodatie": {
+    "river_kodatie_d": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_d-coefficient",
     },
-    "D50_River": {
+    "river_bed_sediment_d50": {
         "wflow_v0": "lateral.river.d50",
-        "wflow_v1": "river_bottom-and-bank_sediment__d50_diameter",
+        "wflow_v1": "river_bottom-and-bank_sediment__median_diameter",
     },
-    "ClayF_River": {
+    "river_bed_clay_fraction": {
         "wflow_v0": "lateral.river.fclayriv",
         "wflow_v1": "river_bottom-and-bank_clay__mass_fraction",
     },
-    "SiltF_River": {
+    "river_bed_silt_fraction": {
         "wflow_v0": "lateral.river.fsiltriv",
         "wflow_v1": "river_bottom-and-bank_silt__mass_fraction",
     },
-    "SandF_River": {
+    "river_bed_sand_fraction": {
         "wflow_v0": "lateral.river.fsandriv",
         "wflow_v1": "river_bottom-and-bank_sand__mass_fraction",
     },
-    "GravelF_River": {
+    "river_bed_gravel_fraction": {
         "wflow_v0": "lateral.river.fgravelriv",
         "wflow_v1": "river_bottom-and-bank_gravel__mass_fraction",
     },
-    "dm_clay": {
+    "sediment_clay_dm": {
         "wflow_v0": None,
-        "wflow_v1": "clay__d50_diameter",
+        "wflow_v1": "clay__mean_diameter",
     },
-    "dm_silt": {
+    "sediment_silt_dm": {
         "wflow_v0": None,
-        "wflow_v1": "silt__d50_diameter",
+        "wflow_v1": "silt__mean_diameter",
     },
-    "dm_sand": {
+    "sediment_sand_dm": {
         "wflow_v0": None,
-        "wflow_v1": "sand__d50_diameter",
+        "wflow_v1": "sand__mean_diameter",
     },
-    "dm_sagg": {
+    "sediment_sagg_dm": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~small__d50_diameter",
+        "wflow_v1": "sediment_aggregates~small__mean_diameter",
     },
-    "dm_lagg": {
+    "sediment_lagg_dm": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~large__d50_diameter",
+        "wflow_v1": "sediment_aggregates~large__mean_diameter",
     },
-    "dm_gravel": {
+    "sediment_gravel_dm": {
         "wflow_v0": None,
-        "wflow_v1": "gravel__d50_diameter",
+        "wflow_v1": "gravel__mean_diameter",
     },
 }
 
 WFLOW_SEDIMENT_STATES_NAMES = {
-    "clayload": {
+    "river_clay_load": {
         "wflow_v0": "lateral.river.clayload",
         "wflow_v1": "river_water_clay__mass",
     },
-    "claystore": {
+    "river_bed_clay_store": {
         "wflow_v0": "lateral.river.claystore",
         "wflow_v1": "river_bed_clay__mass",
     },
-    "outclay": {
+    "river_clay_flux": {
         "wflow_v0": "lateral.river.outclay",
         "wflow_v1": "river_water_clay__mass_flow_rate",
     },
-    "gravload": {
+    "river_gravel_load": {
         "wflow_v0": "lateral.river.gravload",
         "wflow_v1": "river_water_gravel__mass",
     },
-    "gravstore": {
+    "river_bed_gravel_store": {
         "wflow_v0": "lateral.river.gravstore",
         "wflow_v1": "river_bed_gravel__mass",
     },
-    "outgrav": {
+    "river_gravel_flux": {
         "wflow_v0": "lateral.river.outgrav",
         "wflow_v1": "river_water_gravel__mass_flow_rate",
     },
-    "laggload": {
+    "river_lagg_load": {
         "wflow_v0": "lateral.river.laggload",
         "wflow_v1": "river_water_aggregates~large__mass",
     },
-    "laggstore": {
+    "river_bed_lagg_store": {
         "wflow_v0": "lateral.river.laggstore",
         "wflow_v1": "river_bed_aggregates~large__mass",
     },
-    "outlagg": {
+    "river_lagg_flux": {
         "wflow_v0": "lateral.river.outlagg",
         "wflow_v1": "river_water_aggregates~large__mass_flow_rate",
     },
-    "saggload": {
+    "river_sagg_load": {
         "wflow_v0": "lateral.river.saggload",
         "wflow_v1": "river_water_aggregates~small__mass",
     },
-    "saggstore": {
+    "river_bed_sagg_store": {
         "wflow_v0": "lateral.river.saggstore",
         "wflow_v1": "river_bed_aggregates~small__mass",
     },
-    "outsagg": {
+    "river_sagg_flux": {
         "wflow_v0": "lateral.river.outsagg",
         "wflow_v1": "river_water_aggregates~small__mass_flow_rate",
     },
-    "sandload": {
+    "river_sand_load": {
         "wflow_v0": "lateral.river.sandload",
         "wflow_v1": "river_water_sand__mass",
     },
-    "sandstore": {
+    "river_bed_sand_store": {
         "wflow_v0": "lateral.river.sandstore",
         "wflow_v1": "river_bed_sand__mass",
     },
-    "outsand": {
+    "river_sand_flux": {
         "wflow_v0": "lateral.river.outsand",
         "wflow_v1": "river_water_sand__mass_flow_rate",
     },
-    "siltload": {
+    "river_silt_load": {
         "wflow_v0": "lateral.river.siltload",
         "wflow_v1": "river_water_silt__mass",
     },
-    "siltstore": {
+    "river_bed_silt_store": {
         "wflow_v0": "lateral.river.siltstore",
         "wflow_v1": "river_bed_silt__mass",
     },
-    "outsilt": {
+    "river_silt_flux": {
         "wflow_v0": "lateral.river.outsilt",
         "wflow_v1": "river_water_silt__mass_flow_rate",
     },
@@ -1008,7 +1031,7 @@ def _create_hydromt_wflow_mapping(
 
 def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
     """
-    Create a dictionnary to convert from hydromt names to wflow sbm input names.
+    Create a dictionary to convert from hydromt names to wflow sbm input names.
 
     These names will be used in staticmaps/forcing and linked to the right wflow
     internal variables in the toml.
