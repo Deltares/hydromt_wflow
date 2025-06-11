@@ -129,6 +129,37 @@ class WflowModel(Model):
 
     # SETUP METHODS
     @hydromt_step
+    def setup_config(self, data: Dict[str, Any]):
+        """Set the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        data: Dict[str,Any]
+            A dictionary with the values to be set. keys can be dotted like in
+            :py:meth:`~hydromt_wflow.components.config.WflowConfigComponent.set`
+
+        Examples
+        --------
+        Setting data as a nested dictionary::
+
+
+            >> self.setup_config({'a': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': 1, 'b': {'c': {'d': 2}}}
+
+        Setting data using dotted notation::
+
+            >> self.setup_config({'a.d.f.g': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': {'d':{'f':{'g': 1}}}, 'b': {'c': {'d': 2}}}
+
+        """
+        if len(data) > 0:
+            logger.debug("Setting model config options.")
+        for k, v in data.items():
+            self.config.set(k, v)
+
+    @hydromt_step
     def setup_basemaps(
         self,
         region: Dict,
