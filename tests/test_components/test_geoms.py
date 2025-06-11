@@ -43,6 +43,12 @@ def mock_wflow_model():
 
 
 @pytest.fixture
+def mock_xy() -> tuple[float, float]:
+    """Mock coordinates for testing."""
+    return (12.2051, 45.8331)
+
+
+@pytest.fixture
 def mock_geometry(mock_xy) -> gpd.GeoDataFrame:
     x, y = mock_xy
     return gpd.GeoDataFrame(geometry=[box(x - 1, y - 1, x + 1, y + 1)], crs="EPSG:4326")
