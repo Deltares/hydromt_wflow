@@ -179,4 +179,4 @@ def test_config_toml_overwrite(tmpdir):
         "input.forcing.khorfrac.value",
         200,
     )
-    assert dummy_model.config.get("input.forcing.khorfrac.value") == 200
+    assert dummy_model.config.get_value("input.forcing.khorfrac.value") == 200

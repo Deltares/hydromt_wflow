@@ -5800,7 +5800,7 @@ change name input.path_forcing "
         >> get_config('b.c') # # identical to get_config('b','c')
         >> {'d': 2}
         """
-        return self.config.get(
+        return self.config.get_value(
             *args,
             fallback=fallback,
             abs_path=abs_path,

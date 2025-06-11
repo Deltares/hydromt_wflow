@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Dict, Tuple, cast
 
 import tomlkit
 from hydromt.model import Model
@@ -57,16 +57,6 @@ class WflowConfigComponent(ModelComponent):
         self._default_template_filename: Path | str | None = default_template_filename
 
         super().__init__(model=model)
-
-    def __eq__(self, other: ModelComponent):
-        """Compare components based on content."""
-        if not isinstance(other, WflowConfigComponent):
-            raise ValueError(
-                f"Can't compare {self.__class__.__name__} \
-with type {type(other).__name__}"
-            )
-        other_config = cast(WflowConfigComponent, other)
-        return self.data == other_config.data
 
     ## Private
     def _initialize(self, skip_read=False) -> None:
@@ -154,7 +144,7 @@ defaulting to {_new_path.as_posix()}"
             logger.warning("Model config has no data, skip writing.")
 
     ## Modifying methods
-    def get(
+    def get_value(
         self,
         *args,
         fallback: Any | None = None,
@@ -196,3 +186,29 @@ defaulting to {_new_path.as_posix()}"
         self._initialize()
         # Refer to utils function of set_config
         set_config(self._data, *args)
+
+    # Testing
+    def test_equal(self, other: ModelComponent) -> Tuple[bool, Dict[str, str]]:
+        """Compare components based on content.
+
+        Parameters
+        ----------
+        other : ModelComponent
+            The component to compare against.
+
+        Returns
+        -------
+        tuple[bool, Dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        eq, errors = super().test_equal(other)
+        if not eq:
+            return eq, errors
+        other_config = cast(WflowConfigComponent, other)
+
+        # for once python does the recursion for us
+        if self.data == other_config.data:
+            return True, {}
+        else:
+            return False, {"config": "Configs are not equal"}
