@@ -8,7 +8,7 @@ import math
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import geopandas as gpd
 import hydromt
@@ -26,8 +26,6 @@ from hydromt.model import Model
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
-    parse_region_bbox,
-    parse_region_geom,
 )
 
 import hydromt_wflow.utils as utils
@@ -227,12 +225,17 @@ class WflowModel(Model):
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
 
-        geom, xy, ds_org = self._parse_region(
-            region,
+        geom, xy, ds_org, scale_ratio = workflows.parse_region(
+            data_catalog=self.data_catalog,
+            region=region,
             hydrography_fn=hydrography_fn,
             resolution=res,
             basin_index_fn=basin_index_fn,
         )
+
+        # Set name based on scale_ratio
+        if not math.isclose(scale_ratio, 1):
+            self.geoms.set(geom, name="basins_highres")
 
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
@@ -6210,98 +6213,3 @@ change name input.path_forcing "
                     remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
-
-    def _parse_region(
-        self,
-        region: dict,
-        hydrography_fn: str | xr.Dataset,
-        resolution: float | int = 1 / 120.0,
-        basin_index_fn: str | xr.Dataset | None = None,
-    ) -> tuple[gpd.GeoDataFrame, Optional[np.ndarray], xr.Dataset]:
-        """Parse the region dictionary to get basin geometry and coordinates."""
-        ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
-        if ds_org is None:
-            raise ValueError(
-                f"hydrography_fn {hydrography_fn} not found in data catalog."
-            )
-
-        # Check on resolution
-        hydrography_resolution = ds_org.raster.res[0]
-        scale_ratio = resolution / hydrography_resolution
-
-        if math.isclose(scale_ratio, 1):
-            pass
-        elif scale_ratio < 0.75:
-            raise ValueError(
-                f"Model resolution {resolution} should be larger than the "
-                f"{hydrography_fn} resolution {hydrography_resolution}."
-            )
-        elif 0.75 < scale_ratio < 1.25:
-            logger.warning(
-                f"Model resolution {resolution} does not match the hydrography "
-                f"resolution {hydrography_resolution}. This might lead to unexpected "
-                f"results, using hydrography resolution instead: "
-                f"{hydrography_resolution}."
-            )
-            resolution = hydrography_resolution
-        else:
-            if ds_org.raster.crs.is_geographic:
-                if resolution > 1:  # 111 km
-                    raise ValueError(
-                        f"The model resolution {resolution} should be smaller than 1 "
-                        "degree (111km) for geographic coordinate systems. "
-                        "Make sure you provided res in degree rather than in meters."
-                    )
-
-        # get basin geometry and clip data
-        kind = next(iter(region))
-        xy = None
-        if kind in ["basin", "subbasin"]:
-            # parse_region_basin does not return xy, only geom...
-            # should be fixed in core
-            region_kwargs = _parse_region_value(
-                region.pop(kind),
-                data_catalog=self.data_catalog,
-            )
-            region_kwargs.update(region)
-            if basin_index_fn is not None:
-                bas_index = self.data_catalog.get_source(basin_index_fn)
-            else:
-                bas_index = None
-            geom, xy = get_basin_geometry(
-                ds=ds_org,
-                kind=kind,
-                basin_index=bas_index,
-                **region,
-            )
-        elif kind == "bbox":
-            logger.warning(
-                "Kind 'bbox' for the region is not recommended as it can lead "
-                "to mistakes in the catchment delineation. Use carefully."
-            )
-            geom = parse_region_bbox(region)
-        elif kind == "geom":
-            logger.warning(
-                "Kind 'geom' for the region is not recommended as it can lead "
-                "to mistakes in the catchment delineation. Use carefully."
-            )
-            geom = parse_region_geom(region)
-        else:
-            raise ValueError(
-                f"wflow region kind not understood or supported: {kind}. "
-                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
-            )
-
-        if geom is not None and geom.crs is None:
-            raise ValueError("wflow region geometry has no CRS")
-
-        # Set the basins geometry
-        logger.debug("Adding basins vector to geoms.")
-        ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
-        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
-
-        # Set name based on scale_factor
-        if not math.isclose(scale_ratio, 1):
-            self.geoms.set(geom, name="basins_highres")
-
-        return geom, xy, ds_org
