@@ -52,7 +52,11 @@ class WflowModel(Model):
     Parameters
     ----------
     root : str, optional
-        Model root, by default None
+        Model root, by default None (current working directory)
+    config_filename : str, optional
+        A path relative to the root where the configuration file will
+        be read and written if user does not provide a path themselves.
+        By default "wflow_sbm.toml"
     mode : {'r','r+','w'}, optional
         read/append/write mode, by default "w"
     data_libs : list[str] | str, optional
@@ -74,14 +78,18 @@ class WflowModel(Model):
     def __init__(
         self,
         root: str | None = None,
-        config_path: Path | str = "wflow_sbm.toml",
-        mode: str = "r",
+        config_filename: str = "wflow_sbm.toml",
+        mode: str = "w",
         data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
-        config_component = WflowConfigComponent(self, filename=str(config_path))
+        config_component = WflowConfigComponent(
+            self,
+            filename=str(config_filename),
+            default_template_filename=join(DATADIR, "wflow", "wflow_sbm.toml"),
+        )
         staticmaps_component = StaticmapsComponent(self)
         components = {
             "config": config_component,
@@ -120,6 +128,37 @@ class WflowModel(Model):
         return self.components["staticmaps"]
 
     # SETUP METHODS
+    @hydromt_step
+    def setup_config(self, data: Dict[str, Any]):
+        """Set the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        data: Dict[str,Any]
+            A dictionary with the values to be set. keys can be dotted like in
+            :py:meth:`~hydromt_wflow.components.config.WflowConfigComponent.set`
+
+        Examples
+        --------
+        Setting data as a nested dictionary::
+
+
+            >> self.setup_config({'a': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': 1, 'b': {'c': {'d': 2}}}
+
+        Setting data using dotted notation::
+
+            >> self.setup_config({'a.d.f.g': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': {'d':{'f':{'g': 1}}}, 'b': {'c': {'d': 2}}}
+
+        """
+        if len(data) > 0:
+            logger.debug("Setting model config options.")
+        for k, v in data.items():
+            self.config.set(k, v)
+
     @hydromt_step
     def setup_basemaps(
         self,
@@ -5140,7 +5179,6 @@ Run setup_soilmaps first"
 
         ds_out.to_netcdf(fn, encoding=encoding)
 
-    @hydromt_step
     def set_grid(
         self,
         data: xr.DataArray | xr.Dataset | np.ndarray,
@@ -5708,7 +5746,6 @@ change name input.path_forcing "
                 fn_out = join(self.root, "intbl", f"{name}.tbl")
                 self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
 
-    @hydromt_step
     def set_intbl(self, df, name):
         """Add intbl <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
@@ -5745,7 +5782,6 @@ change name input.path_forcing "
                 fn_out = join(self.root, f"{name}.csv")
                 self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
 
-    @hydromt_step
     def set_tables(self, df, name):
         """Add table <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
@@ -5795,7 +5831,7 @@ change name input.path_forcing "
         >> get_config('b.c') # # identical to get_config('b','c')
         >> {'d': 2}
         """
-        return self.config.get(
+        return self.config.get_value(
             *args,
             fallback=fallback,
             abs_path=abs_path,
