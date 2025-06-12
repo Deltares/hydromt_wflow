@@ -1,6 +1,6 @@
 """Wflow model components submodule."""
 
 from .config import WflowConfigComponent
-from .staticmaps import StaticmapsComponent
+from .staticmaps import WflowStaticmapsComponent
 
-__all__ = ["StaticmapsComponent", "WflowConfigComponent"]
+__all__ = ["WflowStaticmapsComponent", "WflowConfigComponent"]
