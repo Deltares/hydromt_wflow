@@ -181,7 +181,6 @@ Wflow workflows
    workflows.lai_from_lulc_mapping
    workflows.add_paddy_to_landuse
    workflows.add_planted_forest_to_landuse
-   workflows.ksathorfrac
    workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
@@ -201,6 +200,14 @@ Wflow workflows
 
 Wflow low-level methods
 =======================
+
+Input/Output methods
+---------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   utils.read_csv_results
 
 Utility methods
 ---------------

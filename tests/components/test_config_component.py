@@ -131,7 +131,7 @@ def test_wflow_config_component_read_default(
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 6
+    assert len(component.data) == 7
     assert component.data["dir_output"] == "run_default"
     assert (
         f"No config file found at {Path(tmp_path, component._filename).as_posix()} \
