@@ -255,7 +255,7 @@ build-example-model-sediment = { cmd = [
   "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "examples" }
 build-example-model-clipped = { cmd = [
-  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'wflow_streamorder': 4}", "-vv"
+  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
 ], cwd = "examples" }
 build-example-models = {depends-on = [
   "build-example-model-full",
