@@ -131,7 +131,9 @@ defaulting to {_new_path.as_posix()}"
             write_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Solve the pathing in the data
-            write_data = make_config_paths_relative(self.data, write_path.parent)
+            # Extra check for dir_input
+            rel_path = Path(write_path.parent, self.get("dir_input", fallback=""))
+            write_data = make_config_paths_relative(self.data, rel_path)
 
             # Dump the toml
             TOMLFile(write_path).write(write_data)

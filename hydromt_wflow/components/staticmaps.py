@@ -1,4 +1,4 @@
-"""Custom staticmaps component."""
+"""Staticmaps component module."""
 
 import logging
 from pathlib import Path
@@ -17,26 +17,13 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowStaticmapsComponent(GridComponent):
-    """Custom staticmaps component.
+    """Wflow staticmaps component.
 
     Inherits from the HydroMT-core GridComponent model-component.
-
-    Parameters
-    ----------
-    model : Model
-        HydroMT model instance
-    filename : str
-        The path to use for reading and writing of component data by default.
-        By default "staticmaps.nc".
-    region_component : str, optional
-        The name of the region component to use as reference
-        for this component's region. If None, the region will be set to the grid extent.
-        Note that the create method only works if the region_component is None.
-        For add_data_from_* methods, the other region_component should be
-        a reference to another grid component for correct reprojection, by default None
-    region_filename : str
-        The path to use for reading and writing of the region data by default.
-        By default "region.geojson".
+    It is used for setting, creating, writing, and reading static and cyclic data for a
+    Wflow model on a regular grid. The component data, stored in the ``data``
+    property of this class, is of the hydromt.gis.raster.RasterDataset type which
+    is an extension of xarray.Dataset for regular grid.
     """
 
     def __init__(
@@ -45,8 +32,28 @@ class WflowStaticmapsComponent(GridComponent):
         *,
         filename: str = "staticmaps.nc",
         region_component: str | None = None,
-        region_filename: str = "region.geojson",
+        region_filename: str = "geom/staticmaps_region.geojson",
     ):
+        """Initialize a WflowStaticmapsComponent.
+
+        Parameters
+        ----------
+        model : Model
+            HydroMT model instance
+        filename : str
+            The path to use for reading and writing of component data by default.
+            By default "staticmaps.nc".
+        region_component : str, optional
+            The name of the region component to use as reference for this component's
+            region. If None, the region will be set to the grid extent.
+            Note that the create method only works if the region_component is None.
+            For add_data_from_* methods, the other region_component should be
+            a reference to another grid component for correct reprojection,
+            by default None
+        region_filename : str
+            The path to use for reading and writing of the region data by default.
+            By default "geom/staticmaps_region.geojson".
+        """
         GridComponent.__init__(
             self,
             model,
@@ -66,7 +73,10 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Read staticmaps model data.
 
-        Key-word arguments are passed to :py:meth:`~hydromt.model.Model.read_nc`
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
+        Key-word arguments are passed to :py:meth:`~hydromt._io.readers._read_nc`
 
         Parameters
         ----------
@@ -112,7 +122,7 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Write staticmaps model data.
 
-        Key-word arguments are passed to :py:meth:`~hydromt.model.Model.write_nc`
+        Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
 
         Parameters
         ----------
@@ -132,6 +142,7 @@ class WflowStaticmapsComponent(GridComponent):
             p_input.as_posix(),
             gdal_compliant=True,
             rename_dims=True,
+            force_sn=False,
             **kwargs,
         )
 
@@ -150,7 +161,22 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Add data to the staticmaps.
 
-        All layers of grid must have identical spatial coordinates.
+        All layers of grid must have identical spatial coordinates. This is an inherited
+        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        available the grid will be masked to that upon setting.
+
+        The first fix is when data with a time axis is being added. Since Wflow.jl
+        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
+        the dimension name starts with "time". In this function, a check is done if a
+        time axis with that exact shape is already present in the grid object, and will
+        use that dimension (and its name) to set the data. If a time dimension does not
+        yet exist with that shape, it is created following the format
+        "time_{length_data}".
+
+        The other fix is that when the model is updated with a different number of
+        layers, this is not automatically updated correctly. With this fix, the old
+        layer dimension is removed (including all associated data), and the new data is
+        added with the correct "layer" dimension.
 
         Parameters
         ----------
@@ -207,7 +233,7 @@ class WflowStaticmapsComponent(GridComponent):
                     f"Replacing 'layer' coordinate, dropping variables \
 ({vars_to_drop}) associated with old coordinate"
                 )
-                # Use `_grid` as `grid` cannot be set
+                # Use `_data` as `data` cannot be set
                 self._data = self.data.drop_vars(vars_to_drop + ["layer"])
 
         # Determine the masking layer
@@ -215,8 +241,6 @@ class WflowStaticmapsComponent(GridComponent):
 
         # Set the data per layer
         for dvar in data.data_vars:
-            # TODO removed reading mode check, review the exact effect of this
-            # I personally couldn't see the point..
             if dvar in self._data:
                 logger.warning(f"Replacing grid map: {dvar}")
             if mask is not None:
@@ -233,9 +257,13 @@ class WflowStaticmapsComponent(GridComponent):
     @hydromt_step
     def update_names(
         self,
-        **select,
+        **rename,
     ):
         """Map the names of the data variables to new ones.
+
+        This method however does not change the new names in the config file.
+        To update config file entries, you can use it together
+        with the `WflowModel.setup_config` method.
 
         Parameters
         ----------
@@ -244,11 +272,11 @@ class WflowStaticmapsComponent(GridComponent):
             So < old-name > = < new-name >.
         """
         # Check whether they are in the maps
-        nf = []
-        for key in list(select.keys()):
+        not_found = []
+        for key in list(rename.keys()):
             if key not in self.data.data_vars:
-                nf.append(key)
-                _ = select.pop(key)
-        if len(nf) != 0:
-            logger.warning(f"Could not rename {nf}, not found in data")
-        self._data = self.data.rename(**select)
+                not_found.append(key)
+                _ = rename.pop(key)
+        if len(not_found) != 0:
+            logger.warning(f"Could not rename {not_found}, not found in data")
+        self._data = self.data.rename(**rename)
