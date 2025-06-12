@@ -6,10 +6,28 @@ import xarray as xr
 from tomlkit import TOMLDocument
 
 from hydromt_wflow.components.utils import (
+    _mount,
     _relpath,
     get_mask_layer,
     make_config_paths_relative,
 )
+
+
+def test__mount():
+    # Call the function on unix path
+    m = _mount("/d/tmp/foo")
+    # Assert the mount
+    assert m == "/d/"
+
+    # Call the function on windows path
+    m = _mount("d:/tmp/foo")
+    # Assert the mount
+    assert m == "d:/"
+
+    # Call the function on a relative path
+    m = _mount("tmp/foo")
+    # Assert that it's None
+    assert m is None
 
 
 def test__relpath_abs(tmp_path: Path):

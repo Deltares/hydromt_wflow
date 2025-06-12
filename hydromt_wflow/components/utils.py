@@ -1,5 +1,6 @@
 """Utility of the wflow components."""
 
+import re
 from os.path import relpath
 from pathlib import Path
 from typing import Any
@@ -8,23 +9,35 @@ import xarray as xr
 from tomlkit import TOMLDocument
 from tomlkit.items import Table
 
+MOUNT_PATTERN = re.compile(r"(^\/(\w+)\/|^(\w+):\/).*$")
+
 
 ## Config/ pathing related
+def _mount(
+    value: str,
+) -> str | None:
+    """Get the mount of a path."""
+    m = MOUNT_PATTERN.match(value)
+    if m is None:
+        return None
+    return m.group(1)
+
+
 def _relpath(
     value: Any,
     root: Path,
-):
+) -> str | Any:
     """Generate a relative path."""
-    if isinstance(value, str) and Path(value).is_absolute():
-        value = Path(value)
-    if isinstance(value, Path):
-        try:
+    if not isinstance(value, (Path, str)) or not Path(value).is_absolute():
+        return value
+    value = Path(value)
+    try:
+        if _mount(value.as_posix()) == _mount(root.as_posix()):
             value = Path(relpath(value, root))
-        except ValueError:
-            pass  # `value` path is not relative to root
-        finally:
-            return value.as_posix()
-    return value
+    except ValueError:
+        pass  # `value` path is not relative to root
+    finally:
+        return value.as_posix()
 
 
 def make_config_paths_relative(
