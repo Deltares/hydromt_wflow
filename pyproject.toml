@@ -58,13 +58,14 @@ docs = [
   "sphinx_autosummary_accessors",
 ]
 extra = ["gwwapi", "hydroengine", "pyet", "wradlib"]
-examples = [
-  "cartopy",
-  "jupyterlab",
-  "nbconvert",
-  "notebook",
+examples = ["cartopy", "jupyterlab", "nbconvert", "notebook"]
+test = [
+  "pytest>=2.7.3",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest-timeout",
+  "pytest-benchmark",
 ]
-test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout"]
 
 [project.entry-points."hydromt.models"]
 wflow          = "hydromt_wflow.wflow:WflowModel"
@@ -81,6 +82,8 @@ filterwarnings = [
   "ignore:The staticmaps property:DeprecationWarning",
   "ignore:The staticgeoms property:DeprecationWarning",
 ]
+# don't run benchmarks by default when testing
+addopts   = ["--benchmark-skip"]
 testpaths = ["tests"]
 
 [tool.coverage.run]
@@ -164,8 +167,8 @@ docs-html = { cmd = [
   "docs/_build",
   "-W",
 ] }
-doc = { depends-on = ["docs-html"]}
-docs = { depends-on = ["docs-html"]}
+doc = { depends-on = ["docs-html"] }
+docs = { depends-on = ["docs-html"] }
 docs-html-rebuild = { depends-on = ["clean-docs", "docs-html"] }
 serve = { cmd = [
   "python",
@@ -194,6 +197,20 @@ test-cov-local = { cmd = [
   "html",
 ] }
 
+benchmark = { cmd = ["pytest", "--benchmark-only"] }
+
+benchmark-record = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-save=v0.8.0",
+] }
+
+benchmark-compare-latest-release = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-compare",
+  "--benchmark-compare-fail=min:25%",
+] }
 # Clean up (some of) the temporary files
 clean = { depends-on = [
   "clean-bin",
@@ -227,7 +244,7 @@ hydromt_wflow = { path = ".", editable = true }
 pandoc = "*"
 
 [tool.pixi.feature.extra.dependencies]
-gdal     = ">=3.5"
+gdal = ">=3.5"
 
 # Extra python environments
 [tool.pixi.feature.py311.dependencies]
@@ -249,32 +266,88 @@ test-full-py310 = { features = ["py310", "extra", "test"] }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_full",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "wflow_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "examples" }
 build-example-model-sediment = { cmd = [
-  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
+  "hydromt",
+  "build",
+  "wflow_sediment",
+  "./wflow_test_sediment",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "wflow_sediment_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "examples" }
 build-example-model-clipped = { cmd = [
-  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
+  "hydromt",
+  "clip",
+  "wflow",
+  "wflow_piave_subbasin",
+  "./wflow_test_clip",
+  "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}",
+  "-vv",
 ], cwd = "examples" }
-build-example-models = {depends-on = [
+build-example-models = { depends-on = [
   "build-example-model-full",
   "build-example-model-sediment",
   "build-example-model-clipped",
-]}
+] }
 
 [tool.pixi.feature.test.tasks]
 build-test-model-simple = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_simple",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "../examples/wflow_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
 build-test-model-full = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_full",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "./data/wflow_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
 build-test-model-sediment = { cmd = [
-  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_sediment_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
+  "hydromt",
+  "build",
+  "wflow_sediment",
+  "./wflow_test_sediment",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "./data/wflow_sediment_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
-build-test-models = {depends-on = [
+build-test-models = { depends-on = [
   "build-test-model-simple",
   "build-test-model-full",
   "build-test-model-sediment",
-]}
+] }
