@@ -33,6 +33,7 @@ from hydromt_wflow import workflows
 from hydromt_wflow.components import (
     StaticmapsComponent,
     WflowConfigComponent,
+    WflowForcingComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
@@ -80,6 +81,7 @@ class WflowModel(Model):
         staticmaps_component = StaticmapsComponent(self)
         components = {
             "config": config_component,
+            "forcing": WflowForcingComponent(self),
             "staticmaps": staticmaps_component,
         }
 
