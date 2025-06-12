@@ -17,7 +17,7 @@ def test_wflow_staticmaps_component_init(mock_model: MagicMock):
     # Assert that the internal data is None
     assert component._data is None
 
-    # When asking for data property, it should return a tomlkit document
+    # When asking for data property, it should return a xr.Dataset
     assert isinstance(component.data, xr.Dataset)
     assert isinstance(component._data, xr.Dataset)  # Same for internal
     assert len(component.data) == 0  # Zero data vars

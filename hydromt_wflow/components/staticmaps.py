@@ -54,8 +54,7 @@ class WflowStaticmapsComponent(GridComponent):
             The path to use for reading and writing of the region data by default.
             By default "geom/staticmaps_region.geojson".
         """
-        GridComponent.__init__(
-            self,
+        super().__init__(
             model,
             filename=filename,
             region_component=region_component,
