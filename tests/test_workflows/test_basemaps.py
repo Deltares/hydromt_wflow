@@ -1,14 +1,13 @@
 import logging
-from unittest import mock
 
 import geopandas as gpd
 import numpy as np
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
+from pytest_mock import MockerFixture
 from shapely.geometry import box
 
-from hydromt_wflow import WflowModel
 from hydromt_wflow.workflows.basemaps import parse_region
 
 
@@ -16,32 +15,14 @@ class TestParseRegion:
     """Tests for the parse_region method."""
 
     @pytest.fixture
-    def mock_wflow_model(self):
-        """Mock a WflowModel instance."""
-        model = mock.MagicMock(spec=WflowModel)
-        model.data_catalog = mock.MagicMock(spec=DataCatalog)
-        model.root = mock.MagicMock()
-        model.root.is_reading_mode.return_value = False
-        model.crs = "EPSG:4326"
-
-        # Basic mock of raster dataset
-        ds = mock.MagicMock(spec=xr.Dataset)
-        mock_raster = mock.Mock()
-        mock_raster.crs.is_geographic = True
-        mock_raster.res = (1 / 120.0, 1 / 120.0)
-        mock_raster.clip_geom.return_value = ds
-        mock_raster.geometry_mask.return_value = xr.DataArray(
-            np.array([[1, 0], [0, 1]]), dims=("y", "x")
-        )
-
-        ds.raster = mock_raster
-        ds.coords = {}  # mock.coords["mask"] will be valid if dict-like
-        ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
-
-        model.data_catalog.get_rasterdataset.return_value = ds
-        model.data_catalog.get_source.return_value = "mock_basin_index"
-
-        return model
+    def mock_datacatalog(
+        self, mock_rasterdataset: xr.Dataset, mocker: MockerFixture
+    ) -> DataCatalog:
+        """Mock DataCatalog, a raster dataset with a geographic CRS and resolution."""
+        mock_data_catalog = mocker.create_autospec(DataCatalog, instance=True)
+        mock_data_catalog.get_rasterdataset.return_value = mock_rasterdataset
+        mock_data_catalog.get_source.return_value = "mock_basin_index"
+        return mock_data_catalog
 
     @pytest.fixture
     def mock_xy(self) -> tuple[float, float]:
@@ -78,15 +59,18 @@ class TestParseRegion:
         )
 
     def test_parse_region(
-        self, mock_get_basin_geometry, mock_wflow_model, mock_xy, mock_region
+        self,
+        mock_get_basin_geometry,
+        mock_datacatalog,
+        mock_xy,
+        mock_region,
     ):
         """Test the parsing of a basin region."""
         x, y = mock_xy
-        ds_org = mock_wflow_model.data_catalog.get_rasterdataset.return_value
 
         # Act
         geom, xy, ds_org, scale_ratio = parse_region(
-            data_catalog=mock_wflow_model.data_catalog,
+            data_catalog=mock_datacatalog,
             region=mock_region.copy(),
             hydrography_fn="mock_hydrography",
             # datacatalog is mocked so no need for a real file
@@ -125,7 +109,13 @@ class TestParseRegion:
         )
 
     def test_parse_regions_different_kinds(
-        self, mock_geometry, mock_region, mock_xy, mock_wflow_model, caplog, mocker
+        self,
+        mock_geometry,
+        mock_region,
+        mock_xy,
+        mock_datacatalog,
+        caplog,
+        mocker,
     ):
         """Test parsing regions of different kinds."""
         caplog.set_level(logging.WARNING)
@@ -138,7 +128,7 @@ class TestParseRegion:
         mock_parse_region_bbox.return_value = mock_geometry
 
         parsed_region = parse_region(
-            data_catalog=mock_wflow_model.data_catalog,
+            data_catalog=mock_datacatalog,
             region=bbox_region,
             hydrography_fn="test",
         )
@@ -157,7 +147,7 @@ class TestParseRegion:
         mock_parse_region_geom.return_value = mock_geometry
 
         parsed_region = parse_region(
-            mock_wflow_model.data_catalog, region=geom_region, hydrography_fn="test"
+            mock_datacatalog, region=geom_region, hydrography_fn="test"
         )
 
         assert (
@@ -167,24 +157,24 @@ class TestParseRegion:
         assert isinstance(parsed_region[0], gpd.GeoDataFrame)
         assert parsed_region[1] is None
 
-    def test_parse_region_invalid_region_kind(self, mock_wflow_model, mock_region):
+    def test_parse_region_invalid_region_kind(self, mock_datacatalog, mock_region):
         """Test that an error is raised if the region kind is not supported."""
         interbasin_region = {"interbasin": mock_region.copy()["basin"]}
         err_msg = (
             "wflow region kind not understood or supported: interbasin. "
             "Use 'basin', 'subbasin', 'bbox' or 'geom'."
         )
-        mock_raster_ds = mock_wflow_model.data_catalog.get_rasterdataset.return_value
+        mock_raster_ds = mock_datacatalog.get_rasterdataset.return_value
         mock_raster_ds.raster.crs.is_geographic = False  # reset
         with pytest.raises(ValueError, match=err_msg):
             parse_region(
-                mock_wflow_model.data_catalog,
+                mock_datacatalog,
                 interbasin_region,
                 hydrography_fn="hydrography_fn",
             )
 
     def test_parse_region_geometry_without_crs(
-        self, mock_wflow_model, mock_get_basin_geometry, mock_region
+        self, mock_datacatalog, mock_get_basin_geometry, mock_region
     ):
         """Test that an error is raised if the basin geometry has no CRS."""
         basin_geom, xy = mock_get_basin_geometry.return_value
@@ -192,7 +182,7 @@ class TestParseRegion:
         mock_get_basin_geometry.return_value = (basin_geom, xy)
         with pytest.raises(ValueError, match="wflow region geometry has no CRS"):
             parse_region(
-                mock_wflow_model.data_catalog,
+                mock_datacatalog,
                 mock_region.copy(),
                 hydrography_fn="hydrography_fn",
             )
@@ -216,14 +206,19 @@ class TestParseRegion:
         ],
     )
     def test_parse_region_scale_ratio_errors(
-        self, mock_wflow_model, mock_region, resolution, is_geographic, expected_err_msg
+        self,
+        mock_datacatalog,
+        mock_region,
+        resolution,
+        is_geographic,
+        expected_err_msg,
     ):
         """Test that an error is raised if the model resolution is not compatible with the hydrography resolution."""  # noqa: E501
-        mock_raster_ds = mock_wflow_model.data_catalog.get_rasterdataset.return_value
+        mock_raster_ds = mock_datacatalog.get_rasterdataset.return_value
         mock_raster_ds.raster.crs.is_geographic = is_geographic
         with pytest.raises(ValueError, match=expected_err_msg):
             parse_region(
-                mock_wflow_model.data_catalog,
+                mock_datacatalog,
                 region=mock_region.copy(),
                 hydrography_fn="hydrography_fn",
                 resolution=resolution,
@@ -231,7 +226,7 @@ class TestParseRegion:
 
     def test_parse_region_scale_ratio_close_to_one_no_error(
         self,
-        mock_wflow_model,
+        mock_datacatalog,
         mock_get_basin_geometry,
         mock_xy,
         mock_region,
@@ -240,12 +235,10 @@ class TestParseRegion:
         """Test that no error is raised if the model resolution is close to the hydrography resolution."""  # noqa: E501
         mock_geometry.crs = "EPSG:4326"  # restore valid CRS
         mock_get_basin_geometry.return_value = (mock_geometry, mock_xy)
-        resolution = (
-            mock_wflow_model.data_catalog.get_rasterdataset.return_value.raster.res[0]
-        )
+        resolution = mock_datacatalog.get_rasterdataset.return_value.raster.res[0]
         # Should not raise any errors or warnings
         parse_region(
-            mock_wflow_model.data_catalog,
+            mock_datacatalog,
             mock_region.copy(),
             hydrography_fn="test",
             resolution=resolution,
@@ -254,19 +247,19 @@ class TestParseRegion:
     def test_parse_region_scale_ratio_warning(
         self,
         mock_get_basin_geometry,
-        mock_wflow_model,
+        mock_datacatalog,
         mock_region,
         caplog,
     ):
         """Test that a warning is logged if the model resolution is slightly smaller than the hydrography resolution."""  # noqa: E501
         hydrography_resolution = (
-            mock_wflow_model.data_catalog.get_rasterdataset.return_value.raster.res[0]
+            mock_datacatalog.get_rasterdataset.return_value.raster.res[0]
         )
         slightly_smaller_resolution = hydrography_resolution * 0.9  # scale_ratio ~ 1.11
 
         with caplog.at_level(logging.WARNING):
             parse_region(
-                mock_wflow_model.data_catalog,
+                mock_datacatalog,
                 mock_region.copy(),
                 hydrography_fn="test",
                 resolution=slightly_smaller_resolution,

@@ -1,13 +1,9 @@
 import logging
 from pathlib import Path
-from unittest import mock
 
 import geopandas as gpd
 import hydromt
-import numpy as np
 import pytest
-import xarray as xr
-from hydromt import DataCatalog
 from shapely.geometry import box
 
 from hydromt_wflow import WflowModel
@@ -15,31 +11,11 @@ from hydromt_wflow.components import WflowGeomsComponent
 
 
 @pytest.fixture
-def mock_wflow_model():
-    model = mock.MagicMock(spec=WflowModel)
-    model.data_catalog = mock.MagicMock(spec=DataCatalog)
-    model.root = mock.MagicMock()
-    model.root.is_reading_mode.return_value = False
-    model.crs = "EPSG:4326"
-
-    # Basic mock of raster dataset
-    ds = mock.MagicMock(spec=xr.Dataset)
-    mock_raster = mock.Mock()
-    mock_raster.crs.is_geographic = True
-    mock_raster.res = (1 / 120.0, 1 / 120.0)
-    mock_raster.clip_geom.return_value = ds
-    mock_raster.geometry_mask.return_value = xr.DataArray(
-        np.array([[1, 0], [0, 1]]), dims=("y", "x")
-    )
-
-    ds.raster = mock_raster
-    ds.coords = {}  # mock.coords["mask"] will be valid if dict-like
-    ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
-
-    model.data_catalog.get_rasterdataset.return_value = ds
-    model.data_catalog.get_source.return_value = "mock_basin_index"
-
-    return model
+def mock_wflow_model(
+    mock_model: WflowModel, mock_rasterdataset: hydromt.DataCatalog
+) -> WflowModel:
+    mock_model.data_catalog.get_rasterdataset.return_value = mock_rasterdataset
+    return mock_model
 
 
 @pytest.fixture
