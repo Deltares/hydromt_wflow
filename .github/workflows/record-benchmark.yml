@@ -1,0 +1,42 @@
+name: Record new benchmark
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    defaults:
+      run:
+        shell: bash -l {0}
+    env:
+      branch_name: ${{ github.head_ref || github.ref_name }}
+
+    name: Record benchmark
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pixi env
+        uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: "v0.45.0"
+          environments: test-full-py${{ matrix.python-version }}
+          locked: false
+          cache: true
+
+      - name: Tests
+        run: |
+            pixi run -e test-full-py${{ matrix.python-version }} benchmark-record
+
+            git pull # make sure git doesn't reject our push because of unknown refs
+            git checkout -b "chore/record-benchmark"
+            git config user.name "GitHub Actions Bot"
+            git config user.email "<>"
+            git add .benchmark
+            git commit -m "record benchmark"
+            git push --set-upstream origin "chore/record-benchmark"
+
+            gh pr create -B "main" -H "chore/record-benchmark" -t "Record new benchmark" -b "This is an automated PR to add benchmark timings"

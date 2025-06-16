@@ -235,10 +235,10 @@ benchmark = { cmd = ["pytest", "--benchmark-only"] }
 benchmark-record = { cmd = [
   "pytest",
   "--benchmark-only",
-  "--benchmark-save=v0.8.0",
+  "--benchmark-autosave",
 ] }
 
-benchmark-compare-latest-release = { cmd = [
+benchmark-compare = { cmd = [
   "pytest",
   "--benchmark-only",
   "--benchmark-compare",
