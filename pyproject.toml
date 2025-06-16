@@ -205,26 +205,6 @@ serve = { cmd = [
   "docs/_build/html",
 ] }
 
-# Testing
-[tool.pixi.feature.test.tasks]
-test = { cmd = ["pytest"] }
-test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
-test-cov = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov=hydromt_wflow",
-  "--cov-report",
-  "xml",
-] }
-test-cov-local = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov",
-  "--cov-report",
-  "html",
-] }
-
-
 ## Dependencies
 [tool.pixi.dependencies]
 h5py     = "*"
@@ -275,7 +255,24 @@ build-example-models = {depends-on = [
   "build-example-model-clipped",
 ]}
 
+# Testing
 [tool.pixi.feature.test.tasks]
+test = { cmd = ["pytest"] }
+test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
+test-cov = { cmd = [
+  "pytest",
+  "--verbose",
+  "--cov=hydromt_wflow",
+  "--cov-report",
+  "xml",
+] }
+test-cov-local = { cmd = [
+  "pytest",
+  "--verbose",
+  "--cov",
+  "--cov-report",
+  "html",
+] }
 build-test-model-simple = { cmd = [
   "hydromt", "build", "wflow", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "tests" }
