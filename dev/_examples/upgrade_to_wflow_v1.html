@@ -1,0 +1,1688 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Upgrade your model to Wflow.jl version 1 &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_examples/upgrade_to_wflow_v1';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API reference" href="../api.html" />
+    <link rel="prev" title="Plot Wflow results" href="plot_wflow_results.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.1.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_model.html">Example: Build Wflow model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_update.html">Updating a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_clip.html">Clipping a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/sediment_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/process_analyze.html">Pre and postprocessing and visualization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Example: Upgrade to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide/intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/process_analyze.html" class="nav-link">Pre and postprocessing and visualization</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Upgrade your model to Wflow.jl version 1</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<div>
+    For an interactive online version click here:
+    <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/upgrade_to_wflow_v1.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
+</div></div>
+<section id="Upgrade-your-model-to-Wflow.jl-version-1">
+<h1>Upgrade your model to Wflow.jl version 1<a class="headerlink" href="#Upgrade-your-model-to-Wflow.jl-version-1" title="Link to this heading">#</a></h1>
+<p>To ease the process of upgrading your Wflow.jl model to version 1+, HydroMT includes an upgrade function that helps you convert your model very easily: <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code>.</p>
+<p>For sbm type of models, the main difference between Wflow version 0.8.1 and less or Wflow version 1.0.0 and more is that the TOML file structure was updated into new sections and standard names are used to link to internal variable names in the code. For example <em>lateral.river.q_av</em> is now *river_water__volume_flow_rate*.</p>
+<p>For sediment type of models, apart from the difference in the TOML file, estimation of some of the parameters has been moved outside of the Wflow.jl code and into HydroMT-Wflow. This allows the user to more easily adjust values of these parameters if they have local data or calibrate some parameters more easily.</p>
+<p>The <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">upgrade_to_v1_wflow</a> function directly convert the TOML file to v1 format and in the case of <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">wflow_sediment</a> also calls again <code class="docutils literal notranslate"><span class="pre">setup_soilmaps</span></code> and <code class="docutils literal notranslate"><span class="pre">setup_riverbedsed</span></code> functions to create the new required parameters.</p>
+<p>Let’s see how you can use this function.</p>
+<section id="Upgrading-a-Wflow-SBM-model">
+<h2>Upgrading a Wflow SBM model<a class="headerlink" href="#Upgrading-a-Wflow-SBM-model" title="Link to this heading">#</a></h2>
+<p>We can call the <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code> function using the <code class="docutils literal notranslate"><span class="pre">update</span></code> CLI of HydroMT. Here is the configuration file that we will use:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_v1_sbm.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+global:
+  config_fn: wflow_sbm_v0x.toml
+
+upgrade_to_v1_wflow:
+
+write_config:
+  config_name: wflow_sbm_v1.toml
+
+</pre></div></div>
+</div>
+<p>In this config, we start by setting the name of the TOML file of the version 0x model (if different than <em>wflow_sbm.toml</em>), call the <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code> method, and then save the updated TOML file into a new <em>wflow_sbm_v1.toml</em> file.</p>
+<p>Note that if you use the standard <em>wflow_sbm.toml</em> name and do not mind it being overwritten, the above example can be reduced into only calling <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code>.</p>
+<p>Let’s now call HydroMT update to update our old config (in this case we do not need a data catalog):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span><span class="s2">&quot;./data/wflow_upgrade/sbm&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_update_v1_sbm.yml<span class="w"> </span>-vvv
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-06-16 09:56:44,098 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/hydromt.log.
+2025-06-16 09:56:44,098 - update - log - INFO - HydroMT version: 0.10.1
+2025-06-16 09:56:44,098 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm (r+).
+2025-06-16 09:56:44,098 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
+2025-06-16 09:56:44,098 - update - main - INFO - User settings:
+2025-06-16 09:56:44,125 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.8.1.dev0).
+2025-06-16 09:56:44,125 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-06-16 09:56:44,137 - update - wflow - INFO - Supported Wflow.jl version v1+
+2025-06-16 09:56:44,156 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
+2025-06-16 09:56:44,177 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
+2025-06-16 09:56:44,177 - update - wflow - INFO - Reading model table files.
+2025-06-16 09:56:44,178 - update - wflow - INFO - Model read
+2025-06-16 09:56:44,178 - update - utils - INFO - Converting config to Wflow v1 format
+2025-06-16 09:56:44,178 - update - utils - INFO - Converting config general, time and model sections
+2025-06-16 09:56:44,179 - update - utils - INFO - Converting config state section
+2025-06-16 09:56:44,184 - update - utils - INFO - Converting config input section
+key: subcatchment, variables: {&#39;wflow_v0&#39;: &#39;subcatchment&#39;, &#39;wflow_v1&#39;: &#39;subbasin_location__count&#39;, &#39;hydromt_name&#39;: &#39;basins&#39;}
+key: local_drain_direction, variables: {&#39;wflow_v0&#39;: &#39;ldd&#39;, &#39;wflow_v1&#39;: &#39;basin__local_drain_direction&#39;, &#39;hydromt_name&#39;: &#39;flwdir&#39;}
+key: lake_area_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.areas&#39;, &#39;wflow_v1&#39;: &#39;lake_area__count&#39;, &#39;hydromt_name&#39;: &#39;lake_area_id&#39;}
+key: lake_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.locs&#39;, &#39;wflow_v1&#39;: &#39;lake_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_outlet_id&#39;}
+key: reservoir_area_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.areas&#39;, &#39;wflow_v1&#39;: &#39;reservoir_area__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area_id&#39;}
+key: reservoir_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.locs&#39;, &#39;wflow_v1&#39;: &#39;reservoir_location__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_outlet_id&#39;}
+key: river_mask, variables: {&#39;wflow_v0&#39;: &#39;river_location&#39;, &#39;wflow_v1&#39;: &#39;river_location__mask&#39;, &#39;hydromt_name&#39;: &#39;rivmsk&#39;}
+key: pits, variables: {&#39;wflow_v0&#39;: &#39;pits&#39;, &#39;wflow_v1&#39;: &#39;basin_pit_location__mask &#39;}
+key: precip, variables: {&#39;wflow_v0&#39;: &#39;vertical.precipitation&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_water__precipitation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;precip&#39;}
+key: temp, variables: {&#39;wflow_v0&#39;: &#39;vertical.temperature&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__temperature&#39;, &#39;hydromt_name&#39;: &#39;temp&#39;}
+key: pet, variables: {&#39;wflow_v0&#39;: &#39;vertical.potential_evaporation&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__potential_evaporation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;pet&#39;}
+key: snow_degree_day_coefficient, variables: {&#39;wflow_v0&#39;: &#39;vertical.cfmax&#39;, &#39;wflow_v1&#39;: &#39;snowpack__degree-day_coefficient&#39;}
+key: snow_tt, variables: {&#39;wflow_v0&#39;: &#39;vertical.tt&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__snowfall_temperature_threshold&#39;}
+key: snow_tti, variables: {&#39;wflow_v0&#39;: &#39;vertical.tti&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__snowfall_temperature_interval&#39;}
+key: snow_ttm, variables: {&#39;wflow_v0&#39;: &#39;vertical.ttm&#39;, &#39;wflow_v1&#39;: &#39;snowpack__melting_temperature_threshold&#39;}
+key: snow_whc, variables: {&#39;wflow_v0&#39;: &#39;vertical.water_holding_capacity&#39;, &#39;wflow_v1&#39;: &#39;snowpack__liquid_water_holding_capacity&#39;}
+key: glacier_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.glacierfrac&#39;, &#39;wflow_v1&#39;: &#39;glacier_surface__area_fraction&#39;, &#39;hydromt_name&#39;: &#39;glacfracs&#39;}
+key: glacier_initial_leq_depth, variables: {&#39;wflow_v0&#39;: &#39;vertical.glacierstore&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__initial_leq-depth&#39;, &#39;hydromt_name&#39;: &#39;glacstore&#39;}
+key: glacier_ttm, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_ttm&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__melting_temperature_threshold&#39;}
+key: glacier_degree_day_coefficient, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_cfmax&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__degree-day_coefficient&#39;}
+key: glacier_snow_to_ice_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_sifrac&#39;, &#39;wflow_v1&#39;: &#39;glacier_firn_accumulation__snowpack~dry_leq-depth_fraction&#39;}
+key: vegetation_gash_e_r, variables: {&#39;wflow_v0&#39;: &#39;vertical.e_r&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio&#39;}
+key: vegetation_kext, variables: {&#39;wflow_v0&#39;: &#39;vertical.kext&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__light-extinction_coefficient&#39;}
+key: vegetation_leaf_area_index, variables: {&#39;wflow_v0&#39;: &#39;vertical.leaf_area_index&#39;, &#39;wflow_v1&#39;: &#39;vegetation__leaf-area_index&#39;, &#39;hydromt_name&#39;: &#39;LAI&#39;}
+key: vegetation_root_depth, variables: {&#39;wflow_v0&#39;: &#39;vertical.rootingdepth&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__depth&#39;}
+key: vegetation_leaf_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.specific_leaf&#39;, &#39;wflow_v1&#39;: &#39;vegetation__specific-leaf_storage&#39;, &#39;hydromt_name&#39;: &#39;leaf_storage&#39;}
+key: vegetation_wood_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.storage_wood&#39;, &#39;wflow_v1&#39;: &#39;vegetation_wood_water__storage_capacity&#39;, &#39;hydromt_name&#39;: &#39;wood_storage&#39;}
+key: vegetation_crop_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.kc&#39;, &#39;wflow_v1&#39;: &#39;vegetation__crop_factor&#39;}
+key: vegetation_feddes_alpha_h1, variables: {&#39;wflow_v0&#39;: &#39;vertical.alpha_h1&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&#39;}
+key: vegetation_feddes_h1, variables: {&#39;wflow_v0&#39;: &#39;vertical.h1&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1&#39;}
+key: vegetation_feddes_h2, variables: {&#39;wflow_v0&#39;: &#39;vertical.h2&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~2&#39;}
+key: vegetation_feddes_h3_high, variables: {&#39;wflow_v0&#39;: &#39;vertical.h3_high&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~high&#39;}
+key: vegetation_feddes_h3_low, variables: {&#39;wflow_v0&#39;: &#39;vertical.h3_low&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~low&#39;}
+key: vegetation_feddes_h4, variables: {&#39;wflow_v0&#39;: &#39;vertical.h4&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~4&#39;}
+key: soil_brooks_corey_c, variables: {&#39;wflow_v0&#39;: &#39;vertical.c&#39;, &#39;wflow_v1&#39;: &#39;soil_layer_water__brooks-corey_exponent&#39;, &#39;hydromt_name&#39;: &#39;soil_brooks_corey_c&#39;}
+key: soil_cf, variables: {&#39;wflow_v0&#39;: &#39;vertical.cf_soil&#39;, &#39;wflow_v1&#39;: &#39;soil_surface_water__infiltration_reduction_parameter&#39;}
+key: soil_ksat_vertical, variables: {&#39;wflow_v0&#39;: &#39;vertical.kv_0&#39;, &#39;wflow_v1&#39;: &#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;, &#39;hydromt_name&#39;: &#39;ksat_vertical&#39;}
+key: soil_ksat_vertical_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.kvfrac&#39;, &#39;wflow_v1&#39;: &#39;soil_water__vertical_saturated_hydraulic_conductivity_factor&#39;}
+key: subsurface_ksat_horizontal_ratio, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.ksathorfrac&#39;, &#39;wflow_v1&#39;: &#39;subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio&#39;}
+key: soil_f, variables: {&#39;wflow_v0&#39;: &#39;vertical.f&#39;, &#39;wflow_v1&#39;: &#39;soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter&#39;, &#39;hydromt_name&#39;: &#39;f&#39;}
+key: soil_compacted_infiltration_capacity, variables: {&#39;wflow_v0&#39;: &#39;vertical.infiltcappath&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted_surface_water__infiltration_capacity&#39;}
+key: InfiltCapSoil, variables: {&#39;wflow_v0&#39;: &#39;vertical.infiltcapsoil&#39;, &#39;wflow_v1&#39;: None}
+key: soil_theta_r, variables: {&#39;wflow_v0&#39;: &#39;vertical.theta_r&#39;, &#39;wflow_v1&#39;: &#39;soil_water__residual_volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;theta_r&#39;}
+key: soil_theta_s, variables: {&#39;wflow_v0&#39;: &#39;vertical.theta_s&#39;, &#39;wflow_v1&#39;: &#39;soil_water__saturated_volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;theta_s&#39;}
+key: soil_max_leakage, variables: {&#39;wflow_v0&#39;: &#39;vertical.maxleakage&#39;, &#39;wflow_v1&#39;: &#39;soil_water_sat-zone_bottom__max_leakage_volume_flux&#39;}
+key: soil_compacted_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.pathfrac&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted__area_fraction&#39;}
+key: soil_rootdistpar, variables: {&#39;wflow_v0&#39;: &#39;vertical.rootdistpar&#39;, &#39;wflow_v1&#39;: &#39;soil_root~wet__sigmoid_function_shape_parameter&#39;}
+key: soil_thickness, variables: {&#39;wflow_v0&#39;: &#39;vertical.soilthickness&#39;, &#39;wflow_v1&#39;: &#39;soil__thickness&#39;}
+key: land_water_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.waterfrac&#39;, &#39;wflow_v1&#39;: &#39;land~water-covered__area_fraction&#39;}
+key: demand_allocation_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.allocation.areas&#39;, &#39;wflow_v1&#39;: &#39;land_water_allocation_area__count&#39;, &#39;hydromt_name&#39;: &#39;allocation_areas&#39;}
+key: demand_surface_water_ratio, variables: {&#39;wflow_v0&#39;: &#39;vertical.allocation.frac_sw_used&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__withdrawal_fraction&#39;}
+key: demand_domestic_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.domestic.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~domestic__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;domestic_gross&#39;}
+key: demand_domestic_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.domestic.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~domestic__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;domestic_net&#39;}
+key: demand_industry_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.industry.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~industry__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;industry_gross&#39;}
+key: demand_industry_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.industry.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~industry__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;industry_net&#39;}
+key: demand_livestock_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.livestock.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~livestock__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;livestock_gross&#39;}
+key: demand_livestock_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.livestock.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~livestock__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;livestock_net&#39;}
+key: demand_paddy_h_min, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_min&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__min_depth&#39;}
+key: demand_paddy_h_opt, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_opt&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__optimal_depth&#39;}
+key: demand_paddy_h_max, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_max&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__max_depth&#39;}
+key: demand_paddy_irrigated_mask, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.irrigation_areas&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy_area__count&#39;}
+key: demand_paddy_irrigation_trigger, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.irrigation_trigger&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__irrigation_trigger_flag&#39;}
+key: demand_nonpaddy_irrigated_mask, variables: {&#39;wflow_v0&#39;: &#39;vertical.nonpaddy.irrigation_areas&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-non-paddy_area__count&#39;}
+key: demand_nonpaddy_irrigation_trigger, variables: {&#39;wflow_v0&#39;: &#39;vertical.nonpaddy.irrigation_trigger&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-non-paddy__irrigation_trigger_flag&#39;}
+key: N, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.n&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water_flow__manning_n_parameter&#39;}
+key: land_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.elevation&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water_flow__ground_elevation&#39;, &#39;hydromt_name&#39;: &#39;elevtn&#39;}
+key: land_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.slope&#39;, &#39;wflow_v1&#39;: &#39;land_surface__slope&#39;, &#39;hydromt_name&#39;: &#39;lndslp&#39;}
+key: floodplain_volume, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.floodplain.volume&#39;, &#39;wflow_v1&#39;: &#39;floodplain_water__sum_of_volume-per-depth&#39;, &#39;hydromt_name&#39;: &#39;floodplain_volume&#39;}
+key: river_bank_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.bankfull_elevation&#39;, &#39;wflow_v1&#39;: &#39;river_bank_water__elevation&#39;, &#39;hydromt_name&#39;: &#39;hydrodem&#39;}
+key: river_inflow, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.inflow&#39;, &#39;wflow_v1&#39;: &#39;river_water_inflow~external__volume_flow_rate&#39;}
+key: river_depth, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.bankfull_depth&#39;, &#39;wflow_v1&#39;: &#39;river_bank_water__depth&#39;, &#39;hydromt_name&#39;: &#39;rivdph&#39;}
+key: river_length, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.length&#39;, &#39;wflow_v1&#39;: &#39;river__length&#39;, &#39;hydromt_name&#39;: &#39;rivlen&#39;}
+key: river_manning_n, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.n&#39;, &#39;wflow_v1&#39;: &#39;river_water_flow__manning_n_parameter&#39;}
+key: river_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.slope&#39;, &#39;wflow_v1&#39;: &#39;river__slope&#39;, &#39;hydromt_name&#39;: &#39;rivslp&#39;}
+key: river_width, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.width&#39;, &#39;wflow_v1&#39;: &#39;river__width&#39;, &#39;hydromt_name&#39;: &#39;rivwth&#39;}
+key: lake_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.area&#39;, &#39;wflow_v1&#39;: &#39;lake_surface__area&#39;, &#39;hydromt_name&#39;: &#39;lake_area&#39;}
+key: lake_initial_depth, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.waterlevel&#39;, &#39;wflow_v1&#39;: &#39;lake_water_surface__initial_elevation&#39;, &#39;hydromt_name&#39;: &#39;lake_initial_depth&#39;}
+key: lake_outflow_threshold, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.threshold&#39;, &#39;wflow_v1&#39;: &#39;lake_water_flow_threshold-level__elevation&#39;, &#39;hydromt_name&#39;: &#39;lake_outflow_threshold&#39;}
+key: lake_b, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.b&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_coefficient&#39;, &#39;hydromt_name&#39;: &#39;lake_b&#39;}
+key: lake_e, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.e&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_exponent&#39;, &#39;hydromt_name&#39;: &#39;lake_e&#39;}
+key: lake_rating_curve, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.outflowfunc&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_type_count&#39;, &#39;hydromt_name&#39;: &#39;lake_rating_curve&#39;}
+key: lake_storage_curve, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.storfunc&#39;, &#39;wflow_v1&#39;: &#39;lake_water__storage_curve_type_count&#39;, &#39;hydromt_name&#39;: &#39;lake_storage_curve&#39;}
+key: lake_lower_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.linkedlakelocs&#39;, &#39;wflow_v1&#39;: &#39;lake~lower_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_lower_id&#39;}
+key: reservoir_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.area&#39;, &#39;wflow_v1&#39;: &#39;reservoir_surface__area&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area&#39;}
+key: reservoir_demand, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.demand&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_demand~required~downstream__volume_flow_rate&#39;, &#39;hydromt_name&#39;: &#39;reservoir_demand&#39;}
+key: reservoir_max_release, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.maxrelease&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_release-below-spillway__max_volume_flow_rate&#39;, &#39;hydromt_name&#39;: &#39;reservoir_max_release&#39;}
+key: reservoir_max_volume, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.maxvolume&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water__max_volume&#39;, &#39;hydromt_name&#39;: &#39;reservoir_max_volume&#39;}
+key: reservoir_target_full_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.targetfullfrac&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water~full-target__volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;reservoir_target_full_fraction&#39;}
+key: reservoir_target_min_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.targetminfrac&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water~min-target__volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;reservoir_target_min_fraction&#39;}
+key: altitude, variables: {&#39;wflow_v0&#39;: &#39;altitude&#39;, &#39;wflow_v1&#39;: &#39;land_surface__elevation&#39;}
+key: groundwater_constant_head, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.constant_head&#39;, &#39;wflow_v1&#39;: &#39;model_boundary_condition~constant_hydraulic_head&#39;}
+key: groundwater_ksat_horizontal, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.conductivity&#39;, &#39;wflow_v1&#39;: &#39;subsurface_surface_water__horizontal_saturated_hydraulic_conductivity&#39;}
+key: river_bed_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.river_bottom&#39;, &#39;wflow_v1&#39;: &#39;river_bottom__elevation&#39;}
+key: river_bed_exfiltration_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.infiltration_conductance&#39;, &#39;wflow_v1&#39;: &#39;river_water__infiltration_conductance&#39;}
+key: river_bed_infiltration_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.exfiltration_conductance&#39;, &#39;wflow_v1&#39;: &#39;river_water__exfiltration_conductance&#39;}
+key: groundwater_specific_yield, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.specific_yield&#39;, &#39;wflow_v1&#39;: &#39;subsurface_water__specific_yield&#39;}
+key: groundwater_f, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.gwf_f&#39;, &#39;wflow_v1&#39;: &#39;subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter&#39;}
+key: drain, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain&#39;, &#39;wflow_v1&#39;: &#39;land_drain_location__mask&#39;}
+key: drain_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain_conductance&#39;, &#39;wflow_v1&#39;: &#39;land_drain__conductance&#39;}
+key: drain_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain_elevation&#39;, &#39;wflow_v1&#39;: &#39;land_drain__elevation&#39;}
+2025-06-16 09:56:44,208 - update - utils - INFO - Converting config output sections
+2025-06-16 09:56:44,226 - update - model_api - INFO - write_config.config_name: wflow_sbm_v1.toml
+2025-06-16 09:56:44,226 - update - model_api - INFO - write_config.config_root: None
+2025-06-16 09:56:44,226 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v1.toml
+</pre></div></div>
+</div>
+<p>And let’s see the results. Here is what our old TOML file looked like:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toml_v0x</span> <span class="o">=</span> <span class="s2">&quot;./data/wflow_upgrade/sbm/wflow_sbm_v0x.toml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_v0x</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+casename = &#34;wflow_sbm&#34;
+calendar = &#34;proleptic_gregorian&#34;
+starttime = &#34;2010-02-02T00:00:00&#34;
+endtime = &#34;2010-02-10T00:00:00&#34;
+time_units = &#34;days since 1900-01-01 00:00:00&#34;
+timestepsecs = 86400
+dir_output = &#34;run_default&#34;
+
+
+[state]
+path_input = &#34;instate/instates.nc&#34;
+path_output = &#34;outstate/outstates.nc&#34;
+
+[input]
+path_forcing = &#34;inmaps.nc&#34;
+path_static = &#34;staticmaps.nc&#34;
+gauges = &#34;wflow_gauges&#34;
+ldd = &#34;wflow_ldd&#34;
+river_location = &#34;wflow_river&#34;
+subcatchment = &#34;wflow_subcatch&#34;
+forcing = [ &#34;vertical.precipitation&#34;, &#34;vertical.temperature&#34;, &#34;vertical.potential_evaporation&#34;,]
+cyclic = [ &#34;vertical.leaf_area_index&#34;,]
+gauges_grdc = &#34;wflow_gauges_grdc&#34;
+
+[model]
+type = &#34;sbm&#34;
+masswasting = true
+snow = true
+reinit = true
+reservoirs = true
+lakes = true
+glacier = true
+kin_wave_iteration = true
+kw_river_tstep = 900
+kw_land_tstep = 3600
+thicknesslayers = [ 100, 300, 800,]
+
+[state.vertical]
+satwaterdepth = &#34;satwaterdepth&#34;
+snow = &#34;snow&#34;
+tsoil = &#34;tsoil&#34;
+ustorelayerdepth = &#34;ustorelayerdepth&#34;
+snowwater = &#34;snowwater&#34;
+canopystorage = &#34;canopystorage&#34;
+glacierstore = &#34;glacierstore&#34;
+
+[input.vertical]
+alpha_h1 = &#34;alpha_h1&#34;
+altitude = &#34;wflow_dem&#34;
+c = &#34;c&#34;
+cf_soil = &#34;cf_soil&#34;
+cfmax = &#34;Cfmax&#34;
+e_r = &#34;EoverR&#34;
+f = &#34;f&#34;
+infiltcappath = &#34;InfiltCapPath&#34;
+infiltcapsoil = &#34;InfiltCapSoil&#34;
+kext = &#34;Kext&#34;
+kv_0 = &#34;KsatVer&#34;
+leaf_area_index = &#34;LAI&#34;
+m = &#34;M_&#34;
+maxleakage = &#34;MaxLeakage&#34;
+pathfrac = &#34;PathFrac&#34;
+potential_evaporation = &#34;pet&#34;
+precipitation = &#34;precip&#34;
+rootdistpar = &#34;rootdistpar&#34;
+rootingdepth = &#34;RootingDepth&#34;
+soilminthickness = &#34;SoilMinThickness&#34;
+soilthickness = &#34;SoilThickness&#34;
+specific_leaf = &#34;Sl&#34;
+storage_wood = &#34;Swood&#34;
+temperature = &#34;temp&#34;
+tt = &#34;TT&#34;
+tti = &#34;TTI&#34;
+ttm = &#34;TTM&#34;
+water_holding_capacity = &#34;WHC&#34;
+waterfrac = &#34;WaterFrac&#34;
+theta_s = &#34;thetaS&#34;
+theta_r = &#34;thetaR&#34;
+glacierstore = &#34;wflow_glacierstore&#34;
+glacierfrac = &#34;wflow_glacierfrac&#34;
+g_cfmax = &#34;G_Cfmax&#34;
+g_ttm = &#34;G_TTM&#34;
+g_sifrac = &#34;G_SIfrac&#34;
+
+[state.lateral.river]
+q = &#34;q_river&#34;
+h = &#34;h_river&#34;
+h_av = &#34;h_av_river&#34;
+
+[state.lateral.subsurface]
+ssf = &#34;ssf&#34;
+
+[state.lateral.land]
+q = &#34;q_land&#34;
+h = &#34;h_land&#34;
+h_av = &#34;h_av_land&#34;
+
+[input.lateral.river]
+length = &#34;wflow_riverlength&#34;
+n = &#34;N_River&#34;
+slope = &#34;RiverSlope&#34;
+width = &#34;wflow_riverwidth&#34;
+bankfull_depth = &#34;RiverDepth&#34;
+
+[input.lateral.subsurface]
+ksathorfrac = &#34;KsatHorFrac&#34;
+
+[input.lateral.land]
+n = &#34;N&#34;
+slope = &#34;Slope&#34;
+
+[state.lateral.river.reservoir]
+volume = &#34;volume_reservoir&#34;
+
+[state.lateral.river.lake]
+waterlevel = &#34;waterlevel_lake&#34;
+
+[input.lateral.river.reservoir]
+area = &#34;ResSimpleArea&#34;
+areas = &#34;wflow_reservoirareas&#34;
+demand = &#34;ResDemand&#34;
+locs = &#34;wflow_reservoirlocs&#34;
+maxrelease = &#34;ResMaxRelease&#34;
+maxvolume = &#34;ResMaxVolume&#34;
+targetfullfrac = &#34;ResTargetFullFrac&#34;
+targetminfrac = &#34;ResTargetMinFrac&#34;
+
+[input.lateral.river.lake]
+area = &#34;LakeArea&#34;
+areas = &#34;wflow_lakeareas&#34;
+b = &#34;Lake_b&#34;
+e = &#34;Lake_e&#34;
+locs = &#34;wflow_lakelocs&#34;
+outflowfunc = &#34;LakeOutflowFunc&#34;
+storfunc = &#34;LakeStorFunc&#34;
+threshold = &#34;LakeThreshold&#34;
+linkedlakelocs = &#34;LinkedLakeLocs&#34;
+waterlevel = &#34;LakeAvgLevel&#34;
+
+[output]
+path = &#34;output.nc&#34;
+
+[output.lateral.river]
+q_av = &#34;q_river&#34;
+
+[output.lateral.land]
+h = &#34;h_land&#34;
+
+[netcdf]
+path = &#34;output_scalar.nc&#34;
+
+[[netcdf.variable]]
+name = &#34;Q&#34;
+map = &#34;gauges&#34;
+parameter = &#34;lateral.river.q&#34;
+
+[[netcdf.variable]]
+name = &#34;temp_coord&#34;
+location = &#34;temp_bycoord&#34;
+coordinate.x = 11.9594
+coordinate.y = 45.8925
+parameter = &#34;vertical.temperature&#34;
+
+[csv]
+path = &#34;output.csv&#34;
+
+[[csv.column]]
+header = &#34;Q-max&#34;
+parameter = &#34;lateral.river.q_av&#34;
+reducer = &#34;maximum&#34;
+
+[[csv.column]]
+header = &#34;res-volume&#34;
+index = 1
+parameter = &#34;lateral.river.reservoir.volume&#34;
+
+[[csv.column]]
+header = &#34;temp_bycoord&#34;
+coordinate.x = 11.95
+coordinate.y = 45.9
+parameter = &#34;vertical.temperature&#34;
+
+[[csv.column]]
+header = &#34;temp_byindex&#34;
+index.x = 11
+index.y = 6
+parameter = &#34;vertical.temperature&#34;
+
+[[csv.column]]
+header = &#34;Q&#34;
+map = &#34;gauges_grdc&#34;
+parameter = &#34;lateral.river.q_av&#34;
+
+[[csv.column]]
+header = &#34;P&#34;
+map = &#34;subcatchment&#34;
+parameter = &#34;vertical.precipitation&#34;
+reducer = &#34;mean&#34;
+
+</pre></div></div>
+</div>
+<p>And here is the same TOML in version 1 format:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toml_v1</span> <span class="o">=</span> <span class="s2">&quot;./data/wflow_upgrade/sbm/wflow_sbm_v1.toml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_v1</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dir_output = &#34;run_default&#34;
+
+[time]
+calendar = &#34;proleptic_gregorian&#34;
+starttime = &#34;2010-02-02T00:00:00&#34;
+endtime = &#34;2010-02-10T00:00:00&#34;
+time_units = &#34;days since 1900-01-01 00:00:00&#34;
+timestepsecs = 86400
+
+[model]
+snow_gravitional_transport__flag = true
+snow__flag = true
+cold_start__flag = true
+reservoir__flag = true
+lake__flag = true
+glacier__flag = true
+kinematic_wave__adaptive_time_step_flag = true
+river_kinematic_wave__time_step = 900
+land_kinematic_wave__time_step = 3600
+soil_layer__thickness = [ 100, 300, 800,]
+
+[state]
+path_input = &#34;instate/instates.nc&#34;
+path_output = &#34;outstate/outstates.nc&#34;
+
+[state.variables]
+vegetation_canopy_water__depth = &#34;canopystorage&#34;
+soil_water_sat-zone__depth = &#34;satwaterdepth&#34;
+soil_layer_water_unsat-zone__depth = &#34;ustorelayerdepth&#34;
+soil_surface__temperature = &#34;tsoil&#34;
+&#34;snowpack~dry__leq-depth&#34; = &#34;snow&#34;
+&#34;snowpack~liquid__depth&#34; = &#34;snowwater&#34;
+glacier_ice__leq-depth = &#34;glacierstore&#34;
+land_surface_water__instantaneous_volume_flow_rate = &#34;q_land&#34;
+land_surface_water__instantaneous_depth = &#34;h_land&#34;
+subsurface_water__volume_flow_rate = &#34;ssf&#34;
+river_water__instantaneous_volume_flow_rate = &#34;q_river&#34;
+river_water__instantaneous_depth = &#34;h_river&#34;
+lake_water_surface__instantaneous_elevation = &#34;waterlevel_lake&#34;
+reservoir_water__instantaneous_volume = &#34;volume_reservoir&#34;
+
+[input]
+path_forcing = &#34;inmaps.nc&#34;
+path_static = &#34;staticmaps.nc&#34;
+gauges = &#34;wflow_gauges&#34;
+basin__local_drain_direction = &#34;wflow_ldd&#34;
+river_location__mask = &#34;wflow_river&#34;
+subbasin_location__count = &#34;wflow_subcatch&#34;
+gauges_grdc = &#34;wflow_gauges_grdc&#34;
+lake_area__count = &#34;wflow_lakeareas&#34;
+lake_location__count = &#34;wflow_lakelocs&#34;
+reservoir_area__count = &#34;wflow_reservoirareas&#34;
+reservoir_location__count = &#34;wflow_reservoirlocs&#34;
+&#34;lake~lower_location__count&#34; = &#34;LinkedLakeLocs&#34;
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = &#34;precip&#34;
+atmosphere_air__temperature = &#34;temp&#34;
+land_surface_water__potential_evaporation_volume_flux = &#34;pet&#34;
+
+[input.cyclic]
+vegetation__leaf-area_index = &#34;LAI&#34;
+
+[input.static]
+snowpack__degree-day_coefficient = &#34;Cfmax&#34;
+atmosphere_air__snowfall_temperature_threshold = &#34;TT&#34;
+atmosphere_air__snowfall_temperature_interval = &#34;TTI&#34;
+snowpack__melting_temperature_threshold = &#34;TTM&#34;
+snowpack__liquid_water_holding_capacity = &#34;WHC&#34;
+glacier_surface__area_fraction = &#34;wflow_glacierfrac&#34;
+glacier_ice__initial_leq-depth = &#34;wflow_glacierstore&#34;
+glacier_ice__melting_temperature_threshold = &#34;G_TTM&#34;
+glacier_ice__degree-day_coefficient = &#34;G_Cfmax&#34;
+&#34;glacier_firn_accumulation__snowpack~dry_leq-depth_fraction&#34; = &#34;G_SIfrac&#34;
+vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio = &#34;EoverR&#34;
+vegetation_canopy__light-extinction_coefficient = &#34;Kext&#34;
+vegetation_root__depth = &#34;RootingDepth&#34;
+vegetation__specific-leaf_storage = &#34;Sl&#34;
+vegetation_wood_water__storage_capacity = &#34;Swood&#34;
+&#34;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&#34; = &#34;alpha_h1&#34;
+soil_layer_water__brooks-corey_exponent = &#34;c&#34;
+soil_surface_water__infiltration_reduction_parameter = &#34;cf_soil&#34;
+soil_surface_water__vertical_saturated_hydraulic_conductivity = &#34;KsatVer&#34;
+subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio = &#34;KsatHorFrac&#34;
+soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = &#34;f&#34;
+&#34;soil~compacted_surface_water__infiltration_capacity&#34; = &#34;InfiltCapPath&#34;
+soil_water__residual_volume_fraction = &#34;thetaR&#34;
+soil_water__saturated_volume_fraction = &#34;thetaS&#34;
+soil_water_sat-zone_bottom__max_leakage_volume_flux = &#34;MaxLeakage&#34;
+&#34;soil~compacted__area_fraction&#34; = &#34;PathFrac&#34;
+&#34;soil_root~wet__sigmoid_function_shape_parameter&#34; = &#34;rootdistpar&#34;
+soil__thickness = &#34;SoilThickness&#34;
+&#34;land~water-covered__area_fraction&#34; = &#34;WaterFrac&#34;
+land_surface_water_flow__manning_n_parameter = &#34;N&#34;
+land_surface__slope = &#34;Slope&#34;
+river_bank_water__depth = &#34;RiverDepth&#34;
+river__length = &#34;wflow_riverlength&#34;
+river_water_flow__manning_n_parameter = &#34;N_River&#34;
+river__slope = &#34;RiverSlope&#34;
+river__width = &#34;wflow_riverwidth&#34;
+lake_surface__area = &#34;LakeArea&#34;
+lake_water_surface__initial_elevation = &#34;LakeAvgLevel&#34;
+lake_water_flow_threshold-level__elevation = &#34;LakeThreshold&#34;
+lake_water__rating_curve_coefficient = &#34;Lake_b&#34;
+lake_water__rating_curve_exponent = &#34;Lake_e&#34;
+lake_water__rating_curve_type_count = &#34;LakeOutflowFunc&#34;
+lake_water__storage_curve_type_count = &#34;LakeStorFunc&#34;
+reservoir_surface__area = &#34;ResSimpleArea&#34;
+&#34;reservoir_water_demand~required~downstream__volume_flow_rate&#34; = &#34;ResDemand&#34;
+reservoir_water_release-below-spillway__max_volume_flow_rate = &#34;ResMaxRelease&#34;
+reservoir_water__max_volume = &#34;ResMaxVolume&#34;
+&#34;reservoir_water~full-target__volume_fraction&#34; = &#34;ResTargetFullFrac&#34;
+&#34;reservoir_water~min-target__volume_fraction&#34; = &#34;ResTargetMinFrac&#34;
+
+[output.netcdf_grid]
+path = &#34;output.nc&#34;
+compressionlevel = 1
+
+[output.netcdf_grid.variables]
+river_water__volume_flow_rate = &#34;q_river&#34;
+land_surface_water__instantaneous_depth = &#34;h_land&#34;
+
+[output.netcdf_scalar]
+path = &#34;output_scalar.nc&#34;
+variable = [{name = &#34;Q&#34;,map = &#34;gauges&#34;,parameter = &#34;river_water__instantaneous_volume_flow_rate&#34;}, {name = &#34;temp_coord&#34;,location = &#34;temp_bycoord&#34;,coordinate = {x = 11.9594,y = 45.8925},parameter = &#34;atmosphere_air__temperature&#34;}]
+
+[output.csv]
+path = &#34;output.csv&#34;
+column = [{header = &#34;Q-max&#34;,parameter = &#34;river_water__volume_flow_rate&#34;,reducer = &#34;maximum&#34;}, {header = &#34;res-volume&#34;,index = 1,parameter = &#34;reservoir_water__instantaneous_volume&#34;}, {header = &#34;temp_bycoord&#34;,coordinate = {x = 11.95,y = 45.9},parameter = &#34;atmosphere_air__temperature&#34;}, {header = &#34;temp_byindex&#34;,index = {x = 11,y = 6},parameter = &#34;atmosphere_air__temperature&#34;}, {header = &#34;Q&#34;,map = &#34;gauges_grdc&#34;,parameter = &#34;river_water__volume_flow_rate&#34;}, {header = &#34;P&#34;,map = &#34;subbasin_location__count&#34;,parameter = &#34;atmosphere_water__precipitation_volume_flux&#34;,reducer = &#34;mean&#34;}]
+
+</pre></div></div>
+</div>
+</section>
+<section id="Upgrading-a-Wflow-Sediment-model">
+<h2>Upgrading a Wflow Sediment model<a class="headerlink" href="#Upgrading-a-Wflow-Sediment-model" title="Link to this heading">#</a></h2>
+<p>We can call the <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code> function using the <code class="docutils literal notranslate"><span class="pre">update</span></code> CLI of HydroMT. Here is the configuration file that we will use:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_v1_sediment.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+global:
+  config_fn: wflow_sediment_v0x.toml
+
+upgrade_to_v1_wflow:
+  soil_fn: soilgrids
+
+write_config:
+  config_name: wflow_sediment_v1.toml
+
+write_grid:
+  fn_out: staticmaps_v1.nc
+
+</pre></div></div>
+</div>
+<p>In this config, we start by setting the name of the TOML file of the version 0x model (if different than <em>wflow_sediment.toml</em>), call the <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code> method, and then save the updated TOML file into a new <em>wflow_sbm_v1.toml</em> file and the updated staticmaps file with the additional parameters in <em>staticmaps_v1.toml</em>.</p>
+<p>Note that if you use the standard <em>wflow_sediment.toml</em> name and do not mind it or the staticmaps file being overwritten, the above example can be reduced into only calling <code class="docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow</span></code>.</p>
+<p>Let’s now call HydroMT update to update our old config (in this case we do need a data catalog as we will update some of the soil parameters):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sediment<span class="w"> </span><span class="s2">&quot;./data/wflow_upgrade/sediment&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_update_v1_sediment.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vvv
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-06-16 09:56:46,337 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/hydromt.log.
+2025-06-16 09:56:46,337 - update - log - INFO - HydroMT version: 0.10.1
+2025-06-16 09:56:46,337 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment (r+).
+2025-06-16 09:56:46,337 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
+2025-06-16 09:56:46,337 - update - main - INFO - User settings:
+2025-06-16 09:56:46,518 - update - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-06-16 09:56:46,518 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2025-06-16 09:56:47,075 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.8.1.dev0).
+2025-06-16 09:56:47,075 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-06-16 09:56:47,087 - update - wflow - INFO - Supported Wflow.jl version v1+
+2025-06-16 09:56:47,097 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
+2025-06-16 09:56:47,099 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
+2025-06-16 09:56:47,654 - update - model_api - INFO - upgrade_to_v1_wflow.soil_fn: soilgrids
+2025-06-16 09:56:47,655 - update - model_api - INFO - upgrade_to_v1_wflow.usle_k_method: renard
+2025-06-16 09:56:47,655 - update - model_api - INFO - upgrade_to_v1_wflow.strord_name: wflow_streamorder
+2025-06-16 09:56:47,665 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
+2025-06-16 09:56:47,665 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
+2025-06-16 09:56:47,691 - update - model_grid - WARNING - Replacing grid map: x_out
+2025-06-16 09:56:47,692 - update - model_grid - WARNING - Replacing grid map: y_out
+2025-06-16 09:56:47,693 - update - model_grid - WARNING - Replacing grid map: idx_out
+2025-06-16 09:56:47,694 - update - model_grid - WARNING - Replacing grid map: wflow_ldd
+2025-06-16 09:56:47,695 - update - model_grid - WARNING - Replacing grid map: wflow_subcatch
+2025-06-16 09:56:47,696 - update - model_grid - WARNING - Replacing grid map: wflow_uparea
+2025-06-16 09:56:47,697 - update - model_grid - WARNING - Replacing grid map: subare
+2025-06-16 09:56:47,698 - update - model_grid - WARNING - Replacing grid map: dem_subgrid
+2025-06-16 09:56:47,699 - update - model_grid - WARNING - Replacing grid map: wflow_streamorder
+2025-06-16 09:56:47,700 - update - model_grid - WARNING - Replacing grid map: wflow_dem
+2025-06-16 09:56:47,701 - update - model_grid - WARNING - Replacing grid map: Slope
+2025-06-16 09:56:47,702 - update - model_grid - WARNING - Replacing grid map: wflow_river
+2025-06-16 09:56:47,703 - update - model_grid - WARNING - Replacing grid map: wflow_riverlength
+2025-06-16 09:56:47,704 - update - model_grid - WARNING - Replacing grid map: RiverSlope
+2025-06-16 09:56:47,705 - update - model_grid - WARNING - Replacing grid map: N_River
+2025-06-16 09:56:47,706 - update - model_grid - WARNING - Replacing grid map: wflow_riverwidth
+2025-06-16 09:56:47,707 - update - model_grid - WARNING - Replacing grid map: RiverDepth
+2025-06-16 09:56:47,708 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirareas
+2025-06-16 09:56:47,708 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirlocs
+2025-06-16 09:56:47,709 - update - model_grid - WARNING - Replacing grid map: ResMaxVolume
+2025-06-16 09:56:47,710 - update - model_grid - WARNING - Replacing grid map: ResSimpleArea
+2025-06-16 09:56:47,711 - update - model_grid - WARNING - Replacing grid map: ResDemand
+2025-06-16 09:56:47,712 - update - model_grid - WARNING - Replacing grid map: ResMaxRelease
+2025-06-16 09:56:47,713 - update - model_grid - WARNING - Replacing grid map: ResTargetFullFrac
+2025-06-16 09:56:47,714 - update - model_grid - WARNING - Replacing grid map: ResTargetMinFrac
+2025-06-16 09:56:47,715 - update - model_grid - WARNING - Replacing grid map: wflow_lakeareas
+2025-06-16 09:56:47,716 - update - model_grid - WARNING - Replacing grid map: wflow_lakelocs
+2025-06-16 09:56:47,717 - update - model_grid - WARNING - Replacing grid map: LakeArea
+2025-06-16 09:56:47,718 - update - model_grid - WARNING - Replacing grid map: LakeAvgLevel
+2025-06-16 09:56:47,719 - update - model_grid - WARNING - Replacing grid map: LakeAvgOut
+2025-06-16 09:56:47,720 - update - model_grid - WARNING - Replacing grid map: Lake_b
+2025-06-16 09:56:47,721 - update - model_grid - WARNING - Replacing grid map: Lake_e
+2025-06-16 09:56:47,722 - update - model_grid - WARNING - Replacing grid map: LakeStorFunc
+2025-06-16 09:56:47,723 - update - model_grid - WARNING - Replacing grid map: LakeOutflowFunc
+2025-06-16 09:56:47,724 - update - model_grid - WARNING - Replacing grid map: LakeThreshold
+2025-06-16 09:56:47,725 - update - model_grid - WARNING - Replacing grid map: LinkedLakeLocs
+2025-06-16 09:56:47,726 - update - model_grid - WARNING - Replacing grid map: D50_River
+2025-06-16 09:56:47,727 - update - model_grid - WARNING - Replacing grid map: ClayF_River
+2025-06-16 09:56:47,727 - update - model_grid - WARNING - Replacing grid map: SiltF_River
+2025-06-16 09:56:47,728 - update - model_grid - WARNING - Replacing grid map: SandF_River
+2025-06-16 09:56:47,729 - update - model_grid - WARNING - Replacing grid map: GravelF_River
+2025-06-16 09:56:47,730 - update - model_grid - WARNING - Replacing grid map: wflow_landuse
+2025-06-16 09:56:47,731 - update - model_grid - WARNING - Replacing grid map: Kext
+2025-06-16 09:56:47,732 - update - model_grid - WARNING - Replacing grid map: PathFrac
+2025-06-16 09:56:47,733 - update - model_grid - WARNING - Replacing grid map: Sl
+2025-06-16 09:56:47,735 - update - model_grid - WARNING - Replacing grid map: Swood
+2025-06-16 09:56:47,736 - update - model_grid - WARNING - Replacing grid map: USLE_C
+2025-06-16 09:56:47,737 - update - model_grid - WARNING - Replacing grid map: LAI
+2025-06-16 09:56:47,738 - update - model_grid - WARNING - Replacing grid map: CanopyHeight
+2025-06-16 09:56:47,739 - update - model_grid - WARNING - Replacing grid map: PercentClay
+2025-06-16 09:56:47,740 - update - model_grid - WARNING - Replacing grid map: PercentSilt
+2025-06-16 09:56:47,741 - update - model_grid - WARNING - Replacing grid map: PercentOC
+2025-06-16 09:56:47,741 - update - model_grid - WARNING - Replacing grid map: ErosK
+2025-06-16 09:56:47,742 - update - model_grid - WARNING - Replacing grid map: USLE_K
+2025-06-16 09:56:47,743 - update - model_grid - WARNING - Replacing grid map: wflow_gauges
+2025-06-16 09:56:47,744 - update - model_grid - WARNING - Replacing grid map: wflow_gauges_grdc
+2025-06-16 09:56:47,745 - update - model_grid - WARNING - Replacing grid map: c_Bagnold
+2025-06-16 09:56:47,746 - update - model_grid - WARNING - Replacing grid map: eros_expo
+2025-06-16 09:56:47,747 - update - model_grid - WARNING - Replacing grid map: eros_ov
+2025-06-16 09:56:47,748 - update - model_grid - WARNING - Replacing grid map: eros_spl_EUROSEM
+2025-06-16 09:56:47,749 - update - model_grid - WARNING - Replacing grid map: exp_Bagnold
+2025-06-16 09:56:47,750 - update - model_grid - WARNING - Replacing grid map: ResTrapEff
+2025-06-16 09:56:47,751 - update - wflow - INFO - Reading model table files.
+2025-06-16 09:56:47,752 - update - wflow - INFO - Model read
+2025-06-16 09:56:47,752 - update - utils - INFO - Converting config to Wflow v1 format
+2025-06-16 09:56:47,752 - update - utils - INFO - Converting config general, time and model sections
+2025-06-16 09:56:47,753 - update - utils - INFO - Converting config state section
+2025-06-16 09:56:47,755 - update - utils - INFO - Converting config input section
+key: subcatchment, variables: {&#39;wflow_v0&#39;: &#39;subcatchment&#39;, &#39;wflow_v1&#39;: &#39;subbasin_location__count&#39;, &#39;hydromt_name&#39;: &#39;basins&#39;}
+key: local_drain_direction, variables: {&#39;wflow_v0&#39;: &#39;ldd&#39;, &#39;wflow_v1&#39;: &#39;basin__local_drain_direction&#39;, &#39;hydromt_name&#39;: &#39;flwdir&#39;}
+key: lake_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.lakeareas&#39;, &#39;wflow_v1&#39;: &#39;lake_area__count&#39;, &#39;hydromt_name&#39;: &#39;lake_area_id&#39;}
+key: lake_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lakelocs&#39;, &#39;wflow_v1&#39;: &#39;lake_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_outlet_id&#39;}
+key: reservoir_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.resareas&#39;, &#39;wflow_v1&#39;: &#39;reservoir_area__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area_id&#39;}
+key: reservoir_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reslocs&#39;, &#39;wflow_v1&#39;: &#39;reservoir_location__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_outlet_id&#39;}
+key: river_mask, variables: {&#39;wflow_v0&#39;: &#39;river_location&#39;, &#39;wflow_v1&#39;: &#39;river_location__mask&#39;, &#39;hydromt_name&#39;: &#39;rivmsk&#39;}
+key: precip, variables: {&#39;wflow_v0&#39;: &#39;vertical.precipitation&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_water__precipitation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;precip&#39;}
+key: vegetation_interception, variables: {&#39;wflow_v0&#39;: &#39;vertical.interception&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy_water__interception_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;interception&#39;}
+key: land_h, variables: {&#39;wflow_v0&#39;: &#39;vertical.h_land&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__depth&#39;}
+key: land_q, variables: {&#39;wflow_v0&#39;: &#39;vertical.q_land&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__volume_flow_rate&#39;}
+key: river_h, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.h_riv&#39;, &#39;wflow_v1&#39;: &#39;river_water__depth&#39;}
+key: river_q, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.q_riv&#39;, &#39;wflow_v1&#39;: &#39;river_water__volume_flow_rate&#39;}
+key: land_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.slope&#39;, &#39;wflow_v1&#39;: &#39;land_surface__slope&#39;, &#39;hydromt_name&#39;: &#39;lndslp&#39;}
+key: river_length, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.length&#39;, &#39;wflow_v1&#39;: &#39;river__length&#39;, &#39;hydromt_name&#39;: &#39;rivlen&#39;}
+key: river_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.slope&#39;, &#39;wflow_v1&#39;: &#39;river__slope&#39;, &#39;hydromt_name&#39;: &#39;rivslp&#39;}
+key: river_width, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.width&#39;, &#39;wflow_v1&#39;: &#39;river__width&#39;, &#39;hydromt_name&#39;: &#39;rivwth&#39;}
+key: reservoir_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.resarea&#39;, &#39;wflow_v1&#39;: &#39;reservoir_surface__area&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area&#39;}
+key: lake_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lakearea&#39;, &#39;wflow_v1&#39;: &#39;lake_surface__area&#39;, &#39;hydromt_name&#39;: &#39;lake_area&#39;}
+key: reservoir_trapping_efficiency, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.restrapeff&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;, &#39;hydromt_name&#39;: &#39;reservoir_trapping_efficiency&#39;}
+key: vegetation_gap_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.canopygapfraction&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__gap_fraction&#39;}
+key: vegetation_height, variables: {&#39;wflow_v0&#39;: &#39;vertical.canopyheight&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__height&#39;}
+key: vegetation_kext, variables: {&#39;wflow_v0&#39;: &#39;vertical.kext&#39;, &#39;wflow_v1&#39;: None}
+key: leaf_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.specific_leaf&#39;, &#39;wflow_v1&#39;: None, &#39;hydromt_name&#39;: &#39;leaf_storage&#39;}
+key: vegetation_wood_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.storage_wood&#39;, &#39;wflow_v1&#39;: None, &#39;hydromt_name&#39;: &#39;wood_storage&#39;}
+key: soil_compacted_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.pathfrac&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted__area_fraction&#39;}
+key: land_water_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land~water-covered__area_fraction&#39;}
+key: erosion_soil_detachability, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosk&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__rainfall_soil_detachability_factor&#39;}
+key: erosion_eurosem_exp, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosspl&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__eurosem_exponent&#39;}
+key: erosion_usle_k, variables: {&#39;wflow_v0&#39;: &#39;vertical.usleK&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__usle_k_factor&#39;, &#39;hydromt_name&#39;: &#39;usle_k&#39;}
+key: erosion_usle_c, variables: {&#39;wflow_v0&#39;: &#39;vertical.usleC&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__usle_c_factor&#39;, &#39;hydromt_name&#39;: &#39;usle_c&#39;}
+key: erosion_answers_sheet_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosov&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__answers_overland_flow_factor&#39;}
+key: erosion_answers_rain_factor, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_erosion__answers_rainfall_factor&#39;}
+key: soil_clay_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_clay__mass_fraction&#39;}
+key: soil_silt_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_silt__mass_fraction&#39;}
+key: soil_sand_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_sand__mass_fraction&#39;}
+key: soil_sagg_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_aggregates~small__mass_fraction&#39;}
+key: soil_lagg_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_aggregates~large__mass_fraction&#39;}
+key: land_govers_c, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;}
+key: land_govers_n, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;}
+key: soil_sediment_d50, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_sediment__median_diameter&#39;}
+key: sediment_density, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.rhos&#39;, &#39;wflow_v1&#39;: &#39;sediment__particle_density&#39;}
+key: river_sediment_d50, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.d50engelund&#39;, &#39;wflow_v1&#39;: None}
+key: river_bagnold_c, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.cbagnold&#39;, &#39;wflow_v1&#39;: &#39;river_water_sediment__bagnold_transport_capacity_coefficient&#39;}
+key: river_bagnold_exp, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.ebagnold&#39;, &#39;wflow_v1&#39;: &#39;river_water_sediment__bagnold_transport_capacity_exponent&#39;}
+key: river_kodatie_a, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_a-coefficient&#39;}
+key: river_kodatie_b, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_b-coefficient&#39;}
+key: river_kodatie_c, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_c-coefficient&#39;}
+key: river_kodatie_d, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_d-coefficient&#39;}
+key: river_bed_sediment_d50, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.d50&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_sediment__median_diameter&#39;}
+key: river_bed_clay_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fclayriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_clay__mass_fraction&#39;}
+key: river_bed_silt_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fsiltriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_silt__mass_fraction&#39;}
+key: river_bed_sand_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fsandriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_sand__mass_fraction&#39;}
+key: river_bed_gravel_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fgravelriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_gravel__mass_fraction&#39;}
+key: sediment_clay_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;clay__mean_diameter&#39;}
+key: sediment_silt_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;silt__mean_diameter&#39;}
+key: sediment_sand_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sand__mean_diameter&#39;}
+key: sediment_sagg_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sediment_aggregates~small__mean_diameter&#39;}
+key: sediment_lagg_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sediment_aggregates~large__mean_diameter&#39;}
+key: sediment_gravel_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;gravel__mean_diameter&#39;}
+2025-06-16 09:56:47,762 - update - utils - INFO - Converting config output sections
+2025-06-16 09:56:47,772 - update - wflow_sediment - INFO - Preparing soil parameter maps.
+2025-06-16 09:56:47,777 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2025-06-16 09:56:48,102 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2025-06-16 09:56:48,113 - update - rasterdataset - DEBUG - Convert units for 21 variables.
+2025-06-16 09:56:48,713 - update - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
+2025-06-16 09:56:48,735 - update - soilgrids - INFO - Interpolate NAN values for usle_k
+2025-06-16 09:56:48,772 - update - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
+2025-06-16 09:56:48,812 - update - soilgrids - INFO - Interpolate NAN values for land_govers_c
+2025-06-16 09:56:48,853 - update - soilgrids - INFO - Interpolate NAN values for land_govers_n
+2025-06-16 09:56:48,868 - update - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
+2025-06-16 09:56:48,883 - update - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
+2025-06-16 09:56:48,901 - update - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
+2025-06-16 09:56:48,921 - update - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
+No numerical nodata value found, skipping set_nodata
+2025-06-16 09:56:48,962 - update - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
+2025-06-16 09:56:48,974 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2025-06-16 09:56:48,975 - update - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2025-06-16 09:56:48,982 - update - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
+2025-06-16 09:56:48,986 - update - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
+2025-06-16 09:56:48,990 - update - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
+2025-06-16 09:56:48,994 - update - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
+2025-06-16 09:56:48,998 - update - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
+2025-06-16 09:56:49,002 - update - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
+2025-06-16 09:56:49,007 - update - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
+2025-06-16 09:56:49,011 - update - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
+2025-06-16 09:56:49,015 - update - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
+2025-06-16 09:56:49,029 - update - model_api - INFO - write_config.config_name: wflow_sediment_v1.toml
+2025-06-16 09:56:49,029 - update - model_api - INFO - write_config.config_root: None
+2025-06-16 09:56:49,029 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v1.toml
+2025-06-16 09:56:49,030 - update - model_api - INFO - write_grid.fn_out: staticmaps_v1.nc
+2025-06-16 09:56:49,071 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v1.nc
+</pre></div></div>
+</div>
+<p>And let’s see the results. Here is what our old TOML file looked like:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toml_v0x</span> <span class="o">=</span> <span class="s2">&quot;./data/wflow_upgrade/sediment/wflow_sediment_v0x.toml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_v0x</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+casename = &#34;wflow_sediment&#34;
+calendar = &#34;proleptic_gregorian&#34;
+starttime = &#34;2010-02-01T00:00:00&#34;
+endtime = &#34;2010-02-10T00:00:00&#34;
+time_units = &#34;days since 1900-01-01 00:00:00&#34;
+timestepsecs = 86400
+dir_output = &#34;run_default&#34;
+
+[state]
+path_input = &#34;instate/instates.nc&#34;
+path_output = &#34;outstate/outstates.nc&#34;
+
+[input]
+path_forcing = &#34;inmaps.nc&#34;
+path_static = &#34;staticmaps_v0x.nc&#34;
+ldd = &#34;wflow_ldd&#34;
+river_location = &#34;wflow_river&#34;
+subcatchment = &#34;wflow_subcatch&#34;
+forcing = [ &#34;vertical.h_land&#34;, &#34;vertical.interception&#34;, &#34;vertical.precipitation&#34;, &#34;vertical.q_land&#34;, &#34;lateral.river.h_riv&#34;, &#34;lateral.river.q_riv&#34;,]
+cyclic = [ &#34;vertical.leaf_area_index&#34;,]
+gauges = &#34;wflow_gauges&#34;
+gauges_grdc = &#34;wflow_gauges_grdc&#34;
+
+[model]
+type = &#34;sediment&#34;
+reinit = true
+runrivermodel = true
+doreservoir = true
+dolake = true
+rainerosmethod = &#34;answers&#34;
+landtransportmethod = &#34;yalinpart&#34;
+rivtransportmethod = &#34;bagnold&#34;
+reservoirs = false
+lakes = false
+
+[output]
+path = &#34;output.nc&#34;
+
+[csv]
+path = &#34;output.csv&#34;
+[[csv.column]]
+header = &#34;TSS&#34;
+map = &#34;gauges&#34;
+parameter = &#34;lateral.river.SSconc&#34;
+
+[[csv.column]]
+header = &#34;Q&#34;
+map = &#34;gauges_grdc&#34;
+parameter = &#34;lateral.river.q_riv&#34;
+
+[[csv.column]]
+header = &#34;TSS&#34;
+map = &#34;gauges_grdc&#34;
+parameter = &#34;lateral.river.SSconc&#34;
+
+[input.vertical]
+altitude = &#34;wflow_dem&#34;
+canopyheight = &#34;CanopyHeight&#34;
+erosk = &#34;ErosK&#34;
+erosspl = &#34;eros_spl_EUROSEM&#34;
+erosov = &#34;eros_ov&#34;
+h_land = &#34;lwl&#34;
+interception = &#34;int&#34;
+kext = &#34;Kext&#34;
+leaf_area_index = &#34;LAI&#34;
+pathfrac = &#34;PathFrac&#34;
+precipitation = &#34;prec&#34;
+q_land = &#34;lro&#34;
+slope = &#34;Slope&#34;
+specific_leaf = &#34;Sl&#34;
+storage_wood = &#34;Swood&#34;
+usleC = &#34;USLE_C&#34;
+usleK = &#34;USLE_K&#34;
+pclay = &#34;PercentClay&#34;
+psilt = &#34;PercentSilt&#34;
+rivcell = &#34;wflow_river&#34;
+resareas = &#34;wflow_reservoirareas&#34;
+lakeareas = &#34;wflow_lakeareas&#34;
+
+[output.vertical]
+soilloss = &#34;soilloss&#34;
+
+[state.lateral.river]
+clayload = &#34;clayload&#34;
+siltload = &#34;siltload&#34;
+sandload = &#34;sandload&#34;
+saggload = &#34;saggload&#34;
+laggload = &#34;laggload&#34;
+gravload = &#34;gravload&#34;
+claystore = &#34;claystore&#34;
+siltstore = &#34;siltstore&#34;
+sandstore = &#34;sandstore&#34;
+saggstore = &#34;saggstore&#34;
+laggstore = &#34;laggstore&#34;
+gravstore = &#34;gravstore&#34;
+outclay = &#34;outclay&#34;
+outsilt = &#34;outsilt&#34;
+outsand = &#34;outsand&#34;
+outsagg = &#34;outsagg&#34;
+outlagg = &#34;outlagg&#34;
+outgrav = &#34;outgrav&#34;
+
+[input.lateral.land]
+slope = &#34;Slope&#34;
+
+[input.lateral.river]
+h_riv = &#34;rwl&#34;
+q_riv = &#34;rro&#34;
+cbagnold = &#34;c_Bagnold&#34;
+d50 = &#34;D50_River&#34;
+d50engelund = &#34;D50_River&#34;
+ebagnold = &#34;exp_Bagnold&#34;
+fclayriv = &#34;ClayF_River&#34;
+fsiltriv = &#34;SiltF_River&#34;
+fsandriv = &#34;SandF_River&#34;
+fgravriv = &#34;GravelF_River&#34;
+length = &#34;wflow_riverlength&#34;
+slope = &#34;RiverSlope&#34;
+width = &#34;wflow_riverwidth&#34;
+resarea = &#34;ResSimpleArea&#34;
+restrapeff = &#34;ResTrapEff&#34;
+resareas = &#34;wflow_reservoirareas&#34;
+reslocs = &#34;wflow_reservoirlocs&#34;
+lakearea = &#34;LakeArea&#34;
+lakeareas = &#34;wflow_lakeareas&#34;
+lakelocs = &#34;wflow_lakelocs&#34;
+bankfull_depth = &#34;RiverDepth&#34;
+
+[output.lateral.river]
+SSconc = &#34;SSconc&#34;
+
+</pre></div></div>
+</div>
+<p>And here is the same TOML in version 1 format:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toml_v1</span> <span class="o">=</span> <span class="s2">&quot;./data/wflow_upgrade/sediment/wflow_sediment_v1.toml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toml_v1</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+dir_output = &#34;run_default&#34;
+
+[time]
+calendar = &#34;proleptic_gregorian&#34;
+starttime = &#34;2010-02-01T00:00:00&#34;
+endtime = &#34;2010-02-10T00:00:00&#34;
+time_units = &#34;days since 1900-01-01 00:00:00&#34;
+timestepsecs = 86400
+
+[model]
+cold_start__flag = true
+run_river_model__flag = true
+reservoir__flag = true
+lake__flag = true
+rainfall_erosion = &#34;answers&#34;
+land_transport = &#34;yalinpart&#34;
+river_transport = &#34;bagnold&#34;
+
+[state]
+path_input = &#34;instate/instates.nc&#34;
+path_output = &#34;outstate/outstates.nc&#34;
+
+[state.variables]
+river_water_clay__mass = &#34;clayload&#34;
+river_bed_clay__mass = &#34;claystore&#34;
+river_water_clay__mass_flow_rate = &#34;outclay&#34;
+river_water_gravel__mass = &#34;gravload&#34;
+river_bed_gravel__mass = &#34;gravstore&#34;
+river_water_gravel__mass_flow_rate = &#34;outgrav&#34;
+&#34;river_water_aggregates~large__mass&#34; = &#34;laggload&#34;
+&#34;river_bed_aggregates~large__mass&#34; = &#34;laggstore&#34;
+&#34;river_water_aggregates~large__mass_flow_rate&#34; = &#34;outlagg&#34;
+&#34;river_water_aggregates~small__mass&#34; = &#34;saggload&#34;
+&#34;river_bed_aggregates~small__mass&#34; = &#34;saggstore&#34;
+&#34;river_water_aggregates~small__mass_flow_rate&#34; = &#34;outsagg&#34;
+river_water_sand__mass = &#34;sandload&#34;
+river_bed_sand__mass = &#34;sandstore&#34;
+river_water_sand__mass_flow_rate = &#34;outsand&#34;
+river_water_silt__mass = &#34;siltload&#34;
+river_bed_silt__mass = &#34;siltstore&#34;
+river_water_silt__mass_flow_rate = &#34;outsilt&#34;
+
+[input]
+path_forcing = &#34;inmaps.nc&#34;
+path_static = &#34;staticmaps_v0x.nc&#34;
+basin__local_drain_direction = &#34;wflow_ldd&#34;
+river_location__mask = &#34;wflow_river&#34;
+subbasin_location__count = &#34;wflow_subcatch&#34;
+gauges = &#34;wflow_gauges&#34;
+gauges_grdc = &#34;wflow_gauges_grdc&#34;
+lake_area__count = &#34;wflow_lakeareas&#34;
+lake_location__count = &#34;wflow_lakelocs&#34;
+reservoir_area__count = &#34;wflow_reservoirareas&#34;
+reservoir_location__count = &#34;wflow_reservoirlocs&#34;
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = &#34;prec&#34;
+vegetation_canopy_water__interception_volume_flux = &#34;int&#34;
+land_surface_water__depth = &#34;lwl&#34;
+land_surface_water__volume_flow_rate = &#34;lro&#34;
+river_water__depth = &#34;rwl&#34;
+river_water__volume_flow_rate = &#34;rro&#34;
+
+[input.cyclic]
+
+[input.static]
+land_surface__slope = &#34;Slope&#34;
+river__length = &#34;wflow_riverlength&#34;
+river__slope = &#34;RiverSlope&#34;
+river__width = &#34;wflow_riverwidth&#34;
+reservoir_surface__area = &#34;ResSimpleArea&#34;
+lake_surface__area = &#34;LakeArea&#34;
+&#34;reservoir_water_sediment~bedload__trapping_efficiency&#34; = &#34;ResTrapEff&#34;
+vegetation_canopy__height = &#34;CanopyHeight&#34;
+&#34;soil~compacted__area_fraction&#34; = &#34;PathFrac&#34;
+soil_erosion__eurosem_exponent = &#34;eros_spl_EUROSEM&#34;
+soil_erosion__usle_c_factor = &#34;USLE_C&#34;
+soil_erosion__answers_overland_flow_factor = &#34;eros_ov&#34;
+river_water_sediment__bagnold_transport_capacity_coefficient = &#34;c_Bagnold&#34;
+river_water_sediment__bagnold_transport_capacity_exponent = &#34;exp_Bagnold&#34;
+soil_erosion__rainfall_soil_detachability_factor = &#34;erosion_soil_detachability&#34;
+soil_erosion__usle_k_factor = &#34;erosion_usle_k&#34;
+land_surface_sediment__median_diameter = &#34;soil_sediment_d50&#34;
+land_surface_water_sediment__govers_transport_capacity_coefficient = &#34;land_govers_c&#34;
+land_surface_water_sediment__govers_transport_capacity_exponent = &#34;land_govers_n&#34;
+soil_clay__mass_fraction = &#34;soil_clay_fraction&#34;
+soil_silt__mass_fraction = &#34;soil_silt_fraction&#34;
+&#34;soil_aggregates~small__mass_fraction&#34; = &#34;soil_sagg_fraction&#34;
+soil_sand__mass_fraction = &#34;soil_sand_fraction&#34;
+&#34;soil_aggregates~large__mass_fraction&#34; = &#34;soil_lagg_fraction&#34;
+river_bottom-and-bank_sediment__median_diameter = &#34;river_bed_sediment_d50&#34;
+river_bottom-and-bank_clay__mass_fraction = &#34;river_bed_clay_fraction&#34;
+river_bottom-and-bank_silt__mass_fraction = &#34;river_bed_silt_fraction&#34;
+river_bottom-and-bank_sand__mass_fraction = &#34;river_bed_sand_fraction&#34;
+river_bottom-and-bank_gravel__mass_fraction = &#34;river_bed_gravel_fraction&#34;
+river_water_sediment__kodatie_transport_capacity_a-coefficient = &#34;river_kodatie_a&#34;
+river_water_sediment__kodatie_transport_capacity_b-coefficient = &#34;river_kodatie_b&#34;
+river_water_sediment__kodatie_transport_capacity_c-coefficient = &#34;river_kodatie_c&#34;
+river_water_sediment__kodatie_transport_capacity_d-coefficient = &#34;river_kodatie_d&#34;
+
+[output.netcdf_grid]
+path = &#34;output.nc&#34;
+compressionlevel = 1
+
+[output.netcdf_grid.variables]
+soil_erosion__mass_flow_rate = &#34;soilloss&#34;
+&#34;river_water_sediment~suspended__mass_concentration&#34; = &#34;SSconc&#34;
+
+[output.csv]
+path = &#34;output.csv&#34;
+column = [{header = &#34;TSS&#34;,map = &#34;gauges&#34;,parameter = &#34;river_water_sediment~suspended__mass_concentration&#34;}, {header = &#34;Q&#34;,map = &#34;gauges_grdc&#34;,parameter = &#34;river_water__volume_flow_rate&#34;}, {header = &#34;TSS&#34;,map = &#34;gauges_grdc&#34;,parameter = &#34;river_water_sediment~suspended__mass_concentration&#34;}]
+
+</pre></div></div>
+</div>
+<p>You can also note that the new staticmaps file was generated. Here are all the available variables:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">staticmaps</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;./data/wflow_upgrade/sediment/staticmaps_v1.nc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;x_out&#39;, &#39;y_out&#39;, &#39;idx_out&#39;, &#39;wflow_ldd&#39;, &#39;wflow_subcatch&#39;, &#39;wflow_uparea&#39;, &#39;subare&#39;, &#39;dem_subgrid&#39;, &#39;wflow_streamorder&#39;, &#39;wflow_dem&#39;, &#39;Slope&#39;, &#39;wflow_river&#39;, &#39;wflow_riverlength&#39;, &#39;RiverSlope&#39;, &#39;N_River&#39;, &#39;wflow_riverwidth&#39;, &#39;RiverDepth&#39;, &#39;wflow_reservoirareas&#39;, &#39;wflow_reservoirlocs&#39;, &#39;ResMaxVolume&#39;, &#39;ResSimpleArea&#39;, &#39;ResDemand&#39;, &#39;ResMaxRelease&#39;, &#39;ResTargetFullFrac&#39;, &#39;ResTargetMinFrac&#39;, &#39;wflow_lakeareas&#39;, &#39;wflow_lakelocs&#39;, &#39;LakeArea&#39;, &#39;LakeAvgLevel&#39;, &#39;LakeAvgOut&#39;, &#39;Lake_b&#39;, &#39;Lake_e&#39;, &#39;LakeStorFunc&#39;, &#39;LakeOutflowFunc&#39;, &#39;LakeThreshold&#39;, &#39;LinkedLakeLocs&#39;, &#39;D50_River&#39;, &#39;ClayF_River&#39;, &#39;SiltF_River&#39;, &#39;SandF_River&#39;, &#39;GravelF_River&#39;, &#39;wflow_landuse&#39;, &#39;Kext&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;LAI&#39;, &#39;CanopyHeight&#39;, &#39;PercentClay&#39;, &#39;PercentSilt&#39;, &#39;PercentOC&#39;, &#39;ErosK&#39;, &#39;USLE_K&#39;, &#39;wflow_gauges&#39;, &#39;wflow_gauges_grdc&#39;, &#39;c_Bagnold&#39;, &#39;eros_expo&#39;, &#39;eros_ov&#39;, &#39;eros_spl_EUROSEM&#39;, &#39;exp_Bagnold&#39;, &#39;ResTrapEff&#39;, &#39;erosion_soil_detachability&#39;, &#39;erosion_usle_k&#39;, &#39;soil_sediment_d50&#39;, &#39;land_govers_c&#39;, &#39;land_govers_n&#39;, &#39;soil_clay_fraction&#39;, &#39;soil_silt_fraction&#39;, &#39;soil_sagg_fraction&#39;, &#39;soil_sand_fraction&#39;, &#39;soil_lagg_fraction&#39;, &#39;river_bed_sediment_d50&#39;, &#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;, &#39;river_bed_sand_fraction&#39;, &#39;river_bed_gravel_fraction&#39;, &#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;, &#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;]
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_wflow_results.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plot Wflow results</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Upgrading-a-Wflow-SBM-model">Upgrading a Wflow SBM model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Upgrading-a-Wflow-Sediment-model">Upgrading a Wflow Sediment model</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/upgrade_to_wflow_v1.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/upgrade_to_wflow_v1.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
