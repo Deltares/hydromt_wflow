@@ -41,15 +41,22 @@ jobs:
           set -o pipefail
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
 
+      - name: Update SBOM
+        run: |
+          set -o pipefail
+          pixi run generate-sbom
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Update pixi lockfile
-          title: Update pixi lockfile
+          commit-message: Update pixi lockfile and SBOM
+          title: Update pixi lockfile and SBOM
           body-path: diff.md
           branch: update-pixi
           base: main
           labels: pixi
           delete-branch: true
-          add-paths: pixi.lock
+          add-paths: |
+            pixi.lock
+            hydromt-wflow-sbom.json
