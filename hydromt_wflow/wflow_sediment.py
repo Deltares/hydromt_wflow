@@ -266,7 +266,7 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
         self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.geoms.set(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
+        self.geoms.set(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.lake__flag", True)
@@ -364,7 +364,7 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.geoms.set(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
+        self.geoms.set(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.reservoir__flag", True)
