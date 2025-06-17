@@ -4039,7 +4039,7 @@ Run setup_soilmaps first"
         self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
-        self.geoms.set(gdf_subcatch, name=f"subcatch_{mapname}")
+        self.geoms.set(gdf_subcatch, name=f"subcatchment_{mapname}")
 
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
