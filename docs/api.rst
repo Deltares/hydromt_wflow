@@ -105,7 +105,6 @@ General methods
    :toctree: _generated
 
    WflowModel.set_config
-   WflowModel.read_config
    WflowModel.write_config
 
    WflowModel.set_grid
@@ -113,21 +112,17 @@ General methods
    WflowModel.write_grid
    WflowModel.clip_grid
 
-   WflowModel.set_geoms
    WflowModel.read_geoms
    WflowModel.write_geoms
 
-   WflowModel.set_forcing
    WflowModel.read_forcing
    WflowModel.write_forcing
    WflowModel.clip_forcing
 
-   WflowModel.set_states
    WflowModel.read_states
    WflowModel.write_states
    WflowModel.clip_states
 
-   WflowModel.set_results
    WflowModel.read_results
 
    WflowModel.set_tables
@@ -217,7 +212,6 @@ General methods
 
    WflowSedimentModel.setup_config
    WflowSedimentModel.set_config
-   WflowSedimentModel.read_config
    WflowSedimentModel.write_config
 
    WflowSedimentModel.set_grid
@@ -225,20 +219,16 @@ General methods
    WflowSedimentModel.write_grid
    WflowSedimentModel.clip_grid
 
-   WflowSedimentModel.set_geoms
    WflowSedimentModel.read_geoms
    WflowSedimentModel.write_geoms
 
-   WflowSedimentModel.set_forcing
    WflowSedimentModel.read_forcing
    WflowSedimentModel.write_forcing
    WflowSedimentModel.clip_forcing
 
-   WflowSedimentModel.set_states
    WflowSedimentModel.read_states
    WflowSedimentModel.write_states
 
-   WflowSedimentModel.set_results
    WflowSedimentModel.read_results
 
 .. _model_components:
