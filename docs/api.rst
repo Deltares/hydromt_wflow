@@ -27,6 +27,7 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
+   WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
@@ -63,6 +64,16 @@ Setup components
    WflowModel.setup_cold_states
    WflowModel.upgrade_to_v1_wflow
 
+Components
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowModel.config
+   WflowModel.staticmaps
+
+
 Attributes
 ----------
 
@@ -72,6 +83,9 @@ Attributes
    WflowModel.region
    WflowModel.crs
    WflowModel.root
+   WflowModel.flwdir
+   WflowModel.basins
+   WflowModel.rivers
 
 High level methods
 ------------------
@@ -90,6 +104,35 @@ General methods
 .. autosummary::
    :toctree: _generated
 
+   WflowModel.set_config
+   WflowModel.read_config
+   WflowModel.write_config
+
+   WflowModel.set_grid
+   WflowModel.read_grid
+   WflowModel.write_grid
+   WflowModel.clip_grid
+
+   WflowModel.set_geoms
+   WflowModel.read_geoms
+   WflowModel.write_geoms
+
+   WflowModel.set_forcing
+   WflowModel.read_forcing
+   WflowModel.write_forcing
+   WflowModel.clip_forcing
+
+   WflowModel.set_states
+   WflowModel.read_states
+   WflowModel.write_states
+   WflowModel.clip_states
+
+   WflowModel.set_results
+   WflowModel.read_results
+
+   WflowModel.set_tables
+   WflowModel.read_tables
+   WflowModel.write_tables
 
 .. _api_model_sediment:
 
@@ -112,6 +155,7 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
+   WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
    WflowSedimentModel.setup_rivers
    WflowSedimentModel.setup_lakes
@@ -132,6 +176,15 @@ Setup components
    WflowSedimentModel.setup_grid_from_raster
    WflowSedimentModel.upgrade_to_v1_wflow
 
+Components
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSedimentModel.config
+   WflowSedimentModel.staticmaps
+
 Attributes
 ----------
 
@@ -141,6 +194,9 @@ Attributes
    WflowSedimentModel.region
    WflowSedimentModel.crs
    WflowSedimentModel.root
+   WflowSedimentModel.flwdir
+   WflowSedimentModel.basins
+   WflowSedimentModel.rivers
 
 High level methods
 ------------------
@@ -152,6 +208,58 @@ High level methods
    WflowSedimentModel.write
    WflowSedimentModel.build
    WflowSedimentModel.update
+
+General methods
+---------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSedimentModel.setup_config
+   WflowSedimentModel.set_config
+   WflowSedimentModel.read_config
+   WflowSedimentModel.write_config
+
+   WflowSedimentModel.set_grid
+   WflowSedimentModel.read_grid
+   WflowSedimentModel.write_grid
+   WflowSedimentModel.clip_grid
+
+   WflowSedimentModel.set_geoms
+   WflowSedimentModel.read_geoms
+   WflowSedimentModel.write_geoms
+
+   WflowSedimentModel.set_forcing
+   WflowSedimentModel.read_forcing
+   WflowSedimentModel.write_forcing
+   WflowSedimentModel.clip_forcing
+
+   WflowSedimentModel.set_states
+   WflowSedimentModel.read_states
+   WflowSedimentModel.write_states
+
+   WflowSedimentModel.set_results
+   WflowSedimentModel.read_results
+
+.. _model_components:
+
+WflowModel components
+=====================
+
+WflowConfigComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowConfigComponent
+   components.WflowConfigComponent.data
+   components.WflowConfigComponent.read
+   components.WflowConfigComponent.write
+   components.WflowConfigComponent.update
+   components.WflowConfigComponent.set
+   components.WflowConfigComponent.get_value
+
 
 .. _workflows:
 
