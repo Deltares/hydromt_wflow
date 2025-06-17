@@ -70,6 +70,22 @@ def test_wflow_config_component_set_alt(mock_model: MagicMock):
     assert len(component.data) == 1
 
 
+def test_wflow_config_component_update(mock_model: MagicMock):
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+
+    # Update the config
+    component.update(
+        {
+            "foo.bar": "baz",
+            "time": "now",
+        }
+    )
+    # Assert the content
+    assert component.data["foo"] == {"bar": "baz"}
+    assert len(component.data) == 2
+
+
 def test_wflow_config_component_read(
     mock_model: MagicMock,
     model_subbasin_cached: Path,
@@ -225,9 +241,9 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
     component = WflowConfigComponent(mock_model)
     component2 = WflowConfigComponent(mock_model)
 
-    # Updatethem like a dummy to request
-    component.data.update(config_dummy_data)
-    component2.data.update(config_dummy_data)
+    # Update them like a dummy to request
+    component.update(config_dummy_data)
+    component2.update(config_dummy_data)
 
     # Assert these are equal
     eq, errors = component.test_equal(component2)

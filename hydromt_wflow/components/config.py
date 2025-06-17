@@ -143,6 +143,38 @@ defaulting to {_new_path.as_posix()}"
         else:
             logger.warning("Model config has no data, skip writing.")
 
+    ## Add data methods
+    @hydromt_step
+    def update(self, data: dict[str, Any]):
+        """Set the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        data : dict[str, Any]
+            A dictionary with the values to be set. keys can be dotted like in
+            :py:meth:`~hydromt_wflow.components.config.WflowConfigComponent.set`
+
+        Examples
+        --------
+        Setting data as a nested dictionary::
+
+
+            >> self.update({'a': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': 1, 'b': {'c': {'d': 2}}}
+
+        Setting data using dotted notation::
+
+            >> self.update({'a.d.f.g': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': {'d':{'f':{'g': 1}}}, 'b': {'c': {'d': 2}}}
+
+        """
+        if len(data) > 0:
+            logger.debug("Setting model config options.")
+        for k, v in data.items():
+            self.set(k, v)
+
     ## Modifying methods
     def get_value(
         self,
