@@ -8,7 +8,18 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
-These are the unreleased changes.
+This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
+linked to the TOML file options. We have dropped support for Wflow.jl < 1.0.0, but we allow users
+to upgrade their models to the new version using the `upgrade_to_v1_wflow` function. If you do not want
+to upgrade your model, you can use an older release of hydromt_wflow.
+
+In addition, we have updated the default grid names (staticmaps.nc) and states names to be more
+consistent and closer to the Wflow.jl names. We also added the possibility to choose the names of the
+variables in staticmaps.nc files in each of the setup methods. This allows users to have several versions
+of the same variable in the staticmaps.nc file using different options (eg. landuse_corine, landuse_vito, etc.).
+
+Finally, some of the staticgeoms names have changed, in particular gauges is now outlets and has been
+replaced in the input section of the TOML as well in order to save outputs for these locations.
 
 Added
 -----
@@ -19,6 +30,8 @@ Added
 Changed
 -------
 - Support for Wflow.jl >= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).  PR #364
+- All default names in staticmpas.nc and states have been redefined and harmonized. PR #422
+- Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422
 - **setup_constant_pars**: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.  PR #364
 - **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.  PR #364
 - **setup_output_config_timeseries**, **setup_outlets**, **setup_gauges**: the option to save parameters to netcdf scalar file as been renamed from `netcdf` to `netcdf_scalar` to better match the TOML file structure.  PR #364
@@ -29,6 +42,8 @@ Changed
 - **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping. PR #331
 - **setup_rivers**, **setup_lakes**, **setup_reservoirs** [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.  PR #364
 - Grid data is masked to subcatchment on `set_grid` now instead of on `write_grid` (#349)
+- Signature of the standalone **set_config** and **get_config** functions, config is now first argument
+- TOML file options are added on the fly by each setup method rather than starting from a complete template.
 
 Fixed
 -----
@@ -41,7 +56,7 @@ Deprecated
 
 Removed
 ----------
-Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
+- Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
 
 
 v0.8.0 (9 April 2025)

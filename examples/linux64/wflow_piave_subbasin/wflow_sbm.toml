@@ -1,176 +1,151 @@
 dir_output = "run_default"
 
 [time]
-calendar = "proleptic_gregorian"
+calendar     = "proleptic_gregorian"
+time_units   = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
 starttime = "2010-02-02T00:00:00"
 endtime = "2010-02-10T00:00:00"
-time_units = "days since 1900-01-01 00:00:00"
-timestepsecs = 86400
 
 [logging]
 loglevel = "info"
 
 [model]
-type = "sbm"
-gravitational_snow_transport = true
-snow = true
-reinit = true
-reservoirs = true
-lakes = true
-glacier = true
-kin_wave_iteration = true
-kw_river_tstep = 900
-kw_land_tstep = 3600
+type                                    = "sbm"
+snow_gravitional_transport__flag        = true
+snow__flag                              = true
+cold_start__flag                        = true
+kinematic_wave__adaptive_time_step_flag = true
+river_kinematic_wave__time_step         = 900
+land_kinematic_wave__time_step          = 3600
 river_routing = "kinematic-wave"
-thicknesslayers = [ 100, 300, 800,]
+reservoir__flag = true
+lake__flag = true
+glacier__flag = true
+soil_layer__thickness = [100, 300, 800]
 
 [state]
-path_input = "instate/instates.nc"
+path_input  = "instate/instates.nc"
 path_output = "outstate/outstates.nc"
+
+[state.variables]
+vegetation_canopy_water__depth                     = "vegetation_water_depth"
+soil_water_sat-zone__depth                         = "soil_saturated_depth"
+soil_layer_water_unsat-zone__depth                 = "soil_unsaturated_depth"
+soil_surface__temperature                          = "soil_temp"
+"snowpack~dry__leq-depth"                          = "snow_leq_depth"
+"snowpack~liquid__depth"                           = "snow_water_depth"
+land_surface_water__instantaneous_volume_flow_rate = "land_instantaneous_q"
+land_surface_water__instantaneous_depth            = "land_instantaneous_h"
+subsurface_water__volume_flow_rate                 = "subsurface_q"
+river_water__instantaneous_volume_flow_rate        = "river_instantaneous_q"
+river_water__instantaneous_depth                   = "river_instantaneous_h"
+reservoir_water__instantaneous_volume = "reservoir_instantaneous_volume"
+lake_water_surface__instantaneous_elevation = "lake_instantaneous_water_level"
+glacier_ice__leq-depth = "glacier_leq_depth"
 
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-local_drain_direction = "wflow_ldd"
-subcatchment_location__count = "wflow_subcatch"
-river_location__mask = "wflow_river"
-reservoir_area__count = "wflow_reservoirareas"
-reservoir_location__count = "wflow_reservoirlocs"
-lake_area__count = "wflow_lakeareas"
-lake_location__count = "wflow_lakelocs"
-gauges = "wflow_gauges"
-gauges_grdc = "wflow_gauges_grdc"
-
-[state.variables]
-vegetation_canopy_water__depth = "canopystorage"
-soil_water_sat-zone__depth = "satwaterdepth"
-soil_layer_water_unsat-zone__depth = "ustorelayerdepth"
-soil_surface__temperature = "tsoil"
-"snowpack~dry__leq-depth" = "snow"
-"snowpack~liquid__depth" = "snowwater"
-land_surface_water__instantaneous_volume_flow_rate = "q_land"
-land_surface_water__instantaneous_depth = "h_land"
-subsurface_water__volume_flow_rate = "ssf"
-river_water__instantaneous_volume_flow_rate = "q_river"
-river_water__instantaneous_depth = "h_river"
-reservoir_water__instantaneous_volume = "volume_reservoir"
-lake_water_surface__instantaneous_elevation = "waterlevel_lake"
-glacier_ice__leq-depth = "glacierstore"
-
-[input.static]
-land_surface__slope = "Slope"
-river__length = "wflow_riverlength"
-river__slope = "RiverSlope"
-river_water_flow__manning_n_parameter = "N_River"
-river__width = "wflow_riverwidth"
-river_bank_water__depth = "RiverDepth"
-reservoir_water__max_volume = "ResMaxVolume"
-reservoir_surface__area = "ResSimpleArea"
-"reservoir_water_demand~required~downstream__volume_flow_rate" = "ResDemand"
-reservoir_water_release-below-spillway__max_volume_flow_rate = "ResMaxRelease"
-"reservoir_water~full-target__volume_fraction" = "ResTargetFullFrac"
-"reservoir_water~min-target__volume_fraction" = "ResTargetMinFrac"
-lake_surface__area = "LakeArea"
-lake_water_surface__initial_elevation = "LakeAvgLevel"
-lake_water__rating_curve_coefficient = "Lake_b"
-lake_water__rating_curve_exponent = "Lake_e"
-lake_water__storage_curve_type_count = "LakeStorFunc"
-lake_water__rating_curve_type_count = "LakeOutflowFunc"
-lake_water_flow_threshold-level__elevation = "LakeThreshold"
-"lake~lower_location__count" = "LinkedLakeLocs"
-glacier_ice__initial_leq-depth = "wflow_glacierstore"
-glacier_surface__area_fraction = "wflow_glacierfrac"
-vegetation_canopy__light-extinction_coefficient = "Kext"
-land_surface_water_flow__manning_n_parameter = "N"
-"soil~compacted__area_fraction" = "PathFrac"
-vegetation_root__depth = "RootingDepth"
-vegetation__specific-leaf_storage = "Sl"
-vegetation_wood_water__storage_capacity = "Swood"
-"land~water-covered__area_fraction" = "WaterFrac"
-vegetation__crop_factor = "kc"
-"vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient" = "alpha_h1"
-"vegetation_root__feddes_critial_pressure_head_h~1" = "h1"
-"vegetation_root__feddes_critial_pressure_head_h~2" = "h2"
-"vegetation_root__feddes_critial_pressure_head_h~3~high" = "h3_high"
-"vegetation_root__feddes_critial_pressure_head_h~3~low" = "h3_low"
-"vegetation_root__feddes_critial_pressure_head_h~4" = "h4"
-soil_water__saturated_volume_fraction = "thetaS"
-soil_water__residual_volume_fraction = "thetaR"
-soil__thickness = "SoilThickness"
-soil_layer_water__brooks-corey_exponent = "c"
-soil_surface_water__vertical_saturated_hydraulic_conductivity = "KsatVer"
-soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "f"
-
-[input.cyclic]
-vegetation__leaf-area_index = "LAI"
+basin__local_drain_direction = "local_drain_direction"
+subbasin_location__count = "subcatchment"
+river_location__mask = "river_mask"
+reservoir_area__count = "reservoir_area_id"
+reservoir_location__count = "reservoir_outlet_id"
+lake_area__count = "lake_area_id"
+lake_location__count = "lake_outlet_id"
+"lake~lower_location__count" = "lake_lower_id"
+outlets = "outlets"
+gauges_grdc = "gauges_grdc"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
 land_surface_water__potential_evaporation_volume_flux = "pet"
 atmosphere_air__temperature = "temp"
 
+[input.cyclic]
+vegetation__leaf-area_index = "vegetation_leaf_area_index"
+
+[input.static]
+land_surface__slope = "land_slope"
+river__length = "river_length"
+river__slope = "river_slope"
+river_water_flow__manning_n_parameter = "river_manning_n"
+river__width = "river_width"
+river_bank_water__depth = "river_depth"
+reservoir_water__max_volume = "reservoir_max_volume"
+reservoir_surface__area = "reservoir_area"
+"reservoir_water_demand~required~downstream__volume_flow_rate" = "reservoir_demand"
+reservoir_water_release-below-spillway__max_volume_flow_rate = "reservoir_max_release"
+"reservoir_water~full-target__volume_fraction" = "reservoir_target_full_fraction"
+"reservoir_water~min-target__volume_fraction" = "reservoir_target_min_fraction"
+lake_surface__area = "lake_area"
+lake_water_surface__initial_elevation = "lake_initial_depth"
+lake_water__rating_curve_coefficient = "lake_b"
+lake_water__rating_curve_exponent = "lake_e"
+lake_water__storage_curve_type_count = "lake_storage_curve"
+lake_water__rating_curve_type_count = "lake_rating_curve"
+lake_water_flow_threshold-level__elevation = "lake_outflow_threshold"
+glacier_ice__initial_leq-depth = "glacier_initial_leq_depth"
+glacier_surface__area_fraction = "glacier_fraction"
+vegetation_canopy__light-extinction_coefficient = "vegetation_kext"
+land_surface_water_flow__manning_n_parameter = "land_manning_n"
+"soil~compacted__area_fraction" = "soil_compacted_fraction"
+vegetation_root__depth = "vegetation_root_depth"
+vegetation__specific-leaf_storage = "vegetation_leaf_storage"
+vegetation_wood_water__storage_capacity = "vegetation_wood_storage"
+"land~water-covered__area_fraction" = "land_water_fraction"
+vegetation__crop_factor = "vegetation_crop_factor"
+"vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient" = "vegetation_feddes_alpha_h1"
+"vegetation_root__feddes_critial_pressure_head_h~1" = "vegetation_feddes_h1"
+"vegetation_root__feddes_critial_pressure_head_h~2" = "vegetation_feddes_h2"
+"vegetation_root__feddes_critial_pressure_head_h~3~high" = "vegetation_feddes_h3_high"
+"vegetation_root__feddes_critial_pressure_head_h~3~low" = "vegetation_feddes_h3_low"
+"vegetation_root__feddes_critial_pressure_head_h~4" = "vegetation_feddes_h4"
+soil_water__saturated_volume_fraction = "soil_theta_s"
+soil_water__residual_volume_fraction = "soil_theta_r"
+soil__thickness = "soil_thickness"
+soil_layer_water__brooks-corey_exponent = "soil_brooks_corey_c"
+soil_surface_water__vertical_saturated_hydraulic_conductivity = "soil_ksat_vertical"
+soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "soil_f"
+subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio.value = 100
+snowpack__degree-day_coefficient.value = 3.75653
+soil_surface_water__infiltration_reduction_parameter.value = 0.038
+vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio.value = 0.11
+"soil~compacted_surface_water__infiltration_capacity".value = 5
+soil_water_sat-zone_bottom__max_leakage_volume_flux.value = 0
+"soil_root~wet__sigmoid_function_shape_parameter".value = -500
+atmosphere_air__snowfall_temperature_threshold.value = 0
+atmosphere_air__snowfall_temperature_interval.value = 2
+snowpack__melting_temperature_threshold.value = 0
+snowpack__liquid_water_holding_capacity.value = 0.1
+glacier_ice__degree-day_coefficient.value = 5.3
+"glacier_firn_accumulation__snowpack~dry_leq-depth_fraction".value = 0.002
+glacier_ice__melting_temperature_threshold.value = 1.3
+
 [output.netcdf_grid]
 path = "output.nc"
 compressionlevel = 1
 
+[output.netcdf_grid.variables]
+river_water__volume_flow_rate = "river_q"
+
 [output.csv]
 path = "output.csv"
+
 [[output.csv.column]]
-header = "Q"
-map = "gauges"
+header = "river_q"
+map = "outlets"
 parameter = "river_water__volume_flow_rate"
 
 [[output.csv.column]]
-header = "Q"
+header = "river_q"
 map = "gauges_grdc"
 parameter = "river_water__volume_flow_rate"
 
 [[output.csv.column]]
-header = "P"
+header = "precip"
 map = "gauges_grdc"
 parameter = "atmosphere_water__precipitation_volume_flux"
 
-[input.static.subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio]
-value = 100
-
-[input.static.snowpack__degree-day_coefficient]
-value = 3.75653
-
-[input.static.soil_surface_water__infiltration_reduction_parameter]
-value = 0.038
-
-[input.static.vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio]
-value = 0.11
-
-[input.static."soil~compacted_surface_water__infiltration_capacity"]
-value = 5
-
-[input.static.soil_water_sat-zone_bottom__max_leakage_volume_flux]
-value = 0
-
-[input.static."soil_root~wet__sigmoid_function_shape_parameter"]
-value = -500
-
-[input.static.atmosphere_air__snowfall_temperature_threshold]
-value = 0
-
-[input.static.atmosphere_air__snowfall_temperature_interval]
-value = 2
-
-[input.static.snowpack__melting_temperature_threshold]
-value = 0
-
-[input.static.snowpack__liquid_water_holding_capacity]
-value = 0.1
-
-[input.static.glacier_ice__degree-day_coefficient]
-value = 5.3
-
-[input.static."glacier_firn_accumulation__snowpack~dry_leq-depth_fraction"]
-value = 0.002
-
-[input.static.glacier_ice__melting_temperature_threshold]
-value = 1.3
-
-[output.netcdf_grid.variables]
-river_water__volume_flow_rate = "q_av"
+[output.netcdf_scalar]
