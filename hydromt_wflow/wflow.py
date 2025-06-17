@@ -149,7 +149,10 @@ class WflowModel(Model):
             {'a': {'d':{'f':{'g': 1}}}, 'b': {'c': {'d': 2}}}
 
         """
-        self.config.update(data)
+        if len(data) > 0:
+            logger.debug("Setting model config options.")
+        for k, v in data.items():
+            self.set(k, v)
 
     @hydromt_step
     def setup_basemaps(
