@@ -25,7 +25,7 @@ class WflowGeomsComponent(GeomsComponent):
         region_component: Optional[str] = None,
         region_filename: str = "geoms/geoms_region.geojson",
     ):
-        """Initialize a GeomsComponent.
+        """Initialize a WflowGeomsComponent.
 
         Parameters
         ----------
