@@ -82,24 +82,15 @@ def test_wflow_staticmaps_component_set_mask(
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
 
-    # Set with the mask supplied as a dataarray
-    component.set(static_layer, name="layer1", mask=mask_layer)
-
-    # Assert that layer1 has been masked
-    np.testing.assert_array_equal(
-        component.data["layer1"],
-        np.array([[1, 1], [1, -9999]]),
-    )
-
     # Set the mask layer in the dataset and use that as the mask in the set method
-    # For the next layer
     component.set(mask_layer, name="mask")
-    component.set(static_layer, name="layer2", mask="mask")
+    mock_model._MAPS = {"basins": "mask"}  # Needed as internally references like this
+    component.set(static_layer, name="layer2")
 
     # Assert that layer2 has been masked
     np.testing.assert_array_equal(
         component.data["layer2"],
-        np.array([[1, 1], [1, -9999]]),
+        np.array([[1, -9999], [1, 1]]),
     )
 
 

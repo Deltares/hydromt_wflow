@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 import xarray as xr
-from hydromt._io.readers import _read_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
 from hydromt.model.steps import hydromt_step
@@ -32,7 +31,7 @@ class WflowStaticmapsComponent(GridComponent):
         *,
         filename: str = "staticmaps.nc",
         region_component: str | None = None,
-        region_filename: str = "geom/staticmaps_region.geojson",
+        region_filename: str = "staticgeoms/staticmaps_region.geojson",
     ):
         """Initialize a WflowStaticmapsComponent.
 
@@ -52,7 +51,7 @@ class WflowStaticmapsComponent(GridComponent):
             by default None
         region_filename : str
             The path to use for reading and writing of the region data by default.
-            By default "geom/staticmaps_region.geojson".
+            By default "staticgeoms/staticmaps_region.geojson".
         """
         super().__init__(
             model,
@@ -66,8 +65,6 @@ class WflowStaticmapsComponent(GridComponent):
     def read(
         self,
         filename: Path | str | None = None,
-        *,
-        mask_and_scale: bool = False,
         **kwargs,
     ):
         """Read staticmaps model data.
@@ -80,38 +77,22 @@ class WflowStaticmapsComponent(GridComponent):
         Parameters
         ----------
         filename : str, optional
-            filename relative to model root, by default 'grid/grid.nc'
-        mask_and_scale : bool, optional
-            If True, replace array values equal to _FillValue with NA and scale values
-            according to the formula original_values * scale_factor + add_offset, where
-            _FillValue, scale_factor and add_offset are taken from variable attributes
-            (if they exist).
+            filename relative to model root, by default None
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        self.root._assert_read_mode()
-        self._initialize_grid(skip_read=True)
-
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
         p = filename or self.model.config.get("input.path_static") or self._filename
         # Check for input dir
-        p_input = self.model.config.get("dir_input", fallback="")
+        p_input = Path(self.model.config.get("dir_input", fallback=""), p)
 
-        # Load grid data in r+ mode to allow overwriting netcdf files
-        if self.root.is_reading_mode() and self.root.is_writing_mode():
-            kwargs["load"] = True
-        loaded_nc_files = _read_nc(
-            Path(p_input, p),
-            self.root.path,
-            single_var_as_array=False,
-            mask_and_scale=mask_and_scale,
+        # Supercharge with parent method
+        super().read(
+            filename=p_input,
+            mask_and_scale=False,
             **kwargs,
         )
-        for ds in loaded_nc_files.values():
-            if ds.raster.res[1] > 0:  # Make sure its north-south oriented
-                ds = ds.raster.flipud()
-            self.set(ds)
 
     @hydromt_step
     def write(
@@ -121,6 +102,9 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Write staticmaps model data.
 
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
         Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
 
         Parameters
@@ -156,7 +140,6 @@ class WflowStaticmapsComponent(GridComponent):
         self,
         data: xr.DataArray | xr.Dataset,
         name: str | None = None,
-        mask: str | xr.DataArray | None = None,
     ):
         """Add data to the staticmaps.
 
@@ -184,8 +167,6 @@ class WflowStaticmapsComponent(GridComponent):
         name : str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
-        mask : str | xr.DataArray, optional
-            A mask to clip
         """
         self._initialize_grid()
         assert self._data is not None
@@ -235,17 +216,18 @@ class WflowStaticmapsComponent(GridComponent):
                 # Use `_data` as `data` cannot be set
                 self._data = self.data.drop_vars(vars_to_drop + ["layer"])
 
+        # Check if noth is really up and south therefore is down
+        if data.raster.res[1] > 0:
+            data = data.raster.flipud()
+
         # Determine the masking layer
-        mask = get_mask_layer(mask, self.data, data)
+        mask = get_mask_layer(self.model._MAPS.get("basins"), self.data, data)
 
         # Set the data per layer
         for dvar in data.data_vars:
             if dvar in self._data:
                 logger.warning(f"Replacing grid map: {dvar}")
             if mask is not None:
-                # TODO maybe we could outlaw boolean layers
-                # Instead use 0 and 1 for actual data and -1 or -9999 for all i care
-                # for the nodata value
                 if data[dvar].dtype != "bool":
                     data[dvar] = data[dvar].where(mask, data[dvar].raster.nodata)
                 else:
@@ -266,7 +248,7 @@ class WflowStaticmapsComponent(GridComponent):
 
         Parameters
         ----------
-        select : dict, optional
+        rename : dict, optional
             Keyword arguments that map the old names to the new names.
             So < old-name > = < new-name >.
         """

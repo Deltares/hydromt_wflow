@@ -52,6 +52,7 @@ def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
     # Set attributes for practical use
     type(model).crs = PropertyMock(side_effect=lambda: CRS.from_epsg(4326))
     type(model).root = PropertyMock(side_effect=lambda: ModelRoot(tmp_path))
+    model._MAPS = {}
     return model
 
 
