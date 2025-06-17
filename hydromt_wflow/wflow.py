@@ -1860,7 +1860,7 @@ gauge locations [-] (if derive_subcatch)
         df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
         gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
         # Add gdf_snapped to geoms
-        self.geoms.set(gdf_snapped, name=mapname.replace("wflow_", ""))
+        self.geoms.set(gdf_snapped, name=mapname)
 
         # Add output timeseries for gauges in the toml
         self.setup_config_output_timeseries(
