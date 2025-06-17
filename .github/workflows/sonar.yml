@@ -55,7 +55,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --locked test-cov
+            pixi run --locked -e test-full-py311 test-cov
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
