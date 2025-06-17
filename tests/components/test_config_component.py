@@ -113,7 +113,7 @@ def test_wflow_config_component_read_init(
     assert component.data["dir_output"] == "run_default"
 
 
-def test_wflow_config_component_read_default(
+def test_wflow_config_component_read_default_read_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
@@ -133,6 +133,12 @@ def test_wflow_config_component_read_default(
     # Read at init
     assert len(component.data) == 0
 
+
+def test_wflow_config_component_read_default_write_mode(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    mock_model: MagicMock,
+):
     # Reading the template only happens in w and w+ modes
     # Set it to read mode
     type(mock_model).root = PropertyMock(
@@ -140,15 +146,15 @@ def test_wflow_config_component_read_default(
     )
 
     # Setup the component
-    component2 = WflowConfigComponent(
+    component = WflowConfigComponent(
         model=mock_model,
         default_template_filename=Path(DATADIR, "wflow", "wflow_sbm.toml"),
     )
-    assert component2._data is None  # Assert no data or structure yet
+    assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component2.data) == 6
-    assert component2.data["dir_output"] == "run_default"
+    assert len(component.data) == 6
+    assert component.data["dir_output"] == "run_default"
     assert (
         f"No config file found at {Path(tmp_path, component._filename).as_posix()} \
 defaulting to"

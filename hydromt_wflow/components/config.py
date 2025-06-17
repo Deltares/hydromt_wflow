@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Tuple, cast
+from typing import Any
 
 import tomlkit
 from hydromt.model import Model
@@ -186,29 +186,3 @@ defaulting to {_new_path.as_posix()}"
         self._initialize()
         # Refer to utils function of set_config
         set_config(self._data, *args)
-
-    # Testing
-    def test_equal(self, other: ModelComponent) -> Tuple[bool, Dict[str, str]]:
-        """Compare components based on content.
-
-        Parameters
-        ----------
-        other : ModelComponent
-            The component to compare against.
-
-        Returns
-        -------
-        tuple[bool, Dict[str, str]]
-            True if the components are equal, and a dict with the associated errors per
-            property checked.
-        """
-        eq, errors = super().test_equal(other)
-        if not eq:
-            return eq, errors
-        other_config = cast(WflowConfigComponent, other)
-
-        # for once python does the recursion for us
-        if self.data == other_config.data:
-            return True, {}
-        else:
-            return False, {"config": "Configs are not equal"}
