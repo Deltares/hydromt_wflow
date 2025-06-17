@@ -10,6 +10,7 @@ import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.cli._utils import parse_config
+from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
@@ -211,3 +212,22 @@ def demda():
     # NOTE epsg 3785 is deprecated https://epsg.io/3785
     da.raster.set_crs(3857)
     return da
+
+
+@pytest.fixture
+def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
+    """Mock rasterdataset for testing purposes."""
+    ds = mocker.create_autospec(xr.Dataset, instance=True)
+
+    mock_raster = mocker.Mock()
+    mock_raster.crs.is_geographic = True
+    mock_raster.res = (1 / 120.0, 1 / 120.0)
+    mock_raster.clip_geom.return_value = ds
+    mock_raster.geometry_mask.return_value = xr.DataArray(
+        np.array([[1, 0], [0, 1]]), dims=("y", "x")
+    )
+    ds.raster = mock_raster
+    ds.coords = {}
+    ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
+
+    return ds
