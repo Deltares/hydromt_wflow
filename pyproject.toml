@@ -65,7 +65,7 @@ examples = [
   "nbconvert",
   "notebook",
 ]
-test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout"]
+test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout", "pytest-benchmark"]
 
 [project.entry-points."hydromt.models"]
 wflow          = "hydromt_wflow.wflow:WflowModel"
@@ -83,6 +83,8 @@ filterwarnings = [
   "ignore:The staticgeoms property:DeprecationWarning",
 ]
 testpaths = ["tests"]
+# don't run benchmarks by default when testing
+addopts   = ["--benchmark-skip"]
 
 [tool.coverage.run]
 branch = true
@@ -287,3 +289,18 @@ build-test-models = {depends-on = [
   "build-test-model-full",
   "build-test-model-sediment",
 ]}
+
+benchmark = { cmd = ["pytest", "--benchmark-only"] }
+
+benchmark-record = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-autosave",
+] }
+
+benchmark-compare = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-compare",
+  "--benchmark-compare-fail=min:25%",
+] }
