@@ -9,29 +9,26 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    env:
-      branch_name: ${{ github.head_ref || github.ref_name }}
-
     name: Record benchmark
     runs-on: "ubuntu-latest"
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.8.8
         with:
           pixi-version: "v0.45.0"
-          environments: test-full-py${{ matrix.python-version }}
+          environments: test-full-py311
           locked: false
           cache: true
 
       - name: Tests
         run: |
-            pixi run -e test-full-py${{ matrix.python-version }} benchmark-record
+            pixi run -e test-full-py311 benchmark-record
 
-            git pull # make sure git doesn't reject our push because of unknown refs
             git checkout -b "chore/record-benchmark"
             git config user.name "GitHub Actions Bot"
             git config user.email "<>"
