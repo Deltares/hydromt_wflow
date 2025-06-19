@@ -18,6 +18,10 @@ This means that end users do not need to worry or know about the underlying comp
 The only way that people can interact with / use Hydromt-Wflow, will be the public methods in ``WflowModel``.
 Even users that prefer the yml files will be using only the public functions (or ``hydromt_step``) of ``WflowModel``, which are a 1 to 1 mapping to these functions as well.
 
+Only the public methods of ``WflowModel`` can be a ``hydromt_step``.
+Components and workflows cannot be used directly as ``hydromt_step`` callables.
+
+
 WflowModel as Orchestrator
 --------------------------
 
@@ -38,17 +42,12 @@ Typical Method Structure in WflowModel
 
 Every method in the ``WflowModel`` class should generally follow these steps:
 
-1. **Validation**
-
-    Validate the state of the model, but also the method inputs to ensure they are correct and complete.
-    This includes checking types, formats, values, and asserting read/write modes.
-
-2. **Data Retrieval**
+1. **Data Retrieval**
 
     Retrieve any necessary data from the ``DataCatalog`` or other components.
     For example, reading data from the catalog or retrieving internal component state.
 
-3. **Delegation**
+2. **Delegation**
 
     Based on the inputs and retrieved data, determine which components, methods, or workflows to call, then pass the validated inputs to the appropriate methods.
 
@@ -56,7 +55,7 @@ Every method in the ``WflowModel`` class should generally follow these steps:
 
     **Important**: Each component should only use its own methods or public methods from ``WflowModel``, components must **not** access or depend on other components directly.
 
-4. **Output Handling**
+3. **Output Handling**
 
     (Post-)process and return/store the outputs from the invoked operations.
     Outputs may be stored in components or returned to the user.
@@ -77,18 +76,15 @@ An example method structure using made up method names in ``WflowModel`` might l
       ...
 
       def example_method(self, input_data: str):
-         # Step 1: Validation
-         self._assert_read_mode()
-
-         # Step 2: Data retrieval
+         # Step 1: Data retrieval
          config_data = self.config.get(input_data)
          data = self.data_catalog.get_data(config_data)
 
-         # Step 3: Delegation to components
+         # Step 2: Delegation to components
          partial_result = self.grid.process_data(data)
          result = workflows.example_workflow(partial_result)
 
-         # Step 4: Output handling
+         # Step 3: Output handling
          self.forcing.store_result(result)
 
 The above structure ensures that each method is clear, focused, and follows a consistent pattern.
@@ -120,3 +116,19 @@ Each component in the system should follow these principles:
 
   Any such type resolution or transformation must be handled in the ``WflowModel`` before calling component methods.
   This also means that components might have multiple methods for different data types.
+
+- **Validation**
+  Validate the state of the component & model (read/write mode), but also the method inputs to ensure they are correct and complete.
+  This can include checking types, formats, values, and asserting read/write modes.
+
+
+Workflows
+--------
+Workflows are functions that combine primitive data and model operations into higher-level processes.
+They are defined in the ``workflows`` module and can be called from ``WflowModel`` methods.
+Workflows should follow these principles:
+- **Single Responsibility**: Each workflow should perform a specific task or process.
+- **Reusability**: Workflows should be designed to be reusable across different components and methods.
+- **No Direct Component Access**: Workflows should not directly access or modify component states. Instead, they should operate on data passed to them from ``WflowModel``.
+- **Validation**: Workflows should validate their inputs and outputs to ensure correctness.
+- **Naming Conventions**: workflows work with the hydromt-naming conventions, and should also handle the renaming between hydromt-names and wflow names.
