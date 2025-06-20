@@ -11,6 +11,7 @@ import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
+from tomlkit.items import Key
 
 from .naming import (
     WFLOW_NAMES,
@@ -356,7 +357,7 @@ set_config(config, 'b.d.e', 99)
     # if the first key is not present
     # we can just set the entire thing straight
     if keys[0] not in config:
-        config.append(tomlkit.key(keys), value)
+        config.append(_tomlkit_key(keys), value)
         return
 
     # If there is only one key we also just set that directly as
@@ -368,7 +369,7 @@ set_config(config, 'b.d.e', 99)
     current = config
     for idx in range(len(keys)):
         if idx != len(keys) - 1:
-            remaining_key = tomlkit.key(keys[idx:])
+            remaining_key = _tomlkit_key(keys[idx:])
         else:
             remaining_key = keys[idx]
 
@@ -384,6 +385,10 @@ set_config(config, 'b.d.e', 99)
         _ = current.pop(remaining_key)
 
     current[remaining_key] = value
+
+
+def _tomlkit_key(keys: list) -> Key:
+    return tomlkit.key(keys[0] if len(keys) == 1 else keys)
 
 
 def get_grid_from_config(
