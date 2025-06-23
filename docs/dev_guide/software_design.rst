@@ -33,7 +33,7 @@ All the methods in ``WflowModel`` are simple and delegate the real work to the r
 
 Currently, some ``WflowModel`` methods do combine logic from multiple components.
 
-For instance, the ``forcing`` component may read configuration settings from the ``config`` component, then use the ``grid`` component to process forcing data.
+For instance, the forcing component may need configuration settings from the config component, and then need to use the data from the grid component. However, to keep these components ignorant of each other, the WflowModel class will be the connection.
 
 This design choice is intentional: **any logic that requires coordination between multiple components should be placed in ``WflowModel``.**
 
@@ -64,28 +64,30 @@ An example method structure using made up method names in ``WflowModel`` might l
 
 .. code-block:: python
 
-   import workflows
-   from components import ForcingComponent, ConfigComponent, DataCatalog, GridComponent
+  import workflows
+  from components import ForcingComponent, ConfigComponent, DataCatalog, GridComponent
 
-   class WflowModel:
-      forcing: ForcingComponent
-      config: ConfigComponent
-      data_catalog: DataCatalog
-      grid: GridComponent
+  class WflowModel:
+    forcing: ForcingComponent
+    config: ConfigComponent
+    data_catalog: DataCatalog
+    grid: GridComponent
+    ...
+    def example_setup_method(self, input_data: str, model_option1: bool = true):
+      # Step 1: Data retrieval
+      config_data = self.config.get("setting1") # eg get starttime and endtime
+      data = self.data_catalog.get_data(input_data, config_data)
 
-      ...
+      # Step 2: Delegation to components
+      partial_result = workflows.example_workflow1(data)
+      result = workflows.example_workflow2(partial_result, self.grid.data, model_option1)
 
-      def example_method(self, input_data: str):
-         # Step 1: Data retrieval
-         config_data = self.config.get(input_data)
-         data = self.data_catalog.get_data(config_data)
-
-         # Step 2: Delegation to components
-         partial_result = self.grid.process_data(data)
-         result = workflows.example_workflow(partial_result)
-
-         # Step 3: Output handling
-         self.forcing.store_result(result)
+      # Step 3: Output handling
+      self.config.set(model.option1, model_option1)
+      if "var1" in result:
+        self.config.set(model.dovar1, true)
+      rename_dict = {k: v for k, v in self._MAPS if k in result} # from hydromt to wflow name
+      self.forcing.set(result.rename(rename_dict))
 
 The above structure ensures that each method is clear, focused, and follows a consistent pattern.
 It also allows the components and workflows to focus on their specific tasks without worrying about the overall orchestration.
