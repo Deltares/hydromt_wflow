@@ -7,7 +7,7 @@ import geopandas as gpd
 from hydromt.model import Model
 from hydromt.model.components import GeomsComponent
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowGeomsComponent(GeomsComponent):

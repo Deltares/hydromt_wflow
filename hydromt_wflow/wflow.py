@@ -5284,9 +5284,48 @@ Run setup_soilmaps first"
         """
         Read static geometries and adds to ``geoms``.
 
-        If ``dir_input`` is set in the config, that folder will be used to read all
-        geometries, ignoring ``geoms_fn``.
-        If ``dir_input`` is None, it will read all .geojson files at <root>/<geoms_fn>
+        If ``dir_input`` is set in the config, the path where all static geometries are
+        read, will be constructed as ``<model_root>/<dir_input>/<geoms_fn>``.
+        Where <dir_input> is relative to the model root. Depending on the config value
+        ``dir_input``, the path will be constructed differently.
+
+        Examples
+        --------
+        ```python
+        model_root = Path(
+            "my_model_root"
+        )
+        parent_dir = model_root.parent
+        dir_input = (
+            "../input"
+        )
+        geoms_fn = (
+            "staticgeoms"
+        )
+        # read_dir = parent_dir / model_root / dir_input / geoms_fn
+        # which resolves to
+        read_dir = (
+            parent_dir
+            / "input"
+            / "staticgeoms"
+        )
+        ```
+
+        If ``dir_input`` is None, the path will be constructed as
+        ```python
+        model_root = Path(
+            "my_model_root"
+        )
+        geoms_fn = (
+            "staticgeoms"
+        )
+        # read_dir = model_root / geoms_fn
+        # which resolves to
+        read_dir = (
+            model_root
+            / "staticgeoms"
+        )
+        ```
 
         Parameters
         ----------
@@ -5294,15 +5333,15 @@ Run setup_soilmaps first"
             Folder name/path where the static geometries are stored relative to the
             model root. By default "staticgeoms".
         """
-        read_dir = self.get_config("dir_input", abs_path=True)
-        if read_dir is not None:
-            read_dir = Path(read_dir).resolve()
+        if self.get_config("dir_input") is not None:
+            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
         else:
-            read_dir = self.root.path / geoms_fn
+            dir_mod = join(self.root.path, geoms_fn)
 
         self.geoms.read(
-            read_dir=read_dir,
-            merge_data=not self._write,
+            read_dir=Path(dir_mod).resolve(),
+            merge_data=self._write,
+            # if True, merge data into existing geoms, if false, fresh start
         )
 
     @hydromt_step
@@ -5332,14 +5371,13 @@ Run setup_soilmaps first"
             If True, geometries are transformed to WGS84 before writing. By default
             False, which means geometries are written in their original CRS.
         """
-        dir_out = self.get_config("dir_input", abs_path=True)
-        if dir_out is not None:
-            dir_out = Path(dir_out).resolve()
+        if self.get_config("dir_input") is not None:
+            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
         else:
-            dir_out = self.root.path / geoms_fn
+            dir_mod = join(self.root.path, geoms_fn)
 
         self.geoms.write(
-            dir_out=dir_out,
+            dir_out=Path(dir_mod).resolve(),
             to_wgs84=to_wgs84,
             precision=precision,
             kwargs=kwargs,
