@@ -48,13 +48,20 @@ def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
 
 @pytest.fixture
 def mock_model_staticmaps(
-    mock_model: MagicMock, grid_dummy_data: xr.DataArray
+    mock_model: MagicMock,
+    grid_dummy_data: xr.DataArray,
 ) -> MagicMock:
     # TODO: replace with WflowStaticmapsComponent when available
     # Add a GridComponent to mock model
-    mock_model.add_component(name="staticmaps", component=GridComponent())
-    # Give it some data to get a grid definition (crs, y, x)
-    mock_model.staticmaps.set(grid_dummy_data, name="basin")
+    staticmaps = GridComponent(mock_model)
+    staticmaps._data = grid_dummy_data.to_dataset(name="basin")
+
+    type(mock_model).components = PropertyMock(
+        side_effect=lambda: {"staticmaps": staticmaps}
+    )
+    type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+    # Mock the get_component method of mock_model to return the staticmaps component
+    mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
 
     return mock_model
 
@@ -85,4 +92,5 @@ def grid_dummy_data() -> xr.DataArray:
             "grid_mapping_name": "latitude_longitude",
         },
     )
+    data.name = "dummy_grid"
     return data
