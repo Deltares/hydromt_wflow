@@ -5151,10 +5151,27 @@ Run setup_soilmaps first"
         self.write_config(config_name=config_fn)
 
     @hydromt_step
+    def read_config(
+        self,
+        config_filename: str | None = None,
+    ):
+        """
+        Read config from <root/config_filename>.
+
+        Parameters
+        ----------
+        config_filename : str, optional
+            Name of the config file. By default None to use the default name
+            wflow_sbm.toml.
+        """
+        # Call the component
+        self.config.read(config_filename)
+
+    @hydromt_step
     def write_config(
         self,
-        config_name: str | None = None,
-        config_root: str | None = None,
+        config_filename: str | None = None,
+        config_root: Path | str | None = None,
     ):
         """
         Write config to <root/config_fn>.
@@ -5166,10 +5183,11 @@ Run setup_soilmaps first"
             wflow_sbm.toml.
         config_root : str, optional
             Root folder to write the config file if different from model root (default).
+            Can be absolute or relative to model root.
         """
         # TODO is a compat method, remove in future
         # Bridge the diff in api
-        p = config_name or self.config._filename
+        p = config_filename or self.config._filename
         if config_root is not None:
             p = Path(config_root, p)
         # Call the component

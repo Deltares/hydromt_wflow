@@ -7,10 +7,9 @@ from typing import Any, cast
 import tomlkit
 from hydromt.model import Model
 from hydromt.model.components.base import ModelComponent
-from hydromt.model.steps import hydromt_step
 from tomlkit.toml_file import TOMLFile
 
-from hydromt_wflow.utils import get_config, set_config
+from hydromt_wflow import utils
 
 __all__ = ["WflowConfigComponent"]
 
@@ -78,7 +77,6 @@ class WflowConfigComponent(ModelComponent):
         return self._data
 
     ## I/O Methods
-    @hydromt_step
     def read(
         self,
         path: Path | str | None = None,
@@ -120,7 +118,6 @@ defaulting to {_new_path.as_posix()}"
         # But now it overwrites the already existing keys.
         self._data = data
 
-    @hydromt_step
     def write(
         self,
         path: Path | str | None = None,
@@ -144,7 +141,6 @@ defaulting to {_new_path.as_posix()}"
             logger.warning("Model config has no data, skip writing.")
 
     ## Add data methods
-    @hydromt_step
     def update(self, data: dict[str, Any]):
         """Set the config dictionary at key(s) with values.
 
@@ -195,10 +191,9 @@ defaulting to {_new_path.as_posix()}"
             If True return the absolute path relative to the model root,
             by default False.
         """
-        self._initialize()
         # Refer to utils function of get_config
-        return get_config(
-            self._data,
+        return utils.get_config(
+            self.data,
             *args,
             root=self.root.path,
             fallback=fallback,
@@ -217,7 +212,7 @@ defaulting to {_new_path.as_posix()}"
         """
         self._initialize()
         # Refer to utils function of set_config
-        set_config(self._data, *args)
+        utils.set_config(self.data, *args)
 
     # Testing
     def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
