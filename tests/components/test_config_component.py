@@ -35,13 +35,13 @@ def test_wflow_config_component_get(
     component.data.update(config_dummy_data)
 
     # Assert asking for entry
-    assert component.get("biem") == "bam"
-    assert component.get("time") == {"sometime": "now"}
-    assert isinstance(component.get("foo"), dict)
+    assert component.get_value("biem") == "bam"
+    assert component.get_value("time") == {"sometime": "now"}
+    assert isinstance(component.get_value("foo"), dict)
     assert isinstance(component.data["foo"], Table)
-    assert component.get("foo.bar") == "baz"
-    assert component.get("foo", "bip") == "bop"
-    assert component.get("no") is None
+    assert component.get_value("foo.bar") == "baz"
+    assert component.get_value("foo", "bip") == "bop"
+    assert component.get_value("no") is None
 
 
 def test_wflow_config_component_set(mock_model: MagicMock):
@@ -68,6 +68,22 @@ def test_wflow_config_component_set_alt(mock_model: MagicMock):
     # Assert the content
     assert component.data["foo"] == {"bar": "baz"}
     assert len(component.data) == 1
+
+
+def test_wflow_config_component_update(mock_model: MagicMock):
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+
+    # Update the config
+    component.update(
+        {
+            "foo.bar": "baz",
+            "time": "now",
+        }
+    )
+    # Assert the content
+    assert component.data["foo"] == {"bar": "baz"}
+    assert len(component.data) == 2
 
 
 def test_wflow_config_component_read(
@@ -113,7 +129,7 @@ def test_wflow_config_component_read_init(
     assert component.data["dir_output"] == "run_default"
 
 
-def test_wflow_config_component_read_default(
+def test_wflow_config_component_read_default_read_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
@@ -121,6 +137,28 @@ def test_wflow_config_component_read_default(
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
+    )
+
+    # Setup the component
+    component = WflowConfigComponent(
+        model=mock_model,
+        default_template_filename=Path(DATADIR, "wflow", "wflow_sbm.toml"),
+    )
+    assert component._data is None  # Assert no data or structure yet
+
+    # Read at init
+    assert len(component.data) == 0
+
+
+def test_wflow_config_component_read_default_write_mode(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    mock_model: MagicMock,
+):
+    # Reading the template only happens in w and w+ modes
+    # Set it to read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(tmp_path, mode="w"),
     )
 
     # Setup the component
@@ -203,18 +241,22 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
     component = WflowConfigComponent(mock_model)
     component2 = WflowConfigComponent(mock_model)
 
-    # Updatethem like a dummy to request
-    component.data.update(config_dummy_data)
-    component2.data.update(config_dummy_data)
+    # Update them like a dummy to request
+    component.update(config_dummy_data)
+    component2.update(config_dummy_data)
 
     # Assert these are equal
-    assert component == component2
+    eq, errors = component.test_equal(component2)
+    assert eq
+    assert len(errors) == 0
 
     # Update component2 to make them not equal
     component2.set("time.spooky", "ghost")
 
     # Assert unequal
-    assert component != component2
+    eq, errors = component.test_equal(component2)
+    assert not eq
+    assert errors == {"config": "Configs are not equal"}
 
 
 def test_wflow_config_component_equal_error(mock_model: MagicMock):
@@ -222,8 +264,7 @@ def test_wflow_config_component_equal_error(mock_model: MagicMock):
     component = WflowConfigComponent(mock_model)
 
     # Error as wrong type is compared
-    with pytest.raises(
-        ValueError,
-        match="Can't compare WflowConfigComponent with type int",
-    ):
-        _ = component == 1
+    eq, errors = component.test_equal(1)
+    assert errors == {
+        "__class__": "other does not inherit from <class 'hydromt_wflow.components.config.WflowConfigComponent'>."  # noqa: E501
+    }
