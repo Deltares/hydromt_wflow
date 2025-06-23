@@ -83,6 +83,7 @@ def grid_dummy_data() -> xr.DataArray:
     data = xr.DataArray(
         data=[[1, 2], [3, 4]],
         dims=["y", "x"],
+        name="dummy_grid",
         coords={
             "y": [0, 1],
             "x": [0, 1],
@@ -92,5 +93,4 @@ def grid_dummy_data() -> xr.DataArray:
             "grid_mapping_name": "latitude_longitude",
         },
     )
-    data.name = "dummy_grid"
     return data

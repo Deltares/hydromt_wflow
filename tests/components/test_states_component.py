@@ -45,7 +45,8 @@ def test_wflow_states_component_set(
     assert component._data is None
 
     # Set an entry
-    component.set(grid_dummy_data, name="test_layer")
+    # Copy else the name gets altered for the next test?
+    component.set(grid_dummy_data.copy(), name="test_layer")
 
     # Assert the content
     assert isinstance(component._data, xr.Dataset)
@@ -62,8 +63,7 @@ def test_wflow_states_component_set_alt(
     )
 
     # Try with dataset
-    dataset = grid_dummy_data.to_dataset()
-    component.set(dataset)
+    component.set(grid_dummy_data.to_dataset())
 
     # Assert the content
     assert isinstance(component._data, xr.Dataset)
