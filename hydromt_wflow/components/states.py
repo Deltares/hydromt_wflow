@@ -29,6 +29,24 @@ class WflowStatesComponent(GridComponent):
         region_component: str | None = None,
         region_filename: str | None = "staticgeoms/states_region.geojson",
     ):
+        """
+        Initialize the Wflow states component.
+
+        Parameters
+        ----------
+        model : Model
+            HydroMT model instance.
+        filename : str, optional
+            Default path relative to the root where the states file will be read and
+            written. By default 'instate/instates.nc'.
+        region_component : str, optional
+            Name of the region component to align the states data with. If provided,
+            the states data will be aligned with the grid of this component.
+            By default None.
+        region_filename : str, optional
+            A path relative to the root where the region file will be written.
+            By default 'staticgeoms/states_region.geojson'.
+        """
         super().__init__(
             model=model,
             filename=filename,
@@ -46,7 +64,7 @@ class WflowStatesComponent(GridComponent):
         Parameters
         ----------
         data : xr.Dataset or xr.DataArray
-            The states data to set.
+            The states data to set/add.
         name : str, optional
             Name of new data layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset.
