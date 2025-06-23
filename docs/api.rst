@@ -105,6 +105,8 @@ General methods
    :toctree: _generated
 
    WflowModel.set_config
+   WflowModel.get_config
+   WflowModel.read_config
    WflowModel.write_config
 
    WflowModel.set_grid
@@ -210,8 +212,9 @@ General methods
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.setup_config
    WflowSedimentModel.set_config
+   WflowSedimentModel.get_config
+   WflowSedimentModel.read_config
    WflowSedimentModel.write_config
 
    WflowSedimentModel.set_grid
