@@ -33,6 +33,7 @@ from hydromt_wflow import workflows
 from hydromt_wflow.components import (
     StaticmapsComponent,
     WflowConfigComponent,
+    WflowStatesComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
@@ -81,6 +82,7 @@ class WflowModel(Model):
         components = {
             "config": config_component,
             "staticmaps": staticmaps_component,
+            "states": WflowStatesComponent(self, region_component="staticmaps"),
         }
 
         super().__init__(
@@ -5243,7 +5245,6 @@ Run setup_soilmaps first"
 
         ds_out.to_netcdf(fn, encoding=encoding)
 
-    @hydromt_step
     def set_grid(
         self,
         data: xr.DataArray | xr.Dataset | np.ndarray,
@@ -5668,69 +5669,75 @@ change name input.path_forcing "
 
     @hydromt_step
     def read_states(self):
-        """Read states at <root/instate/> and parse to dict of xr.DataArray."""
-        fn_default = join("instate", "instates.nc")
-        fn = self.get_config(
-            "state.path_input", abs_path=True, fallback=join(self.root, fn_default)
+        """
+        Read states at <root/dir_input/state.path_input>.
+
+        Checks the path of the file in the config toml using both ``state.path_input``
+        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
+        in the root folder.
+        """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = self.config.get("state.path_input") or self.states._filename
+        # Check for input dir
+        p_input = join(self.config.get("dir_input", fallback=""), p)
+
+        self.states.read(
+            filename=p_input,
         )
 
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.get_config("state.path_input", fallback=fn_default),
-            )
-            logger.info(f"Input directory found {input_dir}")
-
-        if not self._write:
-            # start fresh in read-only mode
-            self._states = dict()
-
-        if fn is not None and isfile(fn):
-            logger.info(f"Read states from {fn}")
-            with xr.open_dataset(fn, mask_and_scale=False) as ds:
-                for v in ds.data_vars:
-                    self.set_states(ds[v])
-
     @hydromt_step
-    def write_states(self, fn_out: str | Path | None = None):
-        """Write states at <root/instate/> in model ready format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
+    def write_states(self, filename: str | Path | None = None):
+        """
+        Write states at <root/dir_input/state.path_input> in model ready format.
 
-        if self.states:
-            logger.info("Writing states file")
+        Checks the path of the file in the config toml using both ``state.path_input``
+        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
+        in the root folder.
+        If filename is provided, it will be used and config ``state.path_input``
+        will be updated accordingly.
 
-            # get output filename and if needed update and re-write the config
-            if fn_out is not None:
-                self.set_config("state.path_input", fn_out)
-                self.write_config()  # re-write config
-            else:
-                fn_name = self.get_config(
-                    "state.path_input", abs_path=False, fallback=None
-                )
-                if fn_out is None:
-                    fn_name = join("instate", "instates.nc")
-                    self.set_config("state.path_input", fn_name)
-                    self.write_config()  # re-write config
-                if self.get_config("dir_input") is not None:
-                    input_dir = self.get_config("dir_input", abs_path=True)
-                    fn_out = join(input_dir, fn_name)
-                else:
-                    fn_out = join(self.root, fn_name)
+        Parameters
+        ----------
+        filename : str, Path, optional
+            Name of the states file, relative to model root and ``dir_input`` if any.
+            By default None to use the name as defined in the model config file.
+        """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = filename or self.config.get("state.path_input") or self.states._filename
+        # Check for output dir
+        p_output = join(self.config.get("dir_input", fallback=""), p)
 
-            # merge, process and write forcing
-            ds = xr.merge(self.states.values())
+        # Update the config
+        self.config.set("state.path_input", p)
 
-            # make sure no _FillValue is written to the time dimension
-            ds["time"].attrs.pop("_FillValue", None)
+        # Write
+        self.states.write(filename=p_output)
 
-            # Check if all sub-folders in fn_out exists and if not create them
-            if not isdir(dirname(fn_out)):
-                os.makedirs(dirname(fn_out))
+    def set_states(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+    ):
+        """Add data to states.
 
-            # write states
-            ds.to_netcdf(fn_out, mode="w")
+        All layers of states must have identical spatial coordinates. This is an
+        inherited method from HydroMT-core's StatesModel.set_states with some fixes.
+        If basin data is available the states will be masked to that upon setting.
+
+        Parameters
+        ----------
+        data: xarray.DataArray or xarray.Dataset
+            new map layer to add to states
+        name: str, optional
+            Name of new map layer, this is used to overwrite the name of a DataArray and
+            ignored if data is a Dataset
+        """
+        if self._MAPS["basins"] in self.grid:
+            data = utils.mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
+        # fall back on default set_states behaviour
+        self.states.set(data, name=name)
 
     @hydromt_step
     def read_results(self):

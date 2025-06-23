@@ -3,8 +3,10 @@ from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
+import xarray as xr
 from hydromt import DataCatalog
 from hydromt.model import ModelRoot
+from hydromt.model.components import GridComponent
 from pyproj.crs import CRS
 from pytest_mock import MockerFixture
 
@@ -44,6 +46,26 @@ def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
     return model
 
 
+@pytest.fixture
+def mock_model_staticmaps(
+    mock_model: MagicMock,
+    grid_dummy_data: xr.DataArray,
+) -> MagicMock:
+    # TODO: replace with WflowStaticmapsComponent when available
+    # Add a GridComponent to mock model
+    staticmaps = GridComponent(mock_model)
+    staticmaps._data = grid_dummy_data.to_dataset(name="basin")
+
+    type(mock_model).components = PropertyMock(
+        side_effect=lambda: {"staticmaps": staticmaps}
+    )
+    type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+    # Mock the get_component method of mock_model to return the staticmaps component
+    mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
+
+    return mock_model
+
+
 ## Extra data structures
 @pytest.fixture(scope="session")
 def config_dummy_data() -> dict:
@@ -52,4 +74,23 @@ def config_dummy_data() -> dict:
         "time": {"sometime": "now"},
         "foo": {"bar": "baz", "bip": "bop"},
     }
+    return data
+
+
+@pytest.fixture(scope="session")
+def grid_dummy_data() -> xr.DataArray:
+    """Create a dummy grid data array."""
+    data = xr.DataArray(
+        data=[[1, 2], [3, 4]],
+        dims=["y", "x"],
+        name="dummy_grid",
+        coords={
+            "y": [0, 1],
+            "x": [0, 1],
+        },
+        attrs={
+            "crs": "EPSG:4326",
+            "grid_mapping_name": "latitude_longitude",
+        },
+    )
     return data
