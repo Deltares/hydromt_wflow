@@ -503,21 +503,21 @@ def mask_raster_from_layer(
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
     mask = mask != mask.raster.nodata
-    # Need to duplicate or else data should have a name ie we duplicate functionality
-    # of GridModel.set_grid
-    if isinstance(data, xr.DataArray):
-        # nodata is required for all but boolean fields
-        if data.dtype != "bool":
-            data = data.where(mask, data.raster.nodata)
+
+    def _mask_data_array(data_array: xr.DataArray) -> xr.DataArray:
+        """Mask the data array based on the mask."""
+        # If the data is boolean, we set it to False where the mask is False
+        if data_array.dtype == "bool":
+            return data_array.where(mask, False)
+        # Otherwise we set it to nodata where the mask is False
         else:
-            data = data.where(mask, False)
+            return data_array.where(mask, data_array.raster.nodata)
+
+    if isinstance(data, xr.DataArray):
+        data = _mask_data_array(data)
     else:
         for var in data.data_vars:
-            # nodata is required for all but boolean fields
-            if data[var].dtype != "bool":
-                data[var] = data[var].where(mask, data[var].raster.nodata)
-            else:
-                data[var] = data[var].where(mask, False)
+            data[var] = _mask_data_array(data[var])
 
     return data
 
