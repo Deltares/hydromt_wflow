@@ -21,8 +21,8 @@ Initialize
 
 .. _components:
 
-Setup components
-----------------
+Setup methods
+-------------
 
 .. autosummary::
    :toctree: _generated
@@ -64,6 +64,41 @@ Setup components
    WflowModel.setup_cold_states
    WflowModel.upgrade_to_v1_wflow
 
+High level and I/O methods
+--------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowModel.build
+   WflowModel.update
+
+   WflowModel.read
+   WflowModel.write
+
+   WflowModel.read_config
+   WflowModel.write_config
+
+   WflowModel.read_grid
+   WflowModel.write_grid
+   WflowModel.clip_grid
+
+   WflowModel.read_geoms
+   WflowModel.write_geoms
+
+   WflowModel.read_forcing
+   WflowModel.write_forcing
+   WflowModel.clip_forcing
+
+   WflowModel.read_states
+   WflowModel.write_states
+   WflowModel.clip_states
+
+   WflowModel.read_results
+
+   WflowModel.read_tables
+   WflowModel.write_tables
+
 Components
 ----------
 
@@ -87,49 +122,16 @@ Attributes
    WflowModel.basins
    WflowModel.rivers
 
-High level methods
-------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowModel.read
-   WflowModel.write
-   WflowModel.build
-   WflowModel.update
-
-General methods
----------------
+Other general methods
+---------------------
 
 .. autosummary::
    :toctree: _generated
 
    WflowModel.set_config
    WflowModel.get_config
-   WflowModel.read_config
-   WflowModel.write_config
-
    WflowModel.set_grid
-   WflowModel.read_grid
-   WflowModel.write_grid
-   WflowModel.clip_grid
-
-   WflowModel.read_geoms
-   WflowModel.write_geoms
-
-   WflowModel.read_forcing
-   WflowModel.write_forcing
-   WflowModel.clip_forcing
-
-   WflowModel.read_states
-   WflowModel.write_states
-   WflowModel.clip_states
-
-   WflowModel.read_results
-
    WflowModel.set_tables
-   WflowModel.read_tables
-   WflowModel.write_tables
 
 .. _api_model_sediment:
 
@@ -173,6 +175,37 @@ Setup components
    WflowSedimentModel.setup_grid_from_raster
    WflowSedimentModel.upgrade_to_v1_wflow
 
+High level and I/O methods
+--------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSedimentModel.build
+   WflowSedimentModel.update
+
+   WflowSedimentModel.read
+   WflowSedimentModel.write
+
+   WflowSedimentModel.read_config
+   WflowSedimentModel.write_config
+
+   WflowSedimentModel.read_grid
+   WflowSedimentModel.write_grid
+   WflowSedimentModel.clip_grid
+
+   WflowSedimentModel.read_geoms
+   WflowSedimentModel.write_geoms
+
+   WflowSedimentModel.read_forcing
+   WflowSedimentModel.write_forcing
+   WflowSedimentModel.clip_forcing
+
+   WflowSedimentModel.read_states
+   WflowSedimentModel.write_states
+
+   WflowSedimentModel.read_results
+
 Components
 ----------
 
@@ -195,44 +228,15 @@ Attributes
    WflowSedimentModel.basins
    WflowSedimentModel.rivers
 
-High level methods
-------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.read
-   WflowSedimentModel.write
-   WflowSedimentModel.build
-   WflowSedimentModel.update
-
-General methods
----------------
+Other general methods
+---------------------
 
 .. autosummary::
    :toctree: _generated
 
    WflowSedimentModel.set_config
    WflowSedimentModel.get_config
-   WflowSedimentModel.read_config
-   WflowSedimentModel.write_config
-
    WflowSedimentModel.set_grid
-   WflowSedimentModel.read_grid
-   WflowSedimentModel.write_grid
-   WflowSedimentModel.clip_grid
-
-   WflowSedimentModel.read_geoms
-   WflowSedimentModel.write_geoms
-
-   WflowSedimentModel.read_forcing
-   WflowSedimentModel.write_forcing
-   WflowSedimentModel.clip_forcing
-
-   WflowSedimentModel.read_states
-   WflowSedimentModel.write_states
-
-   WflowSedimentModel.read_results
 
 .. _model_components:
 
