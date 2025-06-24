@@ -30,7 +30,6 @@ class WflowSedimentModel(WflowModel):
     """The wflow sediment model class, a subclass of WflowModel."""
 
     name: str = "wflow_sediment"
-    _GEOMS = {}
 
     def __init__(
         self,
