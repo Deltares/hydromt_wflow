@@ -69,7 +69,7 @@ class TestParseRegion:
         x, y = mock_xy
 
         # Act
-        geom, xy, ds_org, scale_ratio = parse_region(
+        geoms, xy, ds_org = parse_region(
             data_catalog=mock_datacatalog,
             region=mock_region.copy(),
             hydrography_fn="mock_hydrography",
@@ -77,20 +77,21 @@ class TestParseRegion:
         )
 
         # Assert
-        assert isinstance(geom, gpd.GeoDataFrame), (
-            "Parsed geometry should be a GeoDataFrame."
-        )
-        assert geom.crs.to_string() == "EPSG:4326", (
-            "Geometry should have CRS EPSG:4326."
-        )
-        assert not geom.empty, "Returned geometry should not be empty."
-        bounds = geom.total_bounds
-        assert bounds[0] <= x <= bounds[2], (
-            "X coordinate should fall within geometry bounds."
-        )
-        assert bounds[1] <= y <= bounds[3], (
-            "Y coordinate should fall within geometry bounds."
-        )
+        for name, geom in geoms.items():
+            assert isinstance(geom, gpd.GeoDataFrame), (
+                "Parsed geometry should be a GeoDataFrame."
+            )
+            assert geom.crs.to_string() == "EPSG:4326", (
+                "Geometry should have CRS EPSG:4326."
+            )
+            assert not geom.empty, "Returned geometry should not be empty."
+            bounds = geom.total_bounds
+            assert bounds[0] <= x <= bounds[2], (
+                "X coordinate should fall within geometry bounds."
+            )
+            assert bounds[1] <= y <= bounds[3], (
+                "Y coordinate should fall within geometry bounds."
+            )
 
         assert isinstance(xy, np.ndarray), "XY should be a NumPy array."
         assert xy.shape == (1, 2), "XY should be a single (x, y) pair."
@@ -137,7 +138,8 @@ class TestParseRegion:
             "Kind 'bbox' for the region is not recommended as it can lead "
             "to mistakes in the catchment delineation. Use carefully."
         ) in caplog.text
-        assert isinstance(parsed_region[0], gpd.GeoDataFrame)
+
+        assert isinstance(parsed_region[0], dict)
         assert parsed_region[1] is None
 
         geom_region = {"geom": mock_geometry.geometry}
@@ -154,7 +156,7 @@ class TestParseRegion:
             "Kind 'geom' for the region is not recommended as it can lead "
             "to mistakes in the catchment delineation. Use carefully."
         ) in caplog.text
-        assert isinstance(parsed_region[0], gpd.GeoDataFrame)
+        assert isinstance(parsed_region[0], dict)
         assert parsed_region[1] is None
 
     def test_parse_region_invalid_region_kind(self, mock_datacatalog, mock_region):

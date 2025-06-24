@@ -52,29 +52,24 @@ class WflowGeomsComponent(GeomsComponent):
 
     def read(
         self,
-        read_dir: Path,
-        merge_data: bool = False,
+        filename: str,
         **kwargs: dict,
     ):
-        r"""Read model geometries files at <read_dir>/*.geojson.
+        r"""Read model geometries files.
 
         key-word arguments are passed to :py:func:`geopandas.read_file`
 
         Parameters
         ----------
-        read_dir : Path
-            The directory to read the geometry files from.
-        merge_data : bool, optional
-            If True, the data will be merged into the existing data dictionary.
-            If False, the existing data will be cleared before reading.
+        filename : Path
+            The  filename pattern to read the geometries from. It can include
+            wildcards (e.g. "geoms/*.geojson"). If the filename is a directory, it will
+            read all files in that directory.
         **kwargs:
             Additional keyword arguments that are passed to the
             `geopandas.read_file` function.
         """
-        if not merge_data:
-            self._data = {}
-
-        fns = glob.glob(str(read_dir / "*.geojson"))
+        fns = glob.glob(filename)
         if fns:
             logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -155,5 +150,10 @@ class WflowGeomsComponent(GeomsComponent):
                 f"Geometry '{name}' not found in geoms, returning default value : {default}."  # noqa: E501
             )
         else:
-            logger.info(f"Removed geometry '{name}' from geoms.")
+            logger.debug(f"Removed geometry '{name}' from geoms.")
         return geom
+
+    def clear(self) -> None:
+        """Clear all geometries."""
+        logger.debug("Cleared all geometries from geoms.")
+        self.data.clear()

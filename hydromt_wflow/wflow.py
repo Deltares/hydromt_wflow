@@ -4,7 +4,6 @@
 
 import glob
 import logging
-import math
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
@@ -225,17 +224,15 @@ class WflowModel(Model):
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
 
-        geom, xy, ds_org, scale_ratio = workflows.parse_region(
+        geometries, xy, ds_org = workflows.parse_region(
             data_catalog=self.data_catalog,
             region=region,
             hydrography_fn=hydrography_fn,
             resolution=res,
             basin_index_fn=basin_index_fn,
         )
-
-        # Set name based on scale_ratio
-        if not math.isclose(scale_ratio, 1):
-            self.set_geoms(geom, name="basins_highres")
+        for name, _geom in geometries.items():
+            self.set_geoms(_geom, name=name)
 
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
@@ -275,7 +272,7 @@ class WflowModel(Model):
 
         # set basin geometry
         logger.debug("Adding region vector to geoms.")
-        self.set_geoms(geom, name="region")
+        self.set_geoms(self.region, name="region")
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
@@ -4048,7 +4045,7 @@ Run setup_soilmaps first"
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
         )
-        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+        self.set_geoms(gdf_subcatch_riv, name=f"subcatchment_riv_{mapname}")
 
         # Update toml
         if update_toml:
@@ -5265,7 +5262,7 @@ Run setup_soilmaps first"
         super().set_grid(self, data, name)
 
     @hydromt_step
-    def set_geoms(self):
+    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
         """
         Set geometries to the model.
 
@@ -5273,8 +5270,11 @@ Run setup_soilmaps first"
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # fall back on default set_geoms behaviour
-        super().set_geoms(self, data=self.geoms)
+
+        self.geoms.set(
+            geom=geometry,
+            name=name,
+        )
 
     @hydromt_step
     def read_geoms(
@@ -5338,11 +5338,11 @@ Run setup_soilmaps first"
         else:
             dir_mod = join(self.root.path, geoms_fn)
 
-        self.geoms.read(
-            read_dir=Path(dir_mod).resolve(),
-            merge_data=self._write,
-            # if True, merge data into existing geoms, if false, fresh start
-        )
+        if not self._write:
+            self.geoms.clear()  # start fresh in read-only mode
+
+        pattern = join(dir_mod, "*.geojson")
+        self.geoms.read(filename=pattern)
 
     @hydromt_step
     def write_geoms(

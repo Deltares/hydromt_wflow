@@ -372,7 +372,7 @@ def parse_region(
     hydrography_fn: str | xr.Dataset,
     resolution: float | int = 1 / 120.0,
     basin_index_fn: str | xr.Dataset | None = None,
-) -> tuple[gpd.GeoDataFrame, Optional[np.ndarray], xr.Dataset, float]:
+) -> tuple[dict[str, gpd.GeoDataFrame], Optional[np.ndarray], xr.Dataset]:
     """Parse the region dictionary to get basin geometry and coordinates."""
     ds_org = data_catalog.get_rasterdataset(hydrography_fn)
     if ds_org is None:
@@ -453,4 +453,11 @@ def parse_region(
     ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
     ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 
-    return geom, xy, ds_org, scale_ratio
+    geometries = {
+        "basins": geom,
+        "region": geom,
+    }
+    if not math.isclose(scale_ratio, 1):
+        geometries["basins_highres"] = geom
+
+    return geometries, xy, ds_org
