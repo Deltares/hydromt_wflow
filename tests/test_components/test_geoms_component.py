@@ -136,6 +136,18 @@ def test_write_to_wgs84(tmp_path: Path, mock_wflow_model, mock_geometry):
     assert gdf_read.crs == "EPSG:4326", "Geometry was not written in WGS84."
 
 
+def check_precision(coord, precision: int, tolerance: float):
+    if isinstance(coord[0], (float, int)):
+        for val in coord:
+            rounded = round(val, precision)
+            assert abs(val - rounded) < tolerance, (
+                f"Value {val} exceeds tolerance {tolerance} for precision {precision}"  # noqa: E501
+            )
+    else:
+        for sub_coord in coord:
+            check_precision(sub_coord, precision, tolerance)
+
+
 @pytest.mark.parametrize(
     ("crs", "expected_precision"), [("EPSG:4326", 6), ("EPSG:28992", 1)]
 )
@@ -160,20 +172,9 @@ def test_write_precision_defaults(
     # Set allowable tolerance based on expected precision
     tolerance = 10 ** (-expected_precision)
 
-    def check_precision(coord):
-        if isinstance(coord[0], (float, int)):
-            for val in coord:
-                rounded = round(val, expected_precision)
-                assert abs(val - rounded) < tolerance, (
-                    f"Value {val} exceeds tolerance {tolerance} for precision {expected_precision}"  # noqa: E501
-                )
-        else:
-            for sub_coord in coord:
-                check_precision(sub_coord)
-
     for geom in gdf_read.geometry:
         coords = mapping(geom)["coordinates"]
-        check_precision(coords)
+        check_precision(coords, expected_precision, tolerance)
 
 
 @pytest.mark.parametrize(
@@ -203,17 +204,6 @@ def test_write_precision_manual(
     # Set allowable tolerance based on expected precision
     tolerance = 10 ** (-precision)
 
-    def check_precision(coord):
-        if isinstance(coord[0], (float, int)):
-            for val in coord:
-                rounded = round(val, precision)
-                assert abs(val - rounded) < tolerance, (
-                    f"Value {val} exceeds tolerance {tolerance} for precision {precision}"  # noqa: E501
-                )
-        else:
-            for sub_coord in coord:
-                check_precision(sub_coord)
-
     for geom in gdf_read.geometry:
         coords = mapping(geom)["coordinates"]
-        check_precision(coords)
+        check_precision(coords, precision, tolerance)

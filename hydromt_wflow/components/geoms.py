@@ -61,8 +61,8 @@ class WflowGeomsComponent(GeomsComponent):
 
         Parameters
         ----------
-        filename : Path
-            The  filename pattern to read the geometries from. It can include
+        filename : str
+            The file path pattern to read the geometries from. It can include
             wildcards (e.g. "geoms/*.geojson"). If the filename is a directory, it will
             read all files in that directory.
         **kwargs:
@@ -155,5 +155,5 @@ class WflowGeomsComponent(GeomsComponent):
 
     def clear(self) -> None:
         """Clear all geometries."""
-        logger.debug("Cleared all geometries from geoms.")
         self.data.clear()
+        logger.debug("Cleared all geometries from geoms.")
