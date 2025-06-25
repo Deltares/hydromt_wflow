@@ -5884,13 +5884,13 @@ change name input.path_forcing "
             *args,
         )
 
-    def remove_config(self, *args: list[str]) -> Any:
+    def remove_config(self, *args: str) -> Any:
         """
         Remove a config key and return its value.
 
         Parameters
         ----------
-        key: str, tuple, list
+        key: str, tuple[str, ...]
             Key to remove from the config.
             Can be a dotted toml string when providing a list of strings.
 
@@ -5899,8 +5899,11 @@ change name input.path_forcing "
         The popped value, or raises a KeyError if the key is not found.
         """
         current = self.config
-        for i, key in enumerate(args):
-            if i == len(args) - 1:
+        for index, key in enumerate(args):
+            if current is None:
+                raise KeyError(f"Key {'.'.join(args)} not found in config.")
+
+            if index == len(args) - 1:
                 # Last key, pop it
                 current = current.pop(key)
                 break

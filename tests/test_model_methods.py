@@ -1426,3 +1426,6 @@ def test_remove_config(example_wflow_model):
 
     with pytest.raises(KeyError):
         example_wflow_model.remove_config("model", "river_routing")
+
+    with pytest.raises(KeyError):
+        example_wflow_model.remove_config("model", "non_existing_key", "some_stuff")
