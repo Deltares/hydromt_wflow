@@ -422,6 +422,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoDataArray</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.workflows.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_from_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tomlkit.items</span><span class="w"> </span><span class="kn">import</span> <span class="n">Key</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">WFLOW_NAMES</span><span class="p">,</span>
@@ -770,7 +771,7 @@
     <span class="c1"># if the first key is not present</span>
     <span class="c1"># we can just set the entire thing straight</span>
     <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="c1"># If there is only one key we also just set that directly as</span>
@@ -782,7 +783,7 @@
     <span class="n">current</span> <span class="o">=</span> <span class="n">config</span>
     <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
@@ -798,6 +799,10 @@
         <span class="n">_</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">remaining_key</span><span class="p">)</span>
 
     <span class="n">current</span><span class="p">[</span><span class="n">remaining_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Key</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">keys</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_grid_from_config">
