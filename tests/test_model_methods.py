@@ -1412,3 +1412,17 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
     xr.testing.assert_equal(
         xr.merge(states.values()), xr.merge(example_wflow_model.states.values())
     )
+
+
+def test_remove_config(example_wflow_model):
+    assert example_wflow_model.get_config("model", "river_routing") == "kinematic-wave"
+    # Remove a config entry
+    popped = example_wflow_model.remove_config("model", "river_routing")
+    assert popped == "kinematic-wave"
+
+    # Check if it is removed
+    assert example_wflow_model.get_config("model", "river_routing") is None
+    assert example_wflow_model.get_config("model") is not None
+
+    with pytest.raises(KeyError):
+        example_wflow_model.remove_config("model", "river_routing")

@@ -5883,6 +5883,31 @@ change name input.path_forcing "
             *args,
         )
 
+    def remove_config(self, *args: list[str]) -> Any:
+        """
+        Remove a config key and return its value.
+
+        Parameters
+        ----------
+        key: str, tuple, list
+            Key to remove from the config.
+            Can be a dotted toml string when providing a list of strings.
+
+        Returns
+        -------
+        The popped value, or raises a KeyError if the key is not found.
+        """
+        current = self.config
+        for i, key in enumerate(args):
+            if i == len(args) - 1:
+                # Last key, pop it
+                current = current.pop(key)
+                break
+
+            # Not the last key, go deeper
+            current = current.get(key)
+        return current
+
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
 
