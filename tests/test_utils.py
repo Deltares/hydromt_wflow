@@ -164,3 +164,8 @@ def test_config_toml_overwrite(tmpdir):
         200,
     )
     assert dummy_model.get_config("input.forcing.khorfrac.value") == 200
+
+    # Test overwriting top-level key
+    dummy_model.set_config("path_log", "log_file.log")
+    dummy_model.set_config("path_log", "log_file2.log")
+    assert dummy_model.get_config("path_log") == "log_file2.log"
