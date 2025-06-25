@@ -5855,7 +5855,8 @@ change name input.path_forcing "
             not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
             errors can easily be introduced if this structure is modified by hand.
             Therefore we strongly discourage users from manually modyfing it, and
-            instead ask them to use this ``set_config`` function to avoid problems.
+            instead ask them to use this ``set_config`` and ``remove_config``
+            functions to avoid problems.
 
         Parameters
         ----------
