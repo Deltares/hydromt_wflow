@@ -82,6 +82,7 @@ happy to discuss how it can be implemented for your model.
 .. |license| image:: https://img.shields.io/github/license/Deltares/hydromt_wflow
     :alt: License
     :target: https://github.com/Deltares/hydromt_wflow/blob/main/LICENSE
+
 Attribution
 -----------
 HydroMT Wflow relies on these excellent packages:
