@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v1.0.0rc1 (26 June 2025)
+========================
 This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
 linked to the TOML file options. We have dropped support for Wflow.jl < 1.0.0, but we allow users
 to upgrade their models to the new version using the `upgrade_to_v1_wflow` function. If you do not want
