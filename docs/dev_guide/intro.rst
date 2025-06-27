@@ -13,3 +13,4 @@ Furthermore it informs you on planned developments and new features.
    Developer's guide <https://deltares.github.io/hydromt/latest/dev/contributing>
    dev_install.rst
    contributors.rst
+   software_design.rst
