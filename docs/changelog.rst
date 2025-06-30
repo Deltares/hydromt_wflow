@@ -6,6 +6,26 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
+Deprecated
+----------
+
+Removed
+-------
+
+
+
 v1.0.0rc1 (26 June 2025)
 ========================
 This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
