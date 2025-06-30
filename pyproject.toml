@@ -43,7 +43,7 @@ dependencies = [
   "pyproj",
   "scipy",
   "shapely",
-  "tomlkit",
+  "tomlkit>=0.13.3",
   "xarray",
 ]
 
@@ -56,6 +56,7 @@ docs = [
   "sphinx",
   "sphinx_design",
   "sphinx_autosummary_accessors",
+  "sbom4python"
 ]
 extra = ["gwwapi", "hydroengine", "pyet", "wradlib"]
 examples = [
@@ -64,7 +65,7 @@ examples = [
   "nbconvert",
   "notebook",
 ]
-test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout"]
+test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout", "pytest-benchmark"]
 
 [project.entry-points."hydromt.models"]
 wflow          = "hydromt_wflow.wflow:WflowModel"
@@ -82,6 +83,8 @@ filterwarnings = [
   "ignore:The staticgeoms property:DeprecationWarning",
 ]
 testpaths = ["tests"]
+# don't run benchmarks by default when testing
+addopts   = ["--benchmark-skip"]
 
 [tool.coverage.run]
 branch = true
@@ -147,7 +150,35 @@ lint = { cmd = ["pre-commit", "run", "--all"] }
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
 
+# Clean up (some of) the temporary files
+clean = { depends-on = [
+  "clean-bin",
+  "clean-dist",
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+clean-bin = { cmd = ["rm", "-rf", "bin"] }
+clean-dist = { cmd = ["rm", "-rf", "dist"] }
+clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
+clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
+clean-docs = { depends-on = [
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+
 # Documentation generation
+[tool.pixi.feature.docs.tasks]
+generate-sbom = { cmd = [
+  "sbom4python",
+  "--module", "hydromt_wflow",
+  "--output-file", "hydromt-wflow-sbom.json",
+  "--sbom", "spdx",
+  "--format", "json",
+] }
+
 docs-dummy = { cmd = [
   "sphinx-build",
   "./docs",
@@ -174,43 +205,6 @@ serve = { cmd = [
   "8000",
   "-d",
   "docs/_build/html",
-] }
-
-# Testing
-test = { cmd = ["pytest"] }
-test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
-test-cov = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov=hydromt_wflow",
-  "--cov-report",
-  "xml",
-] }
-test-cov-local = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov",
-  "--cov-report",
-  "html",
-] }
-
-# Clean up (some of) the temporary files
-clean = { depends-on = [
-  "clean-bin",
-  "clean-dist",
-  "clean-docs-build",
-  "clean-docs-example",
-  "clean-docs-gen",
-] }
-clean-bin = { cmd = ["rm", "-rf", "bin"] }
-clean-dist = { cmd = ["rm", "-rf", "dist"] }
-clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
-clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
-clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
-clean-docs = { depends-on = [
-  "clean-docs-build",
-  "clean-docs-example",
-  "clean-docs-gen",
 ] }
 
 ## Dependencies
@@ -246,3 +240,67 @@ test-slim-py311 = { features = ["py311", "test"] }
 test-slim-py310 = { features = ["py310", "test"] }
 test-full-py311 = { features = ["py311", "extra", "test"] }
 test-full-py310 = { features = ["py310", "extra", "test"] }
+
+[tool.pixi.feature.examples.tasks]
+build-example-model-full = { cmd = [
+  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
+], cwd = "examples" }
+build-example-model-sediment = { cmd = [
+  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
+], cwd = "examples" }
+build-example-model-clipped = { cmd = [
+  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
+], cwd = "examples" }
+build-example-models = {depends-on = [
+  "build-example-model-full",
+  "build-example-model-sediment",
+  "build-example-model-clipped",
+]}
+
+# Testing
+[tool.pixi.feature.test.tasks]
+test = { cmd = ["pytest"] }
+test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
+test-cov = { cmd = [
+  "pytest",
+  "--verbose",
+  "--cov=hydromt_wflow",
+  "--cov-report",
+  "xml",
+] }
+test-cov-local = { cmd = [
+  "pytest",
+  "--verbose",
+  "--cov",
+  "--cov-report",
+  "html",
+] }
+build-test-model-simple = { cmd = [
+  "hydromt", "build", "wflow", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
+], cwd = "tests" }
+build-test-model-full = { cmd = [
+  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
+], cwd = "tests" }
+build-test-model-sediment = { cmd = [
+  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_sediment_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
+], cwd = "tests" }
+build-test-models = {depends-on = [
+  "build-test-model-simple",
+  "build-test-model-full",
+  "build-test-model-sediment",
+]}
+
+benchmark = { cmd = ["pytest", "--benchmark-only"] }
+
+benchmark-record = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-autosave",
+] }
+
+benchmark-compare = { cmd = [
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-compare",
+  "--benchmark-compare-fail=min:25%",
+] }

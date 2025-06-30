@@ -31,7 +31,7 @@ def test_grid_from_config(demda):
                 },
             },
             "cyclic": {
-                "ksathorfrac": {"value": 500},
+                "subsurface_ksat_horizontal_ratio": {"value": 500},
                 "ksathorfrac2": {
                     "netcdf": {"variable": {"name": "dem"}},
                     "scale": 0,
@@ -51,19 +51,19 @@ def test_grid_from_config(demda):
     altitude = get_grid_from_config("altitude", config=config, grid=grid)
     assert altitude.equals(grid["slope"] * 10)
 
-    ksathorfrac = get_grid_from_config(
-        "ksathorfrac",
+    subsurface_ksat_horizontal_ratio = get_grid_from_config(
+        "subsurface_ksat_horizontal_ratio",
         config=config,
         grid=grid,
     )
-    assert np.unique(ksathorfrac.raster.mask_nodata()) == [500]
+    assert np.unique(subsurface_ksat_horizontal_ratio.raster.mask_nodata()) == [500]
 
     ksathorfrac2 = get_grid_from_config(
         "ksathorfrac2",
         config=config,
         grid=grid,
     )
-    assert ksathorfrac2.equals(ksathorfrac)
+    assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
 def test_convert_to_wflow_v1_sbm():
@@ -102,9 +102,9 @@ def test_convert_to_wflow_v1_sediment():
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
     # Checks on extra data in staticmaps
-    assert "fsagg_soil" in wflow.grid
-    assert "c_govers" in wflow.grid
-    assert "a_kodatie" in wflow.grid
+    assert "soil_sagg_fraction" in wflow.grid
+    assert "land_govers_c" in wflow.grid
+    assert "river_kodatie_a" in wflow.grid
 
 
 def test_config_toml_grouping(tmpdir):
@@ -164,3 +164,8 @@ def test_config_toml_overwrite(tmpdir):
         200,
     )
     assert dummy_model.get_config("input.forcing.khorfrac.value") == 200
+
+    # Test overwriting top-level key
+    dummy_model.set_config("path_log", "log_file.log")
+    dummy_model.set_config("path_log", "log_file2.log")
+    assert dummy_model.get_config("path_log") == "log_file2.log"

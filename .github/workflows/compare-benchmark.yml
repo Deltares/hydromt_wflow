@@ -1,0 +1,30 @@
+name: Compare performance against previous benchmark
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    name: Record benchmark
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pixi env
+        uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: "v0.45.0"
+          environments: test-full-py311
+          locked: false
+          cache: true
+
+      - name: Tests
+        run: |
+            pixi run -e test-full-py311 benchmark-compare
