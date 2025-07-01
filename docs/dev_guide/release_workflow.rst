@@ -51,3 +51,12 @@ Publishing the release will start the release to Pypi.
 8. Check the Pypi release (optional)
 """"""""""""""""""""""""""""""""""""
 Install the latest release with pip to check whether the release is working as intended.
+
+9. Release on conda
+-------------------
+TODO
+
+
+10. Create post-release pull request
+------------------------------------
+Change the __version__ to <version>dev and add an unreleased header and subheaders with added, changed, fixed, deprecated, and removed to the changelog.
