@@ -124,6 +124,11 @@ class WflowModel(Model):
         """Return the staticmaps component."""
         return self.components["staticmaps"]
 
+    @property
+    def states(self) -> WflowStatesComponent:
+        """Return the states component."""
+        return self.components["states"]
+
     # SETUP METHODS
     @hydromt_step
     def setup_config(self, data: Dict[str, Any]):

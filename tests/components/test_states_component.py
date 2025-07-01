@@ -71,7 +71,7 @@ def test_wflow_states_component_set_alt(
 
     # Try with np.ndarray
     array = grid_dummy_data.values
-    with pytest.raises(TypeError, match="data must be an xarray Dataset or DataArray"):
+    with pytest.raises(TypeError, match="Data must be an xarray Dataset or DataArray"):
         component.set(array)
 
     # Try with a different grid that is not identical
