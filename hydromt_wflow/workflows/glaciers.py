@@ -1,22 +1,25 @@
 """Glaciers workflows for Wflow plugin."""
 
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
+if TYPE_CHECKING:
+    import geopandas as gpd
+    import xarray as xr
 
 __all__ = ["glaciermaps", "glacierattrs"]
 
 
 def glaciermaps(
-    gdf,
-    ds_like,
-    id_column="simple_id",
-    elevtn_name="elevtn",
-    logger=logger,
+    gdf: "gpd.GeoDataFrame",
+    ds_like: "xr.Dataset",
+    id_column: str = "simple_id",
+    elevtn_name: str = "elevtn",
 ):
     """Return glacier maps (see list below) at model resolution.
 
@@ -30,7 +33,7 @@ def glaciermaps(
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing glacier geometries and attributes.
-    ds_like : xarray.DataArray
+    ds_like : xarray.Dataset
         Dataset at model resolution.
     id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"
         Column used for the glacier IDs, see data/data_sources.yml.
@@ -95,6 +98,9 @@ storage per grid cell"
     gdf_grid["glacierstore"] = np.zeros(len(idx_valid), dtype=np.float32)
     gdf_grid["area"] = gdf_grid.to_crs(3857).area  # area calculation in projected crs
 
+    # reproject to match ds_like CRS
+    gdf = gdf.to_crs(ds_like.raster.crs)
+
     # Calculate fraction and storage (i.e. volume) per (vector) grid cell
     # Looping over each vector GLACIER
     logger.debug("Setting glacierfrac and store values per glacier.")
@@ -140,12 +146,11 @@ storage per grid cell"
 
 
 def glacierattrs(
-    gdf,
-    TT=1.3,
-    Cfmax=5.3,
-    SIfrac=0.002,
-    id_column="simple_id",
-    logger=logger,
+    gdf: "gpd.GeoDataFrame",
+    TT: float = 1.3,
+    Cfmax: float = 5.3,
+    SIfrac: float = 0.002,
+    id_column: str = "simple_id",
 ):
     """Return glacier intbls (see list below).
 
