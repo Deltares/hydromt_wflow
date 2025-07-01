@@ -249,7 +249,6 @@ WflowConfigComponent
 
    components.WflowConfigComponent
    components.WflowConfigComponent.data
-   components.WflowConfigComponent.read
    components.WflowConfigComponent.get_value
 
 
