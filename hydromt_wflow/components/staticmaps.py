@@ -83,9 +83,13 @@ class WflowStaticmapsComponent(GridComponent):
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.model.config.get("input.path_static") or self._filename
+        p = (
+            filename
+            or self.model.config.get_value("input.path_static")
+            or self._filename
+        )
         # Check for input dir
-        p_input = Path(self.model.config.get("dir_input", fallback=""), p)
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
 
         # Supercharge with parent method
         super().read(
@@ -116,9 +120,13 @@ class WflowStaticmapsComponent(GridComponent):
         """
         # Solve pathing same as read
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.model.config.get("input.path_static") or self._filename
+        p = (
+            filename
+            or self.model.config.get_value("input.path_static")
+            or self._filename
+        )
         # Check for input dir
-        p_input = Path(self.model.config.get("dir_input", fallback=""), p)
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
 
         # Supercharge with the base grid component write method
         super().write(
