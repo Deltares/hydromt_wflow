@@ -5288,11 +5288,9 @@ Run setup_soilmaps first"
             self.get_config("dir_input", abs_path=True, fallback=self.root.path),
             geoms_fn,
         )
-
-        if self.root.is_reading_mode():
-            self.geoms.clear()  # start fresh in read-only mode
-
         pattern = join(input_dir, "*.geojson")
+        if not self.root.is_writing_mode():
+            self.geoms.clear()  # start fresh in read-only mode
         self.geoms.read(filename=pattern)
 
     @hydromt_step
