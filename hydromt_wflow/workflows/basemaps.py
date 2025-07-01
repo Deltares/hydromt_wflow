@@ -453,10 +453,7 @@ def parse_region(
     ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
     ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 
-    geometries = {
-        "basins": geom,
-        "region": geom,
-    }
+    geometries = {}
     if not math.isclose(scale_ratio, 1):
         geometries["basins_highres"] = geom
 

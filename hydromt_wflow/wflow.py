@@ -75,14 +75,10 @@ class WflowModel(Model):
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
-        config_component = WflowConfigComponent(self, filename=str(config_path))
-        geoms_component = WflowGeomsComponent(model=self, region_component="grid")
-        staticmaps_component = StaticmapsComponent(self)
-
         components = {
-            "config": config_component,
-            "geoms": geoms_component,
-            "staticmaps": staticmaps_component,
+            "config": WflowConfigComponent(self, filename=str(config_path)),
+            "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
+            "staticmaps": StaticmapsComponent(self),
         }
 
         super().__init__(
@@ -269,10 +265,6 @@ class WflowModel(Model):
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
         rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
-
-        # set basin geometry
-        logger.debug("Adding region vector to geoms.")
-        self.set_geoms(self.region, name="region")
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
@@ -5268,9 +5260,6 @@ Run setup_soilmaps first"
 
         This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
         """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-
         self.geoms.set(
             geom=geometry,
             name=name,
@@ -5289,59 +5278,21 @@ Run setup_soilmaps first"
         Where <dir_input> is relative to the model root. Depending on the config value
         ``dir_input``, the path will be constructed differently.
 
-        Examples
-        --------
-        ```python
-        model_root = Path(
-            "my_model_root"
-        )
-        parent_dir = model_root.parent
-        dir_input = (
-            "../input"
-        )
-        geoms_fn = (
-            "staticgeoms"
-        )
-        # read_dir = parent_dir / model_root / dir_input / geoms_fn
-        # which resolves to
-        read_dir = (
-            parent_dir
-            / "input"
-            / "staticgeoms"
-        )
-        ```
-
-        If ``dir_input`` is None, the path will be constructed as
-        ```python
-        model_root = Path(
-            "my_model_root"
-        )
-        geoms_fn = (
-            "staticgeoms"
-        )
-        # read_dir = model_root / geoms_fn
-        # which resolves to
-        read_dir = (
-            model_root
-            / "staticgeoms"
-        )
-        ```
-
         Parameters
         ----------
         geoms_fn : str, optional
             Folder name/path where the static geometries are stored relative to the
-            model root. By default "staticgeoms".
+            model root and ``dir_input`` if any. By default "staticgeoms".
         """
-        if self.get_config("dir_input") is not None:
-            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
-        else:
-            dir_mod = join(self.root.path, geoms_fn)
+        input_dir = join(
+            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
+            geoms_fn,
+        )
 
-        if not self._write:
+        if self.root.is_reading_mode():
             self.geoms.clear()  # start fresh in read-only mode
 
-        pattern = join(dir_mod, "*.geojson")
+        pattern = join(input_dir, "*.geojson")
         self.geoms.read(filename=pattern)
 
     @hydromt_step
@@ -5371,13 +5322,13 @@ Run setup_soilmaps first"
             If True, geometries are transformed to WGS84 before writing. By default
             False, which means geometries are written in their original CRS.
         """
-        if self.get_config("dir_input") is not None:
-            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
-        else:
-            dir_mod = join(self.root.path, geoms_fn)
+        input_dir = join(
+            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
+            geoms_fn,
+        )
 
         self.geoms.write(
-            dir_out=Path(dir_mod).resolve(),
+            dir_out=Path(input_dir).resolve(),
             to_wgs84=to_wgs84,
             precision=precision,
             kwargs=kwargs,

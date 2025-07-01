@@ -1,4 +1,3 @@
-import glob
 import logging
 from pathlib import Path
 from typing import Optional
@@ -21,7 +20,7 @@ class WflowGeomsComponent(GeomsComponent):
         self,
         model: Model,
         *,
-        filename: str = "geoms/{name}.geojson",
+        filename: str = "staticgeoms/{name}.geojson",
         region_component: Optional[str] = None,
         region_filename: str = "staticgeoms/geoms_region.geojson",
     ):
@@ -33,7 +32,7 @@ class WflowGeomsComponent(GeomsComponent):
             HydroMT model instance
         filename: str
             The path to use for reading and writing of component data by default.
-            by default "geoms/{name}.geojson", i.e. one file per geodataframe in
+            by default "staticgeoms/{name}.geojson", i.e. one file per geodataframe in
             the data dictionary.
         region_component: str, optional
             The name of the region component to use as reference for this component's
@@ -49,33 +48,6 @@ class WflowGeomsComponent(GeomsComponent):
             region_component=region_component,
             region_filename=region_filename,
         )
-
-    def read(
-        self,
-        filename: str,
-        **kwargs: dict,
-    ):
-        r"""Read model geometries files.
-
-        key-word arguments are passed to :py:func:`geopandas.read_file`
-
-        Parameters
-        ----------
-        filename : str
-            The file path pattern to read the geometries from. It can include
-            wildcards (e.g. "geoms/*.geojson"). If the filename is a directory, it will
-            read all files in that directory.
-        **kwargs:
-            Additional keyword arguments that are passed to the
-            `geopandas.read_file` function.
-        """
-        fns = glob.glob(filename)
-        if fns:
-            logger.info("Reading model staticgeom files.")
-        for fn in fns:
-            name = Path(fn).stem
-            if name != "region":
-                self.set(gpd.read_file(fn, **kwargs), name=name)
 
     def write(
         self,
@@ -103,11 +75,6 @@ class WflowGeomsComponent(GeomsComponent):
             Additional keyword arguments that are passed to the
             `geopandas.to_file` function.
         """  # noqa: E501
-        self.root._assert_write_mode()
-        if len(self.data) == 0:
-            logger.debug("No geoms data found, skip writing.")
-            return
-
         if precision is None:
             if self.crs.is_projected:
                 _precision = 1
@@ -117,40 +84,64 @@ class WflowGeomsComponent(GeomsComponent):
             _precision = precision
 
         grid_size = 10 ** (-_precision)
-        dir_out.parent.mkdir(parents=True, exist_ok=True)
-
-        for name, gdf in self.data.items():
-            if len(gdf) == 0:
-                logger.warning(f"{name} is empty. Skipping...")
-                continue
-            fn_out = dir_out / f"{name}.geojson"
-            logger.debug(f"Writing file {fn_out}")
-
+        for gdf in self.data.values():
             gdf.geometry.set_precision(
                 grid_size=grid_size,
             )
-            if to_wgs84:
-                gdf.to_crs(epsg=4326, inplace=True)
-            gdf.to_file(fn_out, **kwargs)
+        super().write(
+            filename=str(dir_out / "{name}.geojson"),
+            to_wgs84=to_wgs84,
+            **kwargs,
+        )
 
-    def get(self, name: str) -> Optional[gpd.GeoDataFrame | gpd.GeoSeries]:
-        """Get geometry by name."""
-        geom = self.data.get(name, None)
-        if geom is None:
-            logger.warning(f"Geometry '{name}' not found in geoms.")
-        return geom
+    def get(self, name: str) -> gpd.GeoDataFrame | gpd.GeoSeries:
+        """Get geometry by name.
 
-    def pop(
-        self, name: str, default=None
-    ) -> Optional[gpd.GeoDataFrame | gpd.GeoSeries]:
-        """Remove and return geometry by name."""
-        geom = self.data.pop(name, default)
-        if geom is default:
-            logger.warning(
-                f"Geometry '{name}' not found in geoms, returning default value : {default}."  # noqa: E501
+        Parameters
+        ----------
+        name: str
+            The name of the geometry to retrieve.
+
+        Returns
+        -------
+        gpd.GeoDataFrame | gpd.GeoSeries
+            The geometry associated with the given name.
+
+        Raises
+        ------
+        KeyError
+            If the geometry with the specified name does not exist.
+        """
+        if name not in self.data:
+            raise KeyError(
+                f"Geometry '{name}' not found in geoms. Available geometries: {list(self.data.keys())}"  # noqa: E501
             )
-        else:
-            logger.debug(f"Removed geometry '{name}' from geoms.")
+        return self.data[name]
+
+    def pop(self, name: str) -> gpd.GeoDataFrame | gpd.GeoSeries:
+        """Remove and return geometry by name.
+
+        Parameters
+        ----------
+        name: str
+            The name of the geometry to remove and return.
+
+        Returns
+        -------
+        gpd.GeoDataFrame | gpd.GeoSeries
+            The geometry associated with the given name.
+
+        Raises
+        ------
+        KeyError
+            If the geometry with the specified name does not exist.
+        """
+        if name not in self.data:
+            raise KeyError(
+                f"Geometry '{name}' not found in geoms. Available geometries: {list(self.data.keys())}"  # noqa: E501
+            )
+        geom = self.data.pop(name)
+        logger.debug(f"Removed geometry '{name}' from geoms.")
         return geom
 
     def clear(self) -> None:
