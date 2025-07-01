@@ -23,7 +23,7 @@ class WflowGeomsComponent(GeomsComponent):
         *,
         filename: str = "geoms/{name}.geojson",
         region_component: Optional[str] = None,
-        region_filename: str = "geoms/geoms_region.geojson",
+        region_filename: str = "staticgeoms/geoms_region.geojson",
     ):
         """Initialize a WflowGeomsComponent.
 
