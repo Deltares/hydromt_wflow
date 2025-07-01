@@ -107,6 +107,7 @@ Components
 
    WflowModel.config
    WflowModel.staticmaps
+   WflowModel.geoms
 
 
 Attributes
@@ -251,6 +252,18 @@ WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.get_value
 
+
+WflowGeomsComponent
+-------------------
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowGeomsComponent
+   components.WflowGeomsComponent.read
+   components.WflowGeomsComponent.write
+   components.WflowGeomsComponent.get
+   components.WflowGeomsComponent.set
+   components.WflowGeomsComponent.clear
 
 .. _workflows:
 

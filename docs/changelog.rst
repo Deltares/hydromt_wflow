@@ -14,6 +14,7 @@ Added
 -----
 - config component ``WflowConfigComponent``: represents the Wflow configuration TOML file.
 - staticmaps component ``WflowStaticMapsComponent``: represents Wflow static and cyclic data (used to be grid).
+- geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data (used to be staticgeoms).
 
 Changed
 -------
