@@ -115,7 +115,6 @@ Attributes
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.region
    WflowModel.crs
    WflowModel.root
    WflowModel.flwdir
@@ -221,7 +220,6 @@ Attributes
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.region
    WflowSedimentModel.crs
    WflowSedimentModel.root
    WflowSedimentModel.flwdir
@@ -252,9 +250,6 @@ WflowConfigComponent
    components.WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.read
-   components.WflowConfigComponent.write
-   components.WflowConfigComponent.update
-   components.WflowConfigComponent.set
    components.WflowConfigComponent.get_value
 
 
