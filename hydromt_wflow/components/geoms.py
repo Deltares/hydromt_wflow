@@ -41,7 +41,7 @@ class WflowGeomsComponent(GeomsComponent):
             the data dictionary.
         region_filename: str
             The path to use for writing the region data to a file. By default
-            "geoms/geoms_region.geojson".
+            "staticgeoms/geoms_region.geojson".
         """
         super().__init__(
             model=model,
