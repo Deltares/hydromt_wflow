@@ -74,7 +74,7 @@ class WflowStatesComponent(GridComponent):
         hydromt.model.components.GridComponent.set
         """
         if not isinstance(data, (xr.Dataset, xr.DataArray)):
-            raise TypeError("data must be an xarray Dataset or DataArray")
+            raise TypeError("Data must be an xarray Dataset or DataArray")
 
         if self._region_component is not None:
             # Ensure the data is aligned with the region component (staticmaps)
