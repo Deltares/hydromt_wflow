@@ -44,7 +44,6 @@
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
     <link rel="icon" href="_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="genindex.html" />
@@ -370,7 +369,6 @@
 <li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/dev/contributing">Developer's guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_guide/dev_install.html">Developer’s environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dev_guide/contributors.html">Contributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dev_guide/software_design.html">Design Principles and Guidelines</a></li>
 </ul>
 </div>
 </nav></div>
@@ -438,24 +436,31 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<p>TODO: merge with the Wflow.jl v1 pre-release notes below when we are ready for hydromt_wflow v1.0.0</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>config component <code class="docutils literal notranslate"><span class="pre">WflowConfigComponent</span></code>: represents the Wflow configuration TOML file.</p></li>
+<li><p>staticmaps component <code class="docutils literal notranslate"><span class="pre">WflowStaticMapsComponent</span></code>: represents Wflow static and cyclic data (used to be grid).</p></li>
+</ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Model root is now a <code class="docutils literal notranslate"><span class="pre">ModelRoot</span></code> class. To access the root path, use <code class="docutils literal notranslate"><span class="pre">wflow.root.path</span></code>.</p></li>
+<li><p>Model components like config, forcing are now <code class="docutils literal notranslate"><span class="pre">ModelComponent</span></code> classes.
+To access the inherent data objects (dictionary, xarray.Dataset etc.) of the components, the <code class="docutils literal notranslate"><span class="pre">data</span></code> property is now used.
+Eg wflow.config.data, wflow.staticmaps.data</p></li>
+<li><p>The names of some of the model components have changed: <code class="docutils literal notranslate"><span class="pre">grid</span></code> to <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code>.</p></li>
+<li><p><strong>setup_config</strong>: the method now explicitly uses a dictionary with the options to add/update.</p></li>
+</ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
 </section>
-<section id="deprecated">
-<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
 </section>
-<section id="removed">
-<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
-</section>
-</section>
-<section id="v1-0-0rc1-26-june-2025">
-<h2>v1.0.0rc1 (26 June 2025)<a class="headerlink" href="#v1-0-0rc1-26-june-2025" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h2>Unreleased<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <p>This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
 linked to the TOML file options. We have dropped support for Wflow.jl &lt; 1.0.0, but we allow users
 to upgrade their models to the new version using the <cite>upgrade_to_v1_wflow</cite> function. If you do not want
@@ -466,19 +471,19 @@ variables in staticmaps.nc files in each of the setup methods. This allows users
 of the same variable in the staticmaps.nc file using different options (eg. landuse_corine, landuse_vito, etc.).</p>
 <p>Finally, some of the staticgeoms names have changed, in particular gauges is now outlets and has been
 replaced in the input section of the TOML as well in order to save outputs for these locations.</p>
-<section id="id1">
-<h3>Added<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>upgrade_to_v1_wflow</strong>: convert models for Wflow.jl version &lt; 1.0.0 to Wflow.jl version 1. PR #364</p></li>
 <li><p>Allow users to choose the names of each variables in staticmaps.nc files or the same of some of the staticgeoms (eg lakes, reservoirs).  PR #364</p></li>
 <li><p><strong>setup_areamap</strong>: if the map is linked to a Wflow variable, the TOML file can now be updated to link the new created map to the right Wflow.jl variable.  PR #364</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for Wflow.jl &gt;= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl &lt; 1.0.0 has been dropped (see below).  PR #364</p></li>
-<li><p>All default names in staticmpas.nc and states have been redefined and harmonized. PR #422</p></li>
+<li><p>All default names in staticmaps.nc and states have been redefined and harmonized. PR #422</p></li>
 <li><p>Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422</p></li>
 <li><p><strong>setup_constant_pars</strong>: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.  PR #364</p></li>
 <li><p><strong>setup_lulcmaps</strong> and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.  PR #364</p></li>
@@ -494,21 +499,21 @@ replaced in the input section of the TOML as well in order to save outputs for t
 <li><p>TOML file options are added on the fly by each setup method rather than starting from a complete template.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Fixed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Updated installation guide (#376)</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>Deprecated<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="deprecated">
+<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for building/updating models for Wflow.jl version &lt; 1.0.0. We encourage you to upgrade your model to the new version using <cite>upgrade_to_v1_wflow</cite> or use an older release of hydromt_wflow if you do not want to upgrade your model.  PR #364</p></li>
 <li><p><strong>setup_soilmaps</strong>: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Removed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Dropped support for <cite>pcraster</cite> and removed deprecated <strong>pcrm</strong> module. PR #408</p></li>
 </ul>
@@ -517,8 +522,8 @@ replaced in the input section of the TOML as well in order to save outputs for t
 <section id="v0-8-0-9-april-2025">
 <h2>v0.8.0 (9 April 2025)<a class="headerlink" href="#v0-8-0-9-april-2025" title="Link to this heading">#</a></h2>
 <p>Precipitation from point data and other new features.</p>
-<section id="id6">
-<h3>Added<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_precip_from_point_timeseries</strong>: method to interpolate rainfall station data as model forcing. PR #315</p></li>
 <li><p>Added support for inverse clipping by using the <cite>inverse_clip=True</cite> flag in the <cite>clip_grid</cite> method. PR #336</p></li>
@@ -527,14 +532,14 @@ replaced in the input section of the TOML as well in order to save outputs for t
 <li><p><strong>setup_soilmaps</strong>: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Changed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_allocation_areas</strong>: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>Fixed<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_rivers</strong>: fixed bug if manning or gvf methods are used to compute river depth. PR #334</p></li>
 <li><p><strong>setup_lulcmaps_with_paddy</strong>: input.vertical.kvfrac is set to kvfrac in config. PR #362</p></li>
@@ -545,15 +550,15 @@ replaced in the input section of the TOML as well in order to save outputs for t
 <section id="v0-7-1-29-january-2025">
 <h2>v0.7.1 (29 January 2025)<a class="headerlink" href="#v0-7-1-29-january-2025" title="Link to this heading">#</a></h2>
 <p>Officially drop support for python 3.9.</p>
-<section id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>Added<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_ksatver_vegetation</strong>: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer. PR #313</p></li>
 <li><p><strong>setup_lulcmaps_from_vector</strong>: method to prepare LULC map and params from a vector input rather than raster. PR #320</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Deprecated<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>Deprecated<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for python 3.9 (already not supported in previous releases).</p></li>
 </ul>
@@ -564,8 +569,8 @@ replaced in the input section of the TOML as well in order to save outputs for t
 <p>This release adds support to create water demand and allocation related data (available since Wflow.jl version 0.8.0).
 For now, the new methods for demands support is limited to already gridded input datasets.
 The release also includes support for the paddy land use type and additional landuse parameters (crop coefficient and root uptake).</p>
-<section id="id11">
-<h3>Added<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h3>Added<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_lulcmaps_with_paddy</strong>: method to add paddy to the model. Adding paddies leads to changes in landuse and soil parameters. PR #226</p></li>
 <li><p><strong>setup_domestic_demand</strong> and <strong>setup_other_demand</strong>: methods to prepare water demands for different sectors using gridded datasets. PR #226</p></li>
@@ -574,15 +579,15 @@ The release also includes support for the paddy land use type and additional lan
 <li><p><strong>setup_allocation_surfacewaterfrac</strong>: method to prepare surface water fraction for water allocation. PR #226</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>Changed<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_lulcmaps</strong> prepares new vegetation parameters (crop coefficient kc and h values). PR #226</p></li>
 <li><p><strong>set_grid</strong> supports several cyclic time dimensions. PR #226</p></li>
 </ul>
 </section>
-<section id="id13">
-<h3>Fixed<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<section id="id12">
+<h3>Fixed<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Error in computation of LAI values from mapping to landuse in <strong>setup_laimaps</strong>. PR #297</p></li>
 <li><p>IO error for write_states in write. PR #297</p></li>
@@ -594,15 +599,15 @@ The release also includes support for the paddy land use type and additional lan
 <section id="v0-6-1-16-september-2024">
 <h2>v0.6.1 (16 September 2024)<a class="headerlink" href="#v0-6-1-16-september-2024" title="Link to this heading">#</a></h2>
 <p>This release mainly contains small bugfixes and limits xarray version to 2024.03.0</p>
-<section id="id14">
-<h3>Added<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<section id="id13">
+<h3>Added<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added “fillna_method” option for <strong>setup_temp_pet_forcing</strong> by &#64;tnlim</p></li>
 <li><p>Output filenames can now be specified in the model.write function. More detailed arguments should still be specified in each individual write* methods. PR #286</p></li>
 </ul>
 </section>
-<section id="id15">
-<h3>Changed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<section id="id14">
+<h3>Changed<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286</p></li>
 <li><p>More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286</p></li>
@@ -610,8 +615,8 @@ The release also includes support for the paddy land use type and additional lan
 Due to this change we discourage users from modifying the config structure by hand, and instead rely on <code class="docutils literal notranslate"><span class="pre">Wflow.set_config</span></code> to avoid issues. (#387)</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Fixed<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<section id="id15">
+<h3>Fixed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Wrong dtype for columns when reading a mapping table in <strong>setup_laimaps_from_lulc_mapping</strong> . PR #290</p></li>
 <li><p>Read/write staticgeoms if dir_input folder is present in the wflow toml file. PR #286</p></li>
@@ -624,8 +629,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <section id="v0-6-0-7-june-2024">
 <h2>v0.6.0 (7 June 2024)<a class="headerlink" href="#v0-6-0-7-june-2024" title="Link to this heading">#</a></h2>
 <p>Copious amounts of new features and fixes!</p>
-<section id="id17">
-<h3>Added<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<section id="id16">
+<h3>Added<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>If applicable, basins geometry based on the higher resolution DEM is stored seperately under <strong>basins_highres</strong> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/266">PR #266</a></p></li>
 <li><p>New function <strong>setup_1dmodel_connection</strong> to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/210">PR #210</a></p></li>
@@ -642,8 +647,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>New function <strong>setup_laimaps_from_lulc_mapping</strong> to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273</p></li>
 </ul>
 </section>
-<section id="id18">
-<h3>Changed<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<section id="id17">
+<h3>Changed<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Basins geometry (<strong>basins</strong>) is now based on the actual wflow model resolution basins, instead of based on the supplied DEM <cite>PR #266 &lt;https://github.com/Deltares/hydromt_wflow/pull/266&gt;</cite></p></li>
 <li><p><strong>setup_soilmaps</strong>: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242</p></li>
@@ -652,8 +657,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p><strong>setup_laimaps</strong>: if a landuse map if provided, setup_laimaps can also prepare landuse mapping tables for LAI. PR #273</p></li>
 </ul>
 </section>
-<section id="id19">
-<h3>Fixed<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<section id="id18">
+<h3>Fixed<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Wrong dtype for wflow_subcatch map. PR #247</p></li>
 <li><p><strong>setup_gauges</strong>: Allow snapping to river/mask for snap_uparea method. PR #248</p></li>
@@ -661,8 +666,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>Deprecated np.bool and earlier error message for subbasin delination. PR #263</p></li>
 </ul>
 </section>
-<section id="id20">
-<h3>Deprecated<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<section id="id19">
+<h3>Deprecated<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>clip_staticmaps</strong> in favour of <strong>clip_grid</strong></p></li>
 <li><p><strong>read_staticmaps</strong> and <strong>write_staticmaps</strong>, superseded by <strong>read_grid</strong> and <strong>write_grid</strong></p></li>
@@ -673,20 +678,20 @@ Due to this change we discourage users from modifying the config structure by ha
 <section id="v0-5-0-13-february-2024">
 <h2>v0.5.0 (13 February 2024)<a class="headerlink" href="#v0-5-0-13-february-2024" title="Link to this heading">#</a></h2>
 <p>Better handling of nodata and a switch from ini to yaml for configuration.</p>
-<section id="id21">
-<h3>Added<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<section id="id20">
+<h3>Added<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_rivers</strong>: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.</p></li>
 </ul>
 </section>
-<section id="id22">
-<h3>Changed<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<section id="id21">
+<h3>Changed<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Remove default values for data sources in the different setup methods. (PR #227)</p></li>
 </ul>
 </section>
-<section id="id23">
-<h3>Fixed<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<section id="id22">
+<h3>Fixed<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_reservoirs</strong>: Fix error if optional columns ‘Capacity_norm’, ‘Capacity_min’, ‘xout’, ‘yout’ are not in reservoir_fn. Allow to pass kwargs to the get_data method.</p></li>
 <li><p><strong>setup_lulcmaps</strong>: Fix error when looking for mapping_fn in self.data_catalog</p></li>
@@ -696,8 +701,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229</p></li>
 </ul>
 </section>
-<section id="id24">
-<h3>Deprecated<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<section id="id23">
+<h3>Deprecated<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>read_staticmaps_pcr</strong> in favour of same method in <strong>pcrm</strong> submodule</p></li>
 <li><p><strong>write_staticmaps_pcr</strong> in favour of same method in <strong>pcrm</strong> submodule</p></li>
@@ -713,8 +718,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <section id="v0-4-1-22-november-2023">
 <h2>v0.4.1 (22 November 2023)<a class="headerlink" href="#v0-4-1-22-november-2023" title="Link to this heading">#</a></h2>
 <p>Small update</p>
-<section id="id25">
-<h3>Fixed<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<section id="id24">
+<h3>Fixed<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Make HydroMT-Wflow <strong>v0.4.0</strong> conda installable</p></li>
 </ul>
@@ -723,8 +728,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <section id="v0-4-0-21-november-2023">
 <h2>v0.4.0 (21 November 2023)<a class="headerlink" href="#v0-4-0-21-november-2023" title="Link to this heading">#</a></h2>
 <p>Small overhaul of internal methods and stability fixes. This version works with HydroMT <strong>v0.9.1</strong> onwards.</p>
-<section id="id26">
-<h3>Changed<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<section id="id25">
+<h3>Changed<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>WflowModel</strong> and <strong>WflowSedimentModel</strong> now rely on <cite>GridModel</cite> from HydroMT</p></li>
 <li><p>PCRaster methods are moved to <cite>pcrm</cite> submodule and are deprecated as methods for the <strong>WflowModel</strong> class</p></li>
@@ -734,8 +739,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>Staticmaps methods are superseded by <strong>read_grid</strong>, <strong>write_grid</strong> and <strong>grid</strong></p></li>
 </ul>
 </section>
-<section id="id27">
-<h3>Fixed<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
+<section id="id26">
+<h3>Fixed<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Mainly stability fixes</p></li>
 </ul>
@@ -744,8 +749,8 @@ Due to this change we discourage users from modifying the config structure by ha
 <section id="v0-3-0-27-july-2023">
 <h2>v0.3.0 (27 July 2023)<a class="headerlink" href="#v0-3-0-27-july-2023" title="Link to this heading">#</a></h2>
 <p>Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.</p>
-<section id="id28">
-<h3>Added<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
+<section id="id27">
+<h3>Added<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for models in CRS other than 4326. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/161">PR #161</a></p></li>
 <li><p>Support for elevation data other than MERIT Hydro in <strong>setup_basemaps</strong>.</p></li>
@@ -767,16 +772,16 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowModel. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/168">PR #168</a></p></li>
 </ul>
 </section>
-<section id="id31">
-<h3>Changed<a class="headerlink" href="#id31" title="Link to this heading">#</a></h3>
+<section id="id30">
+<h3>Changed<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Default tomls are now using the dir_output option to specify <em>run_default</em> folder.</p></li>
 <li><p>in <strong>setup_reservoirs</strong>: options ‘usehe’ and ‘priorityjrc’ are removed and replaced with ‘timeseries_fn’. Options are [‘jrc’, ‘gww’]. By default None to use reservoir_fn data directly.</p></li>
 <li><p>in <strong>setup_areamap</strong>: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file.</p></li>
 </ul>
 </section>
-<section id="id32">
-<h3>Fixed<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
+<section id="id31">
+<h3>Fixed<a class="headerlink" href="#id31" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/144">PR #144</a></p></li>
 <li><p>Bugfix with wrong indexing in the river method that could cause memory issues <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/147">PR #147</a></p></li>
@@ -789,14 +794,14 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>Fix compatibility with HydroMT v0.8.0, with updated <cite>clip_geom/mask</cite> functionality <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/189">PR #189</a></p></li>
 </ul>
 </section>
-<section id="id34">
-<h3>Deprecated<a class="headerlink" href="#id34" title="Link to this heading">#</a></h3>
+<section id="id33">
+<h3>Deprecated<a class="headerlink" href="#id33" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <strong>setup_hydrodem</strong> function has been removed, and the functionality are moved to <strong>setup_rivers</strong> and <strong>setup_floodplains</strong></p></li>
 </ul>
 </section>
-<section id="id35">
-<h3>Documentation<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
+<section id="id34">
+<h3>Documentation<a class="headerlink" href="#id34" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>New <strong>prepare_ldd</strong> example notebook to demonstrate how to prepare flow directions and other elevation related data.</p></li>
 </ul>
@@ -806,15 +811,15 @@ Due to this change we discourage users from modifying the config structure by ha
 <h2>v0.2.1 (22 November 2022)<a class="headerlink" href="#v0-2-1-22-november-2022" title="Link to this heading">#</a></h2>
 <p>New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon
 deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.</p>
-<section id="id36">
-<h3>Added<a class="headerlink" href="#id36" title="Link to this heading">#</a></h3>
+<section id="id35">
+<h3>Added<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Parameters for landuse esa_worlcover. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/111">PR #111</a></p></li>
 <li><p>New <strong>setup_staticmaps_from_raster</strong> method. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/issues/111">PR #128</a></p></li>
 </ul>
 </section>
-<section id="id37">
-<h3>Changed<a class="headerlink" href="#id37" title="Link to this heading">#</a></h3>
+<section id="id36">
+<h3>Changed<a class="headerlink" href="#id36" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>update forcing example with multiple forcing files #122</p></li>
 <li><p>New window smoothing algorithm in <cite>setup_rivers</cite> to avoid cells with small river length.
@@ -822,8 +827,8 @@ Set the min_rivlen_ratio argument to a value larger than zero to apply the smoot
 Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/92">PR #92</a></p></li>
 </ul>
 </section>
-<section id="id38">
-<h3>Fixed<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
+<section id="id37">
+<h3>Fixed<a class="headerlink" href="#id37" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>write_forcing with time of type cftime.DatetimeNoLeap #109</p></li>
 <li><p>write_forcing: re-write config in case of multiple forcing files</p></li>
@@ -836,8 +841,8 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <li><p>fix wrong default value for lai_fn in setup_laimaps #119</p></li>
 </ul>
 </section>
-<section id="id39">
-<h3>Deprecated<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
+<section id="id38">
+<h3>Deprecated<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
 </section>
 </section>
 <section id="v0-2-0-5-august-2022">
@@ -845,8 +850,8 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <p>We now use rioxarray to read raster data. We recommend reinstalling your hydromt and hydromt_wflow environment including the rioxarray package.
 This enables the writting of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
 Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
-<section id="id40">
-<h3>Fixed<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
+<section id="id39">
+<h3>Fixed<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)</p></li>
 <li><p>write <strong>CF-compliant</strong> staticmaps.nc and inmaps.nc</p></li>
@@ -854,8 +859,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>update times in config depending on forcing date range availability in <strong>write_forcing</strong> methods #97</p></li>
 </ul>
 </section>
-<section id="id41">
-<h3>Changed<a class="headerlink" href="#id41" title="Link to this heading">#</a></h3>
+<section id="id40">
+<h3>Changed<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.</p></li>
 <li><p>uint8 dtype <em>wflow_rivers</em> and <em>wflow_streamorder</em> maps</p></li>
@@ -867,8 +872,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>in <strong>setup_reservoirs</strong> and <strong>setup_lakes</strong> the predicate ‘contains’ to open data is now officially used after a bugfix in hydromt core (cf #150).</p></li>
 </ul>
 </section>
-<section id="id42">
-<h3>Added<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
+<section id="id41">
+<h3>Added<a class="headerlink" href="#id41" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>nodata argument to <strong>setup_areamap</strong> with a default of -1 (was 0 and not user defined).</p></li>
 </ul>
@@ -876,8 +881,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 </section>
 <section id="v0-1-4-18-february-2022">
 <h2>v0.1.4 (18 February 2022)<a class="headerlink" href="#v0-1-4-18-february-2022" title="Link to this heading">#</a></h2>
-<section id="id43">
-<h3>Changed<a class="headerlink" href="#id43" title="Link to this heading">#</a></h3>
+<section id="id42">
+<h3>Changed<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_riverwidth</strong> method <strong>deprecated</strong> (will be removed in future versions) in favour of setup_rivers. We suggest to remove the setup_riverwidth component from your ini files.</p></li>
 <li><p><strong>setup_rivers</strong> calculate river width and depth based on the attributes of the new <strong>river_geom_fn</strong> river geometry file. We suggest adding “river_geom_fn = rivers_lin2019_v1” to the setup_rivers component of your ini files.</p></li>
@@ -885,8 +890,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.</p></li>
 </ul>
 </section>
-<section id="id44">
-<h3>Added<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
+<section id="id43">
+<h3>Added<a class="headerlink" href="#id43" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Possibility to write_forcing in several files based on time frequency (fn_freq argument).</p></li>
 <li><p>setup_hydrodem method for hydrological conditioned elevation used with “local-inertial” routing</p></li>
@@ -897,8 +902,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>new <code class="docutils literal notranslate"><span class="pre">index_col</span></code> attribute to setup_gauges to choose a specific column of gauges_fn as ID for Wflow_gauges</p></li>
 </ul>
 </section>
-<section id="id45">
-<h3>Fixed<a class="headerlink" href="#id45" title="Link to this heading">#</a></h3>
+<section id="id44">
+<h3>Fixed<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Calculation of lake_b parameter in setup_lakes.</p></li>
 <li><p>Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.</p></li>
@@ -913,8 +918,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-3-4-october-2021">
 <h2>v0.1.3 (4 October 2021)<a class="headerlink" href="#v0-1-3-4-october-2021" title="Link to this heading">#</a></h2>
 <p>This release adds pyflwdir v0.5 compatibility and a data_catalog of the used data to the write_method.</p>
-<section id="id46">
-<h3>Added<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
+<section id="id45">
+<h3>Added<a class="headerlink" href="#id45" title="Link to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>write data_catalog with the used data when writing model</p></li>
@@ -922,14 +927,14 @@ Note that the new river width estimates are different and result in different mo
 </ul>
 </div></blockquote>
 </section>
-<section id="id47">
-<h3>Changed<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
+<section id="id46">
+<h3>Changed<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>TOML files only contains reservoir/lake/glacier lines when they are setup and present in the model region.</p></li>
 </ul>
 </section>
-<section id="id48">
-<h3>Fixed<a class="headerlink" href="#id48" title="Link to this heading">#</a></h3>
+<section id="id47">
+<h3>Fixed<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope</p></li>
@@ -943,8 +948,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-2-1-september-2021">
 <h2>v0.1.2 (1 September 2021)<a class="headerlink" href="#v0-1-2-1-september-2021" title="Link to this heading">#</a></h2>
 <p>This release implements the new results attributes for Wflow.</p>
-<section id="id49">
-<h3>Added<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
+<section id="id48">
+<h3>Added<a class="headerlink" href="#id48" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add results attributes for Wflow and read_results method (including test+example).</p></li>
 <li><p>Add <cite>f_</cite> parameter in soilgrids</p></li>
@@ -954,8 +959,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New utils.py script for low_level Wflow methods.</p></li>
 </ul>
 </section>
-<section id="id50">
-<h3>Changed<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
+<section id="id49">
+<h3>Changed<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>wfow_sbm.toml remove netcdf output.</p></li>
 <li><p>Wflow_soil map is now based on soil texture calculated directly from soilgrids data</p></li>
@@ -963,16 +968,16 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.</p></li>
 </ul>
 </section>
-<section id="id51">
-<h3>Fixed<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
+<section id="id50">
+<h3>Fixed<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix f parameter in soilgrids</p></li>
 <li><p>Full reading and writing of Wflow filepaths depending on the toml file (including subfolders).</p></li>
 <li><p>The Wflow_gauges now contains river outlets only (instead of all outlets).</p></li>
 </ul>
 </section>
-<section id="id52">
-<h3>Documentation<a class="headerlink" href="#id52" title="Link to this heading">#</a></h3>
+<section id="id51">
+<h3>Documentation<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added Wflow_plot_results example.</p></li>
 <li><p>Fixed staticmaps_to_mapstack example.</p></li>
@@ -982,22 +987,22 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-1-21-may-2021">
 <h2>v0.1.1 (21 May 2021)<a class="headerlink" href="#v0-1-1-21-may-2021" title="Link to this heading">#</a></h2>
 <p>This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
-<section id="id53">
-<h3>Added<a class="headerlink" href="#id53" title="Link to this heading">#</a></h3>
+<section id="id52">
+<h3>Added<a class="headerlink" href="#id52" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Write the forcing with user defined chunking on time (default is 1) and none on the lat/lon dimensions (makes Wflow.jl run much faster).</p></li>
 <li><p>Rounding of the forcing data with user defined number of decimals (by default 2).</p></li>
 <li><p>Progress bar when writing the forcing file.</p></li>
 </ul>
 </section>
-<section id="id54">
-<h3>Changed<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
+<section id="id53">
+<h3>Changed<a class="headerlink" href="#id53" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Remove unused imports.</p></li>
 </ul>
 </section>
-<section id="id55">
-<h3>Fixed<a class="headerlink" href="#id55" title="Link to this heading">#</a></h3>
+<section id="id54">
+<h3>Fixed<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a mistake in the computation of the lake_b parameter for Wflow.</p></li>
 <li><p>Missing no data values for soilgrids workflows.</p></li>
@@ -1005,8 +1010,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New behavior of apply_ufunc from an update of xarray for passing attributes (need to specify keep_attrs=True).</p></li>
 </ul>
 </section>
-<section id="id56">
-<h3>Documentation<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
+<section id="id55">
+<h3>Documentation<a class="headerlink" href="#id55" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added changelog.</p></li>
 </ul>
@@ -1021,29 +1026,29 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-0-28-april-2021">
 <h2>v0.1.0 (28 April 2021)<a class="headerlink" href="#v0-1-0-28-april-2021" title="Link to this heading">#</a></h2>
 <p>Initial open source release of HydroMT Wflow plugin, also published on pypi. Noticeable changes are listed below.</p>
-<section id="id57">
-<h3>Added<a class="headerlink" href="#id57" title="Link to this heading">#</a></h3>
+<section id="id56">
+<h3>Added<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Minimum HydroMT plugin template in the <strong>plugin-boilerplate</strong> branch.</p></li>
 <li><p>Default filename for the forcing file created by HydroMT (when the one in config already exists).</p></li>
 </ul>
 </section>
-<section id="id58">
-<h3>Changed<a class="headerlink" href="#id58" title="Link to this heading">#</a></h3>
+<section id="id57">
+<h3>Changed<a class="headerlink" href="#id57" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Implement new get_basin_geometry from HydroMT core.</p></li>
 <li><p>Consistent setup functions arguments for data sources (‘_fn’).</p></li>
 <li><p>Rename <strong>hydrom_merit</strong> source to <strong>merit_hydro</strong> (updated version of data-artifacts).</p></li>
 </ul>
 </section>
-<section id="id59">
-<h3>Fixed<a class="headerlink" href="#id59" title="Link to this heading">#</a></h3>
+<section id="id58">
+<h3>Fixed<a class="headerlink" href="#id58" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Bugs using the clip functions</p></li>
 </ul>
 </section>
-<section id="id60">
-<h3>Documentation<a class="headerlink" href="#id60" title="Link to this heading">#</a></h3>
+<section id="id59">
+<h3>Documentation<a class="headerlink" href="#id59" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial version of the documentation on github-pages.</p></li>
 <li><p><strong>Latest</strong> and <strong>stable</strong> version of the documentation.</p></li>
@@ -1051,8 +1056,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Add examples notebooks for the documentation.</p></li>
 </ul>
 </section>
-<section id="id61">
-<h3>Tests<a class="headerlink" href="#id61" title="Link to this heading">#</a></h3>
+<section id="id60">
+<h3>Tests<a class="headerlink" href="#id60" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial tests for Wflow and Wflow_sediment.</p></li>
 </ul>
@@ -1111,119 +1116,117 @@ Note that the new river width estimates are different and result in different mo
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Unreleased</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fixed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0rc1-26-june-2025">v1.0.0rc1 (26 June 2025)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Deprecated</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Removed</a></li>
-</ul>
-</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-8-0-9-april-2025">v0.8.0 (9 April 2025)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-1-29-january-2025">v0.7.1 (29 January 2025)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Deprecated</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-7-0-8-november-2024">v0.7.0 (8 November 2024)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-1-16-september-2024">v0.6.1 (16 September 2024)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-6-0-7-june-2024">v0.6.0 (7 June 2024)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Deprecated</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-5-0-13-february-2024">v0.5.0 (13 February 2024)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-1-22-november-2023">v0.4.1 (22 November 2023)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-0-21-november-2023">v0.4.0 (21 November 2023)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-0-27-july-2023">v0.3.0 (27 July 2023)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">Deprecated</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id34">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-1-22-november-2022">v0.2.1 (22 November 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id35">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id36">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id37">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id38">Deprecated</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-0-5-august-2022">v0.2.0 (5 August 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id39">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id40">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id41">Added</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-4-18-february-2022">v0.1.4 (18 February 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id42">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id43">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id44">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-3-4-october-2021">v0.1.3 (4 October 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id45">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id46">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id47">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-2-1-september-2021">v0.1.2 (1 September 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id48">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id49">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id50">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id51">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-1-21-may-2021">v0.1.1 (21 May 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id52">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id53">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id54">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id55">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-0-28-april-2021">v0.1.0 (28 April 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id57">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id58">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id59">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id60">Documentation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id61">Tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id56">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id57">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id58">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id59">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id60">Tests</a></li>
 </ul>
 </li>
 </ul>

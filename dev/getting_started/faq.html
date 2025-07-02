@@ -44,7 +44,6 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/faq';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -509,7 +508,7 @@ where you can specify which TOML file to use using the <em>config_fn</em> argume
 <div class="line"><strong>Q</strong>: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?</div>
 </div>
 </div></blockquote>
-<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster" title="hydromt_wflow.WflowModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a>. See this example: <a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html"><span class="doc">convert_staticmaps_to_mapstack.ipynb</span></a>.
+<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster" title="hydromt_wflow.WflowModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a>. See this example: <a class="reference external" href="../_examples/convert_staticmaps_to_mapstack.ipynb">convert_staticmaps_to_mapstack.ipynb</a>.
 So actually just a read and write of your python model will do most of the job :) For lakes and reservoirs parameters,
 the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating
 reservoir).</p>
