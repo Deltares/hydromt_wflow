@@ -59,4 +59,4 @@ TODO
 
 10. Create post-release pull request
 ------------------------------------
-Change the __version__ to <version>dev and add an unreleased header and subheaders with added, changed, fixed, deprecated, and removed to the changelog.
+Change the __version__ to <version>.dev and add an unreleased header and subheaders with added, changed, fixed, deprecated, and removed to the changelog.
