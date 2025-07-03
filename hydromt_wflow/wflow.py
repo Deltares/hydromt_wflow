@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
-import tomlkit
+import tomllib
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import hydromt_step
@@ -5023,10 +5023,8 @@ Run setup_soilmaps first"
 
         config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
         # tomlkit loads errors on this file so we have to do it in two steps
-        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
-
-        self._config = tomlkit.parse(default_header_str)
+        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
+            self._config = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])
