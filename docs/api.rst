@@ -271,11 +271,8 @@ WflowGeomsComponent
    :toctree: _generated
 
    components.WflowGeomsComponent
-   components.WflowGeomsComponent.read
-   components.WflowGeomsComponent.write
+   components.WflowGeomsComponent.data
    components.WflowGeomsComponent.get
-   components.WflowGeomsComponent.set
-   components.WflowGeomsComponent.clear
 
 .. _workflows:
 

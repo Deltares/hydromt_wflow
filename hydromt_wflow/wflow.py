@@ -5310,7 +5310,6 @@ Run setup_soilmaps first"
         # fall back on default set_grid behaviour
         super().set_grid(self, data, name)
 
-    @hydromt_step
     def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
         """
         Set geometries to the model.
@@ -5346,8 +5345,6 @@ Run setup_soilmaps first"
             geoms_fn,
         )
         pattern = join(input_dir, "*.geojson")
-        if not self.root.is_writing_mode():
-            self.geoms.clear()  # start fresh in read-only mode
         self.geoms.read(filename=pattern)
 
     @hydromt_step

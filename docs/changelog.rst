@@ -15,7 +15,8 @@ Added
 - config component ``WflowConfigComponent``: represents the Wflow configuration TOML file.
 - staticmaps component ``WflowStaticMapsComponent``: represents Wflow static and cyclic data (used to be grid).
 - states component ``WflowStatesComponent``: represents Wflow input states data.
-- geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data (used to be staticgeoms).
+- geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data.
+- **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
 
 Changed
 -------
@@ -50,7 +51,6 @@ Added
 - **upgrade_to_v1_wflow**: convert models for Wflow.jl version < 1.0.0 to Wflow.jl version 1. PR #364
 - Allow users to choose the names of each variables in staticmaps.nc files or the same of some of the staticgeoms (eg lakes, reservoirs).  PR #364
 - **setup_areamap**: if the map is linked to a Wflow variable, the TOML file can now be updated to link the new created map to the right Wflow.jl variable.  PR #364
-- **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
 
 Changed
 -------
