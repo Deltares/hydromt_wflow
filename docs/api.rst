@@ -107,6 +107,7 @@ Components
 
    WflowModel.config
    WflowModel.staticmaps
+   WflowModel.states
    WflowModel.geoms
 
 
@@ -132,6 +133,7 @@ Other general methods
    WflowModel.get_config
    WflowModel.set_grid
    WflowModel.set_tables
+   WflowModel.set_states
 
 .. _api_model_sediment:
 
@@ -236,6 +238,7 @@ Other general methods
    WflowSedimentModel.set_config
    WflowSedimentModel.get_config
    WflowSedimentModel.set_grid
+   WflowSedimentModel.set_states
 
 .. _model_components:
 
@@ -251,6 +254,15 @@ WflowConfigComponent
    components.WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.get_value
+
+WflowStatesComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowStatesComponent
+   components.WflowStatesComponent.data
 
 
 WflowGeomsComponent
