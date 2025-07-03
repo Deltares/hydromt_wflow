@@ -778,35 +778,35 @@ setting new flood_depth dimensions"
         if floodplain_type == "1d":
             # Add states
             self.set_config(
-                "state.floodplain_water__instantaneous_volume_flow_rate",
+                "state.variables.floodplain_water__instantaneous_volume_flow_rate",
                 "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.floodplain_water__instantaneous_depth",
+                "state.variables.floodplain_water__instantaneous_depth",
                 "floodplain_instantaneous_h",
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 "land_instantaneous_q",
             )
             # Remove local-inertial land states
             if (
                 self.get_config(
-                    "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+                    "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config["state"]["variables"].pop(
                     "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
             if (
                 self.get_config(
-                    "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+                    "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config["state"]["variables"].pop(
                     "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
@@ -834,37 +834,39 @@ setting new flood_depth dimensions"
         else:
             # Add local-inertial land routing states
             self.set_config(
-                "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qx",
             )
             self.set_config(
-                "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
             if (
                 self.get_config(
-                    "state.land_surface_water__instantaneous_volume_flow_rate"
+                    "state.variables.land_surface_water__instantaneous_volume_flow_rate"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config["state"]["variables"].pop(
                     "land_surface_water__instantaneous_volume_flow_rate", None
                 )
             if (
                 self.get_config(
-                    "state.floodplain_water__instantaneous_volume_flow_rate"
+                    "state.variables.floodplain_water__instantaneous_volume_flow_rate"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config["state"]["variables"].pop(
                     "floodplain_water__instantaneous_volume_flow_rate", None
                 )
             if (
-                self.get_config("state.floodplain_water__instantaneous_depth")
+                self.get_config("state.variables.floodplain_water__instantaneous_depth")
                 is not None
             ):
-                self.config["state"].pop("floodplain_water__instantaneous_depth", None)
+                self.config["state"]["variables"].pop(
+                    "floodplain_water__instantaneous_depth", None
+                )
             # Remove from output.netcdf_grid section
             if (
                 self.get_config(
