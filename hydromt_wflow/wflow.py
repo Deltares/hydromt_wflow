@@ -5095,7 +5095,7 @@ Run setup_soilmaps first"
 
         config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
         # tomlkit loads errors on this file so we have to do it in two steps
-        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
+        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
             self._config = tomllib.load(file)
 
         for option in config_out:

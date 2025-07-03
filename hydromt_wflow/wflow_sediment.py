@@ -975,7 +975,7 @@ river cells."
         self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=logger)
 
-        with open(DATADIR / "default_config_headers.toml", "r") as file:
+        with open(DATADIR / "default_config_headers.toml", "rb") as file:
             self._config = tomllib.load(file)
 
         for option in config_out:
