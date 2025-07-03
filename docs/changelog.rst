@@ -17,6 +17,7 @@ Changed
 
 Fixed
 -----
+- **upgrade_to_v1_wflow**: fixed bug for [model] options that kept the same name in Wflow v1. (e.g. type, river_routing, land_routing)
 
 Deprecated
 ----------

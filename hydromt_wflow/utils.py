@@ -662,13 +662,15 @@ def _convert_to_wflow_v1(
     config_out["model"] = {}
     for value, config_var in _solve_var_name(config["model"], "", []):
         if config_var not in model_options:
-            continue
-        new_config_var = model_options[config_var]
-        if isinstance(new_config_var, (list, tuple)):
-            for elem in new_config_var:
-                set_config(config_out, f"model.{elem}", value)
-            continue
-        set_config(config_out, f"model.{new_config_var}", value)
+            # Model option that did not change in v1
+            set_config(config_out, f"model.{config_var}", value)
+        else:
+            new_config_var = model_options[config_var]
+            if isinstance(new_config_var, (list, tuple)):
+                for elem in new_config_var:
+                    set_config(config_out, f"model.{elem}", value)
+                continue
+            set_config(config_out, f"model.{new_config_var}", value)
 
     # Cross options
     for opt_old, opt_new in cross_options.items():
