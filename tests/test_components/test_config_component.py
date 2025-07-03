@@ -10,6 +10,12 @@ from hydromt_wflow.components import WflowConfigComponent
 from hydromt_wflow.utils import DATADIR
 
 
+@pytest.fixture
+def mock_model(mock_model_factory) -> MagicMock:
+    """Create a mock model with a root."""
+    return mock_model_factory(mode="w")
+
+
 def test_wflow_config_component_init(mock_model: MagicMock):
     # Setup the component
     component = WflowConfigComponent(mock_model)

@@ -132,9 +132,28 @@ line-length = 88
 exclude     = ["docs", "examples"]
 
 [tool.ruff.lint]
-# enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
-select = ["E", "F", "I", "PT", "D"]
-ignore = ["D105", "D211", "D213", "E712", "E741"]
+select = [
+  "E",    # pydocstyle
+  "F",    # pyflakes
+  "I",    # isort
+  "PT",   # pycodestyle
+  "D",    # docstrings
+]
+ignore = [
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D211", # Missing docstring in public class
+  "D213", # Multi-line docstring summary should start at the second line
+  "E712", # Avoid comparison to True/False
+  "E741", # Ambiguous variable name 'l' (lowercase 'L')
+]
+fixable = [
+  "I",    # import sorting,
+  "F",    # flake8: unused imports/variables
+  "D",    # docstrings
+  "E",    # pycodestyle: whitespace and formatting
+]
 
 [tool.ruff.format]
 quote-style                = "double"

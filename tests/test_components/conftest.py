@@ -1,5 +1,6 @@
 import platform
 from pathlib import Path
+from typing import Callable
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
@@ -35,24 +36,27 @@ def model_subbasin_cached(cached_models: Path) -> Path:
 
 ## Model related fixtures
 @pytest.fixture
-def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
-    model = mocker.create_autospec(WflowModel)
-    model.root = mocker.create_autospec(ModelRoot(tmp_path), instance=True)
-    model.root.path.return_value = tmp_path
-    model.data_catalog = mocker.create_autospec(DataCatalog)
-    # Set attributes for practical use
-    type(model).crs = PropertyMock(side_effect=lambda: CRS.from_epsg(4326))
-    type(model).root = PropertyMock(side_effect=lambda: ModelRoot(tmp_path))
-    return model
+def mock_model_factory(
+    mocker: MockerFixture, tmp_path: Path
+) -> Callable[[Path, str], WflowModel]:
+    def _factory(path: Path = tmp_path, mode: str = "w") -> WflowModel:
+        model = mocker.create_autospec(WflowModel)
+        model.root = ModelRoot(path, mode=mode)
+        model.data_catalog = mocker.create_autospec(DataCatalog)
+        model.crs = CRS.from_epsg(4326)
+        return model
+
+    return _factory
 
 
 @pytest.fixture
 def mock_model_staticmaps(
-    mock_model: MagicMock,
+    mock_model_factory: Callable[[Path, str], WflowModel],
     grid_dummy_data: xr.DataArray,
-) -> MagicMock:
+) -> WflowModel:
     # TODO: replace with WflowStaticmapsComponent when available
     # Add a GridComponent to mock model
+    mock_model = mock_model_factory()
     staticmaps = GridComponent(mock_model)
     staticmaps._data = grid_dummy_data.to_dataset(name="basin")
 

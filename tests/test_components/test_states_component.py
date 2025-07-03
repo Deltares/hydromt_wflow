@@ -1,15 +1,21 @@
+from collections.abc import Callable
 from pathlib import Path
-from unittest.mock import MagicMock, PropertyMock
 
 import numpy as np
 import pytest
 import xarray as xr
-from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowStatesComponent
+from hydromt_wflow.wflow import WflowModel
 
 
-def test_wflow_states_component_init(mock_model: MagicMock):
+@pytest.fixture
+def mock_model(mock_model_factory) -> WflowModel:
+    """Fixture to create a mock WflowModel."""
+    return mock_model_factory(mode="w")
+
+
+def test_wflow_states_component_init(mock_model: WflowModel):
     # Setup the component
     component = WflowStatesComponent(mock_model)
 
@@ -22,7 +28,7 @@ def test_wflow_states_component_init(mock_model: MagicMock):
     assert len(component.data) == 0
 
 
-def test_wflow_states_component_init_with_region(mock_model_staticmaps: MagicMock):
+def test_wflow_states_component_init_with_region(mock_model_staticmaps: WflowModel):
     # Setup the component with a region component
     component = WflowStatesComponent(
         mock_model_staticmaps, region_component="staticmaps"
@@ -34,7 +40,7 @@ def test_wflow_states_component_init_with_region(mock_model_staticmaps: MagicMoc
 
 
 def test_wflow_states_component_set(
-    mock_model_staticmaps: MagicMock, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -55,7 +61,7 @@ def test_wflow_states_component_set(
 
 
 def test_wflow_states_component_set_alt(
-    mock_model_staticmaps: MagicMock, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -71,7 +77,7 @@ def test_wflow_states_component_set_alt(
 
 
 def test_wflow_states_component_set_errors(
-    mock_model_staticmaps: MagicMock, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -94,13 +100,11 @@ def test_wflow_states_component_set_errors(
 
 
 def test_wflow_states_component_read(
-    mock_model: MagicMock,
+    mock_model_factory: Callable[[Path, str], WflowModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
-    type(mock_model).root = PropertyMock(
-        side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
-    )
+    mock_model = mock_model_factory(path=model_subbasin_cached, mode="r")
 
     # Setup the component
     component = WflowStatesComponent(mock_model)
@@ -118,13 +122,11 @@ def test_wflow_states_component_read(
 
 
 def test_wflow_states_component_read_init(
-    mock_model: MagicMock,
+    mock_model_factory: Callable[[Path, str], WflowModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
-    type(mock_model).root = PropertyMock(
-        side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
-    )
+    mock_model = mock_model_factory(path=model_subbasin_cached, mode="r")
 
     # Setup the component
     component = WflowStatesComponent(mock_model)
@@ -136,7 +138,7 @@ def test_wflow_states_component_read_init(
 
 
 def test_wflow_states_component_write(
-    mock_model: MagicMock,
+    mock_model: WflowModel,
     grid_dummy_data: xr.DataArray,
 ):
     # Setup the component
@@ -158,7 +160,7 @@ def test_wflow_states_component_write(
 
 
 def test_wflow_states_component_equal(
-    mock_model: MagicMock,
+    mock_model: WflowModel,
     grid_dummy_data: xr.DataArray,
 ):
     # Setup the components
