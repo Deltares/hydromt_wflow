@@ -18,6 +18,7 @@ Changed
 Fixed
 -----
 - **setup_floodplains**: states were not correctly added to the model config.
+- Fix wflow build config example in the docs.
 
 Deprecated
 ----------
