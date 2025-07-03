@@ -411,9 +411,15 @@
 <span></span><span class="sd">&quot;&quot;&quot;Custom wflow config component module.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.components.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tomlkit.toml_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">TOMLFile</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowConfigComponent&quot;</span><span class="p">]</span>
 
@@ -422,22 +428,15 @@
 
 <div class="viewcode-block" id="WflowConfigComponent">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowConfigComponent.html#hydromt_wflow.components.WflowConfigComponent">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">WflowConfigComponent</span><span class="p">(</span><span class="n">ConfigComponent</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A component to manage configuration files for model simulations/settings.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WflowConfigComponent</span><span class="p">(</span><span class="n">ModelComponent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manage the wflow TOML configuration file for model simulations/settings.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    model: Model</span>
-<span class="sd">        HydroMT model instance</span>
-<span class="sd">    filename: str</span>
-<span class="sd">        A path relative to the root where the configuration file will</span>
-<span class="sd">        be read and written if user does not provide a path themselves.</span>
-<span class="sd">        By default &#39;config.yml&#39;</span>
-<span class="sd">    default_template_filename: Optional[Path]</span>
-<span class="sd">        A path to a template file that will be used as default in the ``create``</span>
-<span class="sd">        method to initialize the configuration file if the user does not provide</span>
-<span class="sd">        their own template file. This can be used by model plugins to provide a</span>
-<span class="sd">        default configuration template. By default None.</span>
+<span class="sd">    ``WflowConfigComponent`` data is stored in a tomlkit.TOMLDocument. The component</span>
+<span class="sd">    is used to prepare and update model simulations/settings of the wflow model.</span>
+<span class="sd">    TOML config files will be read and written using</span>
+<span class="sd">    `TOMLkit &lt;https://tomlkit.readthedocs.io/en/latest/quickstart/&gt;`__.</span>
+<span class="sd">    This package will preserve the order and comments in a TOML file. Note, that any</span>
+<span class="sd">    comments associated with sections that are to be updated will still disappear.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WflowConfigComponent.__init__">
@@ -446,16 +445,218 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_sbm.toml&quot;</span><span class="p">,</span>
-        <span class="n">default_template_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;wflow_sbm.toml&quot;</span><span class="p">,</span>
+        <span class="n">default_template_filename</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">ConfigComponent</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">model</span><span class="p">,</span>
-            <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
-            <span class="n">default_template_filename</span><span class="o">=</span><span class="n">default_template_filename</span><span class="p">,</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a WflowConfigComponent.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : Model</span>
+<span class="sd">            HydroMT model instance</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            A path relative to the root where the configuration file will</span>
+<span class="sd">            be read and written if user does not provide a path themselves.</span>
+<span class="sd">            By default &#39;wflow_sbm.toml&#39;</span>
+<span class="sd">        default_template_filename : str, optional</span>
+<span class="sd">            A path to a template file that will be used as default in the ``create``</span>
+<span class="sd">            method to initialize the configuration file if the user does not provide</span>
+<span class="sd">            their own template file. This can be used by model plugins to provide a</span>
+<span class="sd">            default configuration template. By default None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_template_filename</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">default_template_filename</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span></div>
+
+
+    <span class="c1">## Private</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_read</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the model config.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_read</span><span class="p">:</span>
+                <span class="c1"># no check for read mode here</span>
+                <span class="c1"># model config is read if in read-mode and it exists</span>
+                <span class="c1"># default config if in write-mode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c1">## Properties</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Model config values.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="c1">## I/O Methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the wflow configuration file at &lt;root&gt;/{path}.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">(</span><span class="n">skip_read</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Check if user-defined path or template should be used</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="n">read_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Switch to default if available and supplied config is not found</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">read_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_template_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_reading_mode</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">_new_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_template_filename</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No config file found at </span><span class="si">{</span><span class="n">read_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">defaulting to </span><span class="si">{</span><span class="n">_new_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">read_path</span> <span class="o">=</span> <span class="n">_new_path</span>
+
+        <span class="c1"># Check if the file exists</span>
+        <span class="k">if</span> <span class="n">read_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading model config file from </span><span class="si">{</span><span class="n">read_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No default model config was found at </span><span class="si">{</span><span class="n">read_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;It wil be initialized as empty TOMLDocument&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Read the data and set it in the document</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">TOMLFile</span><span class="p">(</span><span class="n">read_path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="c1"># TODO figure out whether .update might be a good alternative</span>
+        <span class="c1"># Seems to not preserve the structure as well as direct setting</span>
+        <span class="c1"># But now it overwrites the already existing keys.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the wflow configurations to a file.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_assert_write_mode</span><span class="p">()</span>
+        <span class="c1"># If there is data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
+
+            <span class="c1"># Sort the pathing</span>
+            <span class="n">write_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing model config to </span><span class="si">{</span><span class="n">write_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">write_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Dump the toml</span>
+            <span class="n">TOMLFile</span><span class="p">(</span><span class="n">write_path</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># Warn when there is no data being written</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Model config has no data, skip writing.&quot;</span><span class="p">)</span>
+
+    <span class="c1">## Add data methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the config dictionary at key(s) with values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict[str, Any]</span>
+<span class="sd">            A dictionary with the values to be set. keys can be dotted like in</span>
+<span class="sd">            :py:meth:`~hydromt_wflow.components.config.WflowConfigComponent.set`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Setting data as a nested dictionary::</span>
+
+
+<span class="sd">            &gt;&gt; self.update({&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}})</span>
+<span class="sd">            &gt;&gt; self.data</span>
+<span class="sd">            {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
+
+<span class="sd">        Setting data using dotted notation::</span>
+
+<span class="sd">            &gt;&gt; self.update({&#39;a.d.f.g&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}})</span>
+<span class="sd">            &gt;&gt; self.data</span>
+<span class="sd">            {&#39;a&#39;: {&#39;d&#39;:{&#39;f&#39;:{&#39;g&#39;: 1}}}, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting model config options.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="c1">## Modifying methods</span>
+<div class="viewcode-block" id="WflowConfigComponent.get_value">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowConfigComponent.get_value.html#hydromt_wflow.components.WflowConfigComponent.get_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">fallback</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get config options.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : tuple, str</span>
+<span class="sd">            Keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
+<span class="sd">            or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">        fallback : Any, optional</span>
+<span class="sd">            Fallback value if key(s) not found in config, by default None.</span>
+<span class="sd">        abs_path: bool, optional</span>
+<span class="sd">            If True return the absolute path relative to the model root,</span>
+<span class="sd">            by default False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Refer to utils function of get_config</span>
+        <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">fallback</span><span class="p">,</span>
+            <span class="n">abs_path</span><span class="o">=</span><span class="n">abs_path</span><span class="p">,</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the config options.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : str, tuple, list</span>
+<span class="sd">            If tuple or list, minimal length of two</span>
+<span class="sd">            keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;, &#39;value&#39;)</span>
+<span class="sd">            or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;, &#39;value&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+        <span class="c1"># Refer to utils function of set_config</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># Testing</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ModelComponent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compare components based on content.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : ModelComponent</span>
+<span class="sd">            The component to compare against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[bool, dict[str, str]]</span>
+<span class="sd">            True if the components are equal, and a dict with the associated errors per</span>
+<span class="sd">            property checked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eq</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">test_equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eq</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">eq</span><span class="p">,</span> <span class="n">errors</span>
+        <span class="n">other_config</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">WflowConfigComponent</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+        <span class="c1"># check on data equality</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="n">other_config</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="s2">&quot;Configs are not equal&quot;</span><span class="p">}</span></div>
 
 </pre></div>
 

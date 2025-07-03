@@ -417,7 +417,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">hydromt_step</span>
 
@@ -1421,9 +1421,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
-
+        <span class="c1"># tomlkit loads errors on this file so we have to do it in two steps</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">default_header_str</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">default_header_str</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>

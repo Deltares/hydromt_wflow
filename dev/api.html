@@ -428,6 +428,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.crs.html">hydromt_wflow.WflowModel.crs</a></li>
@@ -441,6 +442,7 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.get_config.html">hydromt_wflow.WflowModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_grid.html">hydromt_wflow.WflowModel.set_grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_states.html">hydromt_wflow.WflowModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
@@ -501,11 +503,16 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_config.html">hydromt_wflow.WflowSedimentModel.set_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.get_config.html">hydromt_wflow.WflowSedimentModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_grid.html">hydromt_wflow.WflowSedimentModel.set_grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_states.html">hydromt_wflow.WflowSedimentModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.html">hydromt_wflow.components.WflowConfigComponent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.data.html">hydromt_wflow.components.WflowConfigComponent.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.get_value.html">hydromt_wflow.components.WflowConfigComponent.get_value</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.components.WflowStatesComponent.html">hydromt_wflow.components.WflowStatesComponent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.components.WflowStatesComponent.data.html">hydromt_wflow.components.WflowStatesComponent.data</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
@@ -782,10 +789,10 @@
 <td><p>Return clippped forcing for subbasin.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_states.html#hydromt_wflow.WflowModel.read_states" title="hydromt_wflow.WflowModel.read_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_states</span></code></a>()</p></td>
-<td><p>Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.</p></td>
+<td><p>Read states at &lt;root/dir_input/state.path_input&gt;.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states" title="hydromt_wflow.WflowModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_states</span></code></a>([fn_out])</p></td>
-<td><p>Write states at &lt;root/instate/&gt; in model ready format.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states" title="hydromt_wflow.WflowModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_states</span></code></a>([filename])</p></td>
+<td><p>Write states at &lt;root/dir_input/state.path_input&gt; in model ready format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.clip_states.html#hydromt_wflow.WflowModel.clip_states" title="hydromt_wflow.WflowModel.clip_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.clip_states</span></code></a>()</p></td>
 <td><p>Return clippped states for subbasin.</p></td>
@@ -812,6 +819,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.staticmaps.html#hydromt_wflow.WflowModel.staticmaps" title="hydromt_wflow.WflowModel.staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.staticmaps</span></code></a></p></td>
 <td><p>Return the staticmaps component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.states.html#hydromt_wflow.WflowModel.states" title="hydromt_wflow.WflowModel.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.states</span></code></a></p></td>
+<td><p>Return the states component.</p></td>
 </tr>
 </tbody>
 </table>
@@ -855,6 +865,9 @@
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_tables.html#hydromt_wflow.WflowModel.set_tables" title="hydromt_wflow.WflowModel.set_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_tables</span></code></a>(df, name)</p></td>
 <td><p>Add table &lt;pandas.DataFrame&gt; to model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_states.html#hydromt_wflow.WflowModel.set_states" title="hydromt_wflow.WflowModel.set_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_states</span></code></a>(data[, name])</p></td>
+<td><p>Add data to states.</p></td>
 </tr>
 </tbody>
 </table>
@@ -989,10 +1002,10 @@
 <td><p>Return clippped forcing for subbasin.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_states.html#hydromt_wflow.WflowSedimentModel.read_states" title="hydromt_wflow.WflowSedimentModel.read_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_states</span></code></a>()</p></td>
-<td><p>Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.</p></td>
+<td><p>Read states at &lt;root/dir_input/state.path_input&gt;.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write_states.html#hydromt_wflow.WflowSedimentModel.write_states" title="hydromt_wflow.WflowSedimentModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write_states</span></code></a>([fn_out])</p></td>
-<td><p>Write states at &lt;root/instate/&gt; in model ready format.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write_states.html#hydromt_wflow.WflowSedimentModel.write_states" title="hydromt_wflow.WflowSedimentModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write_states</span></code></a>([filename])</p></td>
+<td><p>Write states at &lt;root/dir_input/state.path_input&gt; in model ready format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_results.html#hydromt_wflow.WflowSedimentModel.read_results" title="hydromt_wflow.WflowSedimentModel.read_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_results</span></code></a>()</p></td>
 <td><p>Read results at &lt;root/?/&gt; and parse to dict of xr.DataArray/xr.Dataset.</p></td>
@@ -1051,6 +1064,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_grid.html#hydromt_wflow.WflowSedimentModel.set_grid" title="hydromt_wflow.WflowSedimentModel.set_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.set_grid</span></code></a>(data[, name])</p></td>
 <td><p>Add data to grid.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_states.html#hydromt_wflow.WflowSedimentModel.set_states" title="hydromt_wflow.WflowSedimentModel.set_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.set_states</span></code></a>(data[, name])</p></td>
+<td><p>Add data to states.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1063,13 +1079,27 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.html#hydromt_wflow.components.WflowConfigComponent" title="hydromt_wflow.components.WflowConfigComponent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowConfigComponent</span></code></a>(model, *[, ...])</p></td>
-<td><p>A component to manage configuration files for model simulations/settings.</p></td>
+<td><p>Manage the wflow TOML configuration file for model simulations/settings.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.data.html#hydromt_wflow.components.WflowConfigComponent.data" title="hydromt_wflow.components.WflowConfigComponent.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowConfigComponent.data</span></code></a></p></td>
 <td><p>Model config values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.get_value.html#hydromt_wflow.components.WflowConfigComponent.get_value" title="hydromt_wflow.components.WflowConfigComponent.get_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowConfigComponent.get_value</span></code></a>(key)</p></td>
-<td><p>Get a config value at key(s).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowConfigComponent.get_value.html#hydromt_wflow.components.WflowConfigComponent.get_value" title="hydromt_wflow.components.WflowConfigComponent.get_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowConfigComponent.get_value</span></code></a>(*args)</p></td>
+<td><p>Get config options.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="wflowstatescomponent">
+<h3>WflowStatesComponent<a class="headerlink" href="#wflowstatescomponent" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowStatesComponent.html#hydromt_wflow.components.WflowStatesComponent" title="hydromt_wflow.components.WflowStatesComponent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowStatesComponent</span></code></a>(model, *[, ...])</p></td>
+<td><p>ModelComponent class for Wflow states.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.components.WflowStatesComponent.data.html#hydromt_wflow.components.WflowStatesComponent.data" title="hydromt_wflow.components.WflowStatesComponent.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">components.WflowStatesComponent.data</span></code></a></p></td>
+<td><p>Model static gridded data as xarray.Dataset.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1277,6 +1307,7 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wflowmodel-components">WflowModel components</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wflowconfigcomponent">WflowConfigComponent</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wflowstatescomponent">WflowStatesComponent</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wflow-workflows">Wflow workflows</a></li>

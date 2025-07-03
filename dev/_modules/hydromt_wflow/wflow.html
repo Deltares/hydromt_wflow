@@ -426,7 +426,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyflwdir</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dask.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgressBar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">hydromt_step</span>
@@ -443,6 +443,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.components</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">StaticmapsComponent</span><span class="p">,</span>
     <span class="n">WflowConfigComponent</span><span class="p">,</span>
+    <span class="n">WflowStatesComponent</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sbm</span>
 
@@ -503,6 +504,7 @@
                 <span class="p">),</span>
             <span class="p">),</span>
             <span class="s2">&quot;staticmaps&quot;</span><span class="p">:</span> <span class="n">StaticmapsComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">&quot;states&quot;</span><span class="p">:</span> <span class="n">WflowStatesComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span><span class="p">),</span>
         <span class="p">}</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -536,6 +538,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StaticmapsComponent</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the staticmaps component.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;staticmaps&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WflowStatesComponent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the states component.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;states&quot;</span><span class="p">]</span>
 
     <span class="c1"># SETUP METHODS</span>
 <div class="viewcode-block" id="WflowModel.setup_config">
@@ -5609,8 +5616,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="n">config_out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">convert_to_wflow_v1_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="c1"># tomlkit loads errors on this file so we have to do it in two steps</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">default_header_str</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">default_header_str</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
@@ -6273,72 +6283,81 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_states.html#hydromt_wflow.WflowModel.read_states">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.&quot;&quot;&quot;</span>
-        <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;instate&quot;</span><span class="p">,</span> <span class="s2">&quot;instates.nc&quot;</span><span class="p">)</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
-        <span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read states at &lt;root/dir_input/state.path_input&gt;.</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
-                <span class="n">input_dir</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">),</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory found </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">        Checks the path of the file in the config toml using both ``state.path_input``</span>
+<span class="sd">        and ``dir_input``. If not found uses the default path ``instate/instates.nc``</span>
+<span class="sd">        in the root folder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sort which path/ filename is actually the one used</span>
+        <span class="c1"># Hierarchy is: 1: signature, 2: config, 3: default</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="c1"># Check for input dir</span>
+        <span class="n">p_input</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
-            <span class="c1"># start fresh in read-only mode</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read states from </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mask_and_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">p_input</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.write_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states">[docs]</a>
     <span class="nd">@hydromt_step</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write states at &lt;root/instate/&gt; in model ready format.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write states at &lt;root/dir_input/state.path_input&gt; in model ready format.</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing states file&quot;</span><span class="p">)</span>
+<span class="sd">        Checks the path of the file in the config toml using both ``state.path_input``</span>
+<span class="sd">        and ``dir_input``. If not found uses the default path ``instate/instates.nc``</span>
+<span class="sd">        in the root folder.</span>
+<span class="sd">        If filename is provided, it will be used and config ``state.path_input``</span>
+<span class="sd">        will be updated accordingly.</span>
 
-            <span class="c1"># get output filename and if needed update and re-write the config</span>
-            <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">fn_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">fn_name</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;instate&quot;</span><span class="p">,</span> <span class="s2">&quot;instates.nc&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str, Path, optional</span>
+<span class="sd">            Name of the states file, relative to model root and ``dir_input`` if any.</span>
+<span class="sd">            By default None to use the name as defined in the model config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sort which path/ filename is actually the one used</span>
+        <span class="c1"># Hierarchy is: 1: signature, 2: config, 3: default</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="c1"># Check for output dir</span>
+        <span class="n">p_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
-            <span class="c1"># merge, process and write forcing</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="c1"># Update the config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 
-            <span class="c1"># make sure no _FillValue is written to the time dimension</span>
-            <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Write</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">p_output</span><span class="p">)</span></div>
 
-            <span class="c1"># Check if all sub-folders in fn_out exists and if not create them</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">))</span>
 
-            <span class="c1"># write states</span>
-            <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WflowModel.set_states">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.set_states.html#hydromt_wflow.WflowModel.set_states">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_states</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data to states.</span>
+
+<span class="sd">        All layers of states must have identical spatial coordinates. This is an</span>
+<span class="sd">        inherited method from HydroMT-core&#39;s StatesModel.set_states with some fixes.</span>
+<span class="sd">        If basin data is available the states will be masked to that upon setting.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data: xarray.DataArray or xarray.Dataset</span>
+<span class="sd">            new map layer to add to states</span>
+<span class="sd">        name: str, optional</span>
+<span class="sd">            Name of new map layer, this is used to overwrite the name of a DataArray and</span>
+<span class="sd">            ignored if data is a Dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mask_raster_from_layer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]])</span>
+        <span class="c1"># fall back on default set_states behaviour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.read_results">

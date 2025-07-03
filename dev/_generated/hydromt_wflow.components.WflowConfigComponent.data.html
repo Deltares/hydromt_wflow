@@ -428,6 +428,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html">hydromt_wflow.WflowModel.crs</a></li>
@@ -441,6 +442,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.get_config.html">hydromt_wflow.WflowModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_grid.html">hydromt_wflow.WflowModel.set_grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_states.html">hydromt_wflow.WflowModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
@@ -501,11 +503,16 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html">hydromt_wflow.WflowSedimentModel.set_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.get_config.html">hydromt_wflow.WflowSedimentModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_grid.html">hydromt_wflow.WflowSedimentModel.set_grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html">hydromt_wflow.WflowSedimentModel.set_states</a></li>
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.html">hydromt_wflow.components.WflowConfigComponent</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.components.WflowConfigComponent.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.get_value.html">hydromt_wflow.components.WflowConfigComponent.get_value</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.html">hydromt_wflow.components.WflowStatesComponent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.data.html">hydromt_wflow.components.WflowStatesComponent.data</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
@@ -611,7 +618,7 @@
 <h1>hydromt_wflow.components.WflowConfigComponent.data<a class="headerlink" href="#hydromt-wflow-components-wflowconfigcomponent-data" title="Link to this heading">#</a></h1>
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.data">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WflowConfigComponent.</span></span><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WflowConfigComponent.</span></span><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TOMLDocument</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data" title="Link to this definition">#</a></dt>
 <dd><p>Model config values.</p>
 </dd></dl>
 

@@ -428,6 +428,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html">hydromt_wflow.WflowModel.crs</a></li>
@@ -441,6 +442,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.get_config.html">hydromt_wflow.WflowModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_grid.html">hydromt_wflow.WflowModel.set_grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_states.html">hydromt_wflow.WflowModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
@@ -501,11 +503,16 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html">hydromt_wflow.WflowSedimentModel.set_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.get_config.html">hydromt_wflow.WflowSedimentModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_grid.html">hydromt_wflow.WflowSedimentModel.set_grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html">hydromt_wflow.WflowSedimentModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.html">hydromt_wflow.components.WflowConfigComponent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.data.html">hydromt_wflow.components.WflowConfigComponent.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.get_value.html">hydromt_wflow.components.WflowConfigComponent.get_value</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.html">hydromt_wflow.components.WflowStatesComponent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.data.html">hydromt_wflow.components.WflowStatesComponent.data</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
@@ -612,7 +619,10 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.read_states">
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_states" title="Link to this definition">#</a></dt>
-<dd><p>Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.</p>
+<dd><p>Read states at &lt;root/dir_input/state.path_input&gt;.</p>
+<p>Checks the path of the file in the config toml using both <code class="docutils literal notranslate"><span class="pre">state.path_input</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code>. If not found uses the default path <code class="docutils literal notranslate"><span class="pre">instate/instates.nc</span></code>
+in the root folder.</p>
 </dd></dl>
 
 </section>

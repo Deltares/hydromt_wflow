@@ -49,7 +49,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydromt_wflow.components.WflowConfigComponent.data" href="hydromt_wflow.components.WflowConfigComponent.data.html" />
-    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.set_grid" href="hydromt_wflow.WflowSedimentModel.set_grid.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.set_states" href="hydromt_wflow.WflowSedimentModel.set_states.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -428,6 +428,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html">hydromt_wflow.WflowModel.crs</a></li>
@@ -441,6 +442,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.get_config.html">hydromt_wflow.WflowModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_grid.html">hydromt_wflow.WflowModel.set_grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_states.html">hydromt_wflow.WflowModel.set_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
@@ -501,11 +503,16 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html">hydromt_wflow.WflowSedimentModel.set_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.get_config.html">hydromt_wflow.WflowSedimentModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_grid.html">hydromt_wflow.WflowSedimentModel.set_grid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html">hydromt_wflow.WflowSedimentModel.set_states</a></li>
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.components.WflowConfigComponent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.data.html">hydromt_wflow.components.WflowConfigComponent.data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.get_value.html">hydromt_wflow.components.WflowConfigComponent.get_value</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.html">hydromt_wflow.components.WflowStatesComponent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.components.WflowStatesComponent.data.html">hydromt_wflow.components.WflowStatesComponent.data</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
@@ -611,31 +618,23 @@
 <h1>hydromt_wflow.components.WflowConfigComponent<a class="headerlink" href="#hydromt-wflow-components-wflowconfigcomponent" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hydromt_wflow.components.</span></span><span class="sig-name descname"><span class="pre">WflowConfigComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.1.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/components/config.html#WflowConfigComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent" title="Link to this definition">#</a></dt>
-<dd><p>A component to manage configuration files for model simulations/settings.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">hydromt_wflow.components.</span></span><span class="sig-name descname"><span class="pre">WflowConfigComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.1.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/components/config.html#WflowConfigComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent" title="Link to this definition">#</a></dt>
+<dd><p>Manage the wflow TOML configuration file for model simulations/settings.</p>
+<p><code class="docutils literal notranslate"><span class="pre">WflowConfigComponent</span></code> data is stored in a tomlkit.TOMLDocument. The component
+is used to prepare and update model simulations/settings of the wflow model.
+TOML config files will be read and written using
+<a class="reference external" href="https://tomlkit.readthedocs.io/en/latest/quickstart/">TOMLkit</a>.
+This package will preserve the order and comments in a TOML file. Note, that any
+comments associated with sections that are to be updated will still disappear.</p>
+<p>Initialize a WflowConfigComponent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>Model</em>) – HydroMT model instance</p></li>
 <li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A path relative to the root where the configuration file will
 be read and written if user does not provide a path themselves.
-By default ‘config.yml’</p></li>
-<li><p><strong>default_template_filename</strong> (<em>Optional</em><em>[</em><em>Path</em><em>]</em>) – A path to a template file that will be used as default in the <code class="docutils literal notranslate"><span class="pre">create</span></code>
-method to initialize the configuration file if the user does not provide
-their own template file. This can be used by model plugins to provide a
-default configuration template. By default None.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Initialize a ConfigComponent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>Model</em>) – HydroMT model instance</p></li>
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A path relative to the root where the configuration file will
-be read and written if user does not provide a path themselves.
-By default ‘config.yml’</p></li>
-<li><p><strong>default_template_filename</strong> (<em>Optional</em><em>[</em><em>Path</em><em>]</em>) – A path to a template file that will be used as default in the <code class="docutils literal notranslate"><span class="pre">create</span></code>
+By default ‘wflow_sbm.toml’</p></li>
+<li><p><strong>default_template_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – A path to a template file that will be used as default in the <code class="docutils literal notranslate"><span class="pre">create</span></code>
 method to initialize the configuration file if the user does not provide
 their own template file. This can be used by model plugins to provide a
 default configuration template. By default None.</p></li>
@@ -644,16 +643,16 @@ default configuration template. By default None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.1.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/components/config.html#WflowConfigComponent.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize a ConfigComponent.</p>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.1.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/components/config.html#WflowConfigComponent.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize a WflowConfigComponent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<em>Model</em>) – HydroMT model instance</p></li>
 <li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – A path relative to the root where the configuration file will
 be read and written if user does not provide a path themselves.
-By default ‘config.yml’</p></li>
-<li><p><strong>default_template_filename</strong> (<em>Optional</em><em>[</em><em>Path</em><em>]</em>) – A path to a template file that will be used as default in the <code class="docutils literal notranslate"><span class="pre">create</span></code>
+By default ‘wflow_sbm.toml’</p></li>
+<li><p><strong>default_template_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – A path to a template file that will be used as default in the <code class="docutils literal notranslate"><span class="pre">create</span></code>
 method to initialize the configuration file if the user does not provide
 their own template file. This can be used by model plugins to provide a
 default configuration template. By default None.</p></li>
@@ -666,28 +665,25 @@ default configuration template. By default None.</p></li>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#hydromt_wflow.components.WflowConfigComponent.__init__" title="hydromt_wflow.components.WflowConfigComponent.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model, *[, filename, ...])</p></td>
-<td><p>Initialize a ConfigComponent.</p></td>
+<td><p>Initialize a WflowConfigComponent.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create</span></code>([template])</p></td>
-<td><p>Create a new config file based on a template file.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.get_value.html#hydromt_wflow.components.WflowConfigComponent.get_value" title="hydromt_wflow.components.WflowConfigComponent.get_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_value</span></code></a>(*args[, fallback, abs_path])</p></td>
+<td><p>Get config options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.components.WflowConfigComponent.get_value.html#hydromt_wflow.components.WflowConfigComponent.get_value" title="hydromt_wflow.components.WflowConfigComponent.get_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_value</span></code></a>(key[, fallback, abs_path])</p></td>
-<td><p>Get a config value at key(s).</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code>([path])</p></td>
+<td><p>Read the wflow configuration file at &lt;root&gt;/{path}.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code>([path])</p></td>
-<td><p>Read model config at &lt;root&gt;/{path}.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(*args)</p></td>
+<td><p>Set the config options.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(key, value)</p></td>
-<td><p>Update the config dictionary at key(s) with values.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_equal</span></code>(other)</p></td>
+<td><p>Compare components based on content.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_equal</span></code>(other)</p></td>
-<td><p>Test if two components are equal.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>(data)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>(data)</p></td>
 <td><p>Set the config dictionary at key(s) with values.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([path])</p></td>
-<td><p>Write model config at &lt;root&gt;/{path}.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([path])</p></td>
+<td><p>Write the wflow configurations to a file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -725,12 +721,12 @@ default configuration template. By default None.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowSedimentModel.set_grid.html"
+       href="hydromt_wflow.WflowSedimentModel.set_states.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.set_grid</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.set_states</p>
       </div>
     </a>
     <a class="right-next"
