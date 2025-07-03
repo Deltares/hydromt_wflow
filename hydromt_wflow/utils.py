@@ -475,6 +475,16 @@ def get_grid_from_config(
     return da
 
 
+def _mask_data_array(data_array: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:
+    """Mask the data array based on the mask."""
+    # If the data is boolean, we set it to False where the mask is False
+    if data_array.dtype == "bool":
+        return data_array.where(mask, False)
+    # Otherwise we set it to nodata where the mask is False
+    else:
+        return data_array.where(mask, data_array.raster.nodata)
+
+
 def mask_raster_from_layer(
     data: xr.Dataset | xr.DataArray, mask: xr.DataArray
 ) -> xr.Dataset | xr.DataArray:
@@ -493,25 +503,16 @@ def mask_raster_from_layer(
     ----------
         data (xr.Dataset, xr.DataArray):
             The grid data containing the data that should be masked
-        layer_name (string):
-            mask that the data will be masked to. Values can be boolean or
-            numeric. Places where this layer is different than the rater nodata will be
-            masked in the other data variables
+        mask (xr.DataArray):
+            mask that the data will be masked to. Values can be boolean or numeric.
+            Places where this layer is different than the raster nodata will be
+            masked in the other data.
 
     Returns
     -------
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
     mask = mask != mask.raster.nodata
-
-    def _mask_data_array(data_array: xr.DataArray) -> xr.DataArray:
-        """Mask the data array based on the mask."""
-        # If the data is boolean, we set it to False where the mask is False
-        if data_array.dtype == "bool":
-            return data_array.where(mask, False)
-        # Otherwise we set it to nodata where the mask is False
-        else:
-            return data_array.where(mask, data_array.raster.nodata)
 
     if isinstance(data, xr.DataArray):
         data = _mask_data_array(data)

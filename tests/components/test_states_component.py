@@ -22,7 +22,7 @@ def test_wflow_states_component_init(mock_model: MagicMock):
     assert len(component.data) == 0
 
 
-def test_wflow_states_component_ini_with_region(mock_model_staticmaps: MagicMock):
+def test_wflow_states_component_init_with_region(mock_model_staticmaps: MagicMock):
     # Setup the component with a region component
     component = WflowStatesComponent(
         mock_model_staticmaps, region_component="staticmaps"
@@ -68,6 +68,15 @@ def test_wflow_states_component_set_alt(
     # Assert the content
     assert isinstance(component._data, xr.Dataset)
     assert "dummy_grid" in component.data
+
+
+def test_wflow_states_component_set_errors(
+    mock_model_staticmaps: MagicMock, grid_dummy_data: xr.DataArray
+):
+    # Setup the component
+    component = WflowStatesComponent(
+        mock_model_staticmaps, region_component="staticmaps"
+    )
 
     # Try with np.ndarray
     array = grid_dummy_data.values
@@ -132,7 +141,6 @@ def test_wflow_states_component_write(
 ):
     # Setup the component
     component = WflowStatesComponent(mock_model)
-
     component._data = grid_dummy_data.to_dataset(name="test_layer")
 
     # Write to a file
