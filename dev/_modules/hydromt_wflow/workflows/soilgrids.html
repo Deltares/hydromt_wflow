@@ -43,6 +43,7 @@
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/soilgrids';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -1413,7 +1414,7 @@
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">update_c</span><span class="p">:</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_kvfrac</span>
-        <span class="c1"># Remove wflow_dem</span>
+        <span class="c1"># Remove elevation variable</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;elevtn&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">)</span>
