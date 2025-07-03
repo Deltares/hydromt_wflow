@@ -17,8 +17,9 @@ Changed
 
 Fixed
 -----
-- **setup_floodplains**: states were not correctly added to the model config.
-- Fix wflow build config example in the docs.
+- **upgrade_to_v1_wflow**: fixed bug for [model] options that kept the same name in Wflow v1. (e.g. type, river_routing, land_routing). PR #487
+- **setup_floodplains**: states were not correctly added to the model config. PR #486
+- Fix wflow build config example in the docs. PR #486
 
 Deprecated
 ----------
