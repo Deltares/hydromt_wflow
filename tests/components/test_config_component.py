@@ -1,11 +1,10 @@
 import logging
+from copy import deepcopy
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 from hydromt.model import ModelRoot
-from tomlkit import TOMLDocument
-from tomlkit.items import Table
 
 from hydromt_wflow.components import WflowConfigComponent
 from hydromt_wflow.utils import DATADIR
@@ -19,8 +18,8 @@ def test_wflow_config_component_init(mock_model: MagicMock):
     assert component._data is None
 
     # When asking for data property, it should return a tomlkit document
-    assert isinstance(component.data, TOMLDocument)
-    assert isinstance(component._data, TOMLDocument)  # Same for internal
+    assert isinstance(component.data, dict)
+    assert isinstance(component._data, dict)  # Same for internal
     assert len(component.data) == 0
 
 
@@ -38,9 +37,9 @@ def test_wflow_config_component_get(
     assert component.get_value("biem") == "bam"
     assert component.get_value("time") == {"sometime": "now"}
     assert isinstance(component.get_value("foo"), dict)
-    assert isinstance(component.data["foo"], Table)
+    assert isinstance(component.data["foo"], dict)
     assert component.get_value("foo.bar") == "baz"
-    assert component.get_value("foo", "bip") == "bop"
+    assert component.get_value("foo.bip") == "bop"
     assert component.get_value("no") is None
 
 
@@ -54,18 +53,7 @@ def test_wflow_config_component_set(mock_model: MagicMock):
     # Set an entry
     component.set("foo.bar", "baz")
     # Assert the content
-    assert isinstance(component._data, TOMLDocument)
-    assert component.data["foo"] == {"bar": "baz"}
-    assert len(component.data) == 1
-
-
-def test_wflow_config_component_set_alt(mock_model: MagicMock):
-    # Setup the component
-    component = WflowConfigComponent(mock_model)
-
-    # Set an entry
-    component.set("foo", "bar", "baz")
-    # Assert the content
+    assert isinstance(component._data, dict)
     assert component.data["foo"] == {"bar": "baz"}
     assert len(component.data) == 1
 
@@ -105,7 +93,7 @@ def test_wflow_config_component_read(
     component.read()
 
     # Assert the read data
-    assert isinstance(component.data, TOMLDocument)
+    assert isinstance(component.data, dict)
     assert len(component.data) == 7
     assert component.data["dir_output"] == "run_default"
     assert component.data["input"]
@@ -225,7 +213,7 @@ def test_wflow_config_component_write_warnings(
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
 ):
-    caplog.set_level(logging.INFO)
+    caplog.set_level(logging.DEBUG)
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -243,7 +231,8 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
 
     # Update them like a dummy to request
     component.update(config_dummy_data)
-    component2.update(config_dummy_data)
+    config_dummy_data2 = deepcopy(config_dummy_data)
+    component2.update(config_dummy_data2)
 
     # Assert these are equal
     eq, errors = component.test_equal(component2)

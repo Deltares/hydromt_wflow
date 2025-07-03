@@ -1,9 +1,10 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, dirname, join
+from functools import reduce
+from os.path import abspath, isabs, join
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 import numpy as np
 import xarray as xr
@@ -20,15 +21,100 @@ from .naming import (
 
 logger = logging.getLogger(__name__)
 
-DATADIR = join(dirname(abspath(__file__)), "data")
+DATADIR = Path(Path(__file__).parent, "data")
 
 __all__ = [
-    "read_csv_results",
-    "get_config",
-    "get_grid_from_config",
     "convert_to_wflow_v1_sbm",
     "convert_to_wflow_v1_sediment",
+    "get_config",
+    "get_grid_from_config",
+    "read_csv_results",
+    "set_config",
 ]
+
+
+def get_config(
+    config: dict,
+    key: str,
+    root: Path | None = None,
+    fallback: Any | None = None,
+    abs_path: bool = False,
+):
+    """
+    Get a config value at key.
+
+    Parameters
+    ----------
+    config : tomlkit.TOMLDocument
+        The config settings in TOMLDocument object.
+    key : str
+        keys are string with '.' indicating a new level: ('key1.key2')
+    fallback: Any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+        NOTE: this assumes the config is located in model root!
+
+    Returns
+    -------
+    value : Any
+        dictionary value
+
+    Examples
+    --------
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+
+    >> get_config(config, 'a')
+    >> 1
+
+    >> get_config(config, 'b.c.d')
+    >> 2
+
+    """
+    parts = key.split(".")
+    num_parts = len(parts)
+    current = config
+    value = fallback
+    for i, part in enumerate(parts):
+        if i < num_parts - 1:
+            current = current.get(part, {})
+        else:
+            value = current.get(part, fallback)
+
+    if abs_path and isinstance(value, (str, Path)):
+        value = Path(value)
+        if not isabs(value):
+            value = Path(abspath(join(root, value)))
+
+    return value
+
+
+def set_config(config: dict, key: str, value: Any):
+    """
+    Update the config toml at key(s) with values.
+
+    Parameters.
+    ----------
+    config : dict
+        The config settings.
+    key : str
+        key is a string,  with '.' indicating a new level: ('key1.key2').
+
+    Examples
+    --------
+    .. code-block:: ipython
+        >> config
+        >> {'a': 1, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    """
+    if not isinstance(key, str):
+        raise TypeError("key must be string")
+    keys = key.split(".")
+    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
 
 
 def read_csv_results(
@@ -124,7 +210,7 @@ of the config.
                     # Indices are created before ordering for compatibility with
                     # raster.idx_to_xy
                     full_index = maps[
-                        f"{config['input'].get('subcatchment_location__count')}"
+                        f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
@@ -158,7 +244,7 @@ of the config.
                     # Else all the rest should be for the whole subcatchment
                     else:
                         mask = maps[
-                            f"{config['input'].get('subcatchment_location__count')}"
+                            f"{config['input'].get('subbasin_location__count')}"
                         ].copy()
                     # Rearrange the mask
                     res_x, res_y = mask.raster.res
@@ -196,61 +282,6 @@ of the config.
         csv_dict[f"{da.name}"] = da
 
     return csv_dict
-
-
-def get_config(
-    *args,
-    config: Dict = {},
-    fallback=None,
-    root: Path = None,
-    abs_path: bool = False,
-):
-    """
-    Get a config value at key(s).
-
-    Copy of hydromt.Model.get_config method to parse config outside of Model functions.
-
-    See Also
-    --------
-    hydromt.Model.get_config
-
-    Parameters
-    ----------
-    args : tuple or string
-        keys can given by multiple args: ('key1', 'key2')
-        or a string with '.' indicating a new level: ('key1.key2')
-    config : dict, optional
-        config dict to get the values from.
-    fallback: any, optional
-        fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-
-    Returns
-    -------
-    value : any type
-        dictionary value
-    """
-    args = list(args)
-    if len(args) == 1 and "." in args[0]:
-        args = args[0].split(".") + args[1:]
-    branch = config.copy()  # reads config at first call
-    for key in args[:-1]:
-        branch = branch.get(key, {})
-        if not isinstance(branch, dict):
-            branch = dict()
-            break
-    value = branch.get(args[-1], fallback)
-    if abs_path and isinstance(value, str):
-        value = Path(value)
-        if not value.is_absolute():
-            if root is None:
-                raise ValueError(
-                    "root path is required to get absolute path from relative path"
-                )
-            value = Path(abspath(join(root, value)))
-    return value
 
 
 def get_grid_from_config(
@@ -299,8 +330,8 @@ def get_grid_from_config(
     # get config value
     # try with input only
     var = get_config(
+        config,
         f"input.{var_name}",
-        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
@@ -308,8 +339,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.static
         var = get_config(
+            config,
             f"input.static.{var_name}",
-            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -320,8 +351,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.cyclic
         var = get_config(
+            config,
             f"input.cyclic.{var_name}",
-            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -350,7 +381,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config("netcdf.variable.name", config=var)
+            var_name = get_config(var, "netcdf.variable.name")
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset
@@ -409,11 +440,35 @@ def mask_raster_from_layer(
     return data
 
 
+def _solve_var_name(var: str | dict, path: str, add: list):
+    """Solve the config file into individual entries.
+
+    Every entry is the entire path ("river.lateral.< something >") plus its value.
+
+    Parameters
+    ----------
+    var : str | dict,
+        Either the direct settings entry or a dictionary containing nested settings.
+    path : str,
+        Prepend the entries with the value (e.g. "lateral" or "lateral.river")
+    add : list
+        Usually an empty list in which the temporary headers are stored.
+    """
+    if not isinstance(var, dict):
+        sep = "." if path else ""
+        add_str = ".".join(add) if add else ""
+        yield (var, path + sep + add_str)
+        return
+    for key, item in var.items():
+        yield from _solve_var_name(item, path, add + [key])
+
+
 def _convert_to_wflow_v1(
-    config: Dict,
+    config: dict,
     wflow_vars: Dict,
     states_vars: Dict,
     model_options: Dict = {},
+    cross_options: Dict = {},  # TODO we shouldnt pass mutables as defaults
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
@@ -426,7 +481,7 @@ def _convert_to_wflow_v1(
     config: dict
         The config to convert.
     wflow_vars: dict
-        The Wflow varibales dict to use for the conversion between versions.
+        The Wflow variables dict to use for the conversion between versions.
         Either WFLOW_NAMES or WFLOW_SEDIMENT_NAMES.
     states_vars: dict
         The Wflow states variables dict to use for the conversion between versions.
@@ -461,16 +516,16 @@ def _convert_to_wflow_v1(
     # Update function for the output.netcdf_grid
     def _update_output_netcdf_grid(wflow_var, var_name):
         if wflow_var in WFLOW_CONVERSION.keys():
-            config_out["output.netcdf_grid.variables"][WFLOW_CONVERSION[wflow_var]] = (
-                var_name
-            )
+            config_out["output"]["netcdf_grid"]["variables"][
+                WFLOW_CONVERSION[wflow_var]
+            ] = var_name
         else:
             _warn_str(var_name, "netcdf_grid")
 
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
     logger.info("Converting config general, time and model sections")
-    config_out = dict()
+    config_out = {}
 
     # Start with the general section - split into general, time and logging in v1
     input_section = {
@@ -486,38 +541,52 @@ def _convert_to_wflow_v1(
     }
     for section, options in input_section.items():
         for key in options:
-            value = get_config(key, config=config, fallback=None)
+            value = get_config(config, key, fallback=None)
             if value is not None:
                 if section == "general":
+                    # only fews_run was renamed in general options
+                    if key == "fews_run":
+                        key = "fews_run__flag"
                     config_out[key] = value
                 else:
                     config_out[section] = config_out.get(section, {})
                     config_out[section][key] = value
 
     # Model section
-    config_out["model"] = config["model"]
-    for opt_old, opt_new in model_options.items():
-        if opt_old in config_out["model"].keys():
-            config_out["model"][opt_new] = config_out["model"].pop(opt_old)
+    config_out["model"] = {}
+    for value, config_var in _solve_var_name(config["model"], "", []):
+        if config_var not in model_options:
+            continue
+        new_config_var = model_options[config_var]
+        if isinstance(new_config_var, (list, tuple)):
+            for elem in new_config_var:
+                set_config(config_out, f"model.{elem}", value)
+            continue
+        set_config(config_out, f"model.{new_config_var}", value)
+
+    # Cross options
+    for opt_old, opt_new in cross_options.items():
+        value = get_config(config, opt_old)
+        if value is None:
+            continue
+        set_config(config_out, opt_new, value)
 
     # State
     logger.info("Converting config state section")
     config_out["state"] = {
         "path_input": get_config(
-            "state.path_input", config=config, fallback="instate/instates.nc"
+            config, "state.path_input", fallback="instate/instates.nc"
         ),
         "path_output": get_config(
-            "state.path_output", config=config, fallback="outstate/outstates.nc"
+            config, "state.path_output", fallback="outstate/outstates.nc"
         ),
     }
     # Go through the states variables
-    config_out["state.variables"] = {}
+    config_out["state"]["variables"] = {}
     for key, variables in states_vars.items():
-        name = get_config(
-            f"state.{variables['wflow_v0']}", config=config, fallback=None
-        )
+        name = get_config(config, f"state.{variables['wflow_v0']}", fallback=None)
         if name is not None and variables["wflow_v1"] is not None:
-            config_out["state.variables"][variables["wflow_v1"]] = name
+            config_out["state"]["variables"][variables["wflow_v1"]] = name
 
     # Input section
     logger.info("Converting config input section")
@@ -536,102 +605,82 @@ def _convert_to_wflow_v1(
             config_out["input"][key] = name
 
     # Go through the input variables
-    config_out["input.forcing"] = {}
-    config_out["input.cyclic"] = {}
-    config_out["input.static"] = {}
+    config_out["input"]["forcing"] = {}
+    config_out["input"]["cyclic"] = {}
+    config_out["input"]["static"] = {}
     for key, variables in wflow_vars.items():
         print(f"key: {key}, variables: {variables}")
-        name = get_config(
-            f"input.{variables['wflow_v0']}", config=config, fallback=None
-        )
+        name = get_config(config, f"input.{variables['wflow_v0']}", fallback=None)
         if variables["wflow_v0"] == "vertical.g_ttm" and name is None:
             # this change is probably too recent for most models
-            name = get_config("input.vertical.g_tt", config=config, fallback=None)
+            name = get_config(config, "input.vertical.g_tt", fallback=None)
         if name is not None and variables["wflow_v1"] is not None:
             if variables["wflow_v0"] in input_options.keys():
                 continue
             elif variables["wflow_v0"] in input_variables:
                 config_out["input"][variables["wflow_v1"]] = name
             elif variables["wflow_v0"] in forcing_variables:
-                config_out["input.forcing"][variables["wflow_v1"]] = name
+                config_out["input"]["forcing"][variables["wflow_v1"]] = name
             elif variables["wflow_v0"] in cyclic_variables:
-                config_out["input.cyclic"][variables["wflow_v1"]] = name
+                config_out["input"]["cyclic"][variables["wflow_v1"]] = name
             else:
-                config_out["input.static"][variables["wflow_v1"]] = name
+                config_out["input"]["static"][variables["wflow_v1"]] = name
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
     if get_config("output", config=config, fallback=None) is not None:
-        config_out["output.netcdf_grid"] = {
+        config_out["output"] = {}
+        config_out["output"]["netcdf_grid"] = {
             "path": get_config("output.path", config=config, fallback="output.nc"),
             "compressionlevel": get_config(
-                "output.compressionlevel", config=config, fallback=1
+                config, "output.compressionlevel", fallback=1
             ),
         }
-        config_out["output.netcdf_grid.variables"] = {}
+        config_out["output"]["netcdf_grid"]["variables"] = {}
         for key, value in config["output"].items():
             if key in ["path", "compressionlevel"]:
                 continue
 
-            # vertical
-            if key == "vertical":
-                for var, var_name in value.items():
-                    wflow_var = f"vertical.{var}"
-                    _update_output_netcdf_grid(wflow_var, var_name)
-            # lateral
-            elif key == "lateral":
-                # land
-                if "land" in value.keys():
-                    for var, var_name in value["land"].items():
-                        wflow_var = f"lateral.land.{var}"
-                        _update_output_netcdf_grid(wflow_var, var_name)
-                # subsurface
-                if "subsurface" in value.keys():
-                    for var, var_name in value["subsurface"].items():
-                        wflow_var = f"lateral.subsurface.{var}"
-                        _update_output_netcdf_grid(wflow_var, var_name)
-                # river (do not support reservoir and lake outputs)
-                if "river" in value.keys():
-                    for var, var_name in value["river"].items():
-                        if var in ["reservoir", "floodplain", "lake"]:
-                            for var2, var_name2 in value["river"][var].items():
-                                wflow_var = f"lateral.river.{var}.{var2}"
-                                _update_output_netcdf_grid(wflow_var, var_name2)
-                        else:
-                            wflow_var = f"lateral.river.{var}"
-                            _update_output_netcdf_grid(wflow_var, var_name)
+            for var_name, wflow_var in _solve_var_name(value, key, []):
+                _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
     if get_config("netcdf", config=config, fallback=None) is not None:
-        config_out["output.netcdf_scalar"] = {
+        if "output" not in config_out:
+            config_out["output"] = {}
+        config_out["output"]["netcdf_scalar"] = {
             "path": get_config(
                 "netcdf.path", config=config, fallback="output_scalar.nc"
             ),
         }
-        config_out["output.netcdf_scalar.variable"] = []
+        config_out["output"]["netcdf_scalar"]["variable"] = []
         nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
                 if "map" in nc_scalar and nc_scalar["map"] in input_options.keys():
                     nc_scalar["map"] = input_options[nc_scalar["map"]]
-                config_out["output.netcdf_scalar.variable"].append(nc_scalar)
+                config_out["output"]["netcdf_scalar"]["variable"].append(nc_scalar)
             else:
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
     if get_config("csv", config=config, fallback=None) is not None:
-        config_out["output.csv"] = {
-            "path": get_config("csv.path", config=config, fallback="output.csv"),
-        }
-        config_out["output.csv.column"] = []
+        if "output" not in config_out:
+            config_out["output"] = {}
+        config_out["output"]["csv"] = {}
+
+        config_out["output"]["csv"]["path"] = get_config(
+            "csv.path", config=config, fallback="output.csv"
+        )
+        config_out["output"]["csv"]["column"] = []
         csv_vars = get_config("csv.column", config=config, fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
                 if csv_var.get("map", None) in input_options.keys():
                     csv_var["map"] = input_options[csv_var["map"]]
-                config_out["output.csv.column"].append(csv_var)
+                config_out["output"]["csv"]["column"].append(csv_var)
             else:
                 _warn_str(csv_var["parameter"], "csv")
 
@@ -661,8 +710,8 @@ def convert_to_wflow_v1_sbm(
         "vertical.actevap": "land_surface__evapotranspiration_volume_flux",
         "vertical.actinfilt": "soil_water__infiltration_volume_flux",
         "vertical.excesswatersoil": "soil~compacted_surface_water__excess_volume_flux",
-        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa: E501
-        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa: E501
+        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa : E501
+        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa : E501
         "vertical.exfiltsatwater": "land.soil.variables.exfiltsatwater",
         "vertical.recharge": "soil_water_sat-zone_top__net_recharge_volume_flux",
         "vertical.vwc_percroot": "soil_water_root-zone__volume_percentage",
@@ -670,43 +719,89 @@ def convert_to_wflow_v1_sbm(
         "lateral.land.h_av": "land_surface_water__depth",
         "lateral.land.to_river": "land_surface_water~to-river__volume_flow_rate",
         "lateral.subsurface.to_river": "subsurface_water~to-river__volume_flow_rate",
+        "lateral.subsurface.drain.flux": "land_drain_water~to-subsurface__volume_flow_rate",  # noqa : E501
+        "lateral.subsurface.flow.aquifer.head": "subsurface_water__hydraulic_head",
+        "lateral.subsurface.river.flux": "river_water~to-subsurface__volume_flow_rate",
+        "lateral.subsurface.recharge.rate": "subsurface_water_sat-zone_top__net_recharge_volume_flow_rate",  # noqa : E501
         "lateral.river.q_av": "river_water__volume_flow_rate",
         "lateral.river.h_av": "river_water__depth",
         "lateral.river.volume": "river_water__instantaneous_volume",
         "lateral.river.inwater": "river_water_inflow~lateral__volume_flow_rate",
         "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
-        "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa: E501
+        "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa : E501
         "lateral.river.lake.storage": "lake_water__instantaneous_volume",
         "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
     }
 
     # Options in model section that were renamed
     model_options = {
-        "masswasting": "gravitational_snow_transport",
+        "reinit": "cold_start__flag",
+        "sizeinmetres": "cell_length_in_meter__flag",
+        "reservoirs": "reservoir__flag",
+        "lakes": "lake__flag",
+        "snow": "snow__flag",
+        "glacier": "glacier__flag",
+        "pits": "pit__flag",
+        "masswasting": "snow_gravitional_transport__flag",
+        "thicknesslayers": "soil_layer__thickness",
+        "min_streamorder_land": "land_streamorder__min_count",
+        "min_streamorder_river": "river_streamorder__min_count",
+        "drains": "drain__flag",
+        "kin_wave_iteration": "kinematic_wave__adaptive_time_step_flag",
+        "kw_land_tstep": "land_kinematic_wave__time_step",
+        "kw_river_tstep": "river_kinematic_wave__time_step",
+        "inertial_flow_alpha": [
+            "river_local_inertial_flow__alpha_coefficient",
+            "land_local_inertial_flow__alpha_coefficient",
+        ],
+        "h_thresh": [
+            "river_water_flow_threshold__depth",
+            "land_surface_water_flow_threshold__depth",
+        ],
+        "froude_limit": [
+            "river_water_flow__froude_limit_flag",
+            "land_surface_water_flow__froude_limit_flag",
+        ],
+        "floodplain_1d": "floodplain_1d__flag",
+        "inertial_flow_theta": "land_local_inertial_flow__theta_coefficient",
+        "soilinfreduction": "soil_infiltration_reduction__flag",
+        "transfermethod": "topog_sbm_transfer__flag",
+        "water_demand.domestic": "water_demand.domestic__flag",
+        "water_demand.industry": "water_demand.industry__flag",
+        "water_demand.livestock": "water_demand.livestock__flag",
+        "water_demand.paddy": "water_demand.paddy__flag",
+        "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
+        "constanthead": "constanthead__flag",
     }
 
     # Options in input section that were renamed
     input_options = {
-        "ldd": "local_drain_direction",
+        "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
-        "subcatchment": "subcatchment_location__count",
+        "subcatchment": "subbasin_location__count",
     }
 
     # variables that were moved to input rather than input.static
     input_variables = [
         "lateral.river.lake.areas",
         "lateral.river.lake.locs",
+        "lateral.river.lake.linkedlakelocs",
         "lateral.river.reservoir.areas",
         "lateral.river.reservoir.locs",
-        "lateral.subsurface.conductivity_profile",
     ]
+
+    # Wflow entries that cross main headers (i.e. [input, state, model, output])
+    cross_options = {
+        "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
+    }
 
     config_out = _convert_to_wflow_v1(
         config=config,
         wflow_vars=WFLOW_NAMES,
         states_vars=WFLOW_STATES_NAMES,
         model_options=model_options,
+        cross_options=cross_options,
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
@@ -748,9 +843,11 @@ def convert_to_wflow_v1_sediment(
 
     # Options in model section that were renamed
     model_options = {
-        "runrivermodel": "run_river_model",
-        "doreservoir": "reservoirs",
-        "dolake": "lakes",
+        "reinit": "cold_start__flag",
+        "sizeinmetres": "cell_length_in_meter__flag",
+        "runrivermodel": "run_river_model__flag",
+        "doreservoir": "reservoir__flag",
+        "dolake": "lake__flag",
         "rainerosmethod": "rainfall_erosion",
         "landtransportmethod": "land_transport",
         "rivtransportmethod": "river_transport",
@@ -758,9 +855,9 @@ def convert_to_wflow_v1_sediment(
 
     # Options in input section that were renamed
     input_options = {
-        "ldd": "local_drain_direction",
+        "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
-        "subcatchment": "subcatchment_location__count",
+        "subcatchment": "subbasin_location__count",
     }
 
     # variables that were moved to input rather than input.static
