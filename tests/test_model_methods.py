@@ -20,6 +20,7 @@ from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+logger = logging.getLogger(__name__)
 
 
 def test_setup_basemaps(tmpdir):
@@ -111,8 +112,6 @@ def test_setup_grid(example_wflow_model):
 
 
 def test_projected_crs(tmpdir):
-    logger = logging.getLogger(__name__)
-
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
     mod = WflowModel(
@@ -164,6 +163,46 @@ def test_projected_crs(tmpdir):
     # 95 quantile is class 190 ie urban
     assert (mod.grid["meta_landuse"] == 190).count().values == 338
     assert mod.get_config("model.cell_length_in_meter__flag") == True
+
+
+@pytest.mark.parametrize("glacier_fn", ["glaciers_4326", "glaciers_3857"])
+def test_projected_crs_glaciers(glacier_fn, tmpdir):
+    # Instantiate wflow model
+    root = str(tmpdir.join("wflow_projected"))
+    mod = WflowModel(
+        root=root,
+        mode="w",
+        data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
+        logger=logger,
+    )
+
+    mod.setup_basemaps(
+        region={"basin": [1427596.0, 5735404.0]},
+        res=2000,
+        hydrography_fn="merit_hydro_1k_utm",
+        basin_index_fn=None,
+    )
+
+    # Add glaciers
+    mod.setup_glaciers(glacier_fn)
+
+    # Confirm glacier maps exist
+    assert "meta_glacier_area_id" in mod.grid
+    assert "glacier_fraction" in mod.grid
+    assert "glacier_initial_leq_depth" in mod.grid
+    assert "glaciers" in mod.geoms
+
+    # Confirm glacier fraction has values
+    assert (mod.grid["glacier_fraction"] > 0).any().item()
+
+    # Confirm glacier IDs
+    assert mod.grid["meta_glacier_area_id"].max().item() == 1
+
+    # Confirm config flags
+    assert mod.get_config("model.glacier__flag") is True
+    assert (
+        mod.get_config("state.variables.glacier_ice__leq-depth") == "glacier_leq_depth"
+    )
 
 
 def test_setup_lake(tmpdir, example_wflow_model):
