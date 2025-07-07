@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hydromt_wflow.workflows.landuse &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/landuse';</script>
+    <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0.dev" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../../../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.landuse</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for hydromt_wflow.workflows.landuse</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Landuse workflows for Wflow plugin.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.demand</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_grid_from_bbox</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;landuse_from_vector&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lai&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;create_lulc_lai_mapping_table&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lai_from_lulc_mapping&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_paddy_to_landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_planted_forest_to_landuse&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="n">RESAMPLING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;mode&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span> <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="landuse">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">landuse</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return landuse map and related parameter maps.</span>
+
+<span class="sd">    The parameter maps are prepared based on landuse map and</span>
+<span class="sd">    mapping table as provided in the generic data folder of hydromt.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xarray.DataArray</span>
+<span class="sd">        DataArray containing LULC classes.</span>
+<span class="sd">    ds_like : xarray.DataArray</span>
+<span class="sd">        Dataset at model resolution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out : xarray.Dataset</span>
+<span class="sd">        Dataset containing gridded landuse based maps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter(s) missing in mapping file: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># setup ds out</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="c1"># setup reclass method</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reclass</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">x</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+    <span class="c1"># apply for each parameter</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">RESAMPLING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">nodata</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># NOTE values is set in last row</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>  <span class="c1"># NOTE global param in reclass method</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deriving </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> resampling (nodata=</span><span class="si">{</span><span class="n">nodata</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+        <span class="n">da_param</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+            <span class="n">reclass</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="n">dask</span><span class="o">=</span><span class="s2">&quot;parallelized&quot;</span><span class="p">,</span> <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">da_param</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>  <span class="c1"># first set new nodata values</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_param</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+            <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span>
+        <span class="p">)</span>  <span class="c1"># then resample</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="landuse_from_vector">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse_from_vector.html#hydromt_wflow.workflows.landuse_from_vector">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">landuse_from_vector</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">lulc_out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive several wflow maps based on vector landuse-landcover (LULC) data.</span>
+
+<span class="sd">    The vector lulc data is first rasterized to a raster map at the model resolution</span>
+<span class="sd">    or at a higher resolution specified in ``lulc_res``.</span>
+
+<span class="sd">    Lookup table `df` columns are converted to lulc classes model</span>
+<span class="sd">    parameters based on literature. The data is remapped at its rasterized resolution</span>
+<span class="sd">    and then resampled to the model resolution using the average value, unless noted</span>
+<span class="sd">    differently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing LULC classes.</span>
+<span class="sd">    ds_like : xarray.Dataset</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Mapping table with landuse values.</span>
+<span class="sd">    params : list of str, optional</span>
+<span class="sd">        List of parameters to derive, by default None</span>
+<span class="sd">    lulc_res : float or int, optional</span>
+<span class="sd">        Resolution of the rasterized LULC data, by default None (use model resolution)</span>
+<span class="sd">    all_touched : bool, optional</span>
+<span class="sd">        If True, all pixels touched by the polygon will be burned in, by default False</span>
+<span class="sd">    buffer : int, optional</span>
+<span class="sd">        Buffer in meters to add around the bounding box of the vector data, by default</span>
+<span class="sd">        1000.</span>
+<span class="sd">    lulc_out : str, optional</span>
+<span class="sd">        Path to save the rasterised original landuse map to file, by default None.</span>
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        Logger object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out : xarray.Dataset</span>
+<span class="sd">        Dataset containing gridded landuse based maps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># intersect with bbox</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
+    <span class="p">)</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">bounds</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;intersection&quot;</span><span class="p">)</span>
+
+    <span class="c1"># rasterize the vector data</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Rasterizing landuse map&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lulc_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gdf_reproj</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">grid_like</span> <span class="o">=</span> <span class="n">create_grid_from_bbox</span><span class="p">(</span>
+            <span class="n">gdf_reproj</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span>
+            <span class="n">res</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">)),</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">grid_like</span> <span class="o">=</span> <span class="n">create_grid_from_bbox</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span>
+            <span class="n">res</span><span class="o">=</span><span class="n">lulc_res</span><span class="p">,</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># get the nodata values of the landuse (last row in the df)</span>
+    <span class="n">nodata</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">grid_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="o">=</span><span class="n">all_touched</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">lulc_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving rasterized landuse map to </span><span class="si">{</span><span class="n">lulc_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">lulc_out</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">to_raster</span><span class="p">(</span><span class="n">lulc_out</span><span class="p">)</span>
+
+    <span class="c1"># derive the landuse maps</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="lai">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai.html#hydromt_wflow.workflows.lai">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lai</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return climatology of Leaf Area Index (LAI).</span>
+
+<span class="sd">    The following maps are calculated:</span>
+<span class="sd">    - LAI</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xarray.DataArray or xarray.Dataset</span>
+<span class="sd">        LAI array containing LAI values.</span>
+<span class="sd">    ds_like : xarray.DataArray</span>
+<span class="sd">        Dataset at model resolution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    da_out : xarray.DataArray</span>
+<span class="sd">        Dataset containing resampled LAI maps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;LAI&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;lai method requires a DataArray or Dataset with LAI array&quot;</span><span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">RESAMPLING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">nodata</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deriving </span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> resampling (nodata=</span><span class="si">{</span><span class="n">nodata</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="c1"># Assuming missing values correspond to: bare soil, urban and snow (LAI=0.0)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">da_out</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">da_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">da_out</span></div>
+
+
+
+<div class="viewcode-block" id="create_lulc_lai_mapping_table">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.create_lulc_lai_mapping_table.html#hydromt_wflow.workflows.create_lulc_lai_mapping_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_lulc_lai_mapping_table</span><span class="p">(</span>
+    <span class="n">da_lulc</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">da_lai</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">sampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;any&quot;</span><span class="p">,</span>
+    <span class="n">lulc_zero_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive LAI values per landuse class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da_lulc : xr.DataArray</span>
+<span class="sd">        Landuse map.</span>
+<span class="sd">    da_lai : xr.DataArray</span>
+<span class="sd">        Cyclic LAI map.</span>
+<span class="sd">    sampling_method : str, optional</span>
+<span class="sd">        Resampling method for the LULC data to LAI resolution.</span>
+<span class="sd">        Two methods are supported:</span>
+
+<span class="sd">        * &#39;any&#39; (default): if any cell of the desired landuse class is present in the</span>
+<span class="sd">            resampling window (even just one), it will be used to derive LAI values.</span>
+<span class="sd">            This method is less exact but will provide LAI values for all landuse</span>
+<span class="sd">            classes for the high resolution landuse map.</span>
+<span class="sd">        * &#39;mode&#39;: the most frequent value in the resampling window is</span>
+<span class="sd">            used. This method is less precise as for cells with a lot of different</span>
+<span class="sd">            landuse classes, the most frequent value might still be only a small</span>
+<span class="sd">            fraction of the cell. More landuse classes should however be covered and</span>
+<span class="sd">            it can always be used with the landuse map of the wflow model instead of</span>
+<span class="sd">            the original high resolution one.</span>
+<span class="sd">        * &#39;q3&#39;: only cells with the most frequent value (mode) and that cover 75%</span>
+<span class="sd">            (q3) of the resampling window will be used. This method is more exact but</span>
+<span class="sd">            for small basins, you may have less or no samples to derive LAI values</span>
+<span class="sd">            for some classes.</span>
+<span class="sd">    lulc_zero_classes : list of int, optional</span>
+<span class="sd">        List of landuse classes that should have zero for leaf area index values</span>
+<span class="sd">        for example waterbodies, open ocean etc. For very high resolution landuse</span>
+<span class="sd">        maps, urban surfaces and bare areas can be included here as well.</span>
+<span class="sd">        By default empty.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df_lai_mapping : pd.DataFrame</span>
+<span class="sd">        Mapping table with LAI values per landuse class. One column for each month and</span>
+<span class="sd">        one line per landuse class. The number of samples used to derive the mapping</span>
+<span class="sd">        values is also added to a `samples` column in the dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check the method values</span>
+    <span class="k">if</span> <span class="n">sampling_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;any&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;q3&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported resampling method: </span><span class="si">{</span><span class="n">sampling_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># process the lai da</span>
+    <span class="k">if</span> <span class="s2">&quot;dim0&quot;</span> <span class="ow">in</span> <span class="n">da_lai</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">da_lai</span> <span class="o">=</span> <span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;dim0&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+    <span class="n">da_lai</span> <span class="o">=</span> <span class="n">da_lai</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+    <span class="n">da_lai</span> <span class="o">=</span> <span class="n">da_lai</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+        <span class="mi">0</span>
+    <span class="p">)</span>  <span class="c1"># use zeros to better represent city and open water surfaces</span>
+
+    <span class="c1"># landuse</span>
+    <span class="n">da_lulc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;landuse&quot;</span>
+    <span class="n">lulc_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da_lulc</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="c1"># Initialise the outputs</span>
+    <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">sampling_method</span> <span class="o">!=</span> <span class="s2">&quot;any&quot;</span><span class="p">:</span>
+        <span class="c1"># The data can already be resampled to the LAI resolution</span>
+        <span class="n">da_lulc_mode</span> <span class="o">=</span> <span class="n">da_lulc</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;q3&quot;</span><span class="p">:</span>
+            <span class="c1"># Filter mode cells that cover less than 75% of the resampling window</span>
+            <span class="n">da_lulc_q3</span> <span class="o">=</span> <span class="n">da_lulc</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;q3&quot;</span><span class="p">)</span>
+            <span class="n">da_lulc</span> <span class="o">=</span> <span class="n">da_lulc_mode</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">da_lulc_q3</span> <span class="o">==</span> <span class="n">da_lulc_mode</span><span class="p">,</span> <span class="n">da_lulc_mode</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">da_lulc</span> <span class="o">=</span> <span class="n">da_lulc_mode</span>
+
+    <span class="c1"># Loop over the landuse classes</span>
+    <span class="k">for</span> <span class="n">lulc_id</span> <span class="ow">in</span> <span class="n">lulc_classes</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing landuse class </span><span class="si">{</span><span class="n">lulc_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lulc_id</span> <span class="ow">in</span> <span class="n">lulc_zero_classes</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using zeros for landuse class </span><span class="si">{</span><span class="n">lulc_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">df_lai</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">da_lai</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">],</span>
+                <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">lulc_id</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">df_lai</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;landuse&quot;</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Select for a specific landuse class</span>
+            <span class="n">lu</span> <span class="o">=</span> <span class="n">da_lulc</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">da_lulc</span> <span class="o">==</span> <span class="n">lulc_id</span><span class="p">,</span> <span class="n">da_lulc</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+            <span class="n">lu</span> <span class="o">=</span> <span class="n">lu</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">sampling_method</span> <span class="o">==</span> <span class="s2">&quot;any&quot;</span><span class="p">:</span>
+                <span class="c1"># Resample the landuse data to the LAI resolution</span>
+                <span class="n">lu</span> <span class="o">=</span> <span class="n">lu</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add lai</span>
+            <span class="n">lu</span> <span class="o">=</span> <span class="n">lu</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
+            <span class="n">lu</span><span class="p">[</span><span class="s2">&quot;lai&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_lai</span>
+
+            <span class="c1"># Stack and remove the nodata values</span>
+            <span class="n">lu</span> <span class="o">=</span> <span class="n">lu</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="p">(</span><span class="n">lu</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">lu</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">))</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+                <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Count the number of samples</span>
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lu</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">n_samples</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;No samples found for landuse class </span><span class="si">{</span><span class="n">lulc_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;Try using a different resampling method.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">df_lai</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="n">da_lai</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">12</span><span class="p">],</span>
+                    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">lulc_id</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">df_lai</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;landuse&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Compute the mean</span>
+                <span class="n">lai_mean_per_lu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">lu</span><span class="p">[</span><span class="s2">&quot;lai&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="c1"># Add the landuse id as an extra dimension</span>
+                <span class="n">lai_mean_per_lu</span> <span class="o">=</span> <span class="n">lai_mean_per_lu</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="s2">&quot;landuse&quot;</span><span class="p">)</span>
+                <span class="n">lai_mean_per_lu</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">lulc_id</span><span class="p">]</span>
+
+                <span class="c1"># Convert to dataframe</span>
+                <span class="n">df_lai</span> <span class="o">=</span> <span class="n">lai_mean_per_lu</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span>
+                    <span class="s2">&quot;spatial_ref&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+
+        <span class="c1"># Add number of samples in the first column</span>
+        <span class="n">df_lai</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;samples&quot;</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+
+        <span class="c1"># Append to the output</span>
+        <span class="k">if</span> <span class="n">df_lai_mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="n">df_lai</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_lai_mapping</span><span class="p">,</span> <span class="n">df_lai</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">df_lai_mapping</span></div>
+
+
+
+<div class="viewcode-block" id="lai_from_lulc_mapping">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai_from_lulc_mapping.html#hydromt_wflow.workflows.lai_from_lulc_mapping">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lai_from_lulc_mapping</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive LAI values from a landuse map and a mapping table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xr.DataArray</span>
+<span class="sd">        Landuse map.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Mapping table with LAI values per landuse class. One column for each month and</span>
+<span class="sd">        one line per landuse class.</span>
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        Logger object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_lai : xr.Dataset</span>
+<span class="sd">        Dataset with LAI values for each month.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">else</span> <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="c1"># Map the monthly LAI values to the landuse map</span>
+    <span class="n">ds_lai</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span>
+        <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+        <span class="n">ds_like</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
+        <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">months</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Re-organise the dataset to have a time dimension</span>
+    <span class="n">da_lai</span> <span class="o">=</span> <span class="n">ds_lai</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">da_lai</span></div>
+
+
+
+<div class="viewcode-block" id="add_paddy_to_landuse">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_paddy_to_landuse.html#hydromt_wflow.workflows.add_paddy_to_landuse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_paddy_to_landuse</span><span class="p">(</span>
+    <span class="n">landuse</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">paddy</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">paddy_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">df_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">df_paddy_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">output_paddy_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Burn paddy fields into landuse map and update mapping table.</span>
+
+<span class="sd">    The resulting paddy class in the landuse map will have ID output_paddy_class</span>
+<span class="sd">    if provided and paddy_class otherwise. The mapping table will be updated with</span>
+<span class="sd">    the values from the df_paddy_mapping table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    landuse : xr.DataArray</span>
+<span class="sd">        Landuse map.</span>
+<span class="sd">    paddy : xr.DataArray</span>
+<span class="sd">        Paddy fields map.</span>
+<span class="sd">    paddy_class : int</span>
+<span class="sd">        ID of the paddy class in the paddy map.</span>
+<span class="sd">    df_mapping : pd.DataFrame</span>
+<span class="sd">        Mapping table with landuse values.</span>
+<span class="sd">    df_paddy_mapping : pd.DataFrame</span>
+<span class="sd">        Mapping table with paddy values.</span>
+<span class="sd">    output_paddy_class : int, optional</span>
+<span class="sd">        ID of the paddy class in the output landuse map. If not provided, the</span>
+<span class="sd">        paddy_class will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    landuse : xr.DataArray</span>
+<span class="sd">        Updated landuse map.</span>
+<span class="sd">    df_mapping : pd.DataFrame</span>
+<span class="sd">        Updated mapping table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get output paddy class</span>
+    <span class="k">if</span> <span class="n">output_paddy_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_paddy_class</span> <span class="o">=</span> <span class="n">paddy_class</span>
+
+    <span class="c1"># Reproject paddy map to landuse resolution</span>
+    <span class="c1"># if paddy has lower res than landuse, use nearest resampling</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">paddy</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">landuse</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">paddy</span> <span class="o">=</span> <span class="n">paddy</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">landuse</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+    <span class="c1"># else use mode resampling</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">paddy</span> <span class="o">=</span> <span class="n">paddy</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">landuse</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Burn in the rice fields in the landuse map</span>
+    <span class="n">landuse</span> <span class="o">=</span> <span class="n">landuse</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy</span> <span class="o">!=</span> <span class="n">paddy_class</span><span class="p">,</span> <span class="n">output_paddy_class</span><span class="p">)</span>
+
+    <span class="c1"># Update the mapping table</span>
+    <span class="n">df_paddy_mapping</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">output_paddy_class</span><span class="p">]</span>
+    <span class="n">df_paddy_mapping</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_paddy_class</span>
+    <span class="c1"># Add the paddy class to the first line of the mapping table</span>
+    <span class="n">df_mapping</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_paddy_mapping</span><span class="p">,</span> <span class="n">df_mapping</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">df_mapping</span></div>
+
+
+
+<div class="viewcode-block" id="add_planted_forest_to_landuse">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.add_planted_forest_to_landuse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_planted_forest_to_landuse</span><span class="p">(</span>
+    <span class="n">planted_forest</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
+    <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
+    <span class="n">orchard_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2188</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update USLE C map with planted forest and orchard data.</span>
+
+<span class="sd">    Default USLE C values for planted forest and orchards are derived from Panagos et</span>
+<span class="sd">    al., 2015 (10.1016/j.landusepol.2015.05.021).</span>
+<span class="sd">    For harvested forest at different regrowth stages see also Borrelli and Schutt, 2014</span>
+<span class="sd">    (10.1016/j.geomorph.2013.08.022).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    planted_forest : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing planted forest data. Required columns are: &#39;geometry&#39;,</span>
+<span class="sd">        and optionally &#39;forest_type&#39; to find orchards.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset at model resolution. Required variables are &#39;usle_c&#39;.</span>
+<span class="sd">    planted_forest_c : float, optional</span>
+<span class="sd">        USLE C value for planted forest, by default 0.0881.</span>
+<span class="sd">    orchard_name : str, optional</span>
+<span class="sd">        Name of the orchard landuse class, by default &quot;Orchard&quot;.</span>
+<span class="sd">    orchard_c : float, optional</span>
+<span class="sd">        USLE C value for orchards, by default 0.2188.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    usle_c : xr.DataArray</span>
+<span class="sd">        Updated USLE C map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Add a usle_c column with default value</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Correcting usle_c with planted forest and orchards using </span><span class="si">{planted_forest_fn}</span><span class="s2">.&quot;</span>  <span class="c1"># noqa: E501</span>
+    <span class="p">)</span>
+    <span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planted_forest_c</span>
+    <span class="c1"># If forest_type column is available, update usle_c value for orchards</span>
+    <span class="k">if</span> <span class="s2">&quot;forest_type&quot;</span> <span class="ow">in</span> <span class="n">planted_forest</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">planted_forest</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;forest_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">orchard_name</span><span class="p">,</span> <span class="s2">&quot;usle_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">orchard_c</span>
+        <span class="p">)</span>
+    <span class="c1"># Rasterize forest data</span>
+    <span class="n">usle_c</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="o">=</span><span class="n">planted_forest</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;usle_c&quot;</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Cover nodata with the usle_c map from all landuse classes</span>
+    <span class="n">usle_c</span> <span class="o">=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">usle_c</span> <span class="o">!=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">usle_c</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
