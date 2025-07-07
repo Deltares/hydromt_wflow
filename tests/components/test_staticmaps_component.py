@@ -10,6 +10,12 @@ from hydromt.model import ModelRoot
 from hydromt_wflow.components import WflowConfigComponent, WflowStaticmapsComponent
 
 
+@pytest.fixture
+def mock_model(mock_model_factory) -> MagicMock:
+    """Create a mock model with a root."""
+    return mock_model_factory(mode="w")
+
+
 def test_wflow_staticmaps_component_init(mock_model: MagicMock):
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)

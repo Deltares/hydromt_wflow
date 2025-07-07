@@ -1,5 +1,6 @@
 import platform
 from pathlib import Path
+from typing import Callable
 from unittest.mock import MagicMock, PropertyMock
 
 import numpy as np
@@ -7,6 +8,7 @@ import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.model import ModelRoot
+from hydromt.model.components import GridComponent
 from pyproj.crs import CRS
 from pytest_mock import MockerFixture
 from tomlkit import TOMLDocument
@@ -44,16 +46,39 @@ def model_subbasin_cached(cached_models: Path) -> Path:
 
 ## Model related fixtures
 @pytest.fixture
-def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
-    model = mocker.create_autospec(WflowModel)
-    model.root = mocker.create_autospec(ModelRoot(tmp_path), instance=True)
-    model.root.path.return_value = tmp_path
-    model.data_catalog = mocker.create_autospec(DataCatalog)
-    # Set attributes for practical use
-    type(model).crs = PropertyMock(side_effect=lambda: CRS.from_epsg(4326))
-    type(model).root = PropertyMock(side_effect=lambda: ModelRoot(tmp_path))
-    model._MAPS = {}
-    return model
+def mock_model_factory(
+    mocker: MockerFixture, tmp_path: Path
+) -> Callable[[Path, str], WflowModel]:
+    def _factory(path: Path = tmp_path, mode: str = "w") -> WflowModel:
+        model = mocker.create_autospec(WflowModel)
+        model.root = ModelRoot(path, mode=mode)
+        model.data_catalog = mocker.create_autospec(DataCatalog)
+        model.crs = CRS.from_epsg(4326)
+        model._MAPS = {}
+        return model
+
+    return _factory
+
+
+@pytest.fixture
+def mock_model_staticmaps(
+    mock_model_factory: Callable[[Path, str], WflowModel],
+    grid_dummy_data: xr.DataArray,
+) -> WflowModel:
+    # TODO: replace with WflowStaticmapsComponent when available
+    # Add a GridComponent to mock model
+    mock_model = mock_model_factory()
+    staticmaps = GridComponent(mock_model)
+    staticmaps._data = grid_dummy_data.to_dataset(name="basin")
+
+    type(mock_model).components = PropertyMock(
+        side_effect=lambda: {"staticmaps": staticmaps}
+    )
+    type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+    # Mock the get_component method of mock_model to return the staticmaps component
+    mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
+
+    return mock_model
 
 
 ## Extra data structures
@@ -111,6 +136,25 @@ def cyclic_layer_large() -> xr.DataArray:
     )
     da.raster.set_nodata(-9999)
     return da
+
+
+@pytest.fixture(scope="session")
+def grid_dummy_data() -> xr.DataArray:
+    """Create a dummy grid data array."""
+    data = xr.DataArray(
+        data=[[1, 2], [3, 4]],
+        dims=["y", "x"],
+        name="dummy_grid",
+        coords={
+            "y": [0, 1],
+            "x": [0, 1],
+        },
+        attrs={
+            "crs": "EPSG:4326",
+            "grid_mapping_name": "latitude_longitude",
+        },
+    )
+    return data
 
 
 @pytest.fixture
