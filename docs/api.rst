@@ -79,9 +79,9 @@ High level and I/O methods
    WflowModel.read_config
    WflowModel.write_config
 
-   WflowModel.read_grid
-   WflowModel.write_grid
-   WflowModel.clip_grid
+   WflowModel.read_staticmaps
+   WflowModel.write_staticmaps
+   WflowModel.clip_staticmaps
 
    WflowModel.read_geoms
    WflowModel.write_geoms
@@ -131,7 +131,7 @@ Other general methods
 
    WflowModel.set_config
    WflowModel.get_config
-   WflowModel.set_grid
+   WflowModel.set_staticmaps
    WflowModel.set_tables
    WflowModel.set_states
 
@@ -192,9 +192,9 @@ High level and I/O methods
    WflowSedimentModel.read_config
    WflowSedimentModel.write_config
 
-   WflowSedimentModel.read_grid
-   WflowSedimentModel.write_grid
-   WflowSedimentModel.clip_grid
+   WflowSedimentModel.read_staticmaps
+   WflowSedimentModel.write_staticmaps
+   WflowSedimentModel.clip_staticmaps
 
    WflowSedimentModel.read_geoms
    WflowSedimentModel.write_geoms
@@ -237,10 +237,10 @@ Other general methods
 
    WflowSedimentModel.set_config
    WflowSedimentModel.get_config
-   WflowSedimentModel.set_grid
+   WflowSedimentModel.set_staticmaps
    WflowSedimentModel.set_states
 
-.. _model_components:
+.. _data_containers:
 
 WflowModel components
 =====================
@@ -255,6 +255,15 @@ WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.get_value
 
+WflowGeomsComponent
+-------------------
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowGeomsComponent
+   components.WflowGeomsComponent.data
+   components.WflowGeomsComponent.get
+
 WflowStatesComponent
 --------------------
 
@@ -264,15 +273,14 @@ WflowStatesComponent
    components.WflowStatesComponent
    components.WflowStatesComponent.data
 
+WflowStaticmapsComponent
+------------------------
 
-WflowGeomsComponent
--------------------
 .. autosummary::
    :toctree: _generated
 
-   components.WflowGeomsComponent
-   components.WflowGeomsComponent.data
-   components.WflowGeomsComponent.get
+   components.WflowStaticmapsComponent
+   components.WflowStaticmapsComponent.data
 
 .. _workflows:
 

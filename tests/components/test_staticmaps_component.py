@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from hydromt.model import ModelRoot
 
-from hydromt_wflow.components import WflowConfigComponent, WflowStaticmapsComponent
+from hydromt_wflow.components import WflowStaticmapsComponent
 
 
 @pytest.fixture
@@ -205,13 +205,7 @@ def test_wflow_staticmaps_component_read(
     static_file: Path,
 ):
     # Set the root to model dir in read mode
-    type(mock_model).root = PropertyMock(
-        side_effect=lambda: ModelRoot(tmp_path, mode="r+"),
-    )
-    # Add the config component as the mocked property will kind of screw this test
-    mock_model.config = WflowConfigComponent(mock_model)
-    # To make sure the name can be found in the config
-    mock_model.config.set("input.path_static", "tmp.nc")
+    mock_model.root = ModelRoot(tmp_path, mode="r+")
 
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
@@ -219,17 +213,7 @@ def test_wflow_staticmaps_component_read(
     assert component._data is None
 
     # Read the data
-    component.read()
-
-    # Assert the data
-    assert isinstance(component.data, xr.Dataset)
-    assert "layer1" in component.data.data_vars
-    assert len(component.data) == 2  # 2 layers
-
-    # Can also be read by using the argument in read
-    component._data = None
-    mock_model.config.set("input.path_static", "unknown.nc")
-    component.read(filename="tmp.nc")
+    component.read(filename=static_file)
 
     # Assert the data
     assert isinstance(component.data, xr.Dataset)
@@ -245,8 +229,6 @@ def test_wflow_staticmaps_component_read_empty(
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
     )
-    # Add the config component as the mocked property will kind of screw this test
-    mock_model.config = WflowConfigComponent(mock_model)
 
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
@@ -264,9 +246,6 @@ def test_wflow_staticmaps_component_write(
     mock_model: MagicMock,
     static_layer: xr.DataArray,
 ):
-    # Set a config component
-    mock_model.config = WflowConfigComponent(mock_model)
-
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
 
@@ -278,4 +257,3 @@ def test_wflow_staticmaps_component_write(
 
     # Assert the output (and config)
     assert Path(component.root.path, component._filename).is_file()
-    assert "path_static" in component.model.config.data.get("input")

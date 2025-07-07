@@ -113,7 +113,81 @@ class WflowModel(Model):
             self.config.data
         )
 
-    # SETUP METHODS
+    ## Properties
+    # Components
+    @property
+    def config(self) -> WflowConfigComponent:
+        """Return the config component."""
+        return self.components["config"]
+
+    @property
+    def geoms(self) -> WflowGeomsComponent:
+        """Return the WflowGeomsComponent instance."""
+        return self.components["geoms"]
+
+    @property
+    def states(self) -> WflowStatesComponent:
+        """Return the states component."""
+        return self.components["states"]
+
+    @property
+    def staticmaps(self) -> WflowStaticmapsComponent:
+        """Return the staticmaps component."""
+        return self.components["staticmaps"]
+
+    # Wflow specific
+    @property
+    def basins(self):
+        """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
+        if self.geoms.get("basins") is not None:
+            gdf = self.geoms.get("basins")
+        elif self._MAPS["basins"] in self.staticmaps.data:
+            gdf = (
+                self.staticmaps.data[self._MAPS["basins"]]
+                .raster.vectorize()
+                .set_index("value")
+                .sort_index()
+            )
+            self.set_geoms(gdf, name="basins")
+        else:
+            logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
+            gdf = None
+        return gdf
+
+    @property
+    def basins_highres(self):
+        """Returns a high resolution basin(s) geometry."""
+        if self.geoms.get("basins_highres") is not None:
+            gdf = self.geoms.get("basins_highres")
+        else:
+            gdf = self.basins
+        return gdf
+
+    @property
+    def rivers(self):
+        """Return a river geometry as a geopandas.GeoDataFrame.
+
+        If available, the stream order and upstream area values are added to
+        the geometry properties.
+        """
+        if self.geoms.get("rivers") is not None:
+            gdf = self.geoms.get("rivers")
+        elif self._MAPS["rivmsk"] in self.staticmaps.data:
+            rivmsk = self.staticmaps.data[self._MAPS["rivmsk"]].values != 0
+            # Check if there are river cells in the model before continuing
+            if np.any(rivmsk):
+                # add stream order 'strord' column
+                strord = self.flwdir.stream_order(mask=rivmsk)
+                feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+                gdf = gpd.GeoDataFrame.from_features(feats)
+                gdf.crs = pyproj.CRS.from_user_input(self.crs)
+                self.set_geoms(gdf, name="rivers")
+        else:
+            logger.warning("No river cells detected in the selected basin.")
+            gdf = None
+        return gdf
+
+    ## SETUP METHODS
     @hydromt_step
     def setup_config(self, data: Dict[str, Any]):
         """Set the config dictionary at key(s) with values.
@@ -2442,7 +2516,7 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
             average saturated soil water content [m3/m3]
         * **soil_theta_r** map:
             average residual water content [m3/m3]
-        * **soil_ksat_vertical ** map:
+        * **soil_ksat_vertical** map:
             vertical saturated hydraulic conductivity at soil surface [mm/day]
         * **soil_thickness** map:
             soil thickness [mm]
@@ -2698,8 +2772,7 @@ using 'variable' argument."
         * **landuse** map:
             Landuse class [-]
         * **vegetation_kext** map:
-            Extinction coefficient in the canopy gap fraction
-          equation [-]
+            Extinction coefficient in the canopy gap fraction equation [-]
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
@@ -2779,6 +2852,7 @@ using 'variable' argument."
 
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
+
         wflow_thicknesslayers: list
             List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]
         target_conductivity: list
@@ -2801,7 +2875,7 @@ using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameter
-           soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
+            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -5144,10 +5218,45 @@ Run setup_soilmaps first"
         # Call the component
         self.config.write(p)
 
-    @hydromt_step
-    def write_grid(
+    def read_staticmaps(
         self,
-        fn_out: Path | str | None = None,
+        filename: Path | str | None = None,
+        **kwargs,
+    ):
+        """Read staticmaps model data.
+
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
+        Key-word arguments are passed to :py:meth:`~hydromt._io.readers._read_nc`
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name or path to the staticmaps file to be read.
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `read_nc` method.
+        """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.model.config.get_value("input.path_static")
+            or self._filename
+        )
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
+
+        # Call the component method
+        self.staticmaps.read(filename=p_input, **kwargs)
+
+    @hydromt_step
+    def write_staticmaps(
+        self,
+        filename: Path | str | None = None,
+        **kwargs,
     ):
         """
         Write grid to wflow static data file.
@@ -5158,15 +5267,33 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        fn_out : Path, str, optional
-            Name or path to the outgoing grid file (including extension). This is the
-            path/name relative to the root folder and if present the ``dir_input``
-            folder.
+        filename : Path, str, optional
+            Name or path to the outgoing staticmaps file (including extension).
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `write_nc` method.
         """
-        # Call the component write method
-        self.staticmaps.write(filename=fn_out)
+        # Solve pathing same as read
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.model.config.get_value("input.path_static")
+            or self._filename
+        )
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
 
-    def set_grid(
+        # Call the component write method
+        self.staticmaps.write(filename=p_input, **kwargs)
+
+        # Set the config entry to the correct path
+        self.model.config.set(
+            "input.path_static",
+            Path(self.root.path, p_input).as_posix(),
+        )
+
+    def set_staticmaps(
         self,
         data: xr.DataArray | xr.Dataset,
         name: str | None = None,
@@ -5199,7 +5326,7 @@ Run setup_soilmaps first"
             ignored if data is a Dataset
         """
         # Call the staticmaps set method
-        self.staticmaps.set(data, name=name, mask=self._MAPS["basins"])
+        self.staticmaps.set(data, name=name)
 
     def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
         """
@@ -5879,83 +6006,13 @@ change name input.path_forcing "
             mask=(self.staticmaps.data[self._MAPS["basins"]] > 0),
         )
 
-    # Properties
-    @property
-    def config(self) -> WflowConfigComponent:
-        """Return the config component."""
-        return self.components["config"]
-
-    @property
-    def staticmaps(self) -> WflowStaticmapsComponent:
-        """Return the staticmaps component."""
-        return self.components["staticmaps"]
-
-    @property
-    def geoms(self) -> WflowGeomsComponent:
-        """Return the WflowGeomsComponent instance."""
-        return self.components["geoms"]
-
-    @property
-    def states(self) -> WflowStatesComponent:
-        """Return the states component."""
-        return self.components["states"]
-
-    @property
-    def basins(self):
-        """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
-        if self.geoms.get("basins") is not None:
-            gdf = self.geoms.get("basins")
-        elif self._MAPS["basins"] in self.staticmaps.data:
-            gdf = (
-                self.staticmaps.data[self._MAPS["basins"]]
-                .raster.vectorize()
-                .set_index("value")
-                .sort_index()
-            )
-            self.set_geoms(gdf, name="basins")
-        else:
-            logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
-            gdf = None
-        return gdf
-
-    @property
-    def basins_highres(self):
-        """Returns a high resolution basin(s) geometry."""
-        if self.geoms.get("basins_highres") is not None:
-            gdf = self.geoms.get("basins_highres")
-        else:
-            gdf = self.basins
-        return gdf
-
-    @property
-    def rivers(self):
-        """Return a river geometry as a geopandas.GeoDataFrame.
-
-        If available, the stream order and upstream area values are added to
-        the geometry properties.
-        """
-        if self.geoms.get("rivers") is not None:
-            gdf = self.geoms.get("rivers")
-        elif self._MAPS["rivmsk"] in self.staticmaps.data:
-            rivmsk = self.staticmaps.data[self._MAPS["rivmsk"]].values != 0
-            # Check if there are river cells in the model before continuing
-            if np.any(rivmsk):
-                # add stream order 'strord' column
-                strord = self.flwdir.stream_order(mask=rivmsk)
-                feats = self.flwdir.streams(mask=rivmsk, strord=strord)
-                gdf = gpd.GeoDataFrame.from_features(feats)
-                gdf.crs = pyproj.CRS.from_user_input(self.crs)
-                self.set_geoms(gdf, name="rivers")
-        else:
-            logger.warning("No river cells detected in the selected basin.")
-            gdf = None
-        return gdf
-
     ## WFLOW specific modification (clip for now) methods
 
     @hydromt_step
-    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
-        """Clip grid to subbasin.
+    def clip_staticmaps(
+        self, region, buffer=0, align=None, crs=4326, inverse_clip=False
+    ):
+        """Clip staticmaps to subbasin.
 
         Parameters
         ----------
