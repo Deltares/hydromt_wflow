@@ -26,9 +26,8 @@ from hydromt.nodata import NoDataStrategy
 from shapely.geometry import box
 
 import hydromt_wflow.utils as utils
-
-from . import workflows
-from .naming import _create_hydromt_wflow_mapping_sbm
+from hydromt_wflow import workflows
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 
@@ -1079,14 +1078,12 @@ and will soon be removed. '
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
+
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
@@ -1230,13 +1227,10 @@ and will soon be removed. '
         --------
         workflows.landuse_from_vector
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
@@ -2768,18 +2762,10 @@ using 'variable' argument."
            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-            # Add soil_ksat_vertical_factor
-            output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
-                f"soil_ksat_vertical_factor_{output_names_suffix}"
-            )
-
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
