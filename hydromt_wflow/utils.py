@@ -9,7 +9,6 @@ import numpy as np
 import tomlkit
 import xarray as xr
 from hydromt.io import open_timeseries_from_table
-from hydromt.raster import RasterDataArray, RasterDataset
 from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 from tomlkit.items import Key
@@ -529,10 +528,7 @@ def mask_raster_from_layer(
     """
     # Reproject data to match mask's grid if shapes differ
     if data.sizes != mask.sizes:
-        if isinstance(data, xr.Dataset):
-            data = RasterDataset(data).reproject_like(mask)
-        else:
-            data = RasterDataArray(data).reproject_like(mask)
+        data = data.raster.reproject_like(mask)
 
     mask = mask != mask.raster.nodata
     # Need to duplicate or else data should have a name ie we duplicate functionality
