@@ -213,13 +213,12 @@ class WflowModel(GridModel):
                 f"The model resolution {res} should be \
 larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             )
-        if ds_org.raster.crs.is_geographic:
-            if res > 1:  # 111 km
-                raise ValueError(
-                    f"The model resolution {res} should be smaller than 1 degree \
+        if ds_org.raster.crs.is_geographic and res > 1:  # 111 km
+            raise ValueError(
+                f"The model resolution {res} should be smaller than 1 degree \
 (111km) for geographic coordinate systems. "
-                    "Make sure you provided res in degree rather than in meters."
-                )
+                "Make sure you provided res in degree rather than in meters."
+            )
 
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
@@ -2057,12 +2056,12 @@ rating curve fn {fn}. Skipping."
                     )
             # assume lake index will be in the path
             # Assume one rating curve per lake index
-            for id in gdf_org["waterbody_id"].values:
-                id = int(id)
-                # Find if id is is one of the paths in rating_curve_fns
-                if id in fns_ids:
+            for _id in gdf_org["waterbody_id"].values:
+                _id = int(_id)
+                # Find if _id is is one of the paths in rating_curve_fns
+                if _id in fns_ids:
                     # Update path based on current waterbody_id
-                    i = fns_ids.index(id)
+                    i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
                     if isfile(rating_fn) or rating_fn in self.data_catalog:
@@ -2071,10 +2070,10 @@ rating curve fn {fn}. Skipping."
                         )
                         df_rate = self.data_catalog.get_dataframe(rating_fn)
                         # Add to dict
-                        rating_dict[id] = df_rate
+                        rating_dict[_id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file not found for lake with id {id}. \
+                        f"Rating curve file not found for lake with id {_id}. \
 Using default storage/outflow function parameters."
                     )
         else:
@@ -2569,7 +2568,7 @@ using 'variable' argument."
 
         # in ksatver_vegetation, ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
-        KSatVer_vegetation = workflows.ksatver_vegetation(
+        ksatver_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
@@ -2577,7 +2576,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(KSatVer_vegetation, output_name)
+        self.set_grid(ksatver_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -3283,7 +3282,6 @@ one variable and variables list is not provided."
                     index=df_precip.columns,
                     crs=self.crs,
                 )
-                index_col = df_precip.columns
                 interp_type = "nearest"
                 if df_precip.shape[1] != 1:
                     raise ValueError(
