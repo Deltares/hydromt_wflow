@@ -13,7 +13,7 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 from tomlkit.items import Key
 
-from .naming import (
+from hydromt_wflow.naming import (
     WFLOW_NAMES,
     WFLOW_SEDIMENT_NAMES,
     WFLOW_SEDIMENT_STATES_NAMES,
@@ -129,7 +129,7 @@ of the config.
                     full_index = maps[
                         f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
-                    res_x, res_y = full_index.raster.res
+                    _, res_y = full_index.raster.res
                     if res_y < 0:
                         full_index = full_index.reindex(
                             {
