@@ -1718,7 +1718,6 @@ gauge locations [-] (if derive_subcatch)
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
-        kwargs = {}
         if isinstance(gauges_fn, gpd.GeoDataFrame):
             gdf_gauges = gauges_fn
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
