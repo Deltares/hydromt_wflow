@@ -492,6 +492,31 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.subsurface.drain_elevation",
         "wflow_v1": "land_drain__elevation",
     },
+        # land surface temperature
+    "albedo": {
+        "wflow_v0": None,
+        "wflow_v1": "land_surface__albedo",
+    },
+    "emissivity": {
+        "wflow_v0": None,
+        "wflow_v1": "land_surface__emissivity",
+    },
+    "shortwave_in": {
+        "wflow_v0": None,
+        "wflow_v1": "atmosphere_air__shortwave_radiation_in",
+    },
+    "wind_speed": {
+        "wflow_v0": None,
+        "wflow_v1": "land_surface_air_flow__speed",
+    },
+    "net_longwave_radiation": {
+        "wflow_v0": None,
+        "wflow_v1": "land_surface__net_radiation",
+    },
+    "net_radiation": {
+        "wflow_v0": None,
+        "wflow_v1": "land_surface__net_radiation",
+    },
 }
 
 WFLOW_STATES_NAMES = {
@@ -583,6 +608,7 @@ WFLOW_STATES_NAMES = {
         "wflow_v0": "vertical.paddy.h",
         "wflow_v1": "land_surface_water~paddy__depth",
     },
+
 }
 
 WFLOW_SEDIMENT_NAMES = {

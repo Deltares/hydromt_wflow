@@ -7,6 +7,7 @@ from .forcing import *
 from .gauges import *
 from .glaciers import *
 from .landuse import *
+from .landsurfacetemp import *
 from .river import *
 from .rootzoneclim import *
 from .soilgrids import *
