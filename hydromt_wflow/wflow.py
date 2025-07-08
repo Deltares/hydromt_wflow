@@ -135,9 +135,9 @@ class WflowModel(Model):
         """Return the staticmaps component."""
         return self.components["staticmaps"]
 
-    # Wflow specific
+    # Non model component properties
     @property
-    def basins(self):
+    def basins(self) -> gpd.GeoDataFrame | None:
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
         if self.geoms.get("basins") is not None:
             gdf = self.geoms.get("basins")
@@ -155,7 +155,7 @@ class WflowModel(Model):
         return gdf
 
     @property
-    def basins_highres(self):
+    def basins_highres(self) -> gpd.GeoDataFrame | None:
         """Returns a high resolution basin(s) geometry."""
         if self.geoms.get("basins_highres") is not None:
             gdf = self.geoms.get("basins_highres")
@@ -164,7 +164,7 @@ class WflowModel(Model):
         return gdf
 
     @property
-    def rivers(self):
+    def rivers(self) -> gpd.GeoDataFrame | None:
         """Return a river geometry as a geopandas.GeoDataFrame.
 
         If available, the stream order and upstream area values are added to
@@ -5243,11 +5243,11 @@ Run setup_soilmaps first"
         # Hierarchy is: 1: signature, 2: config, 3: default
         p = (
             filename
-            or self.model.config.get_value("input.path_static")
-            or self._filename
+            or self.config.get_value("input.path_static")
+            or self.staticmaps._filename
         )
         # Check for input dir
-        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
+        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
 
         # Call the component method
         self.staticmaps.read(filename=p_input, **kwargs)
@@ -5278,17 +5278,17 @@ Run setup_soilmaps first"
         # Hierarchy is: 1: signature, 2: config, 3: default
         p = (
             filename
-            or self.model.config.get_value("input.path_static")
-            or self._filename
+            or self.config.get_value("input.path_static")
+            or self.staticmaps._filename
         )
         # Check for input dir
-        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
+        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
 
         # Call the component write method
         self.staticmaps.write(filename=p_input, **kwargs)
 
         # Set the config entry to the correct path
-        self.model.config.set(
+        self.config.set(
             "input.path_static",
             Path(self.root.path, p_input).as_posix(),
         )

@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
@@ -204,7 +205,7 @@ class WflowStaticmapsComponent(GridComponent):
             if dvar in self._data:
                 logger.warning(f"Replacing grid map: {dvar}")
             if mask is not None:
-                if data[dvar].dtype != "bool":
+                if data[dvar].dtype != np.bool:
                     data[dvar] = data[dvar].where(mask, data[dvar].raster.nodata)
                 else:
                     data[dvar] = data[dvar].where(mask, False)

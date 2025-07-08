@@ -11,7 +11,6 @@ from hydromt.model import ModelRoot
 from hydromt.model.components import GridComponent
 from pyproj.crs import CRS
 from pytest_mock import MockerFixture
-from tomlkit import TOMLDocument
 
 from hydromt_wflow import WflowModel
 
@@ -93,8 +92,8 @@ def config_dummy_data() -> dict:
 
 
 @pytest.fixture
-def config_dummy_document(tmp_path: Path) -> TOMLDocument:
-    data = TOMLDocument()
+def config_dummy_document(tmp_path: Path) -> dict:
+    data = {}
     data.update(
         {
             "foo": "bar",

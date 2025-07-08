@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Any
 
 import xarray as xr
-from tomlkit import TOMLDocument
-from tomlkit.items import Table
 
 MOUNT_PATTERN = re.compile(r"(^\/(\w+)\/|^(\w+):\/).*$")
 
@@ -41,7 +39,7 @@ def _relpath(
 
 
 def make_config_paths_relative(
-    data: TOMLDocument,
+    data: dict,
     root: Path,
 ):
     """Make the configurations path relative to the root.
@@ -51,15 +49,15 @@ def make_config_paths_relative(
 
     Parameters
     ----------
-    data : TOMLDocument
-        The configurations in a TOMLDocument format.
+    data : dict
+        The configurations in a dictionary format.
     root : Path
         The root to which the paths are made relative.
         Most of the time, this will be the parent directory of the
         configurations file.
     """
     for key, val in data.items():
-        if isinstance(val, Table):
+        if isinstance(val, dict):
             data.update({key: make_config_paths_relative(val, root)})
         else:
             data.update({key: _relpath(val, root)})
@@ -79,7 +77,7 @@ def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | Non
         can be present
     """
     if mask is None:
-        return mask
+        return None
     if isinstance(mask, xr.DataArray):
         return mask != mask.raster.nodata
     if not isinstance(mask, str):
