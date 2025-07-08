@@ -214,13 +214,13 @@ def compute_net_radiation(
 
 
 def add_var_to_forcing(
-    mod: "WflowModel",
+    mod,
     ds: Union[xr.Dataset, xr.DataArray],
     var: str,
     freq: Optional[str] = None,
     reproj_method: str = "nearest_index",
     resample_kwargs: Optional[dict] = None,
-) -> "WflowModel":
+):
     """
     Add variable to model forcing with proper reprojection and masking.
     
@@ -276,8 +276,8 @@ def add_var_to_forcing(
 
 
 def albedo(
+    mod,
     albedo: xr.DataArray,
-    da_model: Union[xr.DataArray, xr.Dataset],
     freq: Optional[str] = None,
     reproj_method: str = "nearest_index",
     resample_kwargs: Optional[dict] = None,
@@ -309,7 +309,7 @@ def albedo(
         raise ValueError(f'First albedo dim should be "time", not {albedo.raster.dim0}')
     
     # reproject to model grid
-    albedo_out = albedo.raster.reproject_like(da_model, method=reproj_method)
+    albedo_out = albedo.raster.reproject_like(mod.grid["wflow_dem"], method=reproj_method)
     
     # ensure values are between 0 and 1
     albedo_out = np.clip(albedo_out, 0, 1)
@@ -325,8 +325,8 @@ def albedo(
 
 
 def emissivity(
+    mod,
     emissivity: xr.DataArray,
-    da_model: Union[xr.DataArray, xr.Dataset],
     freq: Optional[str] = None,
     reproj_method: str = "nearest_index",
     resample_kwargs: Optional[dict] = None,
@@ -358,7 +358,7 @@ def emissivity(
         raise ValueError(f'First emissivity dim should be "time", not {emissivity.raster.dim0}')
     
     # reproject to model grid
-    emissivity_out = emissivity.raster.reproject_like(da_model, method=reproj_method)
+    emissivity_out = emissivity.raster.reproject_like(mod.grid["wflow_dem"], method=reproj_method)
     
     # ensure values are between 0 and 1
     emissivity_out = np.clip(emissivity_out, 0, 1)
@@ -374,8 +374,8 @@ def emissivity(
 
 
 def radiation(
+    mod,
     radiation: xr.DataArray,
-    da_model: Union[xr.DataArray, xr.Dataset],
     var_name: str = "radiation",
     freq: Optional[str] = None,
     reproj_method: str = "nearest_index",
@@ -410,7 +410,7 @@ def radiation(
         raise ValueError(f'First radiation dim should be "time", not {radiation.raster.dim0}')
     
     # reproject to model grid
-    radiation_out = radiation.raster.reproject_like(da_model, method=reproj_method)
+    radiation_out = radiation.raster.reproject_like(mod.grid["wflow_dem"], method=reproj_method)
     
     # ensure non-negative values
     radiation_out = np.fmax(radiation_out, 0)
