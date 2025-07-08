@@ -3861,8 +3861,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 # Time-varying data -> goes to forcing
                 logger.info("Processing time-varying albedo data for forcing.")
                 albedo_out = workflows.landsurfacetemp.albedo(
+                    mod=self,
                     albedo=albedo,
-                    da_model=self.grid,
                     freq=freq,
                     reproj_method=reproj_method,
                 )
@@ -3873,8 +3873,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 # Static data -> goes to grid/staticmaps
                 logger.info("Processing static albedo data for grid.")
                 albedo_out = workflows.landsurfacetemp.albedo(
+                    mod=self,
                     albedo=albedo,
-                    da_model=self.grid,
                     reproj_method=reproj_method,
                 )
                 self.set_grid(albedo_out, name="albedo")
@@ -3882,18 +3882,20 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Process emissivity if provided
         if emissivity is not None:
-            type_emissivity = type(emissivity)
-            if type_emissivity == str:
+            if isinstance(emissivity, str):
                 try:
-                    emissivity = self.data_catalog.get_rasterdataset(emissivity, geom=self.region, buffer=2, time_tuple=(starttime, endtime))
+                    emissivity = self.data_catalog.get_rasterdataset(emissivity, 
+                                                                     geom=self.region, 
+                                                                     buffer=2, 
+                                                                     time_tuple=(starttime, endtime))
                     logger.info(f"Retrieved emissivity data from data catalog under:{emissivity}")
                 except Exception as e:
                     logger.error(f"Error retrieving emissivity data from {emissivity}: {e}")
                     raise e
-            elif type_emissivity == xr.DataArray:
+            elif isinstance(emissivity, xr.DataArray):
                 emissivity = emissivity
             else:
-                raise ValueError(f"Invalid type for emissivity: {type_emissivity}")
+                raise ValueError(f"Invalid type for emissivity: {type(emissivity)}")
             
             emissivity = emissivity.astype("float32")
             
@@ -3912,8 +3914,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 # Static data -> goes to grid/staticmaps
                 logger.info("Processing static emissivity data for grid.")
                 emissivity_out = workflows.landsurfacetemp.emissivity(
+                    mod=self,
                     emissivity=emissivity,
-                    da_model=self.grid,
                     reproj_method=reproj_method,
                 )
                 self.set_grid(emissivity_out, name="emissivity")
@@ -3922,8 +3924,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Process shortwave radiation if provided
         if shortwave is not None:
-            type_shortwave = type(shortwave)
-            if type_shortwave == str:
+            if isinstance(shortwave, str):
                 try:
                     shortwave = self.data_catalog.get_rasterdataset(shortwave, 
                                                                     geom=self.region, 
@@ -3935,16 +3936,16 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 except Exception as e:
                     logger.error(f"Error retrieving shortwave radiation data from {shortwave}: {e}")
                     raise e
-            elif type_shortwave == xr.DataArray:
+            elif isinstance(shortwave, xr.DataArray):
                 shortwave = shortwave
             else:
-                raise ValueError(f"Invalid type for shortwave: {type_shortwave}")
+                raise ValueError(f"Invalid type for shortwave: {type(shortwave)}")
             
             shortwave = shortwave.astype("float32")
             
             shortwave_out = workflows.landsurfacetemp.radiation(
                 radiation=shortwave,
-                da_model=self.grid,
+                mod=self,
                 var_name="shortwave_in",
                 freq=freq,
                 reproj_method=reproj_method,
@@ -3958,38 +3959,35 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             
             if wind_u is not None and wind_v is not None:
                 # Get wind components
-                type_wind_u = type(wind_u)
-                type_wind_v = type(wind_v)
-                
-                if type_wind_u == str:
+                if isinstance(wind_u, str):
                     wind_u = self.data_catalog.get_rasterdataset(
                         wind_u,
                         geom=self.region,
                         buffer=2,
                         time_tuple=(starttime, endtime),
                     )
-                elif type_wind_u == xr.DataArray:
+                elif isinstance(wind_u, xr.DataArray):
                     wind_u = wind_u
                 else:
-                    raise ValueError(f"Invalid type for wind_u: {type_wind_u}")
+                    raise ValueError(f"Invalid type for wind_u: {type(wind_u)}")
                 
-                if type_wind_v == str:
+                if isinstance(wind_v, str):
                     wind_v = self.data_catalog.get_rasterdataset(
                         wind_v,
                         geom=self.region,
                         buffer=2,
                         time_tuple=(starttime, endtime),
                     )
-                elif type_wind_v == xr.DataArray:
+                elif isinstance(wind_v, xr.DataArray):
                     wind_v = wind_v
                 else:
-                    raise ValueError(f"Invalid type for wind_v: {type_wind_v}")
+                    raise ValueError(f"Invalid type for wind_v: {type(wind_v)}")
                 
                 wind_u = wind_u.astype("float32")
                 wind_v = wind_v.astype("float32")
                 
                 wind_out = workflows.meteo.wind(
-                    da_model=self.grid,
+                    mod=self,
                     wind_u=wind_u,
                     wind_v=wind_v,
                     altitude=wind_altitude,
@@ -4015,7 +4013,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 wind = wind.astype("float32")
                 
                 wind_out = workflows.meteo.wind(
-                    da_model=self.grid,
+                    da_model=self.staticmaps,
                     wind=wind,
                     altitude=wind_altitude,
                     altitude_correction=wind_altitude_correction,
