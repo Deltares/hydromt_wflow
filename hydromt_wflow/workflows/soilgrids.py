@@ -477,22 +477,21 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
 
     - **theta_s** : average saturated soil water content [m3/m3]
     - **theta_r** : average residual water content [m3/m3]
-    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil
-    surface [mm/day]
+    - **ksat_vertical** : vertical saturated hydraulic conductivity at soil \
+surface [mm/day]
     - **soil_thickness** : soil thickness [mm]
     - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]
-      (fitted with numpy linalg regression), bounds are checked
+    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
+(fitted with numpy linalg regression), bounds are checked
     - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \
-    distribution index for the wflow_sbm soil layers.
+distribution index for the wflow_sbm soil layers.
     - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
 [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
-    sand mapping: \
-[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
-6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
-
+    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt, \
+sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, \
+5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, \
+12:Sandy Loam]
 
     Parameters
     ----------

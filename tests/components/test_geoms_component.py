@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 import geopandas as gpd
 import pytest
@@ -23,53 +24,87 @@ def mock_geometry(mock_xy) -> gpd.GeoDataFrame:
     )
 
 
-def test_get_success(mock_model_factory, mock_geometry):
+def test_wflow_geoms_component_init(mock_model_factory: Callable):
+    # Setup the mocked model and component
+    model: WflowModel = mock_model_factory(mode="w")
+    component = WflowGeomsComponent(model)
+
+    # Assert that the internal data is None
+    assert component._data is None
+
+    # When asking for data property, it should return an empty dict
+    assert isinstance(component.data, dict)
+    assert isinstance(component._data, dict)  # Same for internal
+    assert len(component.data) == 0
+
+
+def test_wflow_geoms_component_get(
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
+):
+    # Set the mocked model and component
     model: WflowModel = mock_model_factory(mode="w")
     component = WflowGeomsComponent(model=model)
     component.set(geom=mock_geometry, name="geom")
 
+    # Call the method
     geom = component.get("geom")
 
+    # Assert the output
     assert isinstance(geom, gpd.GeoDataFrame)
     assert geom.equals(mock_geometry), "Retrieved geometry does not match the original."
 
 
-def test_get_failure(mock_model_factory):
+def test_wflow_geoms_component_get_errors(mock_model_factory: Callable):
+    # Set the mocked model and component
     model: WflowModel = mock_model_factory(mode="w")
     component = WflowGeomsComponent(model=model)
 
+    # Assert error on no being able to find a geometry dataset
     with pytest.raises(KeyError) as excinfo:
         component.get("not_a_geom")
     assert "Geometry 'not_a_geom' not found in geoms." in str(excinfo.value)
 
 
-def test_pop_failure(mock_model_factory, caplog):
-    model: WflowModel = mock_model_factory(mode="w")
-    component = WflowGeomsComponent(model=model)
-    caplog.set_level(logging.WARNING)
-
-    with pytest.raises(KeyError) as excinfo:
-        component.pop("not_a_geom")
-
-    assert "Geometry 'not_a_geom' not found in geoms." in str(excinfo.value)
-
-
-def test_pop_success(mock_model_factory, mock_geometry, caplog):
-    model: WflowModel = mock_model_factory(mode="w")
-    component = WflowGeomsComponent(model=model)
+def test_wflow_geoms_component_pop(
+    caplog: pytest.LogCaptureFixture,
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
+):
     caplog.at_level(logging.INFO)
+
+    # Setup the mocked model and component
+    model: WflowModel = mock_model_factory(mode="w")
+    component = WflowGeomsComponent(model=model)
     component.set(geom=mock_geometry, name="geom")
 
+    # Call the method
     geom = component.pop("geom")
 
+    # Assert the output and state
     assert "Removed geometry 'geom' from geoms."
     assert isinstance(geom, gpd.GeoDataFrame)
     assert component.data == {}
 
 
-def test_set_write_read(
-    mock_model_factory,
-    mock_geometry,
+def test_wflow_geoms_component_pop_errors(
+    caplog: pytest.LogCaptureFixture,
+    mock_model_factory: Callable,
+):
+    caplog.set_level(logging.WARNING)
+    # Setup the mocked model and the component
+    model: WflowModel = mock_model_factory(mode="w")
+    component = WflowGeomsComponent(model=model)
+
+    # Assert the error if the geometry dataset is not found
+    with pytest.raises(KeyError) as excinfo:
+        component.pop("not_a_geom")
+    assert "Geometry 'not_a_geom' not found in geoms." in str(excinfo.value)
+
+
+def test_wflow_geoms_component_set(
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
 ):
     # Initialize component
     model: WflowModel = mock_model_factory(mode="w")
@@ -96,7 +131,10 @@ def test_set_write_read(
     )
 
 
-def test_read_with_pattern(mock_model_factory, mock_geometry):
+def test_wflow_geoms_component_read_with_pattern(
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
+):
     # Write multiple geometries to disk
     model: WflowModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
@@ -119,7 +157,10 @@ def test_read_with_pattern(mock_model_factory, mock_geometry):
     assert new_comp.get("geom2") is not None
 
 
-def test_write_to_wgs84(mock_model_factory, mock_geometry):
+def test_wflow_geoms_component_write_to_wgs84(
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
+):
     # Initialize component
     model: WflowModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
@@ -155,11 +196,11 @@ def check_precision(coord, precision: int, tolerance: float):
 @pytest.mark.parametrize(
     ("crs", "expected_precision"), [("EPSG:4326", 6), ("EPSG:28992", 1)]
 )
-def test_write_precision_defaults(
+def test_wflow_geoms_component_write_precision_defaults(
+    mock_model_factory: Callable,
+    mock_geometry: gpd.GeoDataFrame,
     crs: str,
     expected_precision: int,
-    mock_geometry: gpd.GeoDataFrame,
-    mock_model_factory,
 ):
     # Convert mock geometry to the target CRS
     geometry = mock_geometry.to_crs(crs)
@@ -190,10 +231,10 @@ def test_write_precision_defaults(
         10,
     ],
 )
-def test_write_precision_manual(
-    precision: int,
+def test_wflow_geoms_component_write_precision_manual(
+    mock_model_factory: Callable,
     mock_geometry: gpd.GeoDataFrame,
-    mock_model_factory,
+    precision: int,
 ):
     # Initialize, write and read geometry
     model: WflowModel = mock_model_factory(mode="w")
