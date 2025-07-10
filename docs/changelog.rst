@@ -26,6 +26,7 @@ Changed
   Eg wflow.config.data, wflow.staticmaps.data
 - The names of some of the model components have changed: ``grid`` to ``staticmaps``.
 - **setup_config**: the method now explicitly uses a dictionary with the options to add/update.
+- Reverted the use of TOMLkit dependency
 
 Fixed
 -----
