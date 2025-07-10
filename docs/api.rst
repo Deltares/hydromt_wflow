@@ -21,12 +21,13 @@ Initialize
 
 .. _components:
 
-Setup components
-----------------
+Setup methods
+-------------
 
 .. autosummary::
    :toctree: _generated
 
+   WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
@@ -63,33 +64,76 @@ Setup components
    WflowModel.setup_cold_states
    WflowModel.upgrade_to_v1_wflow
 
+High level and I/O methods
+--------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowModel.build
+   WflowModel.update
+
+   WflowModel.read
+   WflowModel.write
+
+   WflowModel.read_config
+   WflowModel.write_config
+
+   WflowModel.read_staticmaps
+   WflowModel.write_staticmaps
+   WflowModel.clip_staticmaps
+
+   WflowModel.read_geoms
+   WflowModel.write_geoms
+
+   WflowModel.read_forcing
+   WflowModel.write_forcing
+   WflowModel.clip_forcing
+
+   WflowModel.read_states
+   WflowModel.write_states
+   WflowModel.clip_states
+
+   WflowModel.read_results
+
+   WflowModel.read_tables
+   WflowModel.write_tables
+
+Components
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowModel.config
+   WflowModel.staticmaps
+   WflowModel.states
+   WflowModel.geoms
+
+
 Attributes
 ----------
 
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.region
    WflowModel.crs
    WflowModel.root
+   WflowModel.flwdir
+   WflowModel.basins
+   WflowModel.rivers
 
-High level methods
-------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowModel.read
-   WflowModel.write
-   WflowModel.build
-   WflowModel.update
-
-General methods
----------------
+Other general methods
+---------------------
 
 .. autosummary::
    :toctree: _generated
 
+   WflowModel.set_config
+   WflowModel.get_config
+   WflowModel.set_staticmaps
+   WflowModel.set_tables
+   WflowModel.set_states
 
 .. _api_model_sediment:
 
@@ -112,6 +156,7 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
+   WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
    WflowSedimentModel.setup_rivers
    WflowSedimentModel.setup_lakes
@@ -132,26 +177,110 @@ Setup components
    WflowSedimentModel.setup_grid_from_raster
    WflowSedimentModel.upgrade_to_v1_wflow
 
+High level and I/O methods
+--------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSedimentModel.build
+   WflowSedimentModel.update
+
+   WflowSedimentModel.read
+   WflowSedimentModel.write
+
+   WflowSedimentModel.read_config
+   WflowSedimentModel.write_config
+
+   WflowSedimentModel.read_staticmaps
+   WflowSedimentModel.write_staticmaps
+   WflowSedimentModel.clip_staticmaps
+
+   WflowSedimentModel.read_geoms
+   WflowSedimentModel.write_geoms
+
+   WflowSedimentModel.read_forcing
+   WflowSedimentModel.write_forcing
+   WflowSedimentModel.clip_forcing
+
+   WflowSedimentModel.read_states
+   WflowSedimentModel.write_states
+
+   WflowSedimentModel.read_results
+
+Components
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSedimentModel.config
+   WflowSedimentModel.staticmaps
+
 Attributes
 ----------
 
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.region
    WflowSedimentModel.crs
    WflowSedimentModel.root
+   WflowSedimentModel.flwdir
+   WflowSedimentModel.basins
+   WflowSedimentModel.rivers
 
-High level methods
-------------------
+Other general methods
+---------------------
 
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.read
-   WflowSedimentModel.write
-   WflowSedimentModel.build
-   WflowSedimentModel.update
+   WflowSedimentModel.set_config
+   WflowSedimentModel.get_config
+   WflowSedimentModel.set_staticmaps
+   WflowSedimentModel.set_states
+
+.. _data_containers:
+
+WflowModel components
+=====================
+
+WflowConfigComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowConfigComponent
+   components.WflowConfigComponent.data
+   components.WflowConfigComponent.get_value
+
+WflowGeomsComponent
+-------------------
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowGeomsComponent
+   components.WflowGeomsComponent.data
+   components.WflowGeomsComponent.get
+
+WflowStatesComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowStatesComponent
+   components.WflowStatesComponent.data
+
+WflowStaticmapsComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowStaticmapsComponent
+   components.WflowStaticmapsComponent.data
 
 .. _workflows:
 

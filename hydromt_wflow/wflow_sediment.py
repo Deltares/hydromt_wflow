@@ -30,7 +30,6 @@ class WflowSedimentModel(WflowModel):
     """The wflow sediment model class, a subclass of WflowModel."""
 
     name: str = "wflow_sediment"
-    _GEOMS = {}
 
     def __init__(
         self,
@@ -305,8 +304,8 @@ river cells."
         * **reservoir_area_id** map: reservoir IDs [-]
         * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
-         coefficient [-]
+        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency \
+coefficient [-]
 
         Parameters
         ----------
@@ -520,11 +519,11 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-        cell [-]
+        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+        * **soil_compacted_fraction** map: The fraction of compacted or urban area per \
+grid cell [-]
+        * **land_water_fraction** map: The fraction of water covered area per grid \
+cell [-]
 
         Parameters
         ----------
@@ -770,11 +769,12 @@ river cells."
             Path to a mapping csv file from streamorder to river bed particles
             characteristics. If None reverts to default values.
 
-            * Required variable: ['strord','river_bed_sediment_d50',
-              'river_bed_clay_fraction', 'river_bed_silt_fraction',
-                'river_bed_sand_fraction', 'river_bed_gravel_fraction']
-            * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
-              'river_kodatie_c', 'river_kodatie_d']
+            * Required variable: ['strord','river_bed_sediment_d50', \
+'river_bed_clay_fraction', 'river_bed_silt_fraction', 'river_bed_sand_fraction', \
+'river_bed_gravel_fraction']
+            * Optional variable: ['river_kodatie_a', 'river_kodatie_b', \
+'river_kodatie_c', 'river_kodatie_d']
+
         strord_name : str, optional
             Name of the stream order map in the grid, by default 'meta_streamorder'.
         output_names : dict, optional
@@ -897,13 +897,13 @@ river cells."
         * **soil_sand_fraction**: sand content of the topsoil [g/g]
         * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
         * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
-        * **erosion_soil_detachability** map: mean detachability of the soil
-        (Morgan et al., 1998) [g/J]
+        * **erosion_soil_detachability** map: mean detachability of the soil \
+(Morgan et al., 1998) [g/J]
         * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
         * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
         * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
-        * **land_govers_n** map: Govers exponent for overland flow transport
-        capacity [-]
+        * **land_govers_n** map: Govers exponent for overland flow transport \
+capacity [-]
 
 
         Parameters
@@ -912,6 +912,7 @@ river cells."
             Name of soil data source in data_sources.yml file.
 
             * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
+
         usle_k_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         add_aggregates: bool, optional

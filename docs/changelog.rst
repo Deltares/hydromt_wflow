@@ -8,6 +8,31 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+TODO: merge with the Wflow.jl v1 pre-release notes below when we are ready for hydromt_wflow v1.0.0
+
+Added
+-----
+- config component ``WflowConfigComponent``: represents the Wflow configuration TOML file.
+- staticmaps component ``WflowStaticMapsComponent``: represents Wflow static and cyclic data (used to be grid).
+- states component ``WflowStatesComponent``: represents Wflow input states data.
+- geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data.
+- **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
+
+Changed
+-------
+- Model root is now a ``ModelRoot`` class. To access the root path, use ``wflow.root.path``.
+- Model components like config, forcing are now ``ModelComponent`` classes.
+  To access the inherent data objects (dictionary, xarray.Dataset etc.) of the components, the ``data`` property is now used.
+  Eg wflow.config.data, wflow.staticmaps.data
+- The names of some of the model components have changed: ``grid`` to ``staticmaps``.
+- **setup_config**: the method now explicitly uses a dictionary with the options to add/update.
+
+Fixed
+-----
+
+
+Unreleased
+==========
 This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
 linked to the TOML file options. We have dropped support for Wflow.jl < 1.0.0, but we allow users
 to upgrade their models to the new version using the `upgrade_to_v1_wflow` function. If you do not want
@@ -30,7 +55,7 @@ Added
 Changed
 -------
 - Support for Wflow.jl >= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).  PR #364
-- All default names in staticmpas.nc and states have been redefined and harmonized. PR #422
+- All default names in staticmaps.nc and states have been redefined and harmonized. PR #422
 - Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422
 - **setup_constant_pars**: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.  PR #364
 - **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.  PR #364

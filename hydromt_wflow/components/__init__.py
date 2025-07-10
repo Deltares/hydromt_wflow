@@ -2,10 +2,14 @@
 
 from .config import WflowConfigComponent
 from .forcing import WflowForcingComponent
-from .staticmaps import StaticmapsComponent
+from .geoms import WflowGeomsComponent
+from .states import WflowStatesComponent
+from .staticmaps import WflowStaticmapsComponent
 
 __all__ = [
-    "StaticmapsComponent",
     "WflowConfigComponent",
     "WflowForcingComponent",
+    "WflowGeomsComponent",
+    "WflowStatesComponent",
+    "WflowStaticmapsComponent",
 ]

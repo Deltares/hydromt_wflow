@@ -7,10 +7,10 @@ from typing import Any, cast
 import tomlkit
 from hydromt.model import Model
 from hydromt.model.components.base import ModelComponent
-from hydromt.model.steps import hydromt_step
 from tomlkit.toml_file import TOMLFile
 
-from hydromt_wflow.utils import get_config, set_config
+from hydromt_wflow import utils
+from hydromt_wflow.components.utils import make_config_paths_relative
 
 __all__ = ["WflowConfigComponent"]
 
@@ -18,21 +18,14 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowConfigComponent(ModelComponent):
-    """Manage the wflow configurations.
+    """Manage the wflow TOML configuration file for model simulations/settings.
 
-    Parameters
-    ----------
-    model : Model
-        HydroMT model instance
-    filename : str
-        A path relative to the root where the configuration file will
-        be read and written if user does not provide a path themselves.
-        By default 'wflow_sbm.toml'
-    default_template_filename : str, optional
-        A path to a template file that will be used as default in the ``create``
-        method to initialize the configuration file if the user does not provide
-        their own template file. This can be used by model plugins to provide a
-        default configuration template. By default None.
+    ``WflowConfigComponent`` data is stored in a tomlkit.TOMLDocument. The component
+    is used to prepare and update model simulations/settings of the wflow model.
+    TOML config files will be read and written using
+    `TOMLkit <https://tomlkit.readthedocs.io/en/latest/quickstart/>`__.
+    This package will preserve the order and comments in a TOML file. Note, that any
+    comments associated with sections that are to be updated will still disappear.
     """
 
     def __init__(
@@ -42,28 +35,38 @@ class WflowConfigComponent(ModelComponent):
         filename="wflow_sbm.toml",
         default_template_filename: Path | str | None = None,
     ):
+        """
+        Initialize a WflowConfigComponent.
+
+        Parameters
+        ----------
+        model : Model
+            HydroMT model instance
+        filename : str
+            A path relative to the root where the configuration file will
+            be read and written if user does not provide a path themselves.
+            By default 'wflow_sbm.toml'
+        default_template_filename : str, optional
+            A path to a template file that will be used as default in the ``create``
+            method to initialize the configuration file if the user does not provide
+            their own template file. This can be used by model plugins to provide a
+            default configuration template. By default None.
+        """
         self._data: tomlkit.TOMLDocument[str, Any] | None = None
         self._filename: str = filename
         self._default_template_filename: Path | str | None = default_template_filename
 
         super().__init__(model=model)
 
-    def __eq__(self, other: ModelComponent):
-        """Compare components based on content."""
-        if not isinstance(other, WflowConfigComponent):
-            raise ValueError(
-                f"Can't compare {self.__class__.__name__} \
-with type {type(other).__name__}"
-            )
-        other_config = cast(WflowConfigComponent, other)
-        return self.data == other_config.data
-
     ## Private
     def _initialize(self, skip_read=False) -> None:
         """Initialize the model config."""
         if self._data is None:
             self._data = tomlkit.TOMLDocument()
-            if self.root.is_reading_mode() and not skip_read:
+            if not skip_read:
+                # no check for read mode here
+                # model config is read if in read-mode and it exists
+                # default config if in write-mode
                 self.read()
 
     ## Properties
@@ -75,20 +78,23 @@ with type {type(other).__name__}"
         return self._data
 
     ## I/O Methods
-    @hydromt_step
     def read(
         self,
         path: Path | str | None = None,
     ):
-        """Read the wflow configurations file."""
+        """Read the wflow configuration file at <root>/{path}."""
         self._initialize(skip_read=True)
 
-        # Solve pathing
+        # Check if user-defined path or template should be used
         p = path or self._filename
         read_path = Path(self.root.path, p)
 
         # Switch to default if available and supplied config is not found
-        if not read_path.is_file() and self._default_template_filename is not None:
+        if (
+            not read_path.is_file()
+            and self._default_template_filename is not None
+            and not self.root.is_reading_mode()
+        ):
             _new_path = Path(self.root.path, self._default_template_filename)
             logger.warning(
                 f"No config file found at {read_path.as_posix()} \
@@ -113,7 +119,6 @@ defaulting to {_new_path.as_posix()}"
         # But now it overwrites the already existing keys.
         self._data = data
 
-    @hydromt_step
     def write(
         self,
         path: Path | str | None = None,
@@ -129,15 +134,51 @@ defaulting to {_new_path.as_posix()}"
             logger.info(f"Writing model config to {write_path.as_posix()}.")
             write_path.parent.mkdir(parents=True, exist_ok=True)
 
+            # Solve the pathing in the data
+            # Extra check for dir_input
+            rel_path = Path(write_path.parent, self.get_value("dir_input", fallback=""))
+            write_data = make_config_paths_relative(self.data, rel_path)
+
             # Dump the toml
-            TOMLFile(write_path).write(self.data)
+            TOMLFile(write_path).write(write_data)
 
         # Warn when there is no data being written
         else:
             logger.warning("Model config has no data, skip writing.")
 
+    ## Add data methods
+    def update(self, data: dict[str, Any]):
+        """Set the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        data : dict[str, Any]
+            A dictionary with the values to be set. keys can be dotted like in
+            :py:meth:`~hydromt_wflow.components.config.WflowConfigComponent.set`
+
+        Examples
+        --------
+        Setting data as a nested dictionary::
+
+
+            >> self.update({'a': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': 1, 'b': {'c': {'d': 2}}}
+
+        Setting data using dotted notation::
+
+            >> self.update({'a.d.f.g': 1, 'b': {'c': {'d': 2}}})
+            >> self.data
+            {'a': {'d':{'f':{'g': 1}}}, 'b': {'c': {'d': 2}}}
+
+        """
+        if len(data) > 0:
+            logger.debug("Setting model config options.")
+        for k, v in data.items():
+            self.set(k, v)
+
     ## Modifying methods
-    def get(
+    def get_value(
         self,
         *args,
         fallback: Any | None = None,
@@ -156,10 +197,9 @@ defaulting to {_new_path.as_posix()}"
             If True return the absolute path relative to the model root,
             by default False.
         """
-        self._initialize()
         # Refer to utils function of get_config
-        return get_config(
-            self._data,
+        return utils.get_config(
+            self.data,
             *args,
             root=self.root.path,
             fallback=fallback,
@@ -178,4 +218,30 @@ defaulting to {_new_path.as_posix()}"
         """
         self._initialize()
         # Refer to utils function of set_config
-        set_config(self._data, *args)
+        utils.set_config(self.data, *args)
+
+    # Testing
+    def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
+        """Compare components based on content.
+
+        Parameters
+        ----------
+        other : ModelComponent
+            The component to compare against.
+
+        Returns
+        -------
+        tuple[bool, dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        eq, errors = super().test_equal(other)
+        if not eq:
+            return eq, errors
+        other_config = cast(WflowConfigComponent, other)
+
+        # check on data equality
+        if self.data == other_config.data:
+            return True, {}
+        else:
+            return False, {"config": "Configs are not equal"}
