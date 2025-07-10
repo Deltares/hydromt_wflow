@@ -437,9 +437,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sbm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sbm</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 
@@ -3451,7 +3450,6 @@
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
             <span class="n">id_column</span><span class="o">=</span><span class="s2">&quot;simple_id&quot;</span><span class="p">,</span>
             <span class="n">elevtn_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">],</span>
-            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_glac</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
