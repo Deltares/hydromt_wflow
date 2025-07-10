@@ -43,7 +43,6 @@
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/utils';</script>
     <link rel="icon" href="../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -412,17 +411,16 @@
 <span></span><span class="sd">&quot;&quot;&quot;Some utilities from the Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoDataArray</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.workflows.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_from_constant</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tomlkit.items</span><span class="w"> </span><span class="kn">import</span> <span class="n">Key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt._io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_open_timeseries_from_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoDataArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.processes.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_from_constant</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">WFLOW_NAMES</span><span class="p">,</span>
@@ -433,7 +431,7 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">DATADIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;data&quot;</span><span class="p">))</span>
+<span class="n">DATADIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;convert_to_wflow_v1_sbm&quot;</span><span class="p">,</span>
@@ -445,8 +443,175 @@
 <span class="p">]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fallback</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a config value at key.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : tomlkit.TOMLDocument</span>
+<span class="sd">        The config settings in TOMLDocument object.</span>
+<span class="sd">    args : tuple, str</span>
+<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
+<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">    fallback: Any, optional</span>
+<span class="sd">        fallback value if key(s) not found in config, by default None.</span>
+<span class="sd">    abs_path: bool, optional</span>
+<span class="sd">        If True return the absolute path relative to the model root,</span>
+<span class="sd">        by default False.</span>
+<span class="sd">        NOTE: this assumes the config is located in model root!</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    value : Any</span>
+<span class="sd">        dictionary value</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt; config = {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}</span>
+
+<span class="sd">    &gt;&gt; get_config(&#39;a&#39;, config)</span>
+<span class="sd">    &gt;&gt; 1</span>
+
+<span class="sd">    &gt;&gt; get_config(&#39;b&#39;, &#39;c&#39;, &#39;d&#39;, config) # identical to get_config(&#39;b.c.d&#39;)</span>
+<span class="sd">    &gt;&gt; 2</span>
+
+<span class="sd">    &gt;&gt; get_config(&#39;b.c&#39;, config) # # identical to get_config(&#39;b&#39;,&#39;c&#39;)</span>
+<span class="sd">    &gt;&gt; {&#39;d&#39;: 2}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span>  <span class="c1"># reads config at first call</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">break</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fallback</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">abs_path</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">Item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">unwrap</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fallback</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the config toml at key(s) with values.</span>
+
+<span class="sd">    This function is made to maintain the structure of your toml file.</span>
+<span class="sd">    When adding keys it will look for the most specific header present in</span>
+<span class="sd">    the toml file and add it under that.</span>
+<span class="sd">    meaning that if you have a config toml that is empty and you run</span>
+<span class="sd">    ``set_config(&quot;input.forcing.scale&quot;, 1)``</span>
+<span class="sd">    it will result in the following file:</span>
+<span class="sd">    .. code-block:: toml</span>
+<span class="sd">        input.forcing.scale = 1</span>
+<span class="sd">    however if your toml file looks like this before:</span>
+<span class="sd">    .. code-block:: toml</span>
+<span class="sd">        [input.forcing]</span>
+<span class="sd">    (i.e. you have a header in there that has no keys)</span>
+<span class="sd">    then after the insertion it will look like this:</span>
+<span class="sd">    .. code-block:: toml</span>
+<span class="sd">        [input.forcing]</span>
+<span class="sd">        scale = 1</span>
+<span class="sd">    .. warning::</span>
+<span class="sd">        Due to limitations of the underlying library it is currently not possible to</span>
+<span class="sd">        create new headers (i.e. groups like ``input.forcing`` in the example above)</span>
+<span class="sd">        programmatically, and they will need to be added to the default config</span>
+<span class="sd">        toml document</span>
+<span class="sd">    .. warning::</span>
+<span class="sd">        Even though the underlying config object behaves like a dictionary, it is</span>
+<span class="sd">        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,</span>
+<span class="sd">        error scan easily be introduced if this structure is modified by hand.</span>
+<span class="sd">        Therefore we strongly discourage users from manually modying it, and</span>
+<span class="sd">        instead ask them to use this ``set_config`` function to avoid problems.</span>
+
+<span class="sd">    Parameters.</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : tomlkit.TOMLDocument</span>
+<span class="sd">        The config settings in TOMLDocument object.</span>
+<span class="sd">    args : str, tuple, list</span>
+<span class="sd">        if tuple or list, minimal length of two</span>
+<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;, &#39;value&#39;)</span>
+<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;, &#39;value&#39;)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: ipython</span>
+<span class="sd">        &gt;&gt; config</span>
+<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
+<span class="sd">        &gt;&gt; set_config(config, &#39;a&#39;, 99)</span>
+<span class="sd">        &gt;&gt; {&#39;a&#39;: 99, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
+<span class="sd">        &gt;&gt; set_config(config, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, 99) # identical to \</span>
+<span class="sd">            set_config(config, &#39;b.d.e&#39;, 99)</span>
+<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 99}}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;set_config() requires a least one key and one value.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;All but last argument for set_config must be str&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)]</span>
+
+    <span class="c1"># if we try to set dictionaries as values directly tomlkit will mess up the</span>
+    <span class="c1"># key bookkeeping, resulting in invalid toml, so instead</span>
+    <span class="c1"># if we see a mapping, we go over it recursively</span>
+    <span class="c1"># and manually add all of its keys, because of cloning issues.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">AbstractTable</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">inner_value</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">set_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">inner_value</span><span class="p">)</span>
+
+    <span class="c1"># if the first key is not present</span>
+    <span class="c1"># we can just set the entire thing straight</span>
+    <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># If there is only one key we also just set that directly as</span>
+    <span class="c1"># a string key instead of the dotted variant</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="k">return</span>
+
+    <span class="n">current</span> <span class="o">=</span> <span class="n">config</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">break</span>
+
+        <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
+
+    <span class="c1"># tomlkit&#39;s update function doesn&#39;t work properly</span>
+    <span class="c1"># so instead of updating we take the key out if it is in there</span>
+    <span class="c1"># and readd it afterwards</span>
+    <span class="k">if</span> <span class="n">remaining_key</span> <span class="ow">in</span> <span class="n">current</span><span class="p">:</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">remaining_key</span><span class="p">)</span>
+
+    <span class="n">current</span><span class="p">[</span><span class="n">remaining_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
 <div class="viewcode-block" id="read_csv_results">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.read_csv_results.html#hydromt_wflow.read_csv_results">[docs]</a>
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.read_csv_results.html#hydromt_wflow.utils.read_csv_results">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_csv_results</span><span class="p">(</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">GeoDataArray</span><span class="p">]:</span>
@@ -493,7 +658,7 @@
             <span class="n">usecols</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">usecols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">usecols</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)))</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-            <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span>
+            <span class="n">da_ts</span> <span class="o">=</span> <span class="n">_open_timeseries_from_table</span><span class="p">(</span>
                 <span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">col</span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span>
             <span class="p">)</span>
             <span class="n">da</span> <span class="o">=</span> <span class="n">GeoDataArray</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">da_ts</span><span class="p">,</span> <span class="n">index_dim</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
@@ -504,10 +669,10 @@
             <span class="n">usecols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">usecols</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">)</span>
+                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">_open_timeseries_from_table</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">colnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
-                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span>
+                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">_open_timeseries_from_table</span><span class="p">(</span>
                     <span class="n">fn</span><span class="p">,</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
                     <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">,</span>
@@ -615,198 +780,8 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">fallback</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get a config value at key.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : tuple, str</span>
-<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
-<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
-<span class="sd">    fallback: Any, optional</span>
-<span class="sd">        fallback value if key(s) not found in config, by default None.</span>
-<span class="sd">    abs_path: bool, optional</span>
-<span class="sd">        If True return the absolute path relative to the model root,</span>
-<span class="sd">        by default False.</span>
-<span class="sd">        NOTE: this assumes the config is located in model root!</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    value : Any</span>
-<span class="sd">        dictionary value</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt; config = {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}</span>
-
-<span class="sd">    &gt;&gt; get_config(config, &#39;a&#39;)</span>
-<span class="sd">    &gt;&gt; 1</span>
-
-<span class="sd">    &gt;&gt; get_config(config, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;) # identical to get_config(config, &#39;b.c.d&#39;)</span>
-<span class="sd">    &gt;&gt; 2</span>
-
-<span class="sd">    &gt;&gt; get_config(config, &#39;b.c&#39;) # # identical to get_config(config, &#39;b&#39;,&#39;c&#39;)</span>
-<span class="sd">    &gt;&gt; {&#39;d&#39;: 2}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span>  <span class="c1"># reads config at first call</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">branch</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">branch</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-            <span class="k">break</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fallback</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">abs_path</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">Item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">unwrap</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">fallback</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">value</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">TOMLDocument</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update the config toml at key(s) with values.</span>
-
-<span class="sd">    This function is made to maintain the structure of your toml file.</span>
-<span class="sd">    When adding keys it will look for the most specific header present in</span>
-<span class="sd">    the toml file and add it under that.</span>
-
-<span class="sd">    meaning that if you have a config toml that is empty and you run</span>
-<span class="sd">    ``set_config(&quot;input.forcing.scale&quot;, 1)``</span>
-
-<span class="sd">    it will result in the following file:</span>
-
-<span class="sd">    .. code-block:: toml</span>
-
-<span class="sd">        input.forcing.scale = 1</span>
-
-
-<span class="sd">    however if your toml file looks like this before:</span>
-
-<span class="sd">    .. code-block:: toml</span>
-
-<span class="sd">        [input.forcing]</span>
-
-<span class="sd">    (i.e. you have a header in there that has no keys)</span>
-
-<span class="sd">    then after the insertion it will look like this:</span>
-
-<span class="sd">    .. code-block:: toml</span>
-
-<span class="sd">        [input.forcing]</span>
-<span class="sd">        scale = 1</span>
-
-
-<span class="sd">    .. warning::</span>
-
-<span class="sd">        Due to limitations of the underlying library it is currently not possible to</span>
-<span class="sd">        create new headers (i.e. groups like ``input.forcing`` in the example above)</span>
-<span class="sd">        programmatically, and they will need to be added to the default config</span>
-<span class="sd">        toml document</span>
-
-
-<span class="sd">    .. warning::</span>
-
-<span class="sd">        Even though the underlying config object behaves like a dictionary, it is</span>
-<span class="sd">        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,</span>
-<span class="sd">        error scan easily be introduced if this structure is modified by hand.</span>
-<span class="sd">        Therefore we strongly discourage users from manually modying it, and</span>
-<span class="sd">        instead ask them to use this ``set_config`` function to avoid problems.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config : tomlkit.TOMLDocument</span>
-<span class="sd">        The config settings in TOMLDocument object.</span>
-<span class="sd">    args : str, tuple, list</span>
-<span class="sd">        if tuple or list, minimal length of two</span>
-<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;, &#39;value&#39;)</span>
-<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;, &#39;value&#39;)</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    .. code-block:: ipython</span>
-
-<span class="sd">        &gt;&gt; config</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
-
-<span class="sd">        &gt;&gt; set_config(config, &#39;a&#39;, 99)</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 99, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
-
-<span class="sd">        &gt;&gt; set_config(config, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, 99) # identical to \</span>
-<span class="sd">set_config(config, &#39;b.d.e&#39;, 99)</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 99}}}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;set_config() requires a least one key and one value.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;All but last argument for set_config must be str&quot;</span><span class="p">)</span>
-
-    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)]</span>
-
-    <span class="c1"># if we try to set dictionaries as values directly tomlkit will mess up the</span>
-    <span class="c1"># key bookkeeping, resulting in invalid toml, so instead</span>
-    <span class="c1"># if we see a mapping, we go over it recursively</span>
-    <span class="c1"># and manually add all of its keys, because of cloning issues.</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">AbstractTable</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">inner_value</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">set_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">inner_value</span><span class="p">)</span>
-
-    <span class="c1"># if the first key is not present</span>
-    <span class="c1"># we can just set the entire thing straight</span>
-    <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span>
-
-    <span class="c1"># If there is only one key we also just set that directly as</span>
-    <span class="c1"># a string key instead of the dotted variant</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">value</span><span class="p">})</span>
-        <span class="k">return</span>
-
-    <span class="n">current</span> <span class="o">=</span> <span class="n">config</span>
-    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)):</span>
-        <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">:])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">remaining_key</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">break</span>
-
-        <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span>
-
-    <span class="c1"># tomlkit&#39;s update function doesn&#39;t work properly</span>
-    <span class="c1"># so instead of updating we take the key out if it is in there</span>
-    <span class="c1"># and readd it afterwards</span>
-    <span class="k">if</span> <span class="n">remaining_key</span> <span class="ow">in</span> <span class="n">current</span><span class="p">:</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">remaining_key</span><span class="p">)</span>
-
-    <span class="n">current</span><span class="p">[</span><span class="n">remaining_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_tomlkit_key</span><span class="p">(</span><span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Key</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">keys</span><span class="p">)</span>
-
-
 <div class="viewcode-block" id="get_grid_from_config">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.get_grid_from_config.html#hydromt_wflow.get_grid_from_config">[docs]</a>
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.get_grid_from_config.html#hydromt_wflow.utils.get_grid_from_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_grid_from_config</span><span class="p">(</span>
     <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
@@ -916,6 +891,16 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_mask_data_array</span><span class="p">(</span><span class="n">data_array</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mask the data array based on the mask.&quot;&quot;&quot;</span>
+    <span class="c1"># If the data is boolean, we set it to False where the mask is False</span>
+    <span class="k">if</span> <span class="n">data_array</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data_array</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Otherwise we set it to nodata where the mask is False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data_array</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data_array</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">mask_raster_from_layer</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
@@ -934,31 +919,22 @@
 <span class="sd">    ----------</span>
 <span class="sd">        data (xr.Dataset, xr.DataArray):</span>
 <span class="sd">            The grid data containing the data that should be masked</span>
-<span class="sd">        layer_name (string):</span>
-<span class="sd">            mask that the data will be masked to. Values can be boolean or</span>
-<span class="sd">            numeric. Places where this layer is different than the rater nodata will be</span>
-<span class="sd">            masked in the other data variables</span>
+<span class="sd">        mask (xr.DataArray):</span>
+<span class="sd">            mask that the data will be masked to. Values can be boolean or numeric.</span>
+<span class="sd">            Places where this layer is different than the raster nodata will be</span>
+<span class="sd">            masked in the other data.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">        xr.Dataset, xr.DataArray: The grid with all of the data variables masked.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">!=</span> <span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
-    <span class="c1"># Need to duplicate or else data should have a name ie we duplicate functionality</span>
-    <span class="c1"># of GridModel.set_grid</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-        <span class="c1"># nodata is required for all but boolean fields</span>
-        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_mask_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="c1"># nodata is required for all but boolean fields</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">_mask_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">data</span>
 
@@ -1079,15 +1055,13 @@
     <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">config_var</span> <span class="ow">in</span> <span class="n">_solve_var_name</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[]):</span>
         <span class="k">if</span> <span class="n">config_var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_options</span><span class="p">:</span>
-            <span class="c1"># Model option that did not change in v1</span>
-            <span class="n">set_config</span><span class="p">(</span><span class="n">config_out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">config_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">new_config_var</span> <span class="o">=</span> <span class="n">model_options</span><span class="p">[</span><span class="n">config_var</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_config_var</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">new_config_var</span><span class="p">:</span>
-                    <span class="n">set_config</span><span class="p">(</span><span class="n">config_out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="k">continue</span>
-            <span class="n">set_config</span><span class="p">(</span><span class="n">config_out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">new_config_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">new_config_var</span> <span class="o">=</span> <span class="n">model_options</span><span class="p">[</span><span class="n">config_var</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_config_var</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">new_config_var</span><span class="p">:</span>
+                <span class="n">set_config</span><span class="p">(</span><span class="n">config_out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">set_config</span><span class="p">(</span><span class="n">config_out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;model.</span><span class="si">{</span><span class="n">new_config_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="c1"># Cross options</span>
     <span class="k">for</span> <span class="n">opt_old</span><span class="p">,</span> <span class="n">opt_new</span> <span class="ow">in</span> <span class="n">cross_options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1153,10 +1127,10 @@
 
     <span class="c1"># Output netcdf_grid section</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converting config output sections&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.nc&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.nc&quot;</span><span class="p">),</span>
             <span class="s2">&quot;compressionlevel&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span>
                 <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output.compressionlevel&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">),</span>
@@ -1170,14 +1144,16 @@
                 <span class="n">_update_output_netcdf_grid</span><span class="p">(</span><span class="n">wflow_var</span><span class="p">,</span> <span class="n">var_name</span><span class="p">)</span>
 
     <span class="c1"># Output netcdf_scalar section</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output_scalar.nc&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span>
+                <span class="s2">&quot;netcdf.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output_scalar.nc&quot;</span>
+            <span class="p">),</span>
         <span class="p">}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">][</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">nc_scalar_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf.variable&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">nc_scalar_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf.variable&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">nc_scalar</span> <span class="ow">in</span> <span class="n">nc_scalar_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">WFLOW_CONVERSION</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">WFLOW_CONVERSION</span><span class="p">[</span><span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]]</span>
@@ -1188,16 +1164,16 @@
                 <span class="n">_warn_str</span><span class="p">(</span><span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">],</span> <span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">)</span>
 
     <span class="c1"># Output csv section</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.csv&quot;</span>
+            <span class="s2">&quot;csv.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.csv&quot;</span>
         <span class="p">)</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">csv_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv.column&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">csv_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv.column&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">csv_var</span> <span class="ow">in</span> <span class="n">csv_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">WFLOW_CONVERSION</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">WFLOW_CONVERSION</span><span class="p">[</span><span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]]</span>
