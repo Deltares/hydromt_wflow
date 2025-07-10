@@ -816,6 +816,28 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         floodplain1d_testdata.floodplain_volume
     )
 
+    # Check states in config
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.floodplain_water__instantaneous_volume_flow_rate"
+        )
+        == "floodplain_instantaneous_q"
+    )
+
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.floodplain_water__instantaneous_depth"
+        )
+        == "floodplain_instantaneous_h"
+    )
+
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_q"
+    )
+
 
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
@@ -859,6 +881,20 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         example_wflow_model.grid[f"{mapname}_D4"]
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
+    )
+
+    # Check states in config
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_qx"
+    )
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_qy"
     )
 
 
