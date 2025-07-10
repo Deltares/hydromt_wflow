@@ -192,6 +192,10 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     assert "glacier_initial_leq_depth" in mod.grid
     assert "glaciers" in mod.geoms
 
+    # Confirm glaciers have the same CRS as the grid (merit_utm is 3857)
+    assert mod.grid["glacier_fraction"].raster.crs == 3857
+    assert mod.geoms["glaciers"].crs == 3857
+
     # Confirm glacier fraction has values
     assert (mod.grid["glacier_fraction"] > 0).any().item()
 
