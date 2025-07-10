@@ -43,6 +43,7 @@
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/wflow_sediment';</script>
     <link rel="icon" href="../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -419,20 +420,18 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">hydromt_step</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.naming</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_create_hydromt_wflow_mapping_sediment</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DATADIR</span><span class="p">,</span>
     <span class="n">convert_to_wflow_v1_sediment</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sediment</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowSedimentModel&quot;</span><span class="p">]</span>
-<span class="n">__hydromt_eps__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowSedimentModel&quot;</span><span class="p">]</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -441,24 +440,28 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The wflow sediment model class, a subclass of WflowModel.&quot;&quot;&quot;</span>
 
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment&quot;</span>
+    <span class="n">_NAME</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment&quot;</span>
+    <span class="n">_CONF</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment.toml&quot;</span>
+    <span class="n">_DATADIR</span> <span class="o">=</span> <span class="n">DATADIR</span>
+    <span class="n">_GEOMS</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">_FOLDERS</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="o">.</span><span class="n">_FOLDERS</span>
 
 <div class="viewcode-block" id="WflowSedimentModel.__init__">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span>
+        <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">data_libs</span><span class="p">:</span> <span class="n">List</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">[],</span>
-        <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
-            <span class="n">config_fn</span><span class="o">=</span><span class="n">config_fn</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+            <span class="n">config_fn</span><span class="o">=</span><span class="n">config_fn</span><span class="p">,</span>
             <span class="n">data_libs</span><span class="o">=</span><span class="n">data_libs</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Update compared to wflow sbm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span> <span class="o">=</span> <span class="n">_create_hydromt_wflow_mapping_sediment</span><span class="p">(</span>
@@ -468,7 +471,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_rivers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -546,8 +548,12 @@
 <span class="sd">            Dictionary with output names that will be used in the model netcdf input</span>
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        workflows.river_bathymetry</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing river maps.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing river maps.&quot;</span><span class="p">)</span>
         <span class="c1"># update self._MAPS and self._WFLOW_NAMES with user defined output names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
@@ -575,7 +581,7 @@
             <span class="n">slope_len</span><span class="o">=</span><span class="n">slope_len</span><span class="p">,</span>
             <span class="n">channel_dir</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
             <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="n">min_rivlen_ratio</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">ds_riv</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_riv</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
@@ -603,21 +609,20 @@
                 <span class="n">gdf_riv</span><span class="o">=</span><span class="n">gdf_riv</span><span class="p">,</span>
                 <span class="n">smooth_len</span><span class="o">=</span><span class="n">smooth_len</span><span class="p">,</span>
                 <span class="n">min_rivwth</span><span class="o">=</span><span class="n">min_rivwth</span><span class="p">,</span>
-                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># only add river width</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_riv1</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">])</span>
             <span class="c1"># update config</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">])</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding rivers vector to geoms.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding rivers vector to geoms.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove old rivers if in geoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to geoms</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lakes">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lakes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lakes_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span>
@@ -669,7 +674,7 @@
             <span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
@@ -699,7 +704,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
@@ -727,8 +731,8 @@
 <span class="sd">        * **reservoir_area_id** map: reservoir IDs [-]</span>
 <span class="sd">        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]</span>
 <span class="sd">        * **reservoir_area** map: reservoir area [m2]</span>
-<span class="sd">        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency \</span>
-<span class="sd">coefficient [-]</span>
+<span class="sd">        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency</span>
+<span class="sd">         coefficient [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -761,7 +765,7 @@
             <span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
@@ -800,7 +804,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_outlets">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_outlets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -852,7 +855,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_gauges">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
@@ -913,7 +915,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -951,11 +952,11 @@
 
 <span class="sd">        * **landuse** map: Landuse class [-]</span>
 <span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.</span>
-<span class="sd">        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]</span>
-<span class="sd">        * **soil_compacted_fraction** map: The fraction of compacted or urban area per \</span>
-<span class="sd">grid cell [-]</span>
-<span class="sd">        * **land_water_fraction** map: The fraction of water covered area per grid \</span>
-<span class="sd">cell [-]</span>
+<span class="sd">        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]</span>
+<span class="sd">        * **soil_compacted_fraction** map: The fraction of compacted or urban area per</span>
+<span class="sd">          grid cell [-]</span>
+<span class="sd">        * **land_water_fraction** map: The fraction of water covered area per grid</span>
+<span class="sd">        cell [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1010,7 +1011,7 @@
                 <span class="n">handle_nodata</span><span class="o">=</span><span class="s2">&quot;IGNORE&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
@@ -1021,7 +1022,7 @@
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
-                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
@@ -1030,7 +1031,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps_from_vector">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_from_vector</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
@@ -1147,7 +1147,7 @@
                 <span class="n">handle_nodata</span><span class="o">=</span><span class="s2">&quot;IGNORE&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
@@ -1158,7 +1158,7 @@
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
-                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
@@ -1167,7 +1167,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverbedsed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bedsed_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1207,12 +1206,11 @@
 <span class="sd">            Path to a mapping csv file from streamorder to river bed particles</span>
 <span class="sd">            characteristics. If None reverts to default values.</span>
 
-<span class="sd">            * Required variable: [&#39;strord&#39;,&#39;river_bed_sediment_d50&#39;, \</span>
-<span class="sd">&#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;, &#39;river_bed_sand_fraction&#39;, \</span>
-<span class="sd">&#39;river_bed_gravel_fraction&#39;]</span>
-<span class="sd">            * Optional variable: [&#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;, \</span>
-<span class="sd">&#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;]</span>
-
+<span class="sd">            * Required variable: [&#39;strord&#39;,&#39;river_bed_sediment_d50&#39;,</span>
+<span class="sd">              &#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;,</span>
+<span class="sd">                &#39;river_bed_sand_fraction&#39;, &#39;river_bed_gravel_fraction&#39;]</span>
+<span class="sd">            * Optional variable: [&#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;,</span>
+<span class="sd">              &#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;]</span>
 <span class="sd">        strord_name : str, optional</span>
 <span class="sd">            Name of the stream order map in the grid, by default &#39;meta_streamorder&#39;.</span>
 <span class="sd">        output_names : dict, optional</span>
@@ -1220,7 +1218,7 @@
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
         <span class="c1"># check for streamorder</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">strord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
@@ -1256,7 +1254,7 @@
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
             <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_riversed</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
@@ -1267,7 +1265,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_canopymaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_canopymaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">canopy_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -1286,7 +1283,7 @@
 <span class="sd">        output_name : dict, optional</span>
 <span class="sd">            Name of the output map. By default &#39;vegetation_height&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing canopy height map.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing canopy height map.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Canopy height</span>
         <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
@@ -1341,13 +1338,13 @@
 <span class="sd">        * **soil_sand_fraction**: sand content of the topsoil [g/g]</span>
 <span class="sd">        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]</span>
 <span class="sd">        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]</span>
-<span class="sd">        * **erosion_soil_detachability** map: mean detachability of the soil \</span>
-<span class="sd">(Morgan et al., 1998) [g/J]</span>
+<span class="sd">        * **erosion_soil_detachability** map: mean detachability of the soil</span>
+<span class="sd">        (Morgan et al., 1998) [g/J]</span>
 <span class="sd">        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]</span>
 <span class="sd">        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]</span>
 <span class="sd">        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]</span>
-<span class="sd">        * **land_govers_n** map: Govers exponent for overland flow transport \</span>
-<span class="sd">capacity [-]</span>
+<span class="sd">        * **land_govers_n** map: Govers exponent for overland flow transport</span>
+<span class="sd">        capacity [-]</span>
 
 
 <span class="sd">        Parameters</span>
@@ -1356,7 +1353,6 @@
 <span class="sd">            Name of soil data source in data_sources.yml file.</span>
 
 <span class="sd">            * Required variables: [&#39;clyppt_sl1&#39;, &#39;sltppt_sl1&#39;, &#39;oc_sl1&#39;]</span>
-
 <span class="sd">        usle_k_method: {&quot;renard&quot;, &quot;epic&quot;}</span>
 <span class="sd">            Method to compute the USLE K factor, by default renard.</span>
 <span class="sd">        add_aggregates: bool, optional</span>
@@ -1366,11 +1362,11 @@
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing soil parameter maps.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing soil parameter maps.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Soil related maps</span>
         <span class="k">if</span> <span class="n">soil_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">]:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">soil_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_soilmaps for sediment.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span>
@@ -1382,7 +1378,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
             <span class="n">usle_k_method</span><span class="o">=</span><span class="n">usle_k_method</span><span class="p">,</span>
             <span class="n">add_aggregates</span><span class="o">=</span><span class="n">add_aggregates</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
@@ -1391,7 +1387,6 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.upgrade_to_v1_wflow">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow">[docs]</a>
-    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">upgrade_to_v1_wflow</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
@@ -1421,7 +1416,7 @@
 <span class="sd">            strord_name argument of setup_riverbedsed method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="c1"># tomlkit loads errors on this file so we have to do it in two steps</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">default_header_str</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>

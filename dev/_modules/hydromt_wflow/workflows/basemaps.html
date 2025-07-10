@@ -43,6 +43,7 @@
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/basemaps';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -411,27 +412,18 @@
 <span></span><span class="sd">&quot;&quot;&quot;Basemap workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyflwdir</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataCatalog</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">flw</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis._raster_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_reggrid_area</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.processes.basin_mask</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_basin_geometry</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.processes.region</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_parse_region_value</span><span class="p">,</span>
-    <span class="n">parse_region_bbox</span><span class="p">,</span>
-    <span class="n">parse_region_geom</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">flw</span><span class="p">,</span> <span class="n">gis_utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyflwdir</span><span class="w"> </span><span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hydrography&quot;</span><span class="p">,</span> <span class="s2">&quot;topography&quot;</span><span class="p">,</span> <span class="s2">&quot;parse_region&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hydrography&quot;</span><span class="p">,</span> <span class="s2">&quot;topography&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="hydrography">
@@ -667,7 +659,7 @@
         <span class="c1"># cell area</span>
         <span class="c1"># NOTE: subgrid cella area is currently not used in wflow</span>
         <span class="n">ys</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">subare</span> <span class="o">=</span> <span class="n">_reggrid_area</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>  <span class="c1"># km2</span>
+        <span class="n">subare</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">reggrid_area</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>  <span class="c1"># km2</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;km2&quot;</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subare&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">subare</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="c1"># logging</span>
@@ -780,100 +772,6 @@
     <span class="n">ds_out</span><span class="p">[</span><span class="n">lndslp_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m.m-1&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds_out</span></div>
 
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_region</span><span class="p">(</span>
-    <span class="n">data_catalog</span><span class="p">:</span> <span class="n">DataCatalog</span><span class="p">,</span>
-    <span class="n">region</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">hydrography_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">120.0</span><span class="p">,</span>
-    <span class="n">basin_index_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the region dictionary to get basin geometry and coordinates.&quot;&quot;&quot;</span>
-    <span class="n">ds_org</span> <span class="o">=</span> <span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">hydrography_fn</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ds_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydrography_fn </span><span class="si">{</span><span class="n">hydrography_fn</span><span class="si">}</span><span class="s2"> not found in data catalog.&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Check on resolution</span>
-    <span class="n">hydrography_resolution</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">scale_ratio</span> <span class="o">=</span> <span class="n">resolution</span> <span class="o">/</span> <span class="n">hydrography_resolution</span>
-
-    <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">scale_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">pass</span>
-    <span class="k">elif</span> <span class="n">scale_ratio</span> <span class="o">&lt;</span> <span class="mf">0.75</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Model resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2"> should be larger than the &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hydrography_fn</span><span class="si">}</span><span class="s2"> resolution </span><span class="si">{</span><span class="n">hydrography_resolution</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="mf">0.75</span> <span class="o">&lt;</span> <span class="n">scale_ratio</span> <span class="o">&lt;</span> <span class="mf">1.25</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Model resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2"> does not match the hydrography &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;resolution </span><span class="si">{</span><span class="n">hydrography_resolution</span><span class="si">}</span><span class="s2">. This might lead to unexpected &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;results, using hydrography resolution instead: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hydrography_resolution</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">resolution</span> <span class="o">=</span> <span class="n">hydrography_resolution</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 111 km</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2"> should be smaller than 1 &quot;</span>
-                    <span class="s2">&quot;degree (111km) for geographic coordinate systems. &quot;</span>
-                    <span class="s2">&quot;Make sure you provided res in degree rather than in meters.&quot;</span>
-                <span class="p">)</span>
-
-    <span class="c1"># get basin geometry and clip data</span>
-    <span class="n">kind</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">region</span><span class="p">))</span>
-    <span class="n">xy</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;basin&quot;</span><span class="p">,</span> <span class="s2">&quot;subbasin&quot;</span><span class="p">]:</span>
-        <span class="c1"># parse_region_basin does not return xy, only geom...</span>
-        <span class="c1"># should be fixed in core</span>
-        <span class="n">region_kwargs</span> <span class="o">=</span> <span class="n">_parse_region_value</span><span class="p">(</span>
-            <span class="n">region</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">kind</span><span class="p">),</span>
-            <span class="n">data_catalog</span><span class="o">=</span><span class="n">data_catalog</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">region_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">basin_index_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">bas_index</span> <span class="o">=</span> <span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">basin_index_fn</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">bas_index</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">geom</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">get_basin_geometry</span><span class="p">(</span>
-            <span class="n">ds</span><span class="o">=</span><span class="n">ds_org</span><span class="p">,</span>
-            <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
-            <span class="n">basin_index</span><span class="o">=</span><span class="n">bas_index</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">region</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;bbox&quot;</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Kind &#39;bbox&#39; for the region is not recommended as it can lead &quot;</span>
-            <span class="s2">&quot;to mistakes in the catchment delineation. Use carefully.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">geom</span> <span class="o">=</span> <span class="n">parse_region_bbox</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;geom&quot;</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Kind &#39;geom&#39; for the region is not recommended as it can lead &quot;</span>
-            <span class="s2">&quot;to mistakes in the catchment delineation. Use carefully.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">geom</span> <span class="o">=</span> <span class="n">parse_region_geom</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;wflow region kind not understood or supported: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;Use &#39;basin&#39;, &#39;subbasin&#39;, &#39;bbox&#39; or &#39;geom&#39;.&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geom</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wflow region geometry has no CRS&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Set the basins geometry</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding basins vector to geoms.&quot;</span><span class="p">)</span>
-    <span class="n">ds_org</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">ds_org</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
-
-    <span class="n">geometries</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">scale_ratio</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">geometries</span><span class="p">[</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
-
-    <span class="k">return</span> <span class="n">geometries</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">ds_org</span>
 </pre></div>
 
                 </article>
