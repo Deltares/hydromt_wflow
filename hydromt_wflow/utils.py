@@ -45,8 +45,8 @@ def get_config(
 
     Parameters
     ----------
-    config : tomlkit.TOMLDocument
-        The config settings in TOMLDocument object.
+    config : dict
+        The config settings.
     key : str
         keys are string with '.' indicating a new level: ('key1.key2')
     fallback: Any, optional

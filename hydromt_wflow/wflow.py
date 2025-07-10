@@ -5112,7 +5112,6 @@ Run setup_soilmaps first"
         self.read()
 
         config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
         with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
             self._config = tomllib.load(file)
 
@@ -5898,14 +5897,6 @@ change name input.path_forcing "
             programmatically, and they will need to be added to the default config
             toml document
 
-
-        .. warning::
-
-            Even though the underlying config object behaves like a dictionary, it is
-            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-            errors can easily be introduced if this structure is modified by hand.
-            Therefore we strongly discourage users from manually modyfing it, and
-            instead ask them to use this ``set_config`` function to avoid problems.
 
         Parameters
         ----------

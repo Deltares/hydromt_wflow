@@ -23,7 +23,7 @@ def test_wflow_config_component_init(mock_model: MagicMock):
     # Assert that the internal data is None
     assert component._data is None
 
-    # When asking for data property, it should return a tomlkit document
+    # When asking for data property, it should return a dictionary
     assert isinstance(component.data, dict)
     assert isinstance(component._data, dict)  # Same for internal
     assert len(component.data) == 0
