@@ -14,7 +14,10 @@ MOUNT_PATTERN = re.compile(r"(^\/(\w+)\/|^(\w+):\/).*$")
 def _mount(
     value: str,
 ) -> str | None:
-    """Get the mount of a path."""
+    """Get the mount of a path.
+
+    As this not properly solved currently by pathlib or os.
+    """
     m = MOUNT_PATTERN.match(value)
     if m is None:
         return None
@@ -25,7 +28,12 @@ def _relpath(
     value: Any,
     root: Path,
 ) -> str | Any:
-    """Generate a relative path."""
+    """Generate a relative path.
+
+    Being able to go either up or down in directories.
+    Also return the original path if the mount differs.
+    Otherwise it will error..
+    """
     if not isinstance(value, (Path, str)) or not Path(value).is_absolute():
         return value
     value = Path(value)
