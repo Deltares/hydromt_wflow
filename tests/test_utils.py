@@ -4,7 +4,6 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
-import pytest
 from tomlkit import load
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
@@ -14,9 +13,6 @@ TESTDATADIR = Path(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = Path(dirname(abspath(__file__)), "..", "examples", "data")
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_grid_from_config(demda):
     # Create a couple of variables in grid
     grid = demda.to_dataset(name="dem")
@@ -70,9 +66,6 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_convert_to_wflow_v1_sbm():
     # Initialize wflow model
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
@@ -89,9 +82,6 @@ def test_convert_to_wflow_v1_sbm():
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_convert_to_wflow_v1_sediment():
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
@@ -117,9 +107,6 @@ def test_convert_to_wflow_v1_sediment():
     assert "river_kodatie_a" in wflow.grid
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_config_toml_grouping(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.read_config()
@@ -165,9 +152,6 @@ def test_config_toml_grouping(tmpdir):
     assert written_config == expected_config
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_config_toml_overwrite(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.config.read()

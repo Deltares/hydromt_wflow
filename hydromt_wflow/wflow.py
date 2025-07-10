@@ -139,7 +139,7 @@ class WflowModel(Model):
     @property
     def basins(self) -> gpd.GeoDataFrame | None:
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
-        if self.geoms.get("basins") is not None:
+        if "basins" in self.geoms.data:
             gdf = self.geoms.get("basins")
         elif self._MAPS["basins"] in self.staticmaps.data:
             gdf = (
@@ -157,7 +157,7 @@ class WflowModel(Model):
     @property
     def basins_highres(self) -> gpd.GeoDataFrame | None:
         """Returns a high resolution basin(s) geometry."""
-        if self.geoms.get("basins_highres") is not None:
+        if "basins_highres" in self.geoms.data:
             gdf = self.geoms.get("basins_highres")
         else:
             gdf = self.basins
@@ -170,7 +170,7 @@ class WflowModel(Model):
         If available, the stream order and upstream area values are added to
         the geometry properties.
         """
-        if self.geoms.get("rivers") is not None:
+        if "rivers" in self.geoms.data:
             gdf = self.geoms.get("rivers")
         elif self._MAPS["rivmsk"] in self.staticmaps.data:
             rivmsk = self.staticmaps.data[self._MAPS["rivmsk"]].values != 0
@@ -186,6 +186,14 @@ class WflowModel(Model):
             logger.warning("No river cells detected in the selected basin.")
             gdf = None
         return gdf
+
+    def set_grid(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+    ):
+        """Set the grid data with a DataArray or Dataset."""
+        self.staticmaps.set(data=data, name=name)
 
     ## SETUP METHODS
     @hydromt_step
@@ -627,7 +635,8 @@ Select from {routing_options}.'
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
         logger.debug("Adding rivers vector to geoms.")
-        self.geoms.pop("rivers", None)  # remove old rivers if in geoms
+        if "rivers" in self.geoms.data:
+            self.geoms.pop("rivers")  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
@@ -1679,7 +1688,6 @@ skipping adding gauge specific outputs to the toml."
             idxs=idxs_out,
             ids=ids,
             flwdir=self.flwdir,
-            logger=logger,
         )
         self.set_grid(da_out, name="outlets")
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs_out))
@@ -2389,11 +2397,11 @@ Using default storage/outflow function parameters."
 
         # Save accuracy information on reservoir parameters
         if reservoir_accuracy is not None:
-            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+            reservoir_accuracy.to_csv(join(self.root.path, "reservoir_accuracy.csv"))
 
         if reservoir_timeseries is not None:
             reservoir_timeseries.to_csv(
-                join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
+                join(self.root.path, f"reservoir_timeseries_{timeseries_fn}.csv")
             )
 
         # update toml

@@ -154,7 +154,6 @@ parametrization of distributed hydrological models.
             method=upscale_method,
             uparea_name=uparea_name,
             flwdir_name=flwdir_name,
-            logger=logger,
         )
         da_flw.raster.set_crs(ds.raster.crs)
         # make sure x_out and y_out get saved

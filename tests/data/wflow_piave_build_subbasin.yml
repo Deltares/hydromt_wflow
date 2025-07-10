@@ -1,13 +1,18 @@
 setup_config:
-  output.netcdf_grid.path: output.nc
-  output.netcdf_grid.compressionlevel: 1
-  output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
+  data:
+    output.netcdf_grid.path: output.nc
+    output.netcdf_grid.compressionlevel: 1
+    output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
 
 setup_basemaps:
   res: 0.016666666666666666
   hydrography_fn: merit_hydro
   basin_index_fn: merit_hydro_index
   upscale_method: ihu
+  region:
+    subbasin: [12.2051, 45.8331]
+    strord: 4
+    bounds: [11.70, 45.35, 12.95, 46.70]
 
 setup_rivers:
   hydrography_fn: merit_hydro

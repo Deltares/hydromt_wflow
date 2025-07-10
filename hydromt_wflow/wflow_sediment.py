@@ -34,21 +34,21 @@ class WflowSedimentModel(WflowModel):
     def __init__(
         self,
         root: str | None = None,
-        config_fn: str | None = None,
+        config_filename: str | None = None,
         mode: str | None = "w",
         data_libs: List | str = [],
         **catalog_keys,
     ):
         super().__init__(
             root=root,
-            config_fn=config_fn,
+            config_filename=config_filename,
             mode=mode,
             data_libs=data_libs,
             **catalog_keys,
         )
         # Update compared to wflow sbm
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sediment(
-            self.config
+            self.config.data
         )
 
     @hydromt_step
