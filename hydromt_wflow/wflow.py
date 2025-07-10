@@ -26,9 +26,8 @@ from hydromt.nodata import NoDataStrategy
 from shapely.geometry import box
 
 import hydromt_wflow.utils as utils
-
-from . import workflows
-from .naming import _create_hydromt_wflow_mapping_sbm
+from hydromt_wflow import workflows
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 
@@ -2982,7 +2981,6 @@ using 'variable' argument."
             ds_like=self.grid,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
-            logger=self.logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
