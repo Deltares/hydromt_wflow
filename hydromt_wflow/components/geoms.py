@@ -28,17 +28,17 @@ class WflowGeomsComponent(GeomsComponent):
 
         Parameters
         ----------
-        model: Model
+        model : Model
             HydroMT model instance
-        filename: str
+        filename : str
             The path to use for reading and writing of component data by default.
             by default "staticgeoms/{name}.geojson", i.e. one file per geodataframe in
             the data dictionary.
-        region_component: str, optional
+        region_component : str, optional
             The name of the region component to use as reference for this component's
             region. If None, the region will be set to the union of all geometries in
             the data dictionary.
-        region_filename: str
+        region_filename : str
             The path to use for writing the region data to a file. By default
             "staticgeoms/geoms_region.geojson".
         """
@@ -56,22 +56,22 @@ class WflowGeomsComponent(GeomsComponent):
         precision: Optional[int] = None,
         **kwargs,
     ) -> None:
-        r"""Write model geometries to a vector file (by default GeoJSON) at <dir_out>/*.geojson.
+        r"""Write model geometries to a vector file (by default GeoJSON) at <dir_out>/\*.geojson.
 
-        key-word arguments are passed to :py:meth:`geopandas.GeoDataFrame.to_file`
+        Key-word arguments are passed to :py:meth:`geopandas.GeoDataFrame.to_file`
 
         Parameters
         ----------
-        dir_out: Path, optional
+        dir_out : Path, optional
             The directory to write the geometry files to. If it does not exist, it will
             be created.
-        to_wgs84: bool, optional
+        to_wgs84 : bool, optional
             If True, the geoms will be reprojected to WGS84(EPSG:4326) before being
             written.
-        precision: int, optional
+        precision : int, optional
             The precision to use for writing the geometries. If None, it will be set to 1
             for projected CRS and 6 for geographic CRS.
-        **kwargs:
+        **kwargs : dict
             Additional keyword arguments that are passed to the
             `geopandas.to_file` function.
         """  # noqa: E501
@@ -99,7 +99,7 @@ class WflowGeomsComponent(GeomsComponent):
 
         Parameters
         ----------
-        name: str
+        name : str
             The name of the geometry to retrieve.
 
         Returns
@@ -123,7 +123,7 @@ class WflowGeomsComponent(GeomsComponent):
 
         Parameters
         ----------
-        name: str
+        name : str
             The name of the geometry to remove and return.
 
         Returns
