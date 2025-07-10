@@ -5166,18 +5166,19 @@ Run setup_soilmaps first"
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if self._grid:
-            self.write_grid(fn_out=grid_fn)
-        if self._geoms:
-            self.write_geoms(geoms_fn=geoms_fn)
-        if self._forcing:
-            self.write_forcing(fn_out=forcing_fn)
-        if self._tables:
-            self.write_tables()
-        if self._states:
-            self.write_states(fn_out=states_fn)
+        if "grid" in self.components:
+            self.grid.write(fn_out=grid_fn)
+        if "geoms" in self.components:
+            self.geoms.write(dir_out=geoms_fn)
+        if "forcing" in self.components:
+            self.forcing.write(fn_out=forcing_fn)
+        if "tables" in self.components:
+            self.tabeles.write()
+        if "states" in self.components:
+            self.states.write(fn_out=states_fn)
+
         # Write the config last as variables can get set in other write methods
-        self.write_config(config_name=config_fn)
+        self.config.write(config_name=config_fn)
 
     @hydromt_step
     def read_config(
