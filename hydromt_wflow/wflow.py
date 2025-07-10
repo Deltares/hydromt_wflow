@@ -1850,8 +1850,8 @@ gauge locations [-] (if derive_subcatch)
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
-        elif gauges_fn in self.data_catalog:
-            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+        elif gauges_fn in self.data_catalog.sources:
+            if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
@@ -1859,7 +1859,7 @@ gauge locations [-] (if derive_subcatch)
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
-            elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+            elif self.data_catalog.get_source(gauges_fn).data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
@@ -1874,9 +1874,9 @@ gauge locations [-] (if derive_subcatch)
                     )
         else:
             raise ValueError(
-                f"{gauges_fn} data source not found or \
-                incorrect data_type ({self.data_catalog[gauges_fn].data_type} \
-                instead of GeoDataFrame or GeoDataset)."
+                f"{gauges_fn} data source not found or incorrect data_type "
+                f"({self.data_catalog.get_source(gauges_fn).data_type} instead of "
+                "GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -1937,7 +1937,6 @@ gauge locations [-] (if derive_subcatch)
                 stream=mask,
                 flwdir=self.flwdir,
                 max_dist=max_dist,
-                logger=logger,
             )
             # Filter gauges that could not be snapped to rivers
             if snap_to_river:
@@ -3146,7 +3145,7 @@ using 'variable' argument."
                     f"Parameter {wflow_var} already in toml and will be overwritten."
                 )
             # remove from config
-            self._config.pop(wflow_var, None)
+            self.config.data.pop(wflow_var, None)
             # Add to config
             self.set_config(f"input.static.{wflow_var}.value", value)
 
@@ -3298,14 +3297,12 @@ one variable and variables list is not provided."
             )
             clim = clim.astype("float32")
 
-        precip_out = hydromt.workflows.forcing.precip(
+        precip_out = hydromt.model.processes.meteo.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=logger,
-            **kwargs,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -3473,13 +3470,12 @@ one variable and variables list is not provided."
         )
 
         # Use precip workflow to create the forcing file
-        precip_out = hydromt.workflows.forcing.precip(
+        precip_out = hydromt.model.processes.meteo.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
             clim=None,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
