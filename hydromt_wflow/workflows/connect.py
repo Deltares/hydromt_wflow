@@ -164,7 +164,7 @@ def wflow_1dmodel_connection(
         )
 
         # 2. snap edges to wflow river
-        da_edges, idxs, ids = hydromt.flw.gauge_map(
+        da_edges, idxs, ids = hydromt.gis.flw.gauge_map(
             ds_model,
             xy=(riv1d_edges.geometry.x, riv1d_edges.geometry.y),
             stream=ds_model["rivmsk"].values,
@@ -338,7 +338,7 @@ def wflow_1dmodel_connection(
         gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
         gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
         # Snap the nodes to the wflow river
-        da_nodes, idxs, ids = hydromt.flw.gauge_map(
+        da_nodes, idxs, ids = hydromt.gis.flw.gauge_map(
             ds_model,
             xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
             stream=ds_model["rivmsk"].values,

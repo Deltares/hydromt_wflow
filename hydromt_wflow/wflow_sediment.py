@@ -135,11 +135,12 @@ class WflowSedimentModel(WflowModel):
         self._update_naming(output_names)
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
-        if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
+        if river_upa > float(self.staticmaps.data[self._MAPS["uparea"]].max()):
             raise ValueError(
-                f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
-river cells."
+                f"river_upa threshold {river_upa} should be larger than the maximum "
+                "uparea in the grid "
+                f"{float(self.staticmaps.data[self._MAPS['uparea']].max())}"
+                "in order to create river cells."
             )
 
         # read data
@@ -150,10 +151,10 @@ river cells."
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps.data}
         ds_riv = workflows.river(
             ds=ds_hydro,
-            ds_model=self.grid.rename(inv_rename),
+            ds_model=self.staticmaps.data.rename(inv_rename),
             river_upa=river_upa,
             slope_len=slope_len,
             channel_dir="up",
@@ -180,9 +181,11 @@ river cells."
                 river_geom_fn, geom=self.region
             )
             # re-read model data to get river maps
-            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.staticmaps.data
+            }
             ds_riv1 = workflows.river_bathymetry(
-                ds_model=self.grid.rename(inv_rename),
+                ds_model=self.staticmaps.data.rename(inv_rename),
                 gdf_riv=gdf_riv,
                 smooth_len=smooth_len,
                 min_rivwth=min_rivwth,
@@ -194,7 +197,8 @@ river cells."
             self._update_config_variable_name(self._MAPS["rivwth"])
 
         logger.debug("Adding rivers vector to geoms.")
-        self.geoms.pop("rivers", None)  # remove old rivers if in geoms
+        if "rivers" in self.geoms.data:
+            self.geoms.pop("rivers")  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
     @hydromt_step
@@ -258,7 +262,7 @@ river cells."
             gdf_lakes[["waterbody_id", "Area_avg"]],
             geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
         )
-        ds_lakes["lake_area"] = self.grid.raster.rasterize(
+        ds_lakes["lake_area"] = self.staticmaps.data.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
 
@@ -350,10 +354,10 @@ coefficient [-]
             gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
             geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
         )
-        ds_res["reservoir_area"] = self.grid.raster.rasterize(
+        ds_res["reservoir_area"] = self.staticmaps.data.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
-        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
+        ds_res["reservoir_trapping_efficiency"] = self.staticmaps.data.raster.rasterize(
             gdf_points,
             col_name="reservoir_trapping_efficiency",
             dtype="float32",
@@ -581,11 +585,13 @@ cell [-]
                 logger.warning("No Planted forest data found within domain.")
                 return
             rename_dict = {
-                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+                v: k
+                for k, v in self._MAPS.items()
+                if v in self.staticmaps.data.data_vars
             }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid.rename(rename_dict),
+                self.staticmaps.data.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -715,11 +721,13 @@ cell [-]
                 logger.warning("No Planted forest data found within domain.")
                 return
             rename_dict = {
-                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+                v: k
+                for k, v in self._MAPS.items()
+                if v in self.staticmaps.data.data_vars
             }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid.rename(rename_dict),
+                self.staticmaps.data.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -784,8 +792,8 @@ cell [-]
         """  # noqa: E501
         logger.info("Preparing riverbedsed parameter maps.")
         # check for streamorder
-        if self._MAPS["strord"] not in self.grid:
-            if strord_name not in self.grid:
+        if self._MAPS["strord"] not in self.staticmaps.data:
+            if strord_name not in self.staticmaps.data:
                 raise ValueError(
                     f"Streamorder map {strord_name} not found in grid. "
                     "Please run setup_basemaps or update the strord_name argument."
@@ -804,7 +812,7 @@ cell [-]
 
         df = self.data_catalog.get_dataframe(fn_map)
 
-        strord = self.grid[self._MAPS["strord"]].copy()
+        strord = self.staticmaps.data[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same D50 value
         max_str = df.index[-2]
         nodata = df.index[-1]
@@ -816,7 +824,7 @@ cell [-]
 
         ds_riversed = workflows.landuse(
             da=strord,
-            ds_like=self.grid,
+            ds_like=self.staticmaps.data,
             df=df,
             logger=logger,
         )
@@ -851,8 +859,8 @@ cell [-]
         dsin = self.data_catalog.get_rasterdataset(
             canopy_fn, geom=self.region, buffer=2
         )
-        dsout = xr.Dataset(coords=self.grid.raster.coords)
-        ds_out = dsin.raster.reproject_like(self.grid, method="average")
+        dsout = xr.Dataset(coords=self.staticmaps.data.raster.coords)
+        ds_out = dsin.raster.reproject_like(self.staticmaps.data, method="average")
         dsout["vegetation_height"] = ds_out.astype(np.float32)
         dsout["vegetation_height"] = dsout["vegetation_height"].fillna(-9999.0)
         dsout["vegetation_height"].raster.set_nodata(-9999.0)
@@ -864,6 +872,7 @@ cell [-]
         # update config
         self._update_config_variable_name(output_name)
 
+    @hydromt_step
     def setup_soilmaps(
         self,
         soil_fn: str = "soilgrids",
@@ -935,7 +944,7 @@ capacity [-]
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids_sediment(
             dsin,
-            self.grid,
+            self.staticmaps.data,
             usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
             logger=logger,

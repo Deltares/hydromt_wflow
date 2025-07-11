@@ -71,13 +71,14 @@ def test_convert_to_wflow_v1_sbm():
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    wflow = WflowModel(root, config_filename=config_fn, mode="r")
+
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
-    wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
 
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
@@ -88,7 +89,7 @@ def test_convert_to_wflow_v1_sediment():
     config_fn = "wflow_sediment_v0x.toml"
 
     wflow = WflowSedimentModel(
-        root, config_fn=config_fn, data_libs=["artifact_data"], mode="r"
+        root, config_filename=config_fn, data_libs=["artifact_data"], mode="r"
     )
     # Convert to v1
     wflow.upgrade_to_v1_wflow(
@@ -97,7 +98,7 @@ def test_convert_to_wflow_v1_sediment():
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
-    wflow_v1 = WflowSedimentModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 

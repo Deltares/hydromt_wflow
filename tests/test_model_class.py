@@ -96,13 +96,6 @@ def _compare_wflow_models(mod0, mod1):
         assert mod0._config == mod1._config, "config mismatch"
 
 
-@pytest.mark.parametrize("model", list(_supported_models.keys()))
-def test_model_class(model, example_models):
-    mod = example_models[model]
-    if mod is not None:
-        mod.read()
-
-
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):

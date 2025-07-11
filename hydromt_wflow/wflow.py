@@ -661,7 +661,6 @@ Select from {routing_options}.'
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=logger,
             ).rename(name)
             self.set_grid(ds_out)
 
@@ -861,7 +860,6 @@ setting new flood_depth dimensions"
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=logger,
             ).rename(name)
             self.set_grid(ds_out)
             # Update the bankfull elevation map
@@ -3701,7 +3699,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         if "penman-monteith" in pet_method:
             temp_in = temp_in["temp"]
         # resample temp after pet workflow
-        temp_out = hydromt.workflows.forcing.resample_time(
+        temp_out = hydromt.model.processes.meteo.resample_time(
             temp_in,
             freq,
             upsampling="bfill",  # we assume right labeled original data
@@ -3709,7 +3707,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             label="right",
             closed="right",
             conserve_mass=False,
-            logger=logger,
         )
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
@@ -5166,18 +5163,18 @@ Run setup_soilmaps first"
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if self._grid:
-            self.write_grid(fn_out=grid_fn)
-        if self._geoms:
+        if self.staticmaps.data:
+            self.write_staticmaps(filename=grid_fn)
+        if self.geoms.data:
             self.write_geoms(geoms_fn=geoms_fn)
         if self._forcing:
             self.write_forcing(fn_out=forcing_fn)
-        if self._tables:
+        if self.tables:
             self.write_tables()
-        if self._states:
+        if self.states.data:
             self.write_states(fn_out=states_fn)
         # Write the config last as variables can get set in other write methods
-        self.write_config(config_name=config_fn)
+        self.write_config(config_filename=config_fn)
 
     @hydromt_step
     def read_config(
@@ -5405,7 +5402,7 @@ Run setup_soilmaps first"
             dir_out=Path(input_dir).resolve(),
             to_wgs84=to_wgs84,
             precision=precision,
-            kwargs=kwargs,
+            **kwargs,
         )
 
     @hydromt_step
@@ -5729,8 +5726,10 @@ change name input.path_forcing "
             Name of new map layer, this is used to overwrite the name of a DataArray and
             ignored if data is a Dataset
         """
-        if self._MAPS["basins"] in self.grid:
-            data = utils.mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
+        if self._MAPS["basins"] in self.staticmaps.data:
+            data = utils.mask_raster_from_layer(
+                data, self.staticmaps.data[self._MAPS["basins"]]
+            )
         # fall back on default set_states behaviour
         self.states.set(data, name=name)
 

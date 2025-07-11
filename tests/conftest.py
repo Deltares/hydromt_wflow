@@ -97,7 +97,7 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 def example_wflow_results():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn)
+    mod = WflowModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 

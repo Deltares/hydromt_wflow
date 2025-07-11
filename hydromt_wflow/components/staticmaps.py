@@ -97,7 +97,7 @@ class WflowStaticmapsComponent(GridComponent):
         """
         # Supercharge with the base grid component write method
         super().write(
-            filename,
+            str(filename),
             gdal_compliant=True,
             rename_dims=True,
             force_sn=False,
