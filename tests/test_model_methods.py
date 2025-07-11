@@ -21,9 +21,6 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_basemaps(tmpdir):
     # Region
     region = {
@@ -73,9 +70,6 @@ def test_setup_basemaps(tmpdir):
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_grid(example_wflow_model):
     # Tests on setup_grid_from_raster
     example_wflow_model.setup_grid_from_raster(
@@ -115,9 +109,6 @@ def test_setup_grid(example_wflow_model):
         )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_projected_crs(tmpdir):
     logger = logging.getLogger(__name__)
 
@@ -174,9 +165,6 @@ def test_projected_crs(tmpdir):
     assert mod.get_config("model.cell_length_in_meter__flag") == True
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms["lakes"]
@@ -236,9 +224,6 @@ def test_setup_lake(tmpdir, example_wflow_model):
     assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
 def test_setup_reservoirs(source, tmpdir, example_wflow_model):
@@ -302,9 +287,6 @@ number of reservoirs in model area"
         )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     # Read the modeldata
     model = "wflow"
@@ -335,9 +317,6 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     assert np.isclose(mean_val, 220.206)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_ksatver_vegetation(example_wflow_model):
     # Build the soil_ksat_vertical vegetation map
     example_wflow_model.setup_ksatver_vegetation(
@@ -355,9 +334,6 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_lai(example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
@@ -415,9 +391,6 @@ def test_setup_lai(example_wflow_model):
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_rootzoneclim(example_wflow_model):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
@@ -554,9 +527,6 @@ def test_setup_rootzoneclim(example_wflow_model):
     ] == pytest.approx(104.96931418911882, abs=0.5)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_outlets(example_wflow_model):
     # Update subcatchment ID
     new_subcatch = example_wflow_model.grid["subcatchment"].copy()
@@ -573,9 +543,6 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_gauges(example_wflow_model):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
@@ -681,9 +648,6 @@ def test_setup_gauges(example_wflow_model):
     assert np.all(ds_samp["river_mask"].values == 1)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
@@ -718,9 +682,6 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_rivers_depth(tmpdir):
     # Instantiate new wflow model
     # Region
@@ -778,9 +739,6 @@ def test_setup_rivers_depth(tmpdir):
     assert "river_depth" in mod.grid
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     flood_depths = [0.5, 1.0, 1.5, 2.0, 2.5]
 
@@ -819,9 +777,6 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
@@ -867,9 +822,6 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_precip_from_point_timeseries(
     example_wflow_model, df_precip_stations, gdf_precip_stations
 ):
@@ -951,9 +903,6 @@ def test_setup_precip_from_point_timeseries(
     assert int(mean_uniform * 1000) == 274
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
         pet_fn=da_pet,
@@ -969,9 +918,6 @@ def test_setup_pet_forcing(example_wflow_model, da_pet):
     assert int(mean_val * 1000) == 2984
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     # test subbasin_area method with river boundaries
     example_wflow_model.setup_1dmodel_connection(
@@ -1035,9 +981,6 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     assert len(example_wflow_model.geoms["subcatchment_1dmodel-nodes"]) == 6
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_skip_nodata_reservoir(clipped_wflow_model):
     # Using the clipped_wflow_model as the reservoirs are not in this model
     clipped_wflow_model.setup_reservoirs(
@@ -1053,9 +996,6 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_lulc_vector(
     example_wflow_model,
     globcover_gdf,
@@ -1070,9 +1010,6 @@ def test_setup_lulc_vector(
     assert "meta_landuse" in example_wflow_model.grid
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
@@ -1146,9 +1083,6 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert np.any(ds2["meta_landuse"] == 12)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_allocation_areas(example_wflow_model, tmpdir):
     # Read the data and set new root
     example_wflow_model.read()
@@ -1176,9 +1110,6 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
     assert np.all(np.sort(uni) == [11, 16, 17])
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     # Read the data and set new root
     example_wflow_model.read()
@@ -1236,9 +1167,6 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_non_irrigation(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
@@ -1349,9 +1277,6 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert "time" in example_wflow_model.grid["demand_domestic_net"].dims
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     # Read the data
     example_wflow_model.read()
@@ -1419,9 +1344,6 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 8
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
@@ -1458,9 +1380,6 @@ def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
     assert "demand_paddy_irrigation_trigger" in ds
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_cold_states(example_wflow_model, tmpdir):
     # Create states
     example_wflow_model.setup_cold_states()
