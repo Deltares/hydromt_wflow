@@ -71,13 +71,13 @@ def test_convert_to_wflow_v1_sbm():
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    wflow = WflowModel(root, config_filename=config_fn, mode="r")
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
-    wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
 
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
@@ -107,8 +107,9 @@ def test_convert_to_wflow_v1_sediment():
     assert "river_kodatie_a" in wflow.grid
 
 
-def test_config_toml_grouping(tmpdir):
+def test_config_toml_grouping(tmpdir, static_layer):
     dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model.staticmaps.set(static_layer, name="layer")
     dummy_model.read_config()
 
     dummy_model.set_config(

@@ -97,7 +97,7 @@ class WflowModel(Model):
             root,
             components=components,
             mode=mode,
-            region_component="staticmaps",  # change when GridComponent is implemented
+            region_component="staticmaps",
             data_libs=data_libs,
             **catalog_keys,
         )
@@ -5131,7 +5131,7 @@ Run setup_soilmaps first"
         self,
         config_fn: str | None = None,
         grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path | str = "staticgeoms",
+        geoms_fn: Path = Path("staticgeoms"),
         forcing_fn: Path | str | None = None,
         states_fn: Path | str | None = None,
     ):
@@ -5166,19 +5166,24 @@ Run setup_soilmaps first"
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if "grid" in self.components:
-            self.grid.write(fn_out=grid_fn)
+        if "staticmaps" in self.components:
+            self.staticmaps.write(filename=grid_fn)
         if "geoms" in self.components:
+            geoms_fn = (
+                Path(geoms_fn)
+                if geoms_fn is not isinstance(geoms_fn, Path)
+                else geoms_fn
+            )
             self.geoms.write(dir_out=geoms_fn)
         if "forcing" in self.components:
-            self.forcing.write(fn_out=forcing_fn)
+            self.forcing.write(filename=forcing_fn)
         if "tables" in self.components:
             self.tabeles.write()
         if "states" in self.components:
-            self.states.write(fn_out=states_fn)
+            self.states.write(filename=states_fn)
 
         # Write the config last as variables can get set in other write methods
-        self.config.write(config_name=config_fn)
+        self.config.write(path=config_fn)
 
     @hydromt_step
     def read_config(

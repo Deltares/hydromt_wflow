@@ -234,3 +234,18 @@ def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
     ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
 
     return ds
+
+
+@pytest.fixture
+def static_layer() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((2, 2)),
+        coords={
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["lat", "lon"],
+    )
+    da.raster.set_crs(4326)
+    da.raster.set_nodata(-9999)
+    return da

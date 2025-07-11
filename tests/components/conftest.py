@@ -173,21 +173,6 @@ def mask_layer() -> xr.DataArray:
 
 
 @pytest.fixture
-def static_layer() -> xr.DataArray:
-    da = xr.DataArray(
-        np.ones((2, 2)),
-        coords={
-            "lat": range(2),
-            "lon": range(2),
-        },
-        dims=["lat", "lon"],
-    )
-    da.raster.set_crs(4326)
-    da.raster.set_nodata(-9999)
-    return da
-
-
-@pytest.fixture
 def static_file(tmp_path: Path, static_layer: xr.DataArray) -> Path:
     p = Path(tmp_path, "tmp.nc")
     ds = static_layer.to_dataset(name="layer1")
