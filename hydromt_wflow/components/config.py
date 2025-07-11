@@ -5,10 +5,12 @@ from pathlib import Path
 from typing import Any
 
 import tomli
+from hydromt._io.writers import _write_toml
 from hydromt.model import Model
 from hydromt.model.components import ConfigComponent
 
 from hydromt_wflow import utils
+from hydromt_wflow.components.utils import make_config_paths_relative
 
 __all__ = ["WflowConfigComponent"]
 
@@ -102,29 +104,53 @@ defaulting to {_new_path.as_posix()}"
             data = tomli.load(file)
         self._data = data
 
-    def get_value(
+    def write(
         self,
-        key: str,
-        fallback: Any | None = None,
-        abs_path: bool = False,
-    ) -> Any | None:
-        """Get config options.
+        path: Path | str | None = None,
+    ):
+        """Write the wflow configurations to a file."""
+        self.root._assert_write_mode()
+        # If there is data
+        if self.data:
+            p = path or self._filename
 
-        Parameters
-        ----------
-        key : str
-            Keys are a string with '.' indicating a new level: ('key1.key2')
-        fallback : Any, optional
-            Fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-        """
-        # Refer to utils function of get_config
-        return utils.get_config(
-            self.data,
-            key,
-            root=self.root.path,
-            fallback=fallback,
-            abs_path=abs_path,
-        )
+            # Sort the pathing
+            write_path = Path(self.root.path, p)
+            logger.info(f"Writing model config to {write_path.as_posix()}.")
+            write_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Solve the pathing in the data
+            # Extra check for dir_input
+            rel_path = Path(write_path.parent, self.get_value("dir_input", fallback=""))
+            write_data = make_config_paths_relative(self.data, rel_path)
+            _write_toml(write_path, write_data)
+        else:
+            logger.warning("Model config has no data, skip writing.")
+
+
+def get_value(
+    self,
+    key: str,
+    fallback: Any | None = None,
+    abs_path: bool = False,
+) -> Any | None:
+    """Get config options.
+
+    Parameters
+    ----------
+    key : str
+        Keys are a string with '.' indicating a new level: ('key1.key2')
+    fallback : Any, optional
+        Fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+    """
+    # Refer to utils function of get_config
+    return utils.get_config(
+        self.data,
+        key,
+        root=self.root.path,
+        fallback=fallback,
+        abs_path=abs_path,
+    )

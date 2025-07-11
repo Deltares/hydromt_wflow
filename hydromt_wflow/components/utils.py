@@ -68,3 +68,29 @@ def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | Non
         if mask in ds:
             return ds[mask] != ds[mask].raster.nodata
     return None  # Nothin found
+
+
+def make_config_paths_relative(
+    data: dict,
+    root: Path,
+):
+    """Make the configurations path relative to the root.
+
+    This only concerns itself with paths that are absolute and on
+    the same mount.
+
+    Parameters
+    ----------
+    data : dict
+        The configurations in a dictionary format.
+    root : Path
+        The root to which the paths are made relative.
+        Most of the time, this will be the parent directory of the
+        configurations file.
+    """
+    for key, val in data.items():
+        if isinstance(val, dict):
+            data.update({key: make_config_paths_relative(val, root)})
+        else:
+            data.update({key: _relpath(val, root)})
+    return data
