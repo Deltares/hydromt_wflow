@@ -507,7 +507,7 @@ class WflowModel(Model):
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            Name of the elevation map in the current WflowModel.grid.
+            Name of the elevation map in the current WflowModel.staticmaps.
             By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input

@@ -26,7 +26,7 @@ def _compare_wflow_models(mod0, mod1):
     invalid_maps = {}
     # invalid_maps_dtype = {}
     if mod0._grid is not None:
-        maps = mod0.grid.raster.vars
+        maps = mod0.staticmaps.raster.vars
         assert np.all(mod0.crs == mod1.crs), "map crs grid"
         # check on dims names and values
         for dim in mod1._grid.dims:
@@ -36,11 +36,11 @@ def _compare_wflow_models(mod0, mod1):
                 raise AssertionError(f"dim {dim} in map not identical")
 
         for name in maps:
-            map0 = mod0.grid[name].fillna(0)
-            if name not in mod1.grid:
+            map0 = mod0.staticmaps[name].fillna(0)
+            if name not in mod1.staticmaps:
                 invalid_maps[name] = "KeyError"
                 continue
-            map1 = mod1.grid[name].fillna(0)
+            map1 = mod1.staticmaps[name].fillna(0)
             if (
                 not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
                 or map0.dtype != map1.dtype
@@ -79,8 +79,8 @@ def _compare_wflow_models(mod0, mod1):
     # check geoms
     if mod0._geoms:
         for name in mod0.geoms:
-            geom0 = mod0.geoms[name]
-            geom1 = mod1.geoms[name]
+            geom0 = mod0.geoms.get(name)
+            geom1 = mod1.geoms.get(name)
             assert geom0.index.size == geom1.index.size
             assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
             assert geom0.columns.size == geom1.columns.size
@@ -169,16 +169,16 @@ def test_model_inverse_clip(example_wflow_model):
     # Clip workflow, based on example model
     example_wflow_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.grid["subcatchment"].sum()
+    n_pixels_full = example_wflow_model.staticmaps["subcatchment"].sum()
     example_wflow_model.clip_grid(region, inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.grid["subcatchment"].sum()
+    n_pixels_inverse_clipped = example_wflow_model.staticmaps["subcatchment"].sum()
 
     # Do clipping again, but normally
     example_wflow_model.read()
     example_wflow_model.clip_grid(region, inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.grid["subcatchment"].sum()
+    n_pixels_clipped = example_wflow_model.staticmaps["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped

@@ -103,9 +103,9 @@ def test_convert_to_wflow_v1_sediment():
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
     # Checks on extra data in staticmaps
-    assert "soil_sagg_fraction" in wflow.grid
-    assert "land_govers_c" in wflow.grid
-    assert "river_kodatie_a" in wflow.grid
+    assert "soil_sagg_fraction" in wflow.staticmaps
+    assert "land_govers_c" in wflow.staticmaps
+    assert "river_kodatie_a" in wflow.staticmaps
 
 
 def test_config_toml_grouping(tmpdir):
