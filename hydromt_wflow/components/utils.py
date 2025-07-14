@@ -46,30 +46,6 @@ def _relpath(
         return value.as_posix()
 
 
-## Grid related
-def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | None:
-    """Get the proper mask layer based on itself or a layer in a Dataset.
-
-    Parameters
-    ----------
-    mask : str | xr.DataArray | None
-        The mask itself or the name of the mask layer in another dataset.
-    *args : list
-        These have to be xarray Datasets in which the mask (as a string)
-        can be present
-    """
-    if mask is None:
-        return None
-    if isinstance(mask, xr.DataArray):
-        return mask != mask.raster.nodata
-    if not isinstance(mask, str):
-        raise ValueError(f"Unknown type for determining mask: {type(mask).__name__}")
-    for ds in args:
-        if mask in ds:
-            return ds[mask] != ds[mask].raster.nodata
-    return None  # Nothin found
-
-
 def make_config_paths_relative(
     data: dict,
     root: Path,
@@ -94,3 +70,27 @@ def make_config_paths_relative(
         else:
             data.update({key: _relpath(val, root)})
     return data
+
+
+## Grid related
+def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | None:
+    """Get the proper mask layer based on itself or a layer in a Dataset.
+
+    Parameters
+    ----------
+    mask : str | xr.DataArray | None
+        The mask itself or the name of the mask layer in another dataset.
+    *args : list
+        These have to be xarray Datasets in which the mask (as a string)
+        can be present
+    """
+    if mask is None:
+        return None
+    if isinstance(mask, xr.DataArray):
+        return mask != mask.raster.nodata
+    if not isinstance(mask, str):
+        raise ValueError(f"Unknown type for determining mask: {type(mask).__name__}")
+    for ds in args:
+        if mask in ds:
+            return ds[mask] != ds[mask].raster.nodata
+    return None  # Nothin found
