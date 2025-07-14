@@ -110,6 +110,7 @@ def clipped_wflow_model():
         data_libs=[
             "artifact_data",
             "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+            # TODO update to v1. This is an old data catalog
         ],
     )
     return mod

@@ -18,7 +18,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         orchard_name="Orchard",
         orchard_c=0.2188,
     )
-    da = example_sediment_model.staticmaps["erosion_usle_c"].raster.sample(
+    da = example_sediment_model.staticmaps.data["erosion_usle_c"].raster.sample(
         planted_forest_testdata.geometry.centroid
     )
 
@@ -47,7 +47,9 @@ def test_setup_lulc_vector(
 def test_setup_soilmaps_sed(
     example_sediment_model,
 ):
-    values = example_sediment_model.staticmaps["erosion_usle_k"].raster.mask_nodata()
+    values = example_sediment_model.staticmaps.data[
+        "erosion_usle_k"
+    ].raster.mask_nodata()
     mean_val = values.mean().values
     assert np.isclose(mean_val, 0.022215, atol=1e-6)
 

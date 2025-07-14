@@ -1,7 +1,6 @@
 """Implement Wflow model class."""
 
 # Implement model class following model API
-
 import glob
 import logging
 import os
@@ -19,7 +18,7 @@ import tomlkit
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import hydromt_step
-from hydromt._typing import NoDataStrategy
+from hydromt._typing import ModeLike, NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
 from hydromt.model.processes.basin_mask import get_basin_geometry
@@ -5817,6 +5816,19 @@ change name input.path_forcing "
             elif self._read:
                 logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
+
+    def set_root(self, root: Path | str, mode: ModeLike = "w"):
+        """Set the model root folder.
+
+        Parameters
+        ----------
+        root : Path, str
+            Path to the model root folder.
+        mode : str, optional
+            Mode to open the model root folder, by default 'w'.
+            Can be 'r' for read-only or 'r+' for read-write.
+        """
+        self.root.set(root, mode=mode)
 
     def get_config(
         self,
