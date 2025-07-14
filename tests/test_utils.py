@@ -4,7 +4,7 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
-from tomlkit import load
+import tomllib
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
@@ -144,11 +144,11 @@ def test_config_toml_grouping(tmpdir, static_layer):
 
     dummy_model.write()
 
-    with open(tmpdir / "wflow_sbm.toml", "r") as file:
-        written_config = load(file)
+    with open(tmpdir / "wflow_sbm.toml", "rb") as file:
+        written_config = tomllib.load(file)
 
-    with open(TESTDATADIR / "grouped_model_config.toml") as file:
-        expected_config = load(file)
+    with open(TESTDATADIR / "grouped_model_config.toml", "rb") as file:
+        expected_config = tomllib.load(file)
 
     assert written_config == expected_config
 
