@@ -19,7 +19,7 @@ from .naming import (
     WFLOW_STATES_NAMES,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 DATADIR = Path(Path(__file__).parent, "data")
 
@@ -49,6 +49,8 @@ def get_config(
         The config settings.
     key : str
         keys are string with '.' indicating a new level: ('key1.key2')
+    root: Path, optional
+        The model root.
     fallback: Any, optional
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
@@ -472,7 +474,6 @@ def _convert_to_wflow_v1(
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format.
 
@@ -492,8 +493,6 @@ def _convert_to_wflow_v1(
         Options in the [input] section of the TOML that were updated in Wflow v1.
     input_variables: list, optional
         Variables that were moved to input rather than input.static.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -628,10 +627,10 @@ def _convert_to_wflow_v1(
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
-    if get_config("output", config=config, fallback=None) is not None:
+    if get_config(config, "output", fallback=None) is not None:
         config_out["output"] = {}
         config_out["output"]["netcdf_grid"] = {
-            "path": get_config("output.path", config=config, fallback="output.nc"),
+            "path": get_config(config, "output.path", fallback="output.nc"),
             "compressionlevel": get_config(
                 config, "output.compressionlevel", fallback=1
             ),
@@ -645,16 +644,14 @@ def _convert_to_wflow_v1(
                 _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
-    if get_config("netcdf", config=config, fallback=None) is not None:
+    if get_config(config, "netcdf", fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
         config_out["output"]["netcdf_scalar"] = {
-            "path": get_config(
-                "netcdf.path", config=config, fallback="output_scalar.nc"
-            ),
+            "path": get_config(config, "netcdf.path", fallback="output_scalar.nc"),
         }
         config_out["output"]["netcdf_scalar"]["variable"] = []
-        nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
+        nc_scalar_vars = get_config(config, "netcdf.variable", fallback=[])
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
@@ -665,16 +662,16 @@ def _convert_to_wflow_v1(
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
-    if get_config("csv", config=config, fallback=None) is not None:
+    if get_config(config, "netcdf.variable", fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
         config_out["output"]["csv"] = {}
 
         config_out["output"]["csv"]["path"] = get_config(
-            "csv.path", config=config, fallback="output.csv"
+            config, "csv.path", fallback="output.csv"
         )
         config_out["output"]["csv"]["column"] = []
-        csv_vars = get_config("csv.column", config=config, fallback=[])
+        csv_vars = get_config(config, "csv.column", fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
@@ -689,7 +686,6 @@ def _convert_to_wflow_v1(
 
 def convert_to_wflow_v1_sbm(
     config: Dict,
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for SBM.
 
@@ -697,8 +693,6 @@ def convert_to_wflow_v1_sbm(
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -805,7 +799,6 @@ def convert_to_wflow_v1_sbm(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out
@@ -813,7 +806,6 @@ def convert_to_wflow_v1_sbm(
 
 def convert_to_wflow_v1_sediment(
     config: Dict,
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for sediment.
 
@@ -821,8 +813,6 @@ def convert_to_wflow_v1_sediment(
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -876,7 +866,6 @@ def convert_to_wflow_v1_sediment(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out

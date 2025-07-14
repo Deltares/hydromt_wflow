@@ -39,7 +39,7 @@ from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowModel(Model):
@@ -5115,9 +5115,9 @@ Run setup_soilmaps first"
         """
         self.read()
 
-        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
+        config_out = utils.convert_to_wflow_v1_sbm(self.config.data)
         with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
-            self._config = tomllib.load(file)
+            self.config._data = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -5928,7 +5928,9 @@ change name input.path_forcing "
             >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
-        self.config.set(*args)
+        key = ".".join(args[:-1])
+        value = args[-1]
+        self.config.set(key, value)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.

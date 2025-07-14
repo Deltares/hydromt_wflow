@@ -974,10 +974,10 @@ capacity [-]
             strord_name argument of setup_riverbedsed method.
         """
         self.read()
-        config_out = convert_to_wflow_v1_sediment(self.config, logger=logger)
+        config_out = convert_to_wflow_v1_sediment(self.config.data)
 
         with open(DATADIR / "default_config_headers.toml", "rb") as file:
-            self._config = tomllib.load(file)
+            self.config._data = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])
