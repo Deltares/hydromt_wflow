@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import tomli
+from hydromt._io.readers import _read_toml
 from hydromt._io.writers import _write_toml
 from hydromt.model import Model
 from hydromt.model.components import ConfigComponent
@@ -35,13 +35,13 @@ class WflowConfigComponent(ConfigComponent):
 
         Parameters
         ----------
-        model: Model
+        model : Model
             HydroMT model instance
-        filename: str
+        filename : str
             A path relative to the root where the configuration file will
             be read and written if user does not provide a path themselves.
-            By default 'config.yml'
-        default_template_filename: Optional[Path]
+            By default 'wflow_sbm.toml'
+        default_template_filename : str, optional
             A path to a template file that will be used as default in the ``create``
             method to initialize the configuration file if the user does not provide
             their own template file. This can be used by model plugins to provide a
@@ -105,9 +105,8 @@ defaulting to {_new_path.as_posix()}"
             return
 
         # Read the data and set it in the document
-        with open(read_path, "rb") as file:
-            data = tomli.load(file)
-        self._data = data
+
+        self._data = _read_toml(read_path)
 
     def write(
         self,
