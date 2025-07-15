@@ -935,10 +935,9 @@ capacity [-]
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids_sediment(
             dsin,
-            self.grid,
+            self.staticmaps.data,
             usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
