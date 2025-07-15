@@ -41,7 +41,7 @@ def test_setup_lulc_vector(
         save_raster_lulc=False,
         planted_forest_c=0.0881,
     )
-    assert "erosion_usle_c" in example_sediment_model.staticmaps
+    assert "erosion_usle_c" in example_sediment_model.staticmaps.data
 
 
 def test_setup_soilmaps_sed(

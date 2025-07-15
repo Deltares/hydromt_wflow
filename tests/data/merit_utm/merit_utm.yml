@@ -1,5 +1,10 @@
+meta:
+  name: merit_utm_test_data
+
 merit_hydro_1k_utm:
-  path: ./{variable}.tif
   data_type: RasterDataset
-  driver: raster
-  crs: 3857
+  uri: ./{variable}.tif
+  driver:
+    name: rasterio
+  metadata:
+    crs: 3857

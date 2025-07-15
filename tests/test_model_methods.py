@@ -1,6 +1,5 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
-import logging
 from itertools import product
 from os.path import abspath, dirname, join
 from pathlib import Path
@@ -12,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+import xarray.testing as xrt
 from hydromt.gis import GeoDataset, full_like
 
 from hydromt_wflow import workflows
@@ -79,7 +79,7 @@ def test_setup_grid(example_wflow_model):
         wflow_variables=["land_surface_water_flow__ground_elevation"],
         fill_method="nearest",
     )
-    assert "elevtn" in example_wflow_model.staticmaps
+    assert "elevtn" in example_wflow_model.staticmaps.data
     assert (
         example_wflow_model.get_config(
             "input.static.land_surface_water_flow__ground_elevation"
@@ -91,7 +91,7 @@ def test_setup_grid(example_wflow_model):
         raster_fn="globcover_2009",
         reproject_method="mode",
     )
-    assert "globcover" in example_wflow_model.staticmaps
+    assert "globcover" in example_wflow_model.staticmaps.data
 
     # Test on exceptions
     with pytest.raises(ValueError, match="Length of variables"):
@@ -110,15 +110,12 @@ def test_setup_grid(example_wflow_model):
 
 
 def test_projected_crs(tmpdir):
-    logger = logging.getLogger(__name__)
-
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
     mod = WflowModel(
         root=root,
         mode="w",
         data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
-        logger=logger,
     )
 
     # Setup basemaps
@@ -137,7 +134,7 @@ def test_projected_crs(tmpdir):
 
     with pytest.raises(
         ValueError,
-        match=r"The model resolution 0.01 should be larger than",
+        match=r"Model resolution 0.01 should be larger than",
     ) as error:
         mod.setup_basemaps(
             region={"basin": [1427596.0, 5735404.0]},
@@ -145,9 +142,7 @@ def test_projected_crs(tmpdir):
             hydrography_fn="merit_hydro_1k_utm",
             basin_index_fn=None,
         )
-    assert str(error.value).startswith(
-        "The model resolution 0.01 should be larger than"
-    )
+    assert str(error.value).startswith("Model resolution 0.01 should be larger than")
 
     mod.setup_basemaps(
         region={"basin": [1427596.0, 5735404.0]},
@@ -159,13 +154,13 @@ def test_projected_crs(tmpdir):
     # Add more data eg landuse
     mod.setup_lulcmaps("globcover_2009", lulc_mapping_fn="globcover_mapping_default")
 
-    assert mod.staticmaps.raster.crs == 3857
+    assert mod.staticmaps.data.raster.crs == 3857
     # 95 quantile is class 190 ie urban
     assert (mod.staticmaps.data["meta_landuse"] == 190).count().values == 338
     assert mod.get_config("model.cell_length_in_meter__flag") == True
 
 
-def test_setup_lake(tmpdir, example_wflow_model):
+def test_setup_lake(tmpdir, example_wflow_model: WflowModel):
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms.get("lakes")
     lake_id = lakes["waterbody_id"].iloc[0]
@@ -190,8 +185,10 @@ def test_setup_lake(tmpdir, example_wflow_model):
         {
             "lake_rating_test_{index}": {
                 "data_type": "DataFrame",
-                "driver": "csv",
-                "path": join(tmpdir, "rating_curve_{index}.csv"),
+                "driver": {
+                    "name": "pandas",
+                },
+                "uri": join(tmpdir, "rating_curve_{index}.csv"),
                 "placeholders": {
                     "index": [str(lake_id)],
                 },
@@ -247,7 +244,7 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         }
     }
 
-    example_wflow_model.update(model_out=destination, opt=config)
+    example_wflow_model.update(model_out=destination, steps=[config])
     example_wflow_model.write()
 
     # Check if all parameter maps are available
@@ -389,7 +386,7 @@ def test_setup_lai(example_wflow_model):
         output_name="lai_from_vito_mapping",
     )
 
-    assert "lai_from_vito_mapping" in example_wflow_model.staticmaps
+    assert "lai_from_vito_mapping" in example_wflow_model.staticmaps.data
     assert (
         example_wflow_model.get_config("input.cyclic.vegetation__leaf-area_index")
         == "lai_from_vito_mapping"
@@ -550,10 +547,11 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-def test_setup_gauges(example_wflow_model):
+def test_setup_gauges(example_wflow_model: WflowModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
-    example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
+    # example_wflow_model.data_catalog.get_geodataframe("grdc")
+    #       .rename({"area": "uparea"})
     example_wflow_model.setup_gauges(
         gauges_fn="grdc",
         basename="grdc_uparea",
@@ -676,7 +674,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
-    assert mapname in example_wflow_model.staticmaps
+    assert mapname in example_wflow_model.staticmaps.data
     assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
     assert (
         example_wflow_model.get_config("input.static.river_bank_water__elevation")
@@ -724,7 +722,7 @@ def test_setup_rivers_depth(tmpdir):
         elevtn_map="land_elevation",
     )
 
-    assert "river_depth" in mod.staticmaps
+    assert "river_depth" in mod.staticmaps.data
 
     # Try using gvf method
     mod.setup_rivers(
@@ -743,10 +741,10 @@ def test_setup_rivers_depth(tmpdir):
     # RiverDepth iteslf doesn't matter here, this assertion
     # is just to check the method ran without errors
     # as this will error if something went wrong in the process
-    assert "river_depth" in mod.staticmaps
+    assert "river_depth" in mod.staticmaps.data
 
 
-def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
+def test_setup_floodplains_1d(example_wflow_model: WflowModel, floodplain1d_testdata):
     flood_depths = [0.5, 1.0, 1.5, 2.0, 2.5]
 
     example_wflow_model.setup_rivers(
@@ -769,7 +767,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         flood_depths=flood_depths,
     )
 
-    assert "floodplain_volume" in example_wflow_model.staticmaps
+    assert "floodplain_volume" in example_wflow_model.staticmaps.data
     assert example_wflow_model.get_config("model.floodplain_1d__flag") == True
     assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
     assert (
@@ -778,14 +776,20 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         )
         == "floodplain_volume"
     )
-    assert np.all(example_wflow_model.staticmaps.flood_depth.values == flood_depths)
-    assert example_wflow_model.staticmaps.floodplain_volume.raster.mask_nodata().equals(
-        floodplain1d_testdata.floodplain_volume
+    name = example_wflow_model._MAPS["floodplain_volume"]
+    assert np.all(
+        example_wflow_model.staticmaps.data[name].flood_depth.values == flood_depths
+    )
+    xrt.assert_allclose(
+        example_wflow_model.staticmaps.data[name].raster.mask_nodata(),
+        floodplain1d_testdata.floodplain_volume,
     )
 
 
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
-def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
+def test_setup_floodplains_2d(
+    elevtn_map, example_wflow_model: WflowModel, floodplain1d_testdata
+):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
         river_geom_fn="hydro_rivers_lin",
@@ -809,7 +813,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
-    assert f"{mapname}_D4" in example_wflow_model.staticmaps
+    assert f"{mapname}_D4" in example_wflow_model.staticmaps.data
     assert example_wflow_model.get_config("model.floodplain_1d__flag") == False
     assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
     assert (
@@ -822,10 +826,9 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         )
         == elevtn_map
     )
-    assert (
-        example_wflow_model.staticmaps.data[f"{mapname}_D4"]
-        .raster.mask_nodata()
-        .equals(floodplain1d_testdata[f"{mapname}_D4"])
+    xrt.assert_allclose(
+        example_wflow_model.staticmaps.data[f"{mapname}_D4"].raster.mask_nodata(),
+        floodplain1d_testdata[f"{mapname}_D4"],
     )
 
 
@@ -938,9 +941,9 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
         toml_output="netcdf_scalar",
     )
 
-    assert "gauges_1dmodel" in example_wflow_model.geoms
-    assert "subcatchment_1dmodel" in example_wflow_model.geoms
-    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms
+    assert "gauges_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms.data
 
     assert len(example_wflow_model.geoms.get("gauges_1dmodel")) == 3
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel")) == 2
@@ -984,7 +987,7 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
         max_dist=5000,
     )
 
-    assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms
+    assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms.data
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel-nodes")) == 6
 
 
@@ -1015,7 +1018,7 @@ def test_setup_lulc_vector(
         lulc_res=0.0025,
         save_raster_lulc=False,
     )
-    assert "meta_landuse" in example_wflow_model.staticmaps
+    assert "meta_landuse" in example_wflow_model.staticmaps.data
 
 
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
@@ -1108,8 +1111,8 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "demand_allocation_area_id" in example_wflow_model.geoms
-    assert "demand_allocation_area_id" in example_wflow_model.staticmaps
+    assert "demand_allocation_area_id" in example_wflow_model.geoms.data
+    assert "demand_allocation_area_id" in example_wflow_model.staticmaps.data
 
     # Assert output values
     assert len(example_wflow_model.geoms.get("demand_allocation_area_id")) == 3
@@ -1143,7 +1146,7 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "demand_surface_water_ratio" in example_wflow_model.staticmaps
+    assert "demand_surface_water_ratio" in example_wflow_model.staticmaps.data
     assert np.isclose(
         example_wflow_model.staticmaps.data["demand_surface_water_ratio"]
         .raster.mask_nodata()
@@ -1165,7 +1168,7 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "demand_surface_water_ratio" in example_wflow_model.staticmaps
+    assert "demand_surface_water_ratio" in example_wflow_model.staticmaps.data
     assert np.isclose(
         example_wflow_model.staticmaps.data["demand_surface_water_ratio"]
         .raster.mask_nodata()
@@ -1202,8 +1205,8 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "demand_domestic_gross" in example_wflow_model.staticmaps
-    assert "meta_population" in example_wflow_model.staticmaps
+    assert "demand_domestic_gross" in example_wflow_model.staticmaps.data
+    assert "meta_population" in example_wflow_model.staticmaps.data
 
     # Assert some values
     dom_gross_vals = (
@@ -1232,8 +1235,8 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "demand_domestic_gross" in example_wflow_model.staticmaps
-    assert "meta_population" in example_wflow_model.staticmaps
+    assert "demand_domestic_gross" in example_wflow_model.staticmaps.data
+    assert "meta_population" in example_wflow_model.staticmaps.data
 
     # Assert some values
     dom_gross_vals = (
