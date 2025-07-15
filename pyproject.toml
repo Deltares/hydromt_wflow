@@ -45,7 +45,7 @@ requires-python = ">=3.10"
 dependencies = [
   "dask",
   "geopandas>=0.10",
-  # "hydromt>=1.0.1",
+  "hydromt>=1.0.1",
   "numpy",
   "pandas",
   "pyflwdir>=0.5.7",
@@ -262,7 +262,6 @@ pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctl
 # (<2.2 required by numba)
 
 [tool.pixi.pypi-dependencies]
-hydromt = { path = "../hydromt", editable = true }
 hydromt_wflow = { path = ".", editable = true }
 
 [tool.pixi.feature.examples.dependencies]
