@@ -448,21 +448,21 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span>
         <span class="n">data_libs</span><span class="p">:</span> <span class="n">List</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">[],</span>
         <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
-            <span class="n">config_fn</span><span class="o">=</span><span class="n">config_fn</span><span class="p">,</span>
+            <span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
             <span class="n">data_libs</span><span class="o">=</span><span class="n">data_libs</span><span class="p">,</span>
             <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Update compared to wflow sbm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span> <span class="o">=</span> <span class="n">_create_hydromt_wflow_mapping_sediment</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span>
         <span class="p">)</span></div>
 
 
@@ -552,11 +552,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
         <span class="c1"># Check that river_upa threshold is bigger than the maximum uparea in the grid</span>
-        <span class="k">if</span> <span class="n">river_upa</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">river_upa</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;river_upa threshold </span><span class="si">{</span><span class="n">river_upa</span><span class="si">}</span><span class="s2"> should be larger than the maximum </span><span class="se">\</span>
-<span class="s2">uparea in the grid </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s1">&#39;uparea&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2"> in order to create </span><span class="se">\</span>
-<span class="s2">river cells.&quot;</span>
+<span class="s2">uparea in the grid </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s1">&#39;uparea&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; in order to create river cells.&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># read data</span>
@@ -567,10 +567,10 @@
 
         <span class="c1"># get rivmsk, rivlen, rivslp</span>
         <span class="c1"># read model maps and revert wflow to hydromt map names</span>
-        <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">}</span>
+        <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">}</span>
         <span class="n">ds_riv</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">river</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">=</span><span class="n">ds_hydro</span><span class="p">,</span>
-            <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+            <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
             <span class="n">river_upa</span><span class="o">=</span><span class="n">river_upa</span><span class="p">,</span>
             <span class="n">slope_len</span><span class="o">=</span><span class="n">slope_len</span><span class="p">,</span>
             <span class="n">channel_dir</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
@@ -597,9 +597,9 @@
                 <span class="n">river_geom_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span>
             <span class="p">)</span>
             <span class="c1"># re-read model data to get river maps</span>
-            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">}</span>
+            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">}</span>
             <span class="n">ds_riv1</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">river_bathymetry</span><span class="p">(</span>
-                <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+                <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
                 <span class="n">gdf_riv</span><span class="o">=</span><span class="n">gdf_riv</span><span class="p">,</span>
                 <span class="n">smooth_len</span><span class="o">=</span><span class="n">smooth_len</span><span class="p">,</span>
                 <span class="n">min_rivwth</span><span class="o">=</span><span class="n">min_rivwth</span><span class="p">,</span>
@@ -678,7 +678,7 @@
             <span class="n">gdf_lakes</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">]],</span>
             <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_lakes</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">ds_lakes</span><span class="p">[</span><span class="s2">&quot;lake_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">ds_lakes</span><span class="p">[</span><span class="s2">&quot;lake_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
 
@@ -773,10 +773,10 @@
             <span class="n">gdf_res</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]],</span>
             <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_res</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
-        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span>
             <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
@@ -1013,11 +1013,11 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data_vars</span>
             <span class="p">}</span>
             <span class="n">usle_c</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
                 <span class="n">planted_forest</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
@@ -1150,11 +1150,11 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data_vars</span>
             <span class="p">}</span>
             <span class="n">usle_c</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
                 <span class="n">planted_forest</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
@@ -1222,8 +1222,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
         <span class="c1"># check for streamorder</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">strord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">strord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Streamorder map </span><span class="si">{</span><span class="n">strord_name</span><span class="si">}</span><span class="s2"> not found in grid. &quot;</span>
                     <span class="s2">&quot;Please run setup_basemaps or update the strord_name argument.&quot;</span>
@@ -1242,7 +1242,7 @@
 
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">fn_map</span><span class="p">)</span>
 
-        <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># max streamorder value above which values get the same D50 value</span>
         <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">nodata</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1254,7 +1254,7 @@
 
         <span class="n">ds_riversed</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>
-            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
             <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1292,8 +1292,8 @@
         <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">canopy_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span>
         <span class="p">)</span>
-        <span class="n">dsout</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">dsin</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+        <span class="n">dsout</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">dsin</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
         <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
         <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
@@ -1379,10 +1379,9 @@
         <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">soil_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">soilgrids_sediment</span><span class="p">(</span>
             <span class="n">dsin</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
             <span class="n">usle_k_method</span><span class="o">=</span><span class="n">usle_k_method</span><span class="p">,</span>
             <span class="n">add_aggregates</span><span class="o">=</span><span class="n">add_aggregates</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
@@ -1421,10 +1420,10 @@
 <span class="sd">            strord_name argument of setup_riverbedsed method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>

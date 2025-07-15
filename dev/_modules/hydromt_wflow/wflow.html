@@ -449,7 +449,7 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 <span class="n">__hydromt_eps__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>  <span class="c1"># core entrypoints</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="WflowModel">
@@ -511,7 +511,7 @@
             <span class="n">root</span><span class="p">,</span>
             <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-            <span class="n">region_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span><span class="p">,</span>  <span class="c1"># change when GridComponent is implemented</span>
+            <span class="n">region_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span><span class="p">,</span>
             <span class="n">data_libs</span><span class="o">=</span><span class="n">data_libs</span><span class="p">,</span>
             <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
         <span class="p">)</span>
@@ -525,7 +525,10 @@
         <span class="c1"># hydromt mapping and wflow variable names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span> <span class="o">=</span> <span class="n">_create_hydromt_wflow_mapping_sbm</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="c1"># Read model from disk when in read mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span> <span class="ow">or</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;r+&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_filename</span><span class="o">=</span><span class="n">config_filename</span><span class="p">)</span></div>
 
 
     <span class="c1">## Properties</span>
@@ -554,7 +557,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">basins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a basin(s) geometry as a geopandas.GeoDataFrame.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;basins&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="p">(</span>
@@ -572,7 +575,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">basins_highres</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a high resolution basin(s) geometry.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;basins_highres&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
@@ -585,7 +588,7 @@
 <span class="sd">        If available, the stream order and upstream area values are added to</span>
 <span class="sd">        the geometry properties.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;rivers&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">rivmsk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="mi">0</span>
@@ -601,6 +604,14 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No river cells detected in the selected basin.&quot;</span><span class="p">)</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">gdf</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the grid data with a DataArray or Dataset.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="c1">## SETUP METHODS</span>
 <div class="viewcode-block" id="WflowModel.setup_config">
@@ -1050,7 +1061,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_riv1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding rivers vector to geoms.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove old rivers if in geoms</span>
+        <span class="k">if</span> <span class="s2">&quot;rivers&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">)</span>  <span class="c1"># remove old rivers if in geoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to geoms</span>
 
         <span class="c1"># Add hydrologically conditioned elevation map for the river, if required</span>
@@ -2123,7 +2135,6 @@
             <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span>
             <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
             <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outlets&quot;</span><span class="p">)</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs_out</span><span class="p">))</span>
@@ -2289,8 +2300,8 @@
                 <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">gauges_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">gauges_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
                 <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
                     <span class="n">gauges_fn</span><span class="p">,</span>
                     <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
@@ -2298,7 +2309,7 @@
                     <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
                     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
                 <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
                     <span class="n">gauges_fn</span><span class="p">,</span>
                     <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
@@ -2313,9 +2324,9 @@
                     <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> data source not found or </span><span class="se">\</span>
-<span class="s2">                incorrect data_type (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> </span><span class="se">\</span>
-<span class="s2">                instead of GeoDataFrame or GeoDataset).&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> data source not found or incorrect data_type &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> instead of &quot;</span>
+                <span class="s2">&quot;GeoDataFrame or GeoDataset).&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># Create basename</span>
@@ -2376,7 +2387,6 @@
                 <span class="n">stream</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
                 <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
                 <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">,</span>
-                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Filter gauges that could not be snapped to rivers</span>
             <span class="k">if</span> <span class="n">snap_to_river</span><span class="p">:</span>
@@ -2845,11 +2855,11 @@
 
         <span class="c1"># Save accuracy information on reservoir parameters</span>
         <span class="k">if</span> <span class="n">reservoir_accuracy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">reservoir_accuracy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
+            <span class="n">reservoir_accuracy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">reservoir_timeseries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">reservoir_timeseries</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-                <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+                <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># update toml</span>
@@ -3612,7 +3622,7 @@
                     <span class="sa">f</span><span class="s2">&quot;Parameter </span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2"> already in toml and will be overwritten.&quot;</span>
                 <span class="p">)</span>
             <span class="c1"># remove from config</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">wflow_var</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">wflow_var</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="c1"># Add to config</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2">.value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
@@ -3770,14 +3780,12 @@
             <span class="p">)</span>
             <span class="n">clim</span> <span class="o">=</span> <span class="n">clim</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
-        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
+        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">meteo</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
             <span class="n">precip</span><span class="o">=</span><span class="n">precip</span><span class="p">,</span>
             <span class="n">da_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
             <span class="n">clim</span><span class="o">=</span><span class="n">clim</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
             <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Update meta attributes (used for default output filename later)</span>
@@ -3948,13 +3956,12 @@
         <span class="p">)</span>
 
         <span class="c1"># Use precip workflow to create the forcing file</span>
-        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
+        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">meteo</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
             <span class="n">precip</span><span class="o">=</span><span class="n">precip</span><span class="p">,</span>
             <span class="n">da_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
             <span class="n">clim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
             <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
-            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Update meta attributes (used for default output filename later)</span>
@@ -5633,9 +5640,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="n">config_out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">convert_to_wflow_v1_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config_out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">convert_to_wflow_v1_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
@@ -5649,7 +5656,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">grid_fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">,</span>
-        <span class="n">geoms_fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">geoms_fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;staticgeoms&quot;</span><span class="p">),</span>
         <span class="n">forcing_fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">states_fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -5684,18 +5691,59 @@
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_data_catalog</span><span class="p">()</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># try to read default if not yet set</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_grid</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">grid_fn</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_geoms</span><span class="p">(</span><span class="n">geoms_fn</span><span class="o">=</span><span class="n">geoms_fn</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_forcing</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">forcing_fn</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_tables</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">states_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;staticmaps&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">grid_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;geoms&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="n">geoms_fn</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">geoms_fn</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">geoms_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geoms_fn</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">geoms_fn</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_out</span><span class="o">=</span><span class="n">geoms_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;forcing&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">forcing_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;tables&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tabeles</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;states&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">states_fn</span><span class="p">)</span>
+
         <span class="c1"># Write the config last as variables can get set in other write methods</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="n">config_fn</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">config_fn</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WflowModel.read">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>
+    <span class="nd">@hydromt_step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">staticmaps_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">geoms_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read components from disk.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_filename : str | None, optional</span>
+<span class="sd">            config file name, by default None</span>
+<span class="sd">        staticmaps_filename : str | None, optional</span>
+<span class="sd">            static maps file name, by default None</span>
+<span class="sd">        geoms_filename : str | None, optional</span>
+<span class="sd">            geoms file name, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config_filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_config</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_config</span><span class="p">(</span><span class="n">config_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">staticmaps_filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_staticmaps</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_staticmaps</span><span class="p">(</span><span class="n">staticmaps_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">geoms_filename</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">(</span><span class="n">geoms_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_states</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.read_config">
@@ -5882,7 +5930,7 @@
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">geoms_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read static geometries and adds to ``geoms``.</span>
@@ -5894,13 +5942,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        geoms_fn : str, optional</span>
+<span class="sd">        geoms_filename : str, optional</span>
 <span class="sd">            Folder name/path where the static geometries are stored relative to the</span>
 <span class="sd">            model root and ``dir_input`` if any. By default &quot;staticgeoms&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">input_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">),</span>
-            <span class="n">geoms_fn</span><span class="p">,</span>
+            <span class="n">geoms_filename</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span></div>
@@ -6221,9 +6269,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Sort which path/ filename is actually the one used</span>
         <span class="c1"># Hierarchy is: 1: signature, 2: config, 3: default</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
         <span class="c1"># Check for input dir</span>
-        <span class="n">p_input</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p_input</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">p_input</span><span class="p">,</span>
@@ -6251,9 +6299,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Sort which path/ filename is actually the one used</span>
         <span class="c1"># Hierarchy is: 1: signature, 2: config, 3: default</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">filename</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">filename</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="p">)</span>
         <span class="c1"># Check for output dir</span>
-        <span class="n">p_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
         <span class="c1"># Update the config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
@@ -6497,7 +6549,9 @@
 <span class="sd">            &gt;&gt; self.set_config(&#39;b&#39;, &#39;c&#39;, &#39;d&#39;, 99) # identical to set_config(&#39;b.d.e&#39;, 99)</span>
 <span class="sd">            &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 99}}}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_naming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rename_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>

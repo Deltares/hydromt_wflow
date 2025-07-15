@@ -429,7 +429,7 @@
     <span class="n">WFLOW_STATES_NAMES</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="n">DATADIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
@@ -459,6 +459,8 @@
 <span class="sd">        The config settings.</span>
 <span class="sd">    key : str</span>
 <span class="sd">        keys are string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">    root: Path, optional</span>
+<span class="sd">        The model root.</span>
 <span class="sd">    fallback: Any, optional</span>
 <span class="sd">        fallback value if key(s) not found in config, by default None.</span>
 <span class="sd">    abs_path: bool, optional</span>
@@ -888,7 +890,6 @@
     <span class="n">input_options</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">input_variables</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
     <span class="n">additional_variables</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the config to Wflow v1 format.</span>
 
@@ -908,8 +909,6 @@
 <span class="sd">        Options in the [input] section of the TOML that were updated in Wflow v1.</span>
 <span class="sd">    input_variables: list, optional</span>
 <span class="sd">        Variables that were moved to input rather than input.static.</span>
-<span class="sd">    logger: logging.Logger, optional</span>
-<span class="sd">        The logger to use, by default logger.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1044,10 +1043,10 @@
 
     <span class="c1"># Output netcdf_grid section</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converting config output sections&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.nc&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.nc&quot;</span><span class="p">),</span>
             <span class="s2">&quot;compressionlevel&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span>
                 <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;output.compressionlevel&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">),</span>
@@ -1061,16 +1060,14 @@
                 <span class="n">_update_output_netcdf_grid</span><span class="p">(</span><span class="n">wflow_var</span><span class="p">,</span> <span class="n">var_name</span><span class="p">)</span>
 
     <span class="c1"># Output netcdf_scalar section</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span>
-                <span class="s2">&quot;netcdf.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output_scalar.nc&quot;</span>
-            <span class="p">),</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output_scalar.nc&quot;</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">][</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">nc_scalar_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf.variable&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">nc_scalar_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;netcdf.variable&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">nc_scalar</span> <span class="ow">in</span> <span class="n">nc_scalar_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">WFLOW_CONVERSION</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">WFLOW_CONVERSION</span><span class="p">[</span><span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]]</span>
@@ -1081,16 +1078,16 @@
                 <span class="n">_warn_str</span><span class="p">(</span><span class="n">nc_scalar</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">],</span> <span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">)</span>
 
     <span class="c1"># Output csv section</span>
-    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv.column&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;output&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
             <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span>
-            <span class="s2">&quot;csv.path&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.csv&quot;</span>
+            <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv.path&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;output.csv&quot;</span>
         <span class="p">)</span>
         <span class="n">config_out</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">csv_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv.column&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">csv_vars</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;csv.column&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="p">[])</span>
         <span class="k">for</span> <span class="n">csv_var</span> <span class="ow">in</span> <span class="n">csv_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">WFLOW_CONVERSION</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">WFLOW_CONVERSION</span><span class="p">[</span><span class="n">csv_var</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]]</span>
@@ -1105,7 +1102,6 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_wflow_v1_sbm</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the config to Wflow v1 format for SBM.</span>
 
@@ -1113,8 +1109,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    config: dict</span>
 <span class="sd">        The config to convert.</span>
-<span class="sd">    logger: logging.Logger, optional</span>
-<span class="sd">        The logger to use, by default logger.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1221,7 +1215,6 @@
         <span class="n">input_options</span><span class="o">=</span><span class="n">input_options</span><span class="p">,</span>
         <span class="n">input_variables</span><span class="o">=</span><span class="n">input_variables</span><span class="p">,</span>
         <span class="n">additional_variables</span><span class="o">=</span><span class="n">additional_variables</span><span class="p">,</span>
-        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config_out</span>
@@ -1229,7 +1222,6 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_wflow_v1_sediment</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the config to Wflow v1 format for sediment.</span>
 
@@ -1237,8 +1229,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    config: dict</span>
 <span class="sd">        The config to convert.</span>
-<span class="sd">    logger: logging.Logger, optional</span>
-<span class="sd">        The logger to use, by default logger.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1292,7 +1282,6 @@
         <span class="n">input_options</span><span class="o">=</span><span class="n">input_options</span><span class="p">,</span>
         <span class="n">input_variables</span><span class="o">=</span><span class="n">input_variables</span><span class="p">,</span>
         <span class="n">additional_variables</span><span class="o">=</span><span class="n">additional_variables</span><span class="p">,</span>
-        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config_out</span>

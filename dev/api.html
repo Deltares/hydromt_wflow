@@ -762,8 +762,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.update.html#hydromt_wflow.WflowModel.update" title="hydromt_wflow.WflowModel.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.update</span></code></a>(*[, model_out, write, ...])</p></td>
 <td><p>Single method to update a model based the settings in <cite>steps</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read" title="hydromt_wflow.WflowModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read</span></code></a>([components])</p></td>
-<td><p>Read provided components from disk.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read" title="hydromt_wflow.WflowModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read</span></code></a>([config_filename, ...])</p></td>
+<td><p>Read components from disk.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write" title="hydromt_wflow.WflowModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write</span></code></a>([config_fn, grid_fn, ...])</p></td>
 <td><p>Write the complete model schematization and configuration to file.</p></td>
@@ -783,7 +783,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.clip_staticmaps.html#hydromt_wflow.WflowModel.clip_staticmaps" title="hydromt_wflow.WflowModel.clip_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.clip_staticmaps</span></code></a>(region[, buffer, ...])</p></td>
 <td><p>Clip staticmaps to subbasin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms" title="hydromt_wflow.WflowModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_geoms</span></code></a>([geoms_fn])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms" title="hydromt_wflow.WflowModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_geoms</span></code></a>([geoms_filename])</p></td>
 <td><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms" title="hydromt_wflow.WflowModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_geoms</span></code></a>([geoms_fn, ...])</p></td>
@@ -893,7 +893,7 @@
 <h3>Initialize<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel" title="hydromt_wflow.WflowSedimentModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel</span></code></a>([root, config_fn, mode, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel" title="hydromt_wflow.WflowSedimentModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel</span></code></a>([root, config_filename, ...])</p></td>
 <td><p>The wflow sediment model class, a subclass of WflowModel.</p></td>
 </tr>
 </tbody>
@@ -978,8 +978,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.update.html#hydromt_wflow.WflowSedimentModel.update" title="hydromt_wflow.WflowSedimentModel.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.update</span></code></a>(*[, model_out, ...])</p></td>
 <td><p>Single method to update a model based the settings in <cite>steps</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read.html#hydromt_wflow.WflowSedimentModel.read" title="hydromt_wflow.WflowSedimentModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read</span></code></a>([components])</p></td>
-<td><p>Read provided components from disk.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read.html#hydromt_wflow.WflowSedimentModel.read" title="hydromt_wflow.WflowSedimentModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read</span></code></a>([config_filename, ...])</p></td>
+<td><p>Read components from disk.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write.html#hydromt_wflow.WflowSedimentModel.write" title="hydromt_wflow.WflowSedimentModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write</span></code></a>([config_fn, ...])</p></td>
 <td><p>Write the complete model schematization and configuration to file.</p></td>
@@ -999,7 +999,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.clip_staticmaps.html#hydromt_wflow.WflowSedimentModel.clip_staticmaps" title="hydromt_wflow.WflowSedimentModel.clip_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.clip_staticmaps</span></code></a>(region[, ...])</p></td>
 <td><p>Clip staticmaps to subbasin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_geoms.html#hydromt_wflow.WflowSedimentModel.read_geoms" title="hydromt_wflow.WflowSedimentModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_geoms</span></code></a>([geoms_fn])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_geoms.html#hydromt_wflow.WflowSedimentModel.read_geoms" title="hydromt_wflow.WflowSedimentModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_geoms</span></code></a>([geoms_filename])</p></td>
 <td><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write_geoms.html#hydromt_wflow.WflowSedimentModel.write_geoms" title="hydromt_wflow.WflowSedimentModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write_geoms</span></code></a>([geoms_fn, ...])</p></td>
