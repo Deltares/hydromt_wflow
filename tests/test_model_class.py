@@ -129,7 +129,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
 
 
 @pytest.mark.timeout(60)  # max 1 min
-def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
+def test_model_clip(tmpdir, example_wflow_model: WflowModel, clipped_wflow_model):
     model = "wflow"
 
     # Clip method options

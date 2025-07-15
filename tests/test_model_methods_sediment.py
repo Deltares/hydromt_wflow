@@ -58,7 +58,7 @@ def test_setup_soilmaps_sed(
         usle_k_method="epic",
         add_aggregates=False,
     )
-    da = example_sediment_model.staticmaps
+    da = example_sediment_model.staticmaps.data
 
     values = da["erosion_usle_k"].raster.mask_nodata()
     mean_val = values.mean().values

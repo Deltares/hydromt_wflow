@@ -108,7 +108,7 @@ def test_convert_to_wflow_v1_sediment():
     assert "river_kodatie_a" in wflow.staticmaps.data
 
 
-def test_config_toml_grouping(tmpdir):
+def test_config_toml_grouping(tmpdir: Path):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.read_config()
 
@@ -153,7 +153,7 @@ def test_config_toml_grouping(tmpdir):
     assert written_config == expected_config
 
 
-def test_config_toml_overwrite(tmpdir):
+def test_config_toml_overwrite(tmpdir: Path):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.config.read()
     dummy_model.config.set(

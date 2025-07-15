@@ -515,10 +515,10 @@ def mask_raster_from_layer(
     mask = mask != mask.raster.nodata
 
     if isinstance(data, xr.DataArray):
-        data = _mask_data_array(data)
+        data = _mask_data_array(data, mask)
     else:
         for var in data.data_vars:
-            data[var] = _mask_data_array(data[var])
+            data[var] = _mask_data_array(data[var], mask)
 
     return data
 

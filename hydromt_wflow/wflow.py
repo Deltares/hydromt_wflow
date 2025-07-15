@@ -897,7 +897,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config.data["state"].pop(
                     "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
@@ -907,7 +907,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config.data["state"].pop(
                     "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
@@ -918,7 +918,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
+                self.config.data["output"]["netcdf_grid"]["variables"].pop(
                     "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
@@ -928,7 +928,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
+                self.config.data["output"]["netcdf_grid"]["variables"].pop(
                     "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                     None,
                 )
@@ -949,7 +949,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config.data["state"].pop(
                     "land_surface_water__instantaneous_volume_flow_rate", None
                 )
             if (
@@ -958,14 +958,16 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["state"].pop(
+                self.config.data["state"].pop(
                     "floodplain_water__instantaneous_volume_flow_rate", None
                 )
             if (
                 self.get_config("state.floodplain_water__instantaneous_depth")
                 is not None
             ):
-                self.config["state"].pop("floodplain_water__instantaneous_depth", None)
+                self.config.data["state"].pop(
+                    "floodplain_water__instantaneous_depth", None
+                )
             # Remove from output.netcdf_grid section
             if (
                 self.get_config(
@@ -973,7 +975,7 @@ setting new flood_depth dimensions"
                 )
                 is not None
             ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
+                self.config.data["output"]["netcdf_grid"]["variables"].pop(
                     "land_surface_water__instantaneous_volume_flow_rate", None
                 )
 
@@ -5086,7 +5088,7 @@ Run setup_soilmaps first"
         """
         states, states_config = workflows.prepare_cold_states(
             self.staticmaps.data,
-            config=self.config,
+            config=self.config.data,
             timestamp=timestamp,
             mask_name_land=self._MAPS["basins"],
             mask_name_river=self._MAPS["rivmsk"],
@@ -5669,9 +5671,9 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.config.get("state.path_input") or self.states._filename
+        p = self.get_config("state.path_input") or self.states._filename
         # Check for input dir
-        p_input = join(self.config.get("dir_input", fallback=""), p)
+        p_input = join(self.get_config("dir_input", fallback=""), p)
 
         self.states.read(
             filename=p_input,
@@ -5696,9 +5698,10 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.config.get("state.path_input") or self.states._filename
+        p = filename or self.get_config("state.path_input") or self.states._filename
         # Check for output dir
-        p_output = join(self.config.get("dir_input", fallback=""), p)
+
+        p_output = join(self.get_config("dir_input", fallback=""), p)
 
         # Update the config
         self.config.set("state.path_input", p)
@@ -6174,7 +6177,7 @@ change name input.path_forcing "
                 self.get_config("state.variables.reservoir_water__instantaneous_volume")
                 is not None
             ):
-                del self.config["state"]["variables"][
+                del self.config.data["state"]["variables"][
                     "reservoir_water__instantaneous_volume"
                 ]
 
@@ -6188,7 +6191,7 @@ change name input.path_forcing "
                 )
                 is not None
             ):
-                del self.config["state"]["variables"][
+                del self.config.data["state"]["variables"][
                     "lake_water_surface__instantaneous_elevation"
                 ]
 

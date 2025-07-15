@@ -50,7 +50,7 @@ def example_sediment_model():
 
 
 @pytest.fixture
-def example_models(example_wflow_model, example_sediment_model):
+def example_models(example_wflow_model: WflowModel, example_sediment_model):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
