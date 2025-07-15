@@ -79,8 +79,7 @@ def test_convert_to_wflow_v1_sbm():
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
     wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
-
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
 
 def test_convert_to_wflow_v1_sediment():
@@ -100,7 +99,7 @@ def test_convert_to_wflow_v1_sediment():
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
     wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
     assert "soil_sagg_fraction" in wflow.staticmaps.data
@@ -108,34 +107,25 @@ def test_convert_to_wflow_v1_sediment():
     assert "river_kodatie_a" in wflow.staticmaps.data
 
 
-def test_config_toml_grouping(tmpdir: Path):
+def test_config_toml_grouping(tmpdir, static_layer):
     dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model.staticmaps.set(static_layer, name="layer")
     dummy_model.read_config()
 
     dummy_model.set_config(
-        "input",
-        "forcing",
-        "netcdf.name",
+        "input.forcing.netcdf.name",
         "blah.nc",
     )
     dummy_model.config.set(
-        "input",
-        "forcing",
-        "scale",
+        "input.forcing.scale",
         1,
     )
     dummy_model.config.set(
-        "input",
-        "static",
-        "staticsoil~compacted_surface_water__infiltration_capacity",
-        "value",
+        "input.static.staticsoil~compacted_surface_water__infiltration_capacity.value",
         5,
     )
     dummy_model.config.set(
-        "input",
-        "static",
-        "soil_root~wet__sigmoid_function_shape_parameter",
-        "value",
+        "input.static.soil_root~wet__sigmoid_function_shape_parameter.value",
         -500,
     )
     dummy_model.config.set(

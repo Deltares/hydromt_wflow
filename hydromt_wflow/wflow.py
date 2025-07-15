@@ -38,7 +38,7 @@ from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowModel(Model):
@@ -96,7 +96,7 @@ class WflowModel(Model):
             root,
             components=components,
             mode=mode,
-            region_component="staticmaps",  # change when GridComponent is implemented
+            region_component="staticmaps",
             data_libs=data_libs,
             **catalog_keys,
         )
@@ -111,6 +111,9 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
+        # Read model from disk when in read mode
+        if mode == "r" or mode == "r+":
+            self.read(config_filename=config_filename)
 
     ## Properties
     # Components
@@ -5113,9 +5116,9 @@ Run setup_soilmaps first"
         """
         self.read()
 
-        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
+        config_out = utils.convert_to_wflow_v1_sbm(self.config.data)
         with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
-            self._config = tomllib.load(file)
+            self.config._data = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -5126,7 +5129,7 @@ Run setup_soilmaps first"
         self,
         config_fn: str | None = None,
         grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path | str = "staticgeoms",
+        geoms_fn: Path = Path("staticgeoms"),
         forcing_fn: Path | str | None = None,
         states_fn: Path | str | None = None,
     ):
@@ -5161,18 +5164,56 @@ Run setup_soilmaps first"
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if self.staticmaps.data:
-            self.write_staticmaps(filename=grid_fn)
-        if self.geoms.data:
-            self.write_geoms(geoms_fn=geoms_fn)
-        if self._forcing:
-            self.write_forcing(fn_out=forcing_fn)
-        if self.tables:
-            self.write_tables()
-        if self.states.data:
-            self.write_states(fn_out=states_fn)
+        if "staticmaps" in self.components:
+            self.staticmaps.write(filename=grid_fn)
+        if "geoms" in self.components:
+            geoms_fn = (
+                Path(geoms_fn)
+                if geoms_fn is not isinstance(geoms_fn, Path)
+                else geoms_fn
+            )
+            self.geoms.write(dir_out=geoms_fn)
+        if "forcing" in self.components:
+            self.forcing.write(filename=forcing_fn)
+        if "tables" in self.components:
+            self.tabeles.write()
+        if "states" in self.components:
+            self.states.write(filename=states_fn)
+
         # Write the config last as variables can get set in other write methods
-        self.write_config(config_filename=config_fn)
+        self.config.write(path=config_fn)
+
+    @hydromt_step
+    def read(
+        self,
+        config_filename: str | None = None,
+        staticmaps_filename: str | None = None,
+        geoms_filename: str | None = None,
+    ):
+        """Read components from disk.
+
+        Parameters
+        ----------
+        config_filename : str | None, optional
+            config file name, by default None
+        staticmaps_filename : str | None, optional
+            static maps file name, by default None
+        geoms_filename : str | None, optional
+            geoms file name, by default None
+        """
+        if not config_filename:
+            self.read_config()
+        else:
+            self.read_config(config_filename)
+        if not staticmaps_filename:
+            self.read_staticmaps()
+        else:
+            self.read_staticmaps(staticmaps_filename)
+        if not geoms_filename:
+            self.read_geoms()
+        else:
+            self.read_geoms(geoms_filename)
+        self.read_states()
 
     @hydromt_step
     def read_config(
@@ -5341,7 +5382,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_geoms(
         self,
-        geoms_fn: str = "staticgeoms",
+        geoms_filename: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -5353,13 +5394,13 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_fn : str, optional
+        geoms_filename : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
         input_dir = join(
             self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_fn,
+            geoms_filename,
         )
         pattern = join(input_dir, "*.geojson")
         self.geoms.read(filename=pattern)
@@ -5668,9 +5709,9 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.get_config("state.path_input") or self.states._filename
+        p = self.config.get_value("state.path_input") or self.states._filename
         # Check for input dir
-        p_input = join(self.get_config("dir_input", fallback=""), p)
+        p_input = join(self.config.get_value("dir_input", fallback=""), p)
 
         self.states.read(
             filename=p_input,
@@ -5695,10 +5736,13 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.get_config("state.path_input") or self.states._filename
+        p = (
+            filename
+            or self.config.get_value("state.path_input")
+            or self.states._filename
+        )
         # Check for output dir
-
-        p_output = join(self.get_config("dir_input", fallback=""), p)
+        p_output = join(self.config.get_value("dir_input", fallback=""), p)
 
         # Update the config
         self.config.set("state.path_input", p)
@@ -5936,7 +5980,9 @@ change name input.path_forcing "
             >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
-        self.config.set(*args)
+        key = ".".join(args[:-1])
+        value = args[-1]
+        self.config.set(key, value)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.

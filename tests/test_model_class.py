@@ -110,6 +110,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     mod1 = model_type(
         root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
     )
+
     # get ini file
     opt = example_inis[model]
     _list_opts = [{k: v} for k, v in opt.items()]
