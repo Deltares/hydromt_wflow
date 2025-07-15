@@ -19,10 +19,6 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-@pytest.mark.skip(
-    reason="Investigate why ValueError in hydrography() is no longer raised. "
-    "msg: `at least consist of two cell`"
-)
 def test_setup_basemaps(tmpdir: Path):
     # Region
     region = {
@@ -51,7 +47,6 @@ def test_setup_basemaps(tmpdir: Path):
 
     # Test for too small basins
     region = {"subbasin": [12.572061, 46.601984]}
-
     with pytest.raises(ValueError) as error:  # noqa PT011
         mod.setup_basemaps(
             region=region,
