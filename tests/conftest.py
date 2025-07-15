@@ -2,6 +2,7 @@
 
 import platform
 from os.path import abspath, dirname, join
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -14,6 +15,7 @@ from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -22,6 +24,22 @@ if platform.system().lower() != "windows":
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
+
+
+## Cached data and models
+@pytest.fixture(scope="session")
+def build_data() -> Path:
+    build_dir = fetch_data("artifact-data")
+    assert build_dir.is_dir()
+    assert Path(build_dir, "era5.nc").is_file()
+    return build_dir
+
+
+@pytest.fixture(scope="session")
+def build_data_catalog(build_data) -> Path:
+    p = Path(build_data, "data_catalog.yml")
+    assert p.is_file()
+    return p
 
 
 @pytest.fixture
@@ -102,15 +120,12 @@ def example_wflow_results():
 
 
 @pytest.fixture
-def clipped_wflow_model():
+def clipped_wflow_model(build_data_catalog):
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=[build_data_catalog],
     )
     return mod
 
