@@ -92,7 +92,7 @@ def glaciermaps(
 storage per grid cell"
     )
     elevtn = ds_like[elevtn_name]
-    idx_valid = np.where(elevtn.values.flatten() != elevtn.raster.nodata)[0]
+    idx_valid = np.nonzero(elevtn.values.flatten() != elevtn.raster.nodata)[0]
     gdf_grid = ds_like.raster.vector_grid().loc[idx_valid]
     gdf_grid["glacierfrac"] = np.zeros(len(idx_valid), dtype=np.float32)
     gdf_grid["glacierstore"] = np.zeros(len(idx_valid), dtype=np.float32)

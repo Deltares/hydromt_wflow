@@ -118,7 +118,7 @@ def gauge_map_uparea(
 
     # find best matching uparea cell in window
     i_wdw = upa_dff.argmin("wdw").load()
-    idx_valid = np.where(upa_check.isel(wdw=i_wdw).values)[0]
+    idx_valid = np.nonzero(upa_check.isel(wdw=i_wdw).values)[0]
     if idx_valid.size < gdf.index.size:
         logger.warning(
             f"{idx_valid.size}/{gdf.index.size} gauge points successfully snapped."
