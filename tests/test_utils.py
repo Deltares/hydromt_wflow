@@ -78,7 +78,6 @@ def test_convert_to_wflow_v1_sbm():
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
     wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
-
     assert wflow.config.test_equal(wflow_v1.config)[0]
 
 
@@ -99,12 +98,12 @@ def test_convert_to_wflow_v1_sediment():
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
     wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
-    assert "soil_sagg_fraction" in wflow.staticmaps
-    assert "land_govers_c" in wflow.staticmaps
-    assert "river_kodatie_a" in wflow.staticmaps
+    assert "soil_sagg_fraction" in wflow.staticmaps.data
+    assert "land_govers_c" in wflow.staticmaps.data
+    assert "river_kodatie_a" in wflow.staticmaps.data
 
 
 def test_config_toml_grouping(tmpdir, static_layer):

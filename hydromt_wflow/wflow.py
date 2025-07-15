@@ -112,6 +112,9 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
+        # Read model from disk when in read mode
+        if mode == "r" or mode == "r+":
+            self.read(config_filename=config_filename)
 
     ## Properties
     # Components
@@ -5183,6 +5186,38 @@ Run setup_soilmaps first"
         self.config.write(path=config_fn)
 
     @hydromt_step
+    def read(
+        self,
+        config_filename: str | None = None,
+        staticmaps_filename: str | None = None,
+        geoms_filename: str | None = None,
+    ):
+        """Read components from disk.
+
+        Parameters
+        ----------
+        config_filename : str | None, optional
+            config file name, by default None
+        staticmaps_filename : str | None, optional
+            static maps file name, by default None
+        geoms_filename : str | None, optional
+            geoms file name, by default None
+        """
+        if not config_filename:
+            self.read_config()
+        else:
+            self.read_config(config_filename)
+        if not staticmaps_filename:
+            self.read_staticmaps()
+        else:
+            self.read_staticmaps(staticmaps_filename)
+        if not geoms_filename:
+            self.read_geoms()
+        else:
+            self.read_geoms(geoms_filename)
+        self.read_states()
+
+    @hydromt_step
     def read_config(
         self,
         config_filename: str | None = None,
@@ -5349,7 +5384,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_geoms(
         self,
-        geoms_fn: str = "staticgeoms",
+        geoms_filename: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -5361,13 +5396,13 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_fn : str, optional
+        geoms_filename : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
         input_dir = join(
             self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_fn,
+            geoms_filename,
         )
         pattern = join(input_dir, "*.geojson")
         self.geoms.read(filename=pattern)
@@ -5676,9 +5711,9 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.config.get("state.path_input") or self.states._filename
+        p = self.config.get_value("state.path_input") or self.states._filename
         # Check for input dir
-        p_input = join(self.config.get("dir_input", fallback=""), p)
+        p_input = join(self.config.get_value("dir_input", fallback=""), p)
 
         self.states.read(
             filename=p_input,
@@ -5703,9 +5738,13 @@ change name input.path_forcing "
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.config.get("state.path_input") or self.states._filename
+        p = (
+            filename
+            or self.config.get_value("state.path_input")
+            or self.states._filename
+        )
         # Check for output dir
-        p_output = join(self.config.get("dir_input", fallback=""), p)
+        p_output = join(self.config.get_value("dir_input", fallback=""), p)
 
         # Update the config
         self.config.set("state.path_input", p)

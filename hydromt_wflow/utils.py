@@ -662,7 +662,7 @@ def _convert_to_wflow_v1(
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
-    if get_config(config, "netcdf.variable", fallback=None) is not None:
+    if get_config(config, "csv.column", fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
         config_out["output"]["csv"] = {}
