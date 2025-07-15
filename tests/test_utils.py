@@ -4,7 +4,6 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
-import pytest
 import tomllib
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
@@ -14,9 +13,6 @@ TESTDATADIR = Path(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = Path(dirname(abspath(__file__)), "..", "examples", "data")
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_grid_from_config(demda):
     # Create a couple of variables in grid
     grid = demda.to_dataset(name="dem")
@@ -70,35 +66,28 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_convert_to_wflow_v1_sbm():
     # Initialize wflow model
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    wflow = WflowModel(root, config_filename=config_fn, mode="r")
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
-    wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
 
-
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_convert_to_wflow_v1_sediment():
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
     config_fn = "wflow_sediment_v0x.toml"
 
     wflow = WflowSedimentModel(
-        root, config_fn=config_fn, data_libs=["artifact_data"], mode="r"
+        root, config_filename=config_fn, data_libs=["artifact_data"], mode="r"
     )
     # Convert to v1
     wflow.upgrade_to_v1_wflow(
@@ -107,47 +96,35 @@ def test_convert_to_wflow_v1_sediment():
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
-    wflow_v1 = WflowSedimentModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
-    assert "soil_sagg_fraction" in wflow.grid
-    assert "land_govers_c" in wflow.grid
-    assert "river_kodatie_a" in wflow.grid
+    assert "soil_sagg_fraction" in wflow.staticmaps.data
+    assert "land_govers_c" in wflow.staticmaps.data
+    assert "river_kodatie_a" in wflow.staticmaps.data
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
-def test_config_toml_grouping(tmpdir):
+def test_config_toml_grouping(tmpdir, static_layer):
     dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model.staticmaps.set(static_layer, name="layer")
     dummy_model.read_config()
 
     dummy_model.set_config(
-        "input",
-        "forcing",
-        "netcdf.name",
+        "input.forcing.netcdf.name",
         "blah.nc",
     )
     dummy_model.config.set(
-        "input",
-        "forcing",
-        "scale",
+        "input.forcing.scale",
         1,
     )
     dummy_model.config.set(
-        "input",
-        "static",
-        "staticsoil~compacted_surface_water__infiltration_capacity",
-        "value",
+        "input.static.staticsoil~compacted_surface_water__infiltration_capacity.value",
         5,
     )
     dummy_model.config.set(
-        "input",
-        "static",
-        "soil_root~wet__sigmoid_function_shape_parameter",
-        "value",
+        "input.static.soil_root~wet__sigmoid_function_shape_parameter.value",
         -500,
     )
     dummy_model.config.set(
@@ -165,9 +142,6 @@ def test_config_toml_grouping(tmpdir):
     assert written_config == expected_config
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_config_toml_overwrite(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.config.read()

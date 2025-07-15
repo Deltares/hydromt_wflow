@@ -2,6 +2,7 @@
 
 import warnings
 from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -13,16 +14,13 @@ from hydromt_wflow.wflow_sediment import WflowSedimentModel
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_supported_models = {
+_supported_models: dict[str, type[WflowModel]] = {
     "wflow": WflowModel,
     "wflow_sediment": WflowSedimentModel,
     "wflow_simple": WflowModel,
 }
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def _compare_wflow_models(mod0, mod1):
     # check maps
     invalid_maps = {}
@@ -98,22 +96,13 @@ def _compare_wflow_models(mod0, mod1):
         assert mod0._config == mod1._config, "config mismatch"
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_class(model, example_models):
     mod = example_models[model]
     if mod is not None:
         mod.read()
-        # run test_model_api() method
-        non_compliant_list = mod._test_model_api()
-        assert len(non_compliant_list) == 0
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):
@@ -121,20 +110,18 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     model_type = _supported_models[model]
     # create folder to store new model
     root = str(tmpdir.join(model))
-    mod1 = model_type(root=root, mode="w", data_libs="artifact_data")
-    # Build method options
-    region = {
-        "subbasin": [12.2051, 45.8331],
-        "strord": 4,
-        "bounds": [11.70, 45.35, 12.95, 46.70],
-    }
+    param_path = (
+        Path(__file__).parent.parent / "hydromt_wflow" / "data" / "parameters_data.yml"
+    )
+    mod1 = model_type(
+        root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
+    )
     # get ini file
     opt = example_inis[model]
+    _list_opts = [{k: v} for k, v in opt.items()]
+
     # Build model
-    mod1.build(region=region, opt=opt)
-    # Check if model is api compliant
-    non_compliant_list = mod1._test_model_api()
-    assert len(non_compliant_list) == 0
+    mod1.build(steps=_list_opts)
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
@@ -148,9 +135,6 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     model = "wflow"
@@ -182,9 +166,6 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_model_inverse_clip(example_wflow_model):
     # Clip method options
     region = {
@@ -210,9 +191,6 @@ def test_model_inverse_clip(example_wflow_model):
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column
