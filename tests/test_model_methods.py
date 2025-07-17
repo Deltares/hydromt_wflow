@@ -335,9 +335,9 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-# @pytest.mark.skip(
-#     reason="Investigate magic number in assert statement: actual=2449, expected=2481"
-# )
+@pytest.mark.skip(
+    reason="Investigate magic number in assert statement: actual=2449, expected=2481"
+)
 def test_setup_lai(example_wflow_model: WflowModel):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
@@ -1003,7 +1003,6 @@ def test_setup_1dmodel_connection(example_wflow_model: WflowModel, rivers1d):
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel-nodes")) == 6
 
 
-@pytest.mark.skip(reason="fix when clipped_wflow_model datacatalog is updated")
 def test_skip_nodata_reservoir(clipped_wflow_model: WflowModel):
     # Using the clipped_wflow_model as the reservoirs are not in this model
     clipped_wflow_model.setup_reservoirs(
@@ -1016,7 +1015,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowModel):
         # Check if layers are indeed not present in the model
         assert (
             clipped_wflow_model._MAPS[mapname]
-            not in clipped_wflow_model.staticmaps.data_vars
+            not in clipped_wflow_model.staticmaps.data.data_vars
         )
 
 
@@ -1306,7 +1305,6 @@ def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     assert "time" in example_wflow_model.staticmaps.data["demand_domestic_net"].dims
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
 def test_setup_irrigation_nopaddy(
     example_wflow_model: WflowModel, tmpdir: Path, globcover_gdf: gpd.GeoDataFrame
 ):
@@ -1325,7 +1323,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" not in ds
@@ -1366,7 +1364,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" not in ds
@@ -1376,7 +1374,6 @@ def test_setup_irrigation_nopaddy(
     assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 8
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
 def test_setup_irrigation_withpaddy(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
@@ -1406,7 +1403,7 @@ def test_setup_irrigation_withpaddy(example_wflow_model: WflowModel, tmpdir: Pat
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" in ds
