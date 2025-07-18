@@ -1840,16 +1840,9 @@ gauge locations [-] (if derive_subcatch)
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
-            # try to get epsg number directly, important when writing back data_catalog
-            if hasattr(self.crs, "to_epsg"):
-                code = self.crs.to_epsg()
-            else:
-                code = self.crs
-            kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
-                assert_gtype="Point",
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -1858,7 +1851,6 @@ gauge locations [-] (if derive_subcatch)
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
-                    assert_gtype="Point",
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )

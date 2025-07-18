@@ -11,6 +11,7 @@ import pytest
 import xarray as xr
 import xarray.testing as xrt
 from hydromt.gis import GeoDataset, full_like
+from shapely import Point
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
@@ -549,15 +550,52 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-@pytest.mark.skip(
-    reason="Investigate why rename to uparea doesnt work, "
-    "also np.all_close fails when just using 'area'."
-)
-def test_setup_gauges(example_wflow_model: WflowModel):
-    # 1. Test with grdc data
+@pytest.fixture
+def update_grdc_area_uparea(example_wflow_model: WflowModel):
+    """Fixture to update the grdc data area to uparea."""
     # uparea rename not in the latest artifact_data version
-    # example_wflow_model.data_catalog.get_geodataframe("grdc")
-    #       .rename({"area": "uparea"})
+    source = example_wflow_model.data_catalog.get_source("grdc")
+    path = Path(source.root, source.uri)
+
+    df = pd.read_csv(path, sep=",", header=0)
+    if "area" in df.columns:
+        df.rename(columns={"area": "uparea"}, inplace=True)
+        df.to_csv(path, sep=",", index=False, header=True)
+    elif "uparea" in df.columns:
+        pass
+    else:
+        raise ValueError("Neither column 'area' nor 'uparea' found in grdc data file.")
+
+    yield
+
+    df = pd.read_csv(path, sep=",", header=0)
+    if "area" in df.columns:
+        pass
+    elif "uparea" in df.columns:
+        df.rename(columns={"uparea": "area"}, inplace=True)
+        df.to_csv(path, sep=",", index=False, header=True)
+    else:
+        raise ValueError("Neither column 'area' nor 'uparea' found in grdc data file.")
+
+
+@pytest.fixture
+def update_test_stations(example_wflow_model: WflowModel):
+    stations_fn = Path(TESTDATADIR, "test_stations.csv")
+    stations_fn_updated = stations_fn.with_suffix(".geojson")
+    df = pd.read_csv(stations_fn)
+    geometry = [Point(xy) for xy in zip(df["x"], df["y"])]
+    gdf_gauges = gpd.GeoDataFrame(df, geometry=geometry, crs=example_wflow_model.crs)
+    gdf_gauges.to_file(stations_fn_updated)
+
+    return stations_fn_updated
+
+
+def test_setup_gauges(
+    update_grdc_area_uparea,
+    update_test_stations,
+    example_wflow_model: WflowModel,
+):
+    # 1. Test with grdc data
     example_wflow_model.setup_gauges(
         gauges_fn="grdc",
         basename="grdc_uparea",
@@ -571,18 +609,15 @@ def test_setup_gauges(example_wflow_model: WflowModel):
     ds_samp = example_wflow_model.staticmaps.data[
         ["river_mask", "meta_upstream_area"]
     ].raster.sample(gdf, wdw=0)
-    # assert np.all(ds_samp["river_mask"].values == 1)
     assert np.allclose(
-        # ! array([313., 357.,  82.]) != array([315.69876, 357.69464, 114.94246], dtype=float32) # noqa: E501
         ds_samp["meta_upstream_area"].values,
         gdf["uparea"].values,
         rtol=0.05,
     )
 
     # 2. Test with/without snapping to mask
-    stations_fn = join(TESTDATADIR, "test_stations.csv")
     example_wflow_model.setup_gauges(
-        gauges_fn=stations_fn,
+        gauges_fn=update_test_stations,
         basename="stations_snapping",
         snap_to_river=True,
         mask=None,
@@ -590,7 +625,7 @@ def test_setup_gauges(example_wflow_model: WflowModel):
     gdf_snap = example_wflow_model.geoms.get("gauges_stations_snapping")
 
     example_wflow_model.setup_gauges(
-        gauges_fn=stations_fn,
+        gauges_fn=update_test_stations,
         basename="stations_no_snapping",
         snap_to_river=False,
         mask=None,
@@ -602,11 +637,11 @@ def test_setup_gauges(example_wflow_model: WflowModel):
     # Find which row is identical
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
-    assert equal.index.values[0] == 1003
+    assert equal.ID.values[0] == 1003
 
     # 3. Test uparea with/without river snapping
     example_wflow_model.setup_gauges(
-        gauges_fn=stations_fn,
+        gauges_fn=update_test_stations,
         basename="stations_uparea_no_snapping",
         snap_to_river=False,
         mask=None,
@@ -620,7 +655,7 @@ def test_setup_gauges(example_wflow_model: WflowModel):
     assert gdf_no_snap.index.size == 2
 
     example_wflow_model.setup_gauges(
-        gauges_fn=stations_fn,
+        gauges_fn=update_test_stations,
         basename="stations_uparea_no_snapping_fillna",
         snap_to_river=False,
         mask=None,
@@ -629,9 +664,9 @@ def test_setup_gauges(example_wflow_model: WflowModel):
         rel_error=0.05,
         fillna=True,
     )
-    gdf_no_snap_fillna = example_wflow_model.geoms[
+    gdf_no_snap_fillna = example_wflow_model.geoms.get(
         "gauges_stations_uparea_no_snapping_fillna"
-    ]
+    )
     # Two gauges have uparea values and fillna is True
     assert gdf_no_snap_fillna.index.size == 3
     # Not all gauges are in the river as snap_to_river is False
@@ -641,7 +676,7 @@ def test_setup_gauges(example_wflow_model: WflowModel):
     assert not np.all(ds_samp["river_mask"].values == 1)
 
     example_wflow_model.setup_gauges(
-        gauges_fn=stations_fn,
+        gauges_fn=update_test_stations,
         basename="stations_uparea_snapping",
         snap_to_river=True,
         mask=None,
