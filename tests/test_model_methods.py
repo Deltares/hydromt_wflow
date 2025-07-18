@@ -336,9 +336,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-@pytest.mark.skip(
-    reason="Investigate magic number in assert statement: actual=2449, expected=2481"
-)
+@pytest.mark.skip(reason="TODO investigate magic numbers in assert statements")
 def test_setup_lai(example_wflow_model: WflowModel):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
@@ -378,9 +376,9 @@ def test_setup_lai(example_wflow_model: WflowModel):
     assert len(df_lai_mode[df_lai_mode.samples == 0]) == 3
     assert len(df_lai_q3[df_lai_q3.samples == 0]) == 3
     # Check number of samples for landuse class 20 with the different methods
-    assert int(df_lai_any.loc[20].samples) == 2481
-    assert int(df_lai_mode.loc[20].samples) == 59
-    assert int(df_lai_q3.loc[20].samples) == 4
+    assert int(df_lai_any.loc[20].samples) == 2481  # TODO: actual=2449
+    assert int(df_lai_mode.loc[20].samples) == 59  # TODO: actual=56
+    assert int(df_lai_q3.loc[20].samples) == 4  # TODO: actual=2
 
     # Try to use the mapping tables to setup the vegetation_leaf_area_index
     example_wflow_model.setup_laimaps_from_lulc_mapping(
