@@ -6,7 +6,7 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import geopandas as gpd
 import hydromt
@@ -103,6 +103,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._flwdir = None
+        self._results: Optional[dict] = None
         self.data_catalog.from_yml(self._CATALOGS)
 
         # Supported Wflow.jl version
@@ -5776,10 +5777,17 @@ change name input.path_forcing "
         # fall back on default set_states behaviour
         self.states.set(data, name=name)
 
+    @property
+    def results(self) -> Dict[str, xr.Dataset | xr.DataArray]:
+        """Model results. Returns dict of xarray.DataArray or xarray.Dataset."""
+        if self._results is None:
+            self._initialize_results()
+        return self._results
+
     @hydromt_step
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
-        if not self._write:
+        if self.root.is_reading_mode():
             # start fresh in read-only mode
             self._results = dict()
 
@@ -5813,11 +5821,72 @@ change name input.path_forcing "
         )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.staticmaps.data
+                csv_fn, config=self.config.data, maps=self.staticmaps.data
             )
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
+
+    def set_results(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: Optional[str] = None,
+        split_dataset: Optional[bool] = False,
+    ):
+        """Add data to results attribute.
+
+        Dataset can either be added as is (default) or split into several
+        DataArrays using the split_dataset argument.
+
+        Arguments
+        ---------
+        data: xarray.Dataset or xarray.DataArray
+            New forcing data to add
+        name: str, optional
+            Results name, required if data is xarray.Dataset and split_dataset=False.
+        split_dataset: bool, optional
+            If True (False by default), split a Dataset to store each variable
+            as a DataArray.
+        """
+
+        def _check_data(
+            _data: xr.DataArray | xr.Dataset,
+            _name: Optional[str] = None,
+            split_dataset: bool = True,
+        ) -> dict:
+            if isinstance(_data, xr.DataArray):
+                # NOTE _name can be different from _data.name !
+                if _data.name is None and _name is not None:
+                    _data.name = _name
+                elif _name is None and _data.name is not None:
+                    _name = _data.name
+                elif _data.name is None and _name is None:
+                    raise ValueError("Name required for DataArray.")
+                _data = {_name: _data}
+            elif isinstance(_data, xr.Dataset):  # return dict for consistency
+                if split_dataset:
+                    _data = {_name: _data[_name] for _name in _data.data_vars}
+                elif _name is None:
+                    raise ValueError("Name required for Dataset.")
+                else:
+                    _data = {_name: _data}
+            else:
+                raise ValueError(f'Data type "{type(_data).__name__}" not recognized')
+            return _data
+
+        self._initialize_results()
+        data_dict = _check_data(data, name, split_dataset)
+        for name in data_dict:
+            if name in self._results:
+                logger.warning(f"Replacing result: {name}")
+            self._results[name] = data_dict[name]
+
+    def _initialize_results(self, skip_read=False) -> None:
+        """Initialize results."""
+        if self._results is None:
+            self._results = dict()
+            if self.root.is_reading_mode() and not skip_read:
+                self.read_results()
 
     @hydromt_step
     def write_results(self):
@@ -6105,7 +6174,7 @@ change name input.path_forcing "
                 kind=kind,
                 basins_name=basins_name,
                 flwdir_name=flwdir_name,
-                **region,
+                **region_kwargs,
             )
         elif kind == "bbox":
             logger.warning(
@@ -6144,7 +6213,7 @@ change name input.path_forcing "
         if self.crs is None and crs is not None:
             self.set_crs(crs)
 
-        self._grid = xr.Dataset()
+        self.staticmaps._data = xr.Dataset()
         self.set_grid(ds_grid)
 
         # add pits at edges after clipping
@@ -6152,7 +6221,7 @@ change name input.path_forcing "
         self.staticmaps.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
         # Reinitiliase geoms and re-create basins/rivers
-        self._geoms = dict()
+        self.geoms.clear()
         self.basins
         self.rivers
 

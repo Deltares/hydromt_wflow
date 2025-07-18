@@ -130,9 +130,11 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-@pytest.mark.skip(reason="fix when datacatalog in clipped_wflow_model is updated to v1")
+@pytest.mark.skip(reason="fix tables component is implemented")
 @pytest.mark.timeout(60)  # max 1 min
-def test_model_clip(tmpdir, example_wflow_model: WflowModel, clipped_wflow_model):
+def test_model_clip(
+    tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+):
     model = "wflow"
 
     # Clip method options
@@ -148,9 +150,6 @@ def test_model_clip(tmpdir, example_wflow_model: WflowModel, clipped_wflow_model
     example_wflow_model.clip_staticmaps(region)
     example_wflow_model.clip_forcing()
     example_wflow_model.write()
-    # Check if model is api compliant
-    non_compliant_list = example_wflow_model._test_model_api()
-    assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
@@ -162,8 +161,8 @@ def test_model_clip(tmpdir, example_wflow_model: WflowModel, clipped_wflow_model
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read() is implemented")
-def test_model_inverse_clip(example_wflow_model):
+@pytest.mark.skip(reason="fix tables component is implemented")
+def test_model_inverse_clip(example_wflow_model: WflowModel):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
@@ -188,7 +187,6 @@ def test_model_inverse_clip(example_wflow_model):
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-@pytest.mark.skip(reason="determine what `.results` is supposed to be in v1")
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column

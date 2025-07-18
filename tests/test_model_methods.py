@@ -1192,7 +1192,7 @@ def test_setup_allocation_surfacewaterfrac(
     )
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
+# @pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
 def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
