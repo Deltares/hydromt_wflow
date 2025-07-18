@@ -5402,8 +5402,8 @@ Run setup_soilmaps first"
             self.get_config("dir_input", abs_path=True, fallback=self.root.path),
             geoms_filename,
         )
-        pattern = join(input_dir, "*.geojson")
-        self.geoms.read(filename=pattern)
+        pattern = Path(input_dir, "{name}.geojson").resolve()
+        self.geoms.read(filename=str(pattern))
 
     @hydromt_step
     def write_geoms(
