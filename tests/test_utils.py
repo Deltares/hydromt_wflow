@@ -72,6 +72,7 @@ def test_convert_to_wflow_v1_sbm():
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowModel(root, config_filename=config_fn, mode="r")
+
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
@@ -142,7 +143,7 @@ def test_config_toml_grouping(tmpdir, static_layer):
     assert written_config == expected_config
 
 
-def test_config_toml_overwrite(tmpdir):
+def test_config_toml_overwrite(tmpdir: Path):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.config.read()
     dummy_model.config.set(
