@@ -19,10 +19,6 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-@pytest.mark.skip(
-    reason="Investigate why ValueError in hydrography() is no longer raised. "
-    "msg: `at least consist of two cell`"
-)
 def test_setup_basemaps(tmpdir: Path):
     # Region
     region = {
@@ -51,7 +47,6 @@ def test_setup_basemaps(tmpdir: Path):
 
     # Test for too small basins
     region = {"subbasin": [12.572061, 46.601984]}
-
     with pytest.raises(ValueError) as error:  # noqa PT011
         mod.setup_basemaps(
             region=region,
@@ -111,9 +106,6 @@ def test_setup_grid(example_wflow_model):
         )
 
 
-@pytest.mark.skip(
-    reason="Investigate magic number in assert statement: actual=338, expected=392"
-)
 def test_projected_crs(tmpdir: Path):
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
@@ -1011,7 +1003,6 @@ def test_setup_1dmodel_connection(example_wflow_model: WflowModel, rivers1d):
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel-nodes")) == 6
 
 
-@pytest.mark.skip(reason="fix when clipped_wflow_model datacatalog is updated")
 def test_skip_nodata_reservoir(clipped_wflow_model: WflowModel):
     # Using the clipped_wflow_model as the reservoirs are not in this model
     clipped_wflow_model.setup_reservoirs(
@@ -1024,7 +1015,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowModel):
         # Check if layers are indeed not present in the model
         assert (
             clipped_wflow_model._MAPS[mapname]
-            not in clipped_wflow_model.staticmaps.data_vars
+            not in clipped_wflow_model.staticmaps.data.data_vars
         )
 
 
@@ -1314,7 +1305,6 @@ def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     assert "time" in example_wflow_model.staticmaps.data["demand_domestic_net"].dims
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
 def test_setup_irrigation_nopaddy(
     example_wflow_model: WflowModel, tmpdir: Path, globcover_gdf: gpd.GeoDataFrame
 ):
@@ -1333,7 +1323,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" not in ds
@@ -1374,7 +1364,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" not in ds
@@ -1384,7 +1374,6 @@ def test_setup_irrigation_nopaddy(
     assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 8
 
 
-@pytest.mark.skip(reason="fix when WflowModel.read method is implemented")
 def test_setup_irrigation_withpaddy(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
@@ -1414,7 +1403,7 @@ def test_setup_irrigation_withpaddy(example_wflow_model: WflowModel, tmpdir: Pat
     )
 
     # Set to shorter name to improve readability of tests
-    ds = example_wflow_model.staticmaps
+    ds = example_wflow_model.staticmaps.data
 
     # Assert entries
     assert "demand_paddy_irrigated_mask" in ds
