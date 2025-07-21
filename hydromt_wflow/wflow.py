@@ -5212,7 +5212,9 @@ Run setup_soilmaps first"
             self.read_geoms()
         else:
             self.read_geoms(geoms_filename)
+
         self.read_states()
+        self.read_tables()
 
     @hydromt_step
     def read_config(

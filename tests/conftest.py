@@ -3,6 +3,7 @@
 import platform
 from os.path import abspath, dirname, join
 from pathlib import Path
+from typing import Callable
 
 import geopandas as gpd
 import numpy as np
@@ -54,6 +55,21 @@ def example_wflow_model():
         ],
     )
     return mod
+
+
+@pytest.fixture
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]:
+    def factory(
+        root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
+        mode: str = "r",
+        data_libs: list[str] = [
+            "artifact_data",
+            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
+        ],
+    ) -> WflowModel:
+        return WflowModel(root=root, mode=mode, data_libs=data_libs)
+
+    return factory
 
 
 @pytest.fixture

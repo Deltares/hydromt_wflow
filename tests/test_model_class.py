@@ -3,6 +3,7 @@
 import warnings
 from os.path import abspath, dirname, join
 from pathlib import Path
+from typing import Callable
 
 import numpy as np
 import pytest
@@ -161,8 +162,9 @@ def test_model_clip(
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-@pytest.mark.skip(reason="fix tables component is implemented")
-def test_model_inverse_clip(example_wflow_model: WflowModel):
+def test_model_inverse_clip(
+    example_wflow_model_factory: Callable[[str, str, list[str]], WflowModel],
+):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
@@ -170,18 +172,20 @@ def test_model_inverse_clip(example_wflow_model: WflowModel):
     }
 
     # Clip workflow, based on example model
-    example_wflow_model.read()
+    inv_clip_model = example_wflow_model_factory()
+    inv_clip_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.staticmaps.data["subcatchment"].sum()
-    example_wflow_model.clip_staticmaps(region, inverse_clip=True)
+    n_pixels_full = inv_clip_model.staticmaps.data["subcatchment"].sum()
+    inv_clip_model.clip_staticmaps(region.copy(), inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_inverse_clipped = inv_clip_model.staticmaps.data["subcatchment"].sum()
 
     # Do clipping again, but normally
-    example_wflow_model.read()
-    example_wflow_model.clip_staticmaps(region, inverse_clip=False)
+    normal_clip_model = example_wflow_model_factory()
+    normal_clip_model.read()
+    normal_clip_model.clip_staticmaps(region.copy(), inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_clipped = normal_clip_model.staticmaps.data["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
