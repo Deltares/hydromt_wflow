@@ -3,6 +3,7 @@
 import platform
 from os.path import abspath, dirname, join
 from pathlib import Path
+from typing import Callable
 
 import geopandas as gpd
 import numpy as np
@@ -57,6 +58,21 @@ def example_wflow_model():
 
 
 @pytest.fixture
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]:
+    def factory(
+        root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
+        mode: str = "r",
+        data_libs: list[str] = [
+            "artifact_data",
+            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
+        ],
+    ) -> WflowModel:
+        return WflowModel(root=root, mode=mode, data_libs=data_libs)
+
+    return factory
+
+
+@pytest.fixture
 def example_sediment_model():
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
@@ -68,7 +84,7 @@ def example_sediment_model():
 
 
 @pytest.fixture
-def example_models(example_wflow_model, example_sediment_model):
+def example_models(example_wflow_model: WflowModel, example_sediment_model):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
@@ -115,7 +131,7 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 def example_wflow_results():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn)
+    mod = WflowModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 

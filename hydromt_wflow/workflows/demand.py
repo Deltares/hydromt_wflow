@@ -1,6 +1,7 @@
 """Workflow for water demand."""
 
 import logging
+import math
 from typing import List, Optional, Tuple
 
 import geopandas as gpd
@@ -40,10 +41,10 @@ def create_grid_from_bbox(
     xmin, ymin, xmax, ymax = bbox
     res = abs(res)
     if align:
-        xmin = round(xmin / res) * res
-        ymin = round(ymin / res) * res
-        xmax = round(xmax / res) * res
-        ymax = round(ymax / res) * res
+        xmin = math.floor(xmin / res) * res
+        ymin = math.floor(ymin / res) * res
+        xmax = math.ceil(xmax / res) * res
+        ymax = math.ceil(ymax / res) * res
     xcoords = np.linspace(
         xmin + res / 2,
         xmax - res / 2,

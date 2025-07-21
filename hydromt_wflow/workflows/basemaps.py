@@ -424,7 +424,7 @@ def parse_region(
             ds=ds_org,
             kind=kind,
             basin_index=bas_index,
-            **region,
+            **region_kwargs,
         )
     elif kind == "bbox":
         logger.warning(

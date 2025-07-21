@@ -138,7 +138,6 @@ def gauge_map_uparea(
         ids=ids_out,
         stream=None,
         flwdir=None,
-        logger=logger,
     )
 
     # Final message
