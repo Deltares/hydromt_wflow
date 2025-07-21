@@ -1,7 +1,6 @@
 """Implement Wflow model class."""
 
 # Implement model class following model API
-import glob
 import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
@@ -33,6 +32,7 @@ from hydromt_wflow.components import (
     WflowGeomsComponent,
     WflowStatesComponent,
     WflowStaticmapsComponent,
+    WflowTablesComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
@@ -90,6 +90,7 @@ class WflowModel(Model):
             "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
             "states": WflowStatesComponent(self, region_component="staticmaps"),
             "staticmaps": WflowStaticmapsComponent(self),
+            "tables": WflowTablesComponent(self),
         }
 
         super().__init__(
@@ -102,7 +103,6 @@ class WflowModel(Model):
         )
 
         # wflow specific
-        self._tables: Optional[dict] = None
         self._flwdir = None
         self._results: Optional[dict] = None
         self.data_catalog.from_yml(self._CATALOGS)
@@ -138,6 +138,11 @@ class WflowModel(Model):
     def staticmaps(self) -> WflowStaticmapsComponent:
         """Return the staticmaps component."""
         return self.components["staticmaps"]
+
+    @property
+    def tables(self) -> WflowTablesComponent:
+        """Return the WflowTablesComponent instance."""
+        return self.components["tables"]
 
     # Non model component properties
     @property
@@ -4536,7 +4541,7 @@ Run setup_soilmaps first"
         # Get population data
         popu = self.data_catalog.get_rasterdataset(
             population_fn,
-            bbox=self.bounds,
+            bbox=self.region.bounds.values[0],
             buffer=1000,
         )
 
@@ -5889,41 +5894,28 @@ change name input.path_forcing "
 
     @hydromt_step
     def read_tables(self, **kwargs):
-        """Read table files at <root> and parse to dict of dataframes."""
-        if not self.root.is_writing_mode():
-            self._tables = dict()  # start fresh in read-only mode
+        """Read table files at <root> and parse to dict of dataframes.
 
-        logger.info("Reading model table files.")
-        fns = glob.glob(join(self.root.path, "*.csv"))
-        if len(fns) > 0:
-            for fn in fns:
-                name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn, float_precision="round_trip")
-                self.set_tables(tbl, name=name)
+        Parameters
+        ----------
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `pd.read_csv` method
+
+        Returns
+        -------
+        None
+            The tables are read and stored in the `self.tables.data` attribute.
+        """
+        self.tables.read(float_precision="round_trip", **kwargs)
 
     @hydromt_step
     def write_tables(self):
         """Write tables at <root>."""
-        if not self.root.is_writing_mode():
-            raise IOError("Model opened in read-only mode")
-        if self.tables:
-            logger.info("Writing table files.")
-            for name in self.tables:
-                fn_out = join(self.root.path, f"{name}.csv")
-                self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
+        self.tables.write()
 
     def set_tables(self, df: pd.DataFrame, name: str):
         """Add table <pandas.DataFrame> to model."""
-        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-            raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if self._tables is None:
-            self._tables = dict()
-        if name in self._tables:
-            if not self.root.is_writing_mode():
-                raise IOError(f"Cannot overwrite table {name} in read-only mode")
-            elif self.root.is_reading_mode():
-                logger.warning(f"Overwriting table: {name}")
-        self._tables[name] = df
+        self.tables.set(tables=df, name=name)
 
     def set_root(self, root: Path | str, mode: ModeLike = "w"):
         """Set the model root folder.
@@ -6099,14 +6091,6 @@ change name input.path_forcing "
 
     ## WFLOW specific data and method
     @property
-    # Move to core Model API ?
-    def tables(self) -> dict[str, pd.DataFrame]:
-        """Return a dictionary of pandas.DataFrames representing wflow csv files."""
-        if self._tables is None:
-            self.read_tables()
-        return self._tables
-
-    @property
     def flwdir(self) -> pyflwdir.FlwdirRaster:
         """Return the pyflwdir.FlwdirRaster object parsed from wflow ldd."""
         if self._flwdir is None:
@@ -6260,11 +6244,10 @@ change name input.path_forcing "
 
             # Update tables
             ids = np.unique(lake)
-            self._tables = {
-                k: v
-                for k, v in self.tables.items()
-                if not any([str(x) in k for x in ids])
-            }
+            for lake_id in ids:
+                keys_to_remove = [k for k in self.tables.data if str(lake_id) in k]
+                for key in keys_to_remove:
+                    del self.tables.data[key]
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
