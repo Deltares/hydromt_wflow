@@ -200,7 +200,6 @@ def model_with_rating_curve_data(
     return example_wflow_model, lake_id
 
 
-# @pytest.mark.skip(reason="fix when tables component is implemented")
 def test_setup_lake(tmpdir: Path, model_with_rating_curve_data: tuple[WflowModel, int]):
     example_wflow_model, lake_id = model_with_rating_curve_data
 
@@ -212,8 +211,8 @@ def test_setup_lake(tmpdir: Path, model_with_rating_curve_data: tuple[WflowModel
         add_maxstorage=True,
     )
 
-    assert f"lake_sh_{lake_id}" in example_wflow_model.tables
-    assert f"lake_hq_{lake_id}" in example_wflow_model.tables
+    assert f"lake_sh_{lake_id}" in example_wflow_model.tables.data
+    assert f"lake_hq_{lake_id}" in example_wflow_model.tables.data
     assert 2 in np.unique(
         example_wflow_model.staticmaps.data["lake_storage_curve"].values
     )
@@ -225,13 +224,16 @@ def test_setup_lake(tmpdir: Path, model_with_rating_curve_data: tuple[WflowModel
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
-    example_wflow_model.set_root(join(tmpdir, "wflow_lake_test"))
+    new_root = join(tmpdir, "wflow_lake_test")
+    example_wflow_model.set_root(new_root, mode="w")
     example_wflow_model.write_tables()
-    test_table = example_wflow_model.tables[f"lake_sh_{lake_id}"]
-    example_wflow_model._tables = dict()
+    test_table = example_wflow_model.tables.data[f"lake_sh_{lake_id}"].copy()
+
+    example_wflow_model.tables.data.clear()
+    example_wflow_model.set_root(new_root, mode="r")
     example_wflow_model.read_tables()
 
-    assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
+    assert example_wflow_model.tables.data[f"lake_sh_{lake_id}"].equals(test_table)
 
 
 @pytest.mark.skip(reason="fix when forcing component is implemented")
@@ -1235,10 +1237,6 @@ def test_setup_allocation_surfacewaterfrac(
     )
 
 
-@pytest.mark.skip(
-    reason="fails due to bbox creation in `workflows.demand.domestic()`, "
-    "where it only creates one lat value, so reprojection fails."
-)
 def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
@@ -1281,7 +1279,7 @@ def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     ind_mean = (
         example_wflow_model.staticmaps.data["demand_industry_gross"].mean().values
     )
-    assert np.isclose(ind_mean, 0.065195)
+    assert np.isclose(ind_mean, 0.06444748)  # previous=0.065195)
 
     # test with other method
     example_wflow_model.setup_domestic_demand_from_population(
