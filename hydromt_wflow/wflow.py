@@ -102,6 +102,7 @@ class WflowModel(Model):
         )
 
         # wflow specific
+        self._tables = dict()
         self._flwdir = None
         self._results: Optional[dict] = None
         self.data_catalog.from_yml(self._CATALOGS)
@@ -2179,7 +2180,7 @@ rating curve fn {fn}. Skipping."
                     i = fns_ids.index(id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                    if isfile(rating_fn) or rating_fn in self.data_catalog.sources:
                         logger.info(
                             f"Preparing lake rating curve data from {rating_fn}"
                         )
@@ -5169,7 +5170,7 @@ Run setup_soilmaps first"
         if "forcing" in self.components:
             self.forcing.write(filename=forcing_fn)
         if "tables" in self.components:
-            self.tabeles.write()
+            self.write_tables()
         if "states" in self.components:
             self.states.write(filename=states_fn)
 
@@ -5883,17 +5884,17 @@ change name input.path_forcing "
     @hydromt_step
     def write_results(self):
         """Write results at <root/?/> in model ready format."""
-        if not self._write:
+        if not self.root.is_writing_mode():
             raise IOError("Model opened in read-only mode")
 
     @hydromt_step
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""
-        if not self._write:
+        if not self.root.is_writing_mode():
             self._tables = dict()  # start fresh in read-only mode
 
         logger.info("Reading model table files.")
-        fns = glob.glob(join(self.root, "*.csv"))
+        fns = glob.glob(join(self.root.path, "*.csv"))
         if len(fns) > 0:
             for fn in fns:
                 name = basename(fn).split(".")[0]
@@ -5903,22 +5904,22 @@ change name input.path_forcing "
     @hydromt_step
     def write_tables(self):
         """Write tables at <root>."""
-        if not self._write:
+        if not self.root.is_writing_mode():
             raise IOError("Model opened in read-only mode")
         if self.tables:
             logger.info("Writing table files.")
             for name in self.tables:
-                fn_out = join(self.root, f"{name}.csv")
+                fn_out = join(self.root.path, f"{name}.csv")
                 self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
 
-    def set_tables(self, df, name):
+    def set_tables(self, df: pd.DataFrame, name: str):
         """Add table <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
             raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self._tables:
-            if not self._write:
+        if name in self.tables:
+            if not self.root.is_writing_mode():
                 raise IOError(f"Cannot overwrite table {name} in read-only mode")
-            elif self._read:
+            elif self.root.is_reading_mode():
                 logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
 
@@ -6097,14 +6098,14 @@ change name input.path_forcing "
     ## WFLOW specific data and method
     @property
     # Move to core Model API ?
-    def tables(self):
+    def tables(self) -> dict[str, pd.DataFrame]:
         """Return a dictionary of pandas.DataFrames representing wflow csv files."""
         if not self._tables:
             self.read_tables()
         return self._tables
 
     @property
-    def flwdir(self):
+    def flwdir(self) -> pyflwdir.FlwdirRaster:
         """Return the pyflwdir.FlwdirRaster object parsed from wflow ldd."""
         if self._flwdir is None:
             self.set_flwdir()

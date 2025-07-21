@@ -221,7 +221,6 @@ def create_lulc_lai_mapping_table(
     da_lai: xr.DataArray,
     sampling_method: str = "any",
     lulc_zero_classes: List[int] = [],
-    logger=logger,
 ) -> pd.DataFrame:
     """
     Derive LAI values per landuse class.

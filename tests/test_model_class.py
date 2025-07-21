@@ -130,7 +130,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-@pytest.mark.skip(reason="fix tables component is implemented")
+@pytest.mark.skip(reason="fix forcing component is implemented")
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
     tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel

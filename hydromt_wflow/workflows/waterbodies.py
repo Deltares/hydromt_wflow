@@ -526,7 +526,6 @@ def lakeattrs(
     gdf: gp.GeoDataFrame,
     rating_dict: dict = dict(),
     add_maxstorage: bool = False,
-    logger=logger,
 ):
     """
     Return lake attributes (see list below) needed for modelling.
