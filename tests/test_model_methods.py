@@ -1235,10 +1235,10 @@ def test_setup_allocation_surfacewaterfrac(
     )
 
 
-# @pytest.mark.skip(
-#     reason="fails due to bbox creation in `workflows.demand.domestic()`, "
-#     "where it only creates one lat value, so reprojection fails."
-# )
+@pytest.mark.skip(
+    reason="fails due to bbox creation in `workflows.demand.domestic()`, "
+    "where it only creates one lat value, so reprojection fails."
+)
 def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()

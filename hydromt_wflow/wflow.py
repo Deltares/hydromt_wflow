@@ -102,7 +102,7 @@ class WflowModel(Model):
         )
 
         # wflow specific
-        self._tables = dict()
+        self._tables: Optional[dict] = None
         self._flwdir = None
         self._results: Optional[dict] = None
         self.data_catalog.from_yml(self._CATALOGS)
@@ -5916,7 +5916,9 @@ change name input.path_forcing "
         """Add table <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
             raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self.tables:
+        if self._tables is None:
+            self._tables = dict()
+        if name in self._tables:
             if not self.root.is_writing_mode():
                 raise IOError(f"Cannot overwrite table {name} in read-only mode")
             elif self.root.is_reading_mode():
@@ -6100,7 +6102,7 @@ change name input.path_forcing "
     # Move to core Model API ?
     def tables(self) -> dict[str, pd.DataFrame]:
         """Return a dictionary of pandas.DataFrames representing wflow csv files."""
-        if not self._tables:
+        if self._tables is None:
             self.read_tables()
         return self._tables
 
