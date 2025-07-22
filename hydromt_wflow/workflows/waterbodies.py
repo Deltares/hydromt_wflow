@@ -324,21 +324,21 @@ please use one of [gww, jrc] or None."
 
     # Get resarea either from EO or database depending
     if "Area_avg" in gdf.columns:
-        df_out["resarea"] = gdf["Area_avg"].values
+        df_out["resarea"] = gdf["Area_avg"].values.astype(np.float64)
         if timeseries_fn is not None:
             df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
                 pd.notna(df_EO["maxarea"])
-            ].values
+            ].values.astype(np.float64)
         else:
             df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
                 pd.isna(df_out["resarea"])
-            ].values
+            ].values.astype(np.float64)
     else:
-        df_out["resarea"] = df_EO["maxarea"].values
+        df_out["resarea"] = df_EO["maxarea"].values.astype(np.float64)
 
     # Get resmaxvolume from database
     if "Vol_avg" in gdf.columns:
-        df_out["resmaxvolume"] = gdf["Vol_avg"].values
+        df_out["resmaxvolume"] = gdf["Vol_avg"].values.astype(np.float64)
 
     # Compute target min and max fractions
     # First look if data is available from the database
@@ -353,7 +353,7 @@ please use one of [gww, jrc] or None."
     # (if a valid source is provided)
     # TODO for now assumes that the reservoir-db is used
     # (combination of GRanD and HydroLAKES)
-    gdf = gdf.fillna(value=np.nan)
+    gdf = gdf.fillna(value=np.nan).infer_objects(copy=False)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
@@ -497,14 +497,15 @@ please use one of [gww, jrc] or None."
         df_out.resminfrac = df_EO["capmin"].values / df_out["resmaxvolume"].values
         df_out.resfullfrac = df_EO["capmax"].values / df_out["resmaxvolume"].values
     else:
-        df_out.loc[pd.isna(df_out["resminfrac"]), "resminfrac"] = (
-            df_EO.loc[pd.isna(df_out["resminfrac"]), "capmin"].values
-            / df_out.loc[pd.isna(df_out["resminfrac"]), "resmaxvolume"].values
-        )
-        df_out.loc[pd.isna(df_out["resfullfrac"]), "resfullfrac"] = (
-            df_EO.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
-            / df_out.loc[pd.isna(df_out["resfullfrac"]), "resmaxvolume"].values
-        )
+        mask = pd.isna(df_out["resminfrac"])
+        df_out.loc[mask, "resminfrac"] = df_EO.loc[mask, "capmin"].values.astype(
+            np.float64
+        ) / (df_out.loc[mask, "resmaxvolume"].values).astype(np.float64)
+
+        mask = pd.isna(df_out["resfullfrac"])
+        df_out.loc[mask, "resfullfrac"] = df_EO.loc[mask, "capmax"].values.astype(
+            np.float64
+        ) / (df_out.loc[mask, "resmaxvolume"].values).astype(np.float64)
 
     # rename to wflow naming convention
     tbls = {

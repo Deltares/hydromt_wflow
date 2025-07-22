@@ -265,6 +265,7 @@ def wflow_1dmodel_connection(
             if not include_river_boundaries:
                 gdf_tributaries = gpd.GeoDataFrame()
         else:
+            gdf_trib = gdf_trib.to_crs(ds_model.raster.crs)
             gdf_trib["geometry"] = gdf_trib.centroid
 
             # Merge with gdf_tributary if include_river_boundaries
