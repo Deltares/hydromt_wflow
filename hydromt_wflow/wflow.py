@@ -213,13 +213,12 @@ class WflowModel(GridModel):
                 f"The model resolution {res} should be \
 larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             )
-        if ds_org.raster.crs.is_geographic:
-            if res > 1:  # 111 km
-                raise ValueError(
-                    f"The model resolution {res} should be smaller than 1 degree \
+        if ds_org.raster.crs.is_geographic and res > 1:  # 111 km
+            raise ValueError(
+                f"The model resolution {res} should be smaller than 1 degree \
 (111km) for geographic coordinate systems. "
-                    "Make sure you provided res in degree rather than in meters."
-                )
+                "Make sure you provided res in degree rather than in meters."
+            )
 
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
@@ -1078,14 +1077,12 @@ and will soon be removed. '
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
+
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
@@ -1229,13 +1226,10 @@ and will soon be removed. '
         --------
         workflows.landuse_from_vector
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
@@ -1723,7 +1717,6 @@ gauge locations [-] (if derive_subcatch)
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
-        kwargs = {}
         if isinstance(gauges_fn, gpd.GeoDataFrame):
             gdf_gauges = gauges_fn
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
@@ -2063,12 +2056,12 @@ rating curve fn {fn}. Skipping."
                     )
             # assume lake index will be in the path
             # Assume one rating curve per lake index
-            for id in gdf_org["waterbody_id"].values:
-                id = int(id)
-                # Find if id is is one of the paths in rating_curve_fns
-                if id in fns_ids:
+            for _id in gdf_org["waterbody_id"].values:
+                _id = int(_id)
+                # Find if _id is is one of the paths in rating_curve_fns
+                if _id in fns_ids:
                     # Update path based on current waterbody_id
-                    i = fns_ids.index(id)
+                    i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
                     if isfile(rating_fn) or rating_fn in self.data_catalog:
@@ -2077,10 +2070,10 @@ rating curve fn {fn}. Skipping."
                         )
                         df_rate = self.data_catalog.get_dataframe(rating_fn)
                         # Add to dict
-                        rating_dict[id] = df_rate
+                        rating_dict[_id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file not found for lake with id {id}. \
+                        f"Rating curve file not found for lake with id {_id}. \
 Using default storage/outflow function parameters."
                     )
         else:
@@ -2575,7 +2568,7 @@ using 'variable' argument."
 
         # in ksatver_vegetation, ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
-        KSatVer_vegetation = workflows.ksatver_vegetation(
+        ksatver_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
@@ -2583,7 +2576,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(KSatVer_vegetation, output_name)
+        self.set_grid(ksatver_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -2767,18 +2760,10 @@ using 'variable' argument."
            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-            # Add soil_ksat_vertical_factor
-            output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
-                f"soil_ksat_vertical_factor_{output_names_suffix}"
-            )
-
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
@@ -3296,7 +3281,6 @@ one variable and variables list is not provided."
                     index=df_precip.columns,
                     crs=self.crs,
                 )
-                index_col = df_precip.columns
                 interp_type = "nearest"
                 if df_precip.shape[1] != 1:
                     raise ValueError(

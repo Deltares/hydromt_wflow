@@ -129,7 +129,7 @@ of the config.
                     full_index = maps[
                         f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
-                    res_x, res_y = full_index.raster.res
+                    _, res_y = full_index.raster.res
                     if res_y < 0:
                         full_index = full_index.reindex(
                             {
