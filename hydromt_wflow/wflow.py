@@ -2350,8 +2350,8 @@ Using default storage/outflow function parameters."
                 logger=self.logger,
             )
             # update/replace xout and yout in gdf_org from gdf_wateroutlet:
-            gdf_org["xout"] = gdf_wateroutlet["xout"]
-            gdf_org["yout"] = gdf_wateroutlet["yout"]
+            gdf_org.loc[:, "xout"] = gdf_wateroutlet["xout"].values
+            gdf_org.loc[:, "yout"] = gdf_wateroutlet["yout"].values
 
         else:
             self.logger.warning(
@@ -4811,7 +4811,7 @@ Run setup_soilmaps first"
             buffer=1000,
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
-        )
+        ).copy()  # Ensure we have a copy to resolve SettingWithCopyWarning
 
         # Check if the geodataframe is empty
         if irrigated_area is None or irrigated_area.empty:

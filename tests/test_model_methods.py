@@ -5,10 +5,8 @@ from itertools import product
 from os.path import abspath, dirname, isfile, join
 from pathlib import Path
 
+import geopandas as gpd
 import numpy as np
-
-# import warnings
-# import pdb
 import pandas as pd
 import pytest
 import xarray as xr
@@ -587,7 +585,7 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-def test_setup_gauges(example_wflow_model):
+def test_setup_gauges(example_wflow_model: WflowModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
@@ -1357,7 +1355,9 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert "time" in example_wflow_model.grid["demand_domestic_net"].dims
 
 
-def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
+def test_setup_irrigation_nopaddy(
+    example_wflow_model: WflowModel, tmpdir: Path, globcover_gdf: gpd.GeoDataFrame
+):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(Path(tmpdir), mode="w")
@@ -1404,7 +1404,7 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
 
     # Test with geodataframe
     # Use globcover gdf class 11
-    irrigation_gdf = globcover_gdf[globcover_gdf["landuse"].isin([14])]
+    irrigation_gdf = globcover_gdf.loc[globcover_gdf["landuse"].isin([14])]
     example_wflow_model.setup_irrigation_from_vector(
         irrigated_area_fn=irrigation_gdf,
         cropland_class=[11, 14, 20, 30],

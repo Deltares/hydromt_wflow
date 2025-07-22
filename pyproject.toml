@@ -78,9 +78,20 @@ Source        = "https://github.com/Deltares/hydromt_wflow"
 ## Pytest and coverage
 [tool.pytest.ini_options]
 filterwarnings = [
-  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  # Can result in significant bugs, so we error on these
+  "error::pandas.errors.SettingWithCopyWarning",
+  "error:driver .* does not support open option:RuntimeWarning", # TODO investigate. ignore if not, else implement fix `Enable tracemalloc to get traceback where the object was allocated.`
+  "error:Dataset has no geotransform, gcps, or rpcs. :rasterio.errors.NotGeoreferencedWarning", # TODO investigate. ignore if not, else implement fix. see https://github.com/rasterio/rasterio/issues/524
+  "error:Geometry is in a geographic CRS. Results from :UserWarning", # TODO investigate. ignore if not, else implement fix
+  # check and resolve when hydromt v1 PR is done
+  "ignore::Warning:hydromt.*",
+  "ignore::Warning:wradlib.*",
   "ignore:The staticmaps property:DeprecationWarning",
   "ignore:The staticgeoms property:DeprecationWarning",
+  "ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
+  # ignore below warnings, they are not raised in/caused by hydromt_wflow
+  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  "ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
 ]
 testpaths = ["tests"]
 # don't run benchmarks by default when testing
