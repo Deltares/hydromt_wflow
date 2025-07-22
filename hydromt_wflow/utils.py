@@ -526,6 +526,10 @@ def mask_raster_from_layer(
     -------
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
+    # Reproject data to match mask's grid if shapes differ
+    if data.sizes != mask.sizes:
+        data = data.raster.reproject_like(mask)
+
     mask = mask != mask.raster.nodata
     # Need to duplicate or else data should have a name ie we duplicate functionality
     # of GridModel.set_grid

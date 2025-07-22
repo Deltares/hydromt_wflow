@@ -2966,7 +2966,6 @@ using 'variable' argument."
             ds_like=self.grid,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
-            logger=self.logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
