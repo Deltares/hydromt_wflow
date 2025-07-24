@@ -4002,7 +4002,10 @@ Run setup_soilmaps first"
             self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
-            gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
+            centroid = utils.planar_operation_in_utm(
+                gdf_tributary["geometry"], lambda geom: geom.centroid
+            )
+            gdf_tributary["geometry"] = centroid
             gdf_tributary["value"] = gdf_tributary["value"].astype(
                 ds_out["gauges"].dtype
             )

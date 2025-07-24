@@ -82,7 +82,7 @@ filterwarnings = [
   "error::pandas.errors.SettingWithCopyWarning",
   "error:driver .* does not support open option:RuntimeWarning", # TODO investigate. ignore if not, else implement fix `Enable tracemalloc to get traceback where the object was allocated.`
   "error:Dataset has no geotransform, gcps, or rpcs. :rasterio.errors.NotGeoreferencedWarning", # TODO investigate. ignore if not, else implement fix. see https://github.com/rasterio/rasterio/issues/524
-  "error:Geometry is in a geographic CRS. Results from :UserWarning", # TODO investigate. ignore if not, else implement fix
+  "error:Geometry is in a geographic CRS. Results from :UserWarning",
   # check and resolve when hydromt v1 PR is done
   "ignore::Warning:hydromt.*",
   "ignore::Warning:wradlib.*",
