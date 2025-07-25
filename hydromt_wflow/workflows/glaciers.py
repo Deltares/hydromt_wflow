@@ -115,8 +115,12 @@ storage per grid cell"
                 3857
             ).area  # area calculation needs projected crs
             gfrac = garea_cell / np.sum(garea_cell)
-            gdf_grid.loc[idxs, "glacierfrac"] += garea_cell / gdf_grid.loc[idxs, "area"]
-            gdf_grid.loc[idxs, "glacierstore"] += gfrac * glacier["glacierstore"]
+            gdf_grid.loc[idxs, "glacierfrac"] += (
+                garea_cell / gdf_grid.loc[idxs, "area"]
+            ).astype(np.float32)
+            gdf_grid.loc[idxs, "glacierstore"] += (
+                gfrac * glacier["glacierstore"]
+            ).astype(np.float32)
 
     # reproject back to original projection
     # Create the rasterized glacier storage map

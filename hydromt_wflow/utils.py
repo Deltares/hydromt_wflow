@@ -3,8 +3,9 @@
 import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Union
 
+import geopandas as gpd
 import numpy as np
 import tomlkit
 import xarray as xr
@@ -990,3 +991,63 @@ def convert_to_wflow_v1_sediment(
     )
 
     return config_out
+
+
+def planar_operation_in_utm(
+    gdf: gpd.GeoDataFrame,
+    operation: Callable[[gpd.GeoSeries], Union[gpd.GeoSeries, gpd.GeoDataFrame]],
+) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
+    """
+    Apply a planar geometric operation on a GeoDataFrame's geometry.
+
+    To ensure the operation is performed after converting to an appropriate UTM CRS,
+    then reprojected the result back to the original CRS.
+
+    Parameters
+    ----------
+        gdf (GeoDataFrame): Input GeoDataFrame with a defined CRS.
+        operation (Callable): A function that operates on gdf.geometry, such as:
+                              lambda geom: geom.centroid, geom.buffer(...), etc.
+
+    Returns
+    -------
+        GeoSeries or GeoDataFrame: Result of the operation, reprojected to the original
+        CRS.
+
+    Examples
+    --------
+        >>> import geopandas as gpd
+        >>> from shapely.geometry import (
+        ...     Point,
+        ... )
+        >>> gdf = gpd.GeoDataFrame(
+        ...     {
+        ...         "geometry": [
+        ...             Point(
+        ...                 1, 2
+        ...             )
+        ...         ]
+        ...     },
+        ...     crs="EPSG:4326",
+        ... )
+        >>> centroid = planar_operation_in_utm(
+        ...     gdf,
+        ...     lambda geom: geom.centroid,
+        ... )
+
+    """
+    if gdf.crs is None:
+        raise ValueError("Input GeoDataFrame must have a defined CRS.")
+
+    original_crs = gdf.crs
+    utm_crs = gdf.estimate_utm_crs()
+
+    gdf_projected = gdf.to_crs(utm_crs)
+    result = operation(gdf_projected.geometry)
+
+    if isinstance(result, gpd.GeoSeries):
+        return result.set_crs(utm_crs).to_crs(original_crs)
+    elif isinstance(result, gpd.GeoDataFrame):
+        return result.to_crs(original_crs)
+    else:
+        raise TypeError("Operation must return a GeoSeries or GeoDataFrame.")
