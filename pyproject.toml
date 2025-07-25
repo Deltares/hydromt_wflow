@@ -80,9 +80,7 @@ Source        = "https://github.com/Deltares/hydromt_wflow"
 filterwarnings = [
   # Can result in significant bugs, so we error on these
   "error::pandas.errors.SettingWithCopyWarning",
-  # "error:driver .* does not support open option:RuntimeWarning", # TODO investigate. ignore if not, else implement fix `Enable tracemalloc to get traceback where the object was allocated.`
-  # "error:Dataset has no geotransform, gcps, or rpcs. :rasterio.errors.NotGeoreferencedWarning", # TODO investigate. ignore if not, else implement fix. see https://github.com/rasterio/rasterio/issues/524
-  # check and resolve when hydromt v1 PR is done
+   # check and resolve when hydromt v1 PR is done
   "ignore::Warning:hydromt.*",
   "ignore::Warning:wradlib.*",
   "ignore:The staticmaps property:DeprecationWarning",
