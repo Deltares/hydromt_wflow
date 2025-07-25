@@ -78,16 +78,13 @@ Source        = "https://github.com/Deltares/hydromt_wflow"
 ## Pytest and coverage
 [tool.pytest.ini_options]
 filterwarnings = [
-  # Can result in significant bugs, so we error on these
+  # Error on below warning(s), since this can result in significant bugs
   "error::pandas.errors.SettingWithCopyWarning",
-   # check and resolve when hydromt v1 PR is done
+  # Ignore below warning(s) for now. Check and resolve when hydromt v1 PR is done
   "ignore::Warning:hydromt.*",
   "ignore::Warning:wradlib.*",
-  "ignore:The staticmaps property:DeprecationWarning",
-  "ignore:The staticgeoms property:DeprecationWarning",
   "ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
-  # ignore below warnings, they are not raised in/caused by hydromt_wflow
-  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  # Ignore below warning(s), they are not raised in/caused by hydromt_wflow
   "ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
 ]
 testpaths = ["tests"]
