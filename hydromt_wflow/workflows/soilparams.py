@@ -245,10 +245,10 @@ def ksatver_vegetation(
     LAI_mean.raster.set_nodata(255.0)
 
     # in this function, Ksatver should be provided in cm/d
-    KSatVer_vegetation = get_ks_veg(
+    ksatver_vegetation = get_ks_veg(
         ds_like["ksat_vertical"] / 10, sndppt, LAI_mean, alfa, beta
     )
 
     # convert back from cm/d to mm/d
-    KSatVer_vegetation = KSatVer_vegetation * 10
-    return KSatVer_vegetation
+    ksatver_vegetation = ksatver_vegetation * 10
+    return ksatver_vegetation

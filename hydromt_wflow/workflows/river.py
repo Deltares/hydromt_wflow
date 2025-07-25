@@ -237,7 +237,7 @@ def river_bathymetry(
             ys_out = ds_model["y_out"].values[riv_mask]
         else:
             # get river cell coordinates
-            row, col = np.where(riv_mask)
+            row, col = np.nonzero(riv_mask)
             xs_out = ds_model.raster.xcoords.values[col]
             ys_out = ds_model.raster.ycoords.values[row]
         gdf_out = gpd.GeoDataFrame(
