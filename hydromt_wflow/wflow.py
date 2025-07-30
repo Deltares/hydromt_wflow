@@ -3162,10 +3162,9 @@ one variable and variables list is not provided."
             )
             clim = clim.astype("float32")
 
-        precip_out = hydromt.workflows.forcing.precip(
+        precip_out = workflows.forcing.precip(
             precip=precip,
             da_like=self.grid[self._MAPS["elevtn"]],
-            clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
@@ -3591,6 +3590,59 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 fill_value="extrapolate",
             )
         self.set_forcing(temp_out.where(mask), name="temp")
+        self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
+
+    def setup_temp_forcing(
+        self,
+        temp_fn: str | xr.DataArray,
+        chunksize: int | None = None,
+    ):
+        """
+        Prepare temp forcing from existig temp data.
+
+        Adds model layer:
+
+        * **temp**: temperature [C]
+
+        Parameters
+        ----------
+        temp_fn: str, xr.DataArray
+            RasterDataset source or data for temp to be resampled.
+
+            * Required variable: 'temp' [mm]
+
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
+        """
+        self.logger.info("Preparing temperature forcing maps.")
+
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+
+        temp = self.data_catalog.get_rasterdataset(
+            temp_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["temp"],
+            time_tuple=(starttime, endtime),
+        )
+        temp = temp.astype("float32")
+
+        temp_out = workflows.forcing.temp(
+            temp=temp,
+            ds_like=self.grid,
+            freq=freq,
+            mask_name=self._MAPS["basins"],
+            chunksize=chunksize,
+            logger=self.logger,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        temp_out.attrs.update({"temp_fn": temp_fn})
+        self.set_forcing(temp_out, name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     def setup_pet_forcing(
