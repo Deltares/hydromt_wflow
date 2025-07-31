@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 import xarray as xr
-from tomlkit import TOMLDocument
 
 from hydromt_wflow.components.utils import (
     _mount,
@@ -70,27 +69,6 @@ def test__relpath_other(tmp_path: Path):
     assert p == [2, 2]
 
 
-def test_make_config_paths_relative(
-    tmp_path: Path,
-    config_dummy_document: TOMLDocument,
-):
-    # Assert that a full path is present
-    p = config_dummy_document["baz"]["file1"]
-    assert Path(p).is_absolute()
-    assert config_dummy_document["spooky"]["ghost"] == [1, 2, 3]
-    assert config_dummy_document["baz"]["file2"] == "tmp/tmp.txt"
-
-    # Call the function
-    cfg = make_config_paths_relative(config_dummy_document, tmp_path)
-
-    # Assert the outcome
-    # Assert that a full path is present
-    p = cfg["baz"]["file1"]
-    assert not Path(p).is_absolute()  # Not anymore
-    assert cfg["spooky"]["ghost"] == [1, 2, 3]
-    assert cfg["baz"]["file2"] == "tmp/tmp.txt"
-
-
 def test_get_mask_layer_none(mask_layer: xr.DataArray):
     # Call the function, nothing in is nothing out
     mask = get_mask_layer(None)
@@ -145,3 +123,24 @@ def test_get_mask_layer_errors():
         match="Unknown type for determining mask: list",
     ):
         _ = get_mask_layer([2, 2])
+
+
+def test_make_config_paths_relative(
+    tmp_path: Path,
+    config_dummy_document: dict,
+):
+    # Assert that a full path is present
+    p = config_dummy_document["baz"]["file1"]
+    assert Path(p).is_absolute()
+    assert config_dummy_document["spooky"]["ghost"] == [1, 2, 3]
+    assert config_dummy_document["baz"]["file2"] == "tmp/tmp.txt"
+
+    # Call the function
+    cfg = make_config_paths_relative(config_dummy_document, tmp_path)
+
+    # Assert the outcome
+    # Assert that a full path is present
+    p = cfg["baz"]["file1"]
+    assert not Path(p).is_absolute()  # Not anymore
+    assert cfg["spooky"]["ghost"] == [1, 2, 3]
+    assert cfg["baz"]["file2"] == "tmp/tmp.txt"

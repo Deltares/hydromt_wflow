@@ -1,13 +1,13 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
+import tomllib
 from pathlib import Path
 from typing import Dict, List
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import tomlkit
 import xarray as xr
 from hydromt import hydromt_step
 
@@ -34,21 +34,21 @@ class WflowSedimentModel(WflowModel):
     def __init__(
         self,
         root: str | None = None,
-        config_fn: str | None = None,
+        config_filename: str | None = None,
         mode: str | None = "w",
         data_libs: List | str = [],
         **catalog_keys,
     ):
         super().__init__(
             root=root,
-            config_fn=config_fn,
+            config_filename=config_filename,
             mode=mode,
             data_libs=data_libs,
             **catalog_keys,
         )
         # Update compared to wflow sbm
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sediment(
-            self.config
+            self.config.data
         )
 
     @hydromt_step
@@ -135,11 +135,11 @@ class WflowSedimentModel(WflowModel):
         self._update_naming(output_names)
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
-        if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
+        if river_upa > float(self.staticmaps[self._MAPS["uparea"]].max()):
             raise ValueError(
                 f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
-river cells."
+uparea in the grid {float(self.staticmaps[self._MAPS['uparea']].max())}"
+                " in order to create river cells."
             )
 
         # read data
@@ -150,10 +150,10 @@ river cells."
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
         ds_riv = workflows.river(
             ds=ds_hydro,
-            ds_model=self.grid.rename(inv_rename),
+            ds_model=self.staticmaps.rename(inv_rename),
             river_upa=river_upa,
             slope_len=slope_len,
             channel_dir="up",
@@ -180,9 +180,9 @@ river cells."
                 river_geom_fn, geom=self.region
             )
             # re-read model data to get river maps
-            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
             ds_riv1 = workflows.river_bathymetry(
-                ds_model=self.grid.rename(inv_rename),
+                ds_model=self.staticmaps.rename(inv_rename),
                 gdf_riv=gdf_riv,
                 smooth_len=smooth_len,
                 min_rivwth=min_rivwth,
@@ -258,7 +258,7 @@ river cells."
             gdf_lakes[["waterbody_id", "Area_avg"]],
             geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
         )
-        ds_lakes["lake_area"] = self.grid.raster.rasterize(
+        ds_lakes["lake_area"] = self.staticmaps.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
 
@@ -350,10 +350,10 @@ coefficient [-]
             gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
             geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
         )
-        ds_res["reservoir_area"] = self.grid.raster.rasterize(
+        ds_res["reservoir_area"] = self.staticmaps.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
-        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
+        ds_res["reservoir_trapping_efficiency"] = self.staticmaps.raster.rasterize(
             gdf_points,
             col_name="reservoir_trapping_efficiency",
             dtype="float32",
@@ -581,11 +581,11 @@ cell [-]
                 logger.warning("No Planted forest data found within domain.")
                 return
             rename_dict = {
-                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+                v: k for k, v in self._MAPS.items() if v in self.staticmaps.data_vars
             }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid.rename(rename_dict),
+                self.staticmaps.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -715,11 +715,11 @@ cell [-]
                 logger.warning("No Planted forest data found within domain.")
                 return
             rename_dict = {
-                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+                v: k for k, v in self._MAPS.items() if v in self.staticmaps.data_vars
             }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid.rename(rename_dict),
+                self.staticmaps.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -784,8 +784,8 @@ cell [-]
         """  # noqa: E501
         logger.info("Preparing riverbedsed parameter maps.")
         # check for streamorder
-        if self._MAPS["strord"] not in self.grid:
-            if strord_name not in self.grid:
+        if self._MAPS["strord"] not in self.staticmaps.data:
+            if strord_name not in self.staticmaps.data:
                 raise ValueError(
                     f"Streamorder map {strord_name} not found in grid. "
                     "Please run setup_basemaps or update the strord_name argument."
@@ -804,7 +804,7 @@ cell [-]
 
         df = self.data_catalog.get_dataframe(fn_map)
 
-        strord = self.grid[self._MAPS["strord"]].copy()
+        strord = self.staticmaps.data[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same D50 value
         max_str = df.index[-2]
         nodata = df.index[-1]
@@ -816,7 +816,7 @@ cell [-]
 
         ds_riversed = workflows.landuse(
             da=strord,
-            ds_like=self.grid,
+            ds_like=self.staticmaps.data,
             df=df,
             logger=logger,
         )
@@ -851,8 +851,8 @@ cell [-]
         dsin = self.data_catalog.get_rasterdataset(
             canopy_fn, geom=self.region, buffer=2
         )
-        dsout = xr.Dataset(coords=self.grid.raster.coords)
-        ds_out = dsin.raster.reproject_like(self.grid, method="average")
+        dsout = xr.Dataset(coords=self.staticmaps.raster.coords)
+        ds_out = dsin.raster.reproject_like(self.staticmaps, method="average")
         dsout["vegetation_height"] = ds_out.astype(np.float32)
         dsout["vegetation_height"] = dsout["vegetation_height"].fillna(-9999.0)
         dsout["vegetation_height"].raster.set_nodata(-9999.0)
@@ -935,10 +935,9 @@ capacity [-]
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids_sediment(
             dsin,
-            self.grid,
+            self.staticmaps.data,
             usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
@@ -974,12 +973,10 @@ capacity [-]
             strord_name argument of setup_riverbedsed method.
         """
         self.read()
-        config_out = convert_to_wflow_v1_sediment(self.config, logger=logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
+        config_out = convert_to_wflow_v1_sediment(self.config.data)
 
-        self._config = tomlkit.parse(default_header_str)
+        with open(DATADIR / "default_config_headers.toml", "rb") as file:
+            self.config._data = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])

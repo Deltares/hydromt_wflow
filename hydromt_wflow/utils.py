@@ -1,12 +1,12 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, join
+from functools import reduce
+from os.path import abspath, isabs, join
 from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
-import tomlkit
 import xarray as xr
 from hydromt._io import _open_timeseries_from_table
 from hydromt.gis import GeoDataArray
@@ -19,7 +19,7 @@ from .naming import (
     WFLOW_STATES_NAMES,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 DATADIR = Path(Path(__file__).parent, "data")
 
@@ -34,8 +34,8 @@ __all__ = [
 
 
 def get_config(
-    config: tomlkit.TOMLDocument,
-    *args,
+    config: dict,
+    key: str,
     root: Path | None = None,
     fallback: Any | None = None,
     abs_path: bool = False,
@@ -45,11 +45,12 @@ def get_config(
 
     Parameters
     ----------
-    config : tomlkit.TOMLDocument
-        The config settings in TOMLDocument object.
-    args : tuple, str
-        keys can given by multiple args: ('key1', 'key2')
-        or a string with '.' indicating a new level: ('key1.key2')
+    config : dict
+        The config settings.
+    key : str
+        keys are string with '.' indicating a new level: ('key1.key2')
+    root: Path, optional
+        The model root.
     fallback: Any, optional
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
@@ -66,78 +67,41 @@ def get_config(
     --------
     >> config = {'a': 1, 'b': {'c': {'d': 2}}
 
-    >> get_config('a', config)
+    >> get_config(config, 'a')
     >> 1
 
-    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
+    >> get_config(config, 'b.c.d')
     >> 2
 
-    >> get_config('b.c', config) # # identical to get_config('b','c')
-    >> {'d': 2}
     """
-    args = list(args)
-    if len(args) == 1 and "." in args[0]:
-        args = args[0].split(".") + args[1:]
-    branch = config  # reads config at first call
-    for key in args[:-1]:
-        branch = branch.get(key, {})
-        if not isinstance(branch, dict):
-            branch = dict()
-            break
-    value = branch.get(args[-1], fallback)
-    if abs_path and isinstance(value, str):
+    parts = key.split(".")
+    num_parts = len(parts)
+    current = config
+    value = fallback
+    for i, part in enumerate(parts):
+        if i < num_parts - 1:
+            current = current.get(part, {})
+        else:
+            value = current.get(part, fallback)
+
+    if abs_path and isinstance(value, (str, Path)):
         value = Path(value)
-        if not value.is_absolute():
+        if not isabs(value):
             value = Path(abspath(join(root, value)))
 
-    if isinstance(value, tomlkit.items.Item):
-        return value.unwrap()
-    elif value is None:
-        return fallback
-    else:
-        return value
+    return value
 
 
-def set_config(config: tomlkit.TOMLDocument, *args):
+def set_config(config: dict, key: str, value: Any):
     """
     Update the config toml at key(s) with values.
 
-    This function is made to maintain the structure of your toml file.
-    When adding keys it will look for the most specific header present in
-    the toml file and add it under that.
-    meaning that if you have a config toml that is empty and you run
-    ``set_config("input.forcing.scale", 1)``
-    it will result in the following file:
-    .. code-block:: toml
-        input.forcing.scale = 1
-    however if your toml file looks like this before:
-    .. code-block:: toml
-        [input.forcing]
-    (i.e. you have a header in there that has no keys)
-    then after the insertion it will look like this:
-    .. code-block:: toml
-        [input.forcing]
-        scale = 1
-    .. warning::
-        Due to limitations of the underlying library it is currently not possible to
-        create new headers (i.e. groups like ``input.forcing`` in the example above)
-        programmatically, and they will need to be added to the default config
-        toml document
-    .. warning::
-        Even though the underlying config object behaves like a dictionary, it is
-        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-        error scan easily be introduced if this structure is modified by hand.
-        Therefore we strongly discourage users from manually modying it, and
-        instead ask them to use this ``set_config`` function to avoid problems.
-
     Parameters.
     ----------
-    config : tomlkit.TOMLDocument
-        The config settings in TOMLDocument object.
-    args : str, tuple, list
-        if tuple or list, minimal length of two
-        keys can given by multiple args: ('key1', 'key2', 'value')
-        or a string with '.' indicating a new level: ('key1.key2', 'value')
+    config : dict
+        The config settings.
+    key : str
+        key is a string,  with '.' indicating a new level: ('key1.key2').
 
     Examples
     --------
@@ -146,58 +110,13 @@ def set_config(config: tomlkit.TOMLDocument, *args):
         >> {'a': 1, 'b': {'c': {'d': 2}}}
         >> set_config(config, 'a', 99)
         >> {'a': 99, 'b': {'c': {'d': 2}}}
-        >> set_config(config, 'b', 'c', 'd', 99) # identical to \
-            set_config(config, 'b.d.e', 99)
+        >> set_config(config, 'b.d.e', 99)
         >> {'a': 1, 'b': {'c': {'d': 99}}}
     """
-    if len(args) < 2:
-        raise TypeError("set_config() requires a least one key and one value.")
-    if not all([isinstance(part, str) for part in args[:-1]]):
-        raise TypeError("All but last argument for set_config must be str")
-
-    args = list(args)
-    value = args.pop(-1)
-    keys = [part for arg in args for part in arg.split(".")]
-
-    # if we try to set dictionaries as values directly tomlkit will mess up the
-    # key bookkeeping, resulting in invalid toml, so instead
-    # if we see a mapping, we go over it recursively
-    # and manually add all of its keys, because of cloning issues.
-    if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-        for key, inner_value in value.items():
-            set_config(config, *keys, key, inner_value)
-
-    # if the first key is not present
-    # we can just set the entire thing straight
-    if keys[0] not in config:
-        config.append(tomlkit.key(keys), value)
-        return
-
-    # If there is only one key we also just set that directly as
-    # a string key instead of the dotted variant
-    if len(keys) == 1:
-        config.update({keys[0]: value})
-        return
-
-    current = config
-    for idx in range(len(keys)):
-        if idx != len(keys) - 1:
-            remaining_key = tomlkit.key(keys[idx:])
-        else:
-            remaining_key = keys[idx]
-
-        if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-            break
-
-        current = current[keys[idx]]
-
-    # tomlkit's update function doesn't work properly
-    # so instead of updating we take the key out if it is in there
-    # and readd it afterwards
-    if remaining_key in current:
-        _ = current.pop(remaining_key)
-
-    current[remaining_key] = value
+    if not isinstance(key, str):
+        raise TypeError("key must be string")
+    keys = key.split(".")
+    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
 
 
 def read_csv_results(
@@ -547,7 +466,7 @@ def _solve_var_name(var: str | dict, path: str, add: list):
 
 
 def _convert_to_wflow_v1(
-    config: tomlkit.TOMLDocument,
+    config: dict,
     wflow_vars: Dict,
     states_vars: Dict,
     model_options: Dict = {},
@@ -555,7 +474,6 @@ def _convert_to_wflow_v1(
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format.
 
@@ -575,8 +493,6 @@ def _convert_to_wflow_v1(
         Options in the [input] section of the TOML that were updated in Wflow v1.
     input_variables: list, optional
         Variables that were moved to input rather than input.static.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -608,7 +524,7 @@ def _convert_to_wflow_v1(
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
     logger.info("Converting config general, time and model sections")
-    config_out = tomlkit.TOMLDocument()
+    config_out = {}
 
     # Start with the general section - split into general, time and logging in v1
     input_section = {
@@ -711,10 +627,10 @@ def _convert_to_wflow_v1(
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
-    if get_config("output", config=config, fallback=None) is not None:
+    if get_config(config, "output", fallback=None) is not None:
         config_out["output"] = {}
         config_out["output"]["netcdf_grid"] = {
-            "path": get_config("output.path", config=config, fallback="output.nc"),
+            "path": get_config(config, "output.path", fallback="output.nc"),
             "compressionlevel": get_config(
                 config, "output.compressionlevel", fallback=1
             ),
@@ -728,16 +644,14 @@ def _convert_to_wflow_v1(
                 _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
-    if get_config("netcdf", config=config, fallback=None) is not None:
+    if get_config(config, "netcdf", fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
         config_out["output"]["netcdf_scalar"] = {
-            "path": get_config(
-                "netcdf.path", config=config, fallback="output_scalar.nc"
-            ),
+            "path": get_config(config, "netcdf.path", fallback="output_scalar.nc"),
         }
         config_out["output"]["netcdf_scalar"]["variable"] = []
-        nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
+        nc_scalar_vars = get_config(config, "netcdf.variable", fallback=[])
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
@@ -748,16 +662,16 @@ def _convert_to_wflow_v1(
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
-    if get_config("csv", config=config, fallback=None) is not None:
+    if get_config(config, "csv.column", fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
         config_out["output"]["csv"] = {}
 
         config_out["output"]["csv"]["path"] = get_config(
-            "csv.path", config=config, fallback="output.csv"
+            config, "csv.path", fallback="output.csv"
         )
         config_out["output"]["csv"]["column"] = []
-        csv_vars = get_config("csv.column", config=config, fallback=[])
+        csv_vars = get_config(config, "csv.column", fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
@@ -772,7 +686,6 @@ def _convert_to_wflow_v1(
 
 def convert_to_wflow_v1_sbm(
     config: Dict,
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for SBM.
 
@@ -780,8 +693,6 @@ def convert_to_wflow_v1_sbm(
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -888,7 +799,6 @@ def convert_to_wflow_v1_sbm(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out
@@ -896,7 +806,6 @@ def convert_to_wflow_v1_sbm(
 
 def convert_to_wflow_v1_sediment(
     config: Dict,
-    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for sediment.
 
@@ -904,8 +813,6 @@ def convert_to_wflow_v1_sediment(
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -959,7 +866,6 @@ def convert_to_wflow_v1_sediment(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out

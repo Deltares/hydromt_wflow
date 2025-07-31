@@ -2,6 +2,7 @@
 
 import platform
 from os.path import abspath, dirname, join
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -9,11 +10,12 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.cli._utils import parse_config
+from hydromt._io import _config_read
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -22,6 +24,22 @@ if platform.system().lower() != "windows":
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
+
+
+## Cached data and models
+@pytest.fixture(scope="session")
+def build_data() -> Path:
+    build_dir = fetch_data("artifact-data")
+    assert build_dir.is_dir()
+    assert Path(build_dir, "era5.nc").is_file()
+    return build_dir
+
+
+@pytest.fixture(scope="session")
+def build_data_catalog(build_data) -> Path:
+    p = Path(build_data, "data_catalog.yml")
+    assert p.is_file()
+    return p
 
 
 @pytest.fixture
@@ -62,21 +80,24 @@ def example_models(example_wflow_model, example_sediment_model):
 @pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
-    opt = parse_config(config)
+    opt = _config_read(config)
+    # opt = parse_config(config)
     return opt
 
 
 @pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
-    opt = parse_config(config)
+    opt = _config_read(config)
+    # opt = parse_config(config)
     return opt
 
 
 @pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
-    opt = parse_config(config)
+    opt = _config_read(config)
+    # opt = parse_config(config)
     return opt
 
 
@@ -99,15 +120,12 @@ def example_wflow_results():
 
 
 @pytest.fixture
-def clipped_wflow_model():
+def clipped_wflow_model(build_data_catalog):
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=[build_data_catalog],
     )
     return mod
 
@@ -231,3 +249,18 @@ def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
     ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
 
     return ds
+
+
+@pytest.fixture
+def static_layer() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((2, 2)),
+        coords={
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["lat", "lon"],
+    )
+    da.raster.set_crs(4326)
+    da.raster.set_nodata(-9999)
+    return da

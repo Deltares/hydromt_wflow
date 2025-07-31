@@ -5,6 +5,7 @@
 import glob
 import logging
 import os
+import tomllib
 from os.path import basename, isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
@@ -15,7 +16,6 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
-import tomlkit
 import xarray as xr
 from hydromt import hydromt_step
 from hydromt._typing import NoDataStrategy
@@ -39,7 +39,7 @@ from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowModel(Model):
@@ -98,7 +98,7 @@ class WflowModel(Model):
             root,
             components=components,
             mode=mode,
-            region_component="staticmaps",  # change when GridComponent is implemented
+            region_component="staticmaps",
             data_libs=data_libs,
             **catalog_keys,
         )
@@ -113,6 +113,9 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
+        # Read model from disk when in read mode
+        if mode == "r" or mode == "r+":
+            self.read(config_filename=config_filename)
 
     ## Properties
     # Components
@@ -145,7 +148,7 @@ class WflowModel(Model):
     @property
     def basins(self) -> gpd.GeoDataFrame | None:
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
-        if self.geoms.get("basins") is not None:
+        if "basins" in self.geoms.data:
             gdf = self.geoms.get("basins")
         elif self._MAPS["basins"] in self.staticmaps.data:
             gdf = (
@@ -163,7 +166,7 @@ class WflowModel(Model):
     @property
     def basins_highres(self) -> gpd.GeoDataFrame | None:
         """Returns a high resolution basin(s) geometry."""
-        if self.geoms.get("basins_highres") is not None:
+        if "basins_highres" in self.geoms.data:
             gdf = self.geoms.get("basins_highres")
         else:
             gdf = self.basins
@@ -176,7 +179,7 @@ class WflowModel(Model):
         If available, the stream order and upstream area values are added to
         the geometry properties.
         """
-        if self.geoms.get("rivers") is not None:
+        if "rivers" in self.geoms.data:
             gdf = self.geoms.get("rivers")
         elif self._MAPS["rivmsk"] in self.staticmaps.data:
             rivmsk = self.staticmaps.data[self._MAPS["rivmsk"]].values != 0
@@ -192,6 +195,14 @@ class WflowModel(Model):
             logger.warning("No river cells detected in the selected basin.")
             gdf = None
         return gdf
+
+    def set_grid(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+    ):
+        """Set the grid data with a DataArray or Dataset."""
+        self.staticmaps.set(data=data, name=name)
 
     ## SETUP METHODS
     @hydromt_step
@@ -633,7 +644,8 @@ Select from {routing_options}.'
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
         logger.debug("Adding rivers vector to geoms.")
-        self.geoms.pop("rivers", None)  # remove old rivers if in geoms
+        if "rivers" in self.geoms.data:
+            self.geoms.pop("rivers")  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
@@ -1685,7 +1697,6 @@ skipping adding gauge specific outputs to the toml."
             idxs=idxs_out,
             ids=ids,
             flwdir=self.flwdir,
-            logger=logger,
         )
         self.set_grid(da_out, name="outlets")
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs_out))
@@ -1848,8 +1859,8 @@ gauge locations [-] (if derive_subcatch)
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
-        elif gauges_fn in self.data_catalog:
-            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+        elif gauges_fn in self.data_catalog.sources:
+            if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
@@ -1857,7 +1868,7 @@ gauge locations [-] (if derive_subcatch)
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
-            elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+            elif self.data_catalog.get_source(gauges_fn).data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
@@ -1872,9 +1883,9 @@ gauge locations [-] (if derive_subcatch)
                     )
         else:
             raise ValueError(
-                f"{gauges_fn} data source not found or \
-                incorrect data_type ({self.data_catalog[gauges_fn].data_type} \
-                instead of GeoDataFrame or GeoDataset)."
+                f"{gauges_fn} data source not found or incorrect data_type "
+                f"({self.data_catalog.get_source(gauges_fn).data_type} instead of "
+                "GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -1935,7 +1946,6 @@ gauge locations [-] (if derive_subcatch)
                 stream=mask,
                 flwdir=self.flwdir,
                 max_dist=max_dist,
-                logger=logger,
             )
             # Filter gauges that could not be snapped to rivers
             if snap_to_river:
@@ -2395,11 +2405,11 @@ Using default storage/outflow function parameters."
 
         # Save accuracy information on reservoir parameters
         if reservoir_accuracy is not None:
-            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+            reservoir_accuracy.to_csv(join(self.root.path, "reservoir_accuracy.csv"))
 
         if reservoir_timeseries is not None:
             reservoir_timeseries.to_csv(
-                join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
+                join(self.root.path, f"reservoir_timeseries_{timeseries_fn}.csv")
             )
 
         # update toml
@@ -3144,7 +3154,7 @@ using 'variable' argument."
                     f"Parameter {wflow_var} already in toml and will be overwritten."
                 )
             # remove from config
-            self._config.pop(wflow_var, None)
+            self.config.data.pop(wflow_var, None)
             # Add to config
             self.set_config(f"input.static.{wflow_var}.value", value)
 
@@ -3296,14 +3306,12 @@ one variable and variables list is not provided."
             )
             clim = clim.astype("float32")
 
-        precip_out = hydromt.workflows.forcing.precip(
+        precip_out = hydromt.model.processes.meteo.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=logger,
-            **kwargs,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -3471,13 +3479,12 @@ one variable and variables list is not provided."
         )
 
         # Use precip workflow to create the forcing file
-        precip_out = hydromt.workflows.forcing.precip(
+        precip_out = hydromt.model.processes.meteo.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
             clim=None,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -5117,12 +5124,9 @@ Run setup_soilmaps first"
         """
         self.read()
 
-        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
-
-        self._config = tomlkit.parse(default_header_str)
+        config_out = utils.convert_to_wflow_v1_sbm(self.config.data)
+        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
+            self.config._data = tomllib.load(file)
 
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -5133,7 +5137,7 @@ Run setup_soilmaps first"
         self,
         config_fn: str | None = None,
         grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path | str = "staticgeoms",
+        geoms_fn: Path = Path("staticgeoms"),
         forcing_fn: Path | str | None = None,
         states_fn: Path | str | None = None,
     ):
@@ -5168,18 +5172,56 @@ Run setup_soilmaps first"
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if self._grid:
-            self.write_grid(fn_out=grid_fn)
-        if self._geoms:
-            self.write_geoms(geoms_fn=geoms_fn)
-        if self._forcing:
-            self.write_forcing(fn_out=forcing_fn)
-        if self._tables:
-            self.write_tables()
-        if self._states:
-            self.write_states(fn_out=states_fn)
+        if "staticmaps" in self.components:
+            self.staticmaps.write(filename=grid_fn)
+        if "geoms" in self.components:
+            geoms_fn = (
+                Path(geoms_fn)
+                if geoms_fn is not isinstance(geoms_fn, Path)
+                else geoms_fn
+            )
+            self.geoms.write(dir_out=geoms_fn)
+        if "forcing" in self.components:
+            self.forcing.write(filename=forcing_fn)
+        if "tables" in self.components:
+            self.tabeles.write()
+        if "states" in self.components:
+            self.states.write(filename=states_fn)
+
         # Write the config last as variables can get set in other write methods
-        self.write_config(config_name=config_fn)
+        self.config.write(path=config_fn)
+
+    @hydromt_step
+    def read(
+        self,
+        config_filename: str | None = None,
+        staticmaps_filename: str | None = None,
+        geoms_filename: str | None = None,
+    ):
+        """Read components from disk.
+
+        Parameters
+        ----------
+        config_filename : str | None, optional
+            config file name, by default None
+        staticmaps_filename : str | None, optional
+            static maps file name, by default None
+        geoms_filename : str | None, optional
+            geoms file name, by default None
+        """
+        if not config_filename:
+            self.read_config()
+        else:
+            self.read_config(config_filename)
+        if not staticmaps_filename:
+            self.read_staticmaps()
+        else:
+            self.read_staticmaps(staticmaps_filename)
+        if not geoms_filename:
+            self.read_geoms()
+        else:
+            self.read_geoms(geoms_filename)
+        self.read_states()
 
     @hydromt_step
     def read_config(
@@ -5348,7 +5390,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_geoms(
         self,
-        geoms_fn: str = "staticgeoms",
+        geoms_filename: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -5360,13 +5402,13 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_fn : str, optional
+        geoms_filename : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
         input_dir = join(
             self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_fn,
+            geoms_filename,
         )
         pattern = join(input_dir, "*.geojson")
         self.geoms.read(filename=pattern)
@@ -5496,9 +5538,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.config.get("state.path_input") or self.states._filename
+        p = self.config.get_value("state.path_input") or self.states._filename
         # Check for input dir
-        p_input = join(self.config.get("dir_input", fallback=""), p)
+        p_input = join(self.config.get_value("dir_input", fallback=""), p)
 
         self.states.read(
             filename=p_input,
@@ -5523,9 +5565,13 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: signature, 2: config, 3: default
-        p = filename or self.config.get("state.path_input") or self.states._filename
+        p = (
+            filename
+            or self.config.get_value("state.path_input")
+            or self.states._filename
+        )
         # Check for output dir
-        p_output = join(self.config.get("dir_input", fallback=""), p)
+        p_output = join(self.config.get_value("dir_input", fallback=""), p)
 
         # Update the config
         self.config.set("state.path_input", p)
@@ -5728,14 +5774,6 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             toml document
 
 
-        .. warning::
-
-            Even though the underlying config object behaves like a dictionary, it is
-            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-            errors can easily be introduced if this structure is modified by hand.
-            Therefore we strongly discourage users from manually modyfing it, and
-            instead ask them to use this ``set_config`` function to avoid problems.
-
         Parameters
         ----------
         args : str, tuple, list
@@ -5756,7 +5794,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
-        self.config.set(*args)
+        key = ".".join(args[:-1])
+        value = args[-1]
+        self.config.set(key, value)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
