@@ -5,7 +5,7 @@
 import glob
 import logging
 import os
-from os.path import basename, dirname, isdir, isfile, join
+from os.path import basename, isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -17,7 +17,6 @@ import pyflwdir
 import pyproj
 import tomlkit
 import xarray as xr
-from dask.diagnostics import ProgressBar
 from hydromt import hydromt_step
 from hydromt._typing import NoDataStrategy
 from hydromt.gis import flw
@@ -123,8 +122,13 @@ class WflowModel(Model):
         return self.components["config"]
 
     @property
+    def forcing(self) -> WflowForcingComponent:
+        """Return the forcing component."""
+        return self.components["forcing"]
+
+    @property
     def geoms(self) -> WflowGeomsComponent:
-        """Return the WflowGeomsComponent instance."""
+        """Return the geoms component."""
         return self.components["geoms"]
 
     @property
@@ -3306,7 +3310,7 @@ one variable and variables list is not provided."
         precip_out.attrs.update({"precip_fn": precip_fn})
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
     @hydromt_step
@@ -3479,7 +3483,7 @@ one variable and variables list is not provided."
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn})
         precip_out = precip_out.astype("float32")
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
         # Add to geoms
@@ -3692,7 +3696,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
-            self.set_forcing(pet_out.where(mask), name="pet")
+            self.forcing.set(pet_out.where(mask), name="pet")
             self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
         # make sure only temp is written to netcdf
@@ -3721,7 +3725,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 method=fillna_method,
                 fill_value="extrapolate",
             )
-        self.set_forcing(temp_out.where(mask), name="temp")
+        self.forcing.set(temp_out.where(mask), name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step
@@ -3775,7 +3779,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
-        self.set_forcing(pet_out, name="pet")
+        self.forcing.set(pet_out, name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     @hydromt_step
@@ -5419,46 +5423,14 @@ Run setup_soilmaps first"
         files are read and merged into one xarray dataset before being split to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
         """
-        fn_default = "inmaps.nc"
-        fn = self.get_config(
-            "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
-        )
-
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.get_config(
-                    "input.path_forcing",
-                    fallback=fn_default,
-                ),
-            )
-            logger.info(f"Input directory found {input_dir}")
-
-        if not self._write:
-            # start fresh in read-only mode
-            self._forcing = dict()
-        if fn is not None and isfile(fn):
-            logger.info(f"Read forcing from {fn}")
-            with xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all") as ds:
-                for v in ds.data_vars:
-                    self.set_forcing(ds[v])
-        elif "*" in str(fn):
-            logger.info(f"Read multiple forcing files using {fn}")
-            fns = list(fn.parent.glob(fn.name))
-            if len(fns) == 0:
-                raise IOError(f"No forcing files found using {fn}")
-            with xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all") as ds:
-                for v in ds.data_vars:
-                    self.set_forcing(ds[v])
+        self.forcing.read()
 
     @hydromt_step
     def write_forcing(
         self,
-        fn_out=None,
-        freq_out=None,
-        chunksize=1,
-        decimals=2,
+        filename=None,
+        output_frequency: str | None = None,
+        time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
         **kwargs,
     ):
@@ -5474,191 +5446,44 @@ inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
-        fn_out: str, Path, optional
+        fn_out : Path | str, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
-        freq_out: str (Offset), optional
+        output_frequency : str (Offset), optional
             Write several files for the forcing according to fn_freq. For example 'Y'
             for one file per year or 'M' for one file per month.
             By default writes the one file.
             For more options, \
 see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-        chunksize: int, optional
+        time_chunk : int, optional
             Chunksize on time dimension when saving to disk. By default 1.
-        decimals: int, optional
-            Round the output data to the given number of decimals.
-        time_units: str, optional
+        time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
-
         """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.forcing:
-            logger.info("Write forcing file")
-
-            # Get default forcing name from forcing attrs
-            yr0 = pd.to_datetime(self.get_config("time.starttime")).year
-            yr1 = pd.to_datetime(self.get_config("time.endtime")).year
-            freq = self.get_config("time.timestepsecs")
-            # get output filename
-            if fn_out is not None:
-                self.set_config("input.path_forcing", fn_out)
-            else:
-                fn_name = self.get_config("input.path_forcing", abs_path=False)
-                if fn_name is not None:
-                    if "*" in basename(fn_name):
-                        # get rid of * in case model had multiple forcing files and
-                        # write to single nc file.
-                        logger.warning("Writing multiple forcing files to one file")
-                        fn_name = join(
-                            dirname(fn_name), basename(fn_name).replace("*", "")
-                        )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
-                        fn_out = join(input_dir, fn_name)
-                    else:
-                        fn_out = join(self.root, fn_name)
-                else:
-                    fn_out = None
-
-                # get default filename if file exists
-                if fn_out is None or isfile(fn_out):
-                    logger.warning(
-                        "Netcdf forcing file from input.path_forcing in the TOML  "
-                        "already exists, using default name."
-                    )
-                    sourceP = ""
-                    sourceT = ""
-                    methodPET = ""
-                    if "precip" in self.forcing:
-                        val = self.forcing["precip"].attrs.get("precip_clim_fn", None)
-                        Pdown = "d" if val is not None else ""
-                        val = self.forcing["precip"].attrs.get("precip_fn", None)
-                        if val is not None:
-                            sourceP = f"_{val}{Pdown}"
-                    if "temp" in self.forcing:
-                        val = self.forcing["temp"].attrs.get("temp_correction", "False")
-                        Tdown = "d" if val == "True" else ""
-                        val = self.forcing["temp"].attrs.get("temp_fn", None)
-                        if val is not None:
-                            sourceT = f"_{val}{Tdown}"
-                    if "pet" in self.forcing:
-                        val = self.forcing["pet"].attrs.get("pet_method", None)
-                        if val is not None:
-                            methodPET = f"_{val}"
-                    fn_default = (
-                        f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
-                    )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
-                        fn_default_path = join(input_dir, fn_default)
-                    else:
-                        fn_default_path = join(self.root, fn_default)
-                    if isfile(fn_default_path):
-                        logger.warning(
-                            "Netcdf default forcing file already exists, \
-skipping write_forcing. "
-                            "To overwrite netcdf forcing file: \
-change name input.path_forcing "
-                            "in setup_config section of the build inifile."
-                        )
-                        return
-                    else:
-                        self.set_config("input.path_forcing", fn_default)
-                        fn_out = fn_default_path
-
-            # Check if all dates between (starttime, endtime) are in all da forcing
-            # Check if starttime and endtime timestamps are correct
-            start = pd.to_datetime(self.get_config("time.starttime"))
-            end = pd.to_datetime(self.get_config("time.endtime"))
-            correct_times = False
-            for da in self.forcing.values():
-                if "time" in da.coords:
-                    # only correct dates in toml for standard calendars:
-                    if not hasattr(da.indexes["time"], "to_datetimeindex"):
-                        times = da.time.values
-                        if (start < pd.to_datetime(times[0])) or (start not in times):
-                            start = pd.to_datetime(times[0])
-                            correct_times = True
-                        if (end > pd.to_datetime(times[-1])) or (end not in times):
-                            end = pd.to_datetime(times[-1])
-                            correct_times = True
-            # merge, process and write forcing
-            ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
-            ds.raster.set_crs(self.crs)
-            # Send warning, and update config with new start and end time
-            if correct_times:
-                logger.warning(
-                    f"Not all dates found in precip_fn changing starttime to \
-{start} and endtime to {end} in the toml."
-                )
-                # Set the strings first
-                self.set_config("time.starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
-                self.set_config("time.endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
-
-            if decimals is not None:
-                ds = ds.round(decimals)
-            # clean-up forcing and write CRS according to CF-conventions
-            ds = ds.raster.gdal_compliant(rename_dims=True, force_sn=False)
-            ds = ds.drop_vars(["mask", "idx_out"], errors="ignore")
-
-            # write with output chunksizes with single timestep and complete
-            # spatial grid to speed up the reading from wflow.jl
-            # dims are always ordered (time, y, x)
-            ds.raster._check_dimensions()
-            chunksizes = (chunksize, ds.raster.ycoords.size, ds.raster.xcoords.size)
-            encoding = {
-                v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
-                for v in ds.data_vars.keys()
-            }
-            # make sure no _FillValue is written to the time / x_dim / y_dim dimension
-            # For several forcing files add common units attributes to time
-            for v in ["time", ds.raster.x_dim, ds.raster.y_dim]:
-                ds[v].attrs.pop("_FillValue", None)
-                encoding[v] = {"_FillValue": None}
-
-            # Check if all sub-folders in fn_out exists and if not create them
-            if not isdir(dirname(fn_out)):
-                os.makedirs(dirname(fn_out))
-
-            forcing_list = []
-
-            if freq_out is None:
-                # with compute=False we get a delayed object which is executed when
-                # calling .compute where we can pass more arguments to
-                # the dask.compute method
-                forcing_list.append([fn_out, ds])
-            else:
-                logger.info(f"Writing several forcing with freq {freq_out}")
-                # For several forcing files add common units attributes to time
-                encoding["time"] = {"_FillValue": None, "units": time_units}
-                # Updating path forcing in config
-                fns_out = os.path.relpath(fn_out, self.root)
-                fns_out = f"{str(fns_out)[0:-3]}_*.nc"
-                self.set_config("input.path_forcing", fns_out)
-                for label, ds_gr in ds.resample(time=freq_out):
-                    # ds_gr = group[1]
-                    start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
-                    fn_out_gr = f"{str(fn_out)[0:-3]}_{start}.nc"
-                    forcing_list.append([fn_out_gr, ds_gr])
-
-            for fn_out_gr, ds_gr in forcing_list:
-                logger.info(f"Process forcing; saving to {fn_out_gr}")
-                delayed_obj = ds_gr.to_netcdf(
-                    fn_out_gr, encoding=encoding, mode="w", compute=False
-                )
-                with ProgressBar():
-                    delayed_obj.compute(**kwargs)
-
-            # TO profile uncomment lines below to replace lines above
-            # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
-            # import cachey
-            # with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof,
-            # ResourceProfiler() as rprof:
-            #     delayed_obj.compute()
-            # visualize([prof, cprof, rprof],
-            # file_path=r'c:\Users\eilan_dk\work\profile2.html')
+        # Solve pathing same as read
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        filename = (
+            filename
+            or self.config.get_value("input.path_forcing")
+            or self.forcing._filename
+        )
+        # Check for input dir
+        filename = Path(self.config.get_value("dir_input", fallback=""), filename)
+        # Call the component
+        filename, starttime, endtime = self.forcing.write(
+            filename=filename,
+            output_frequency=output_frequency,
+            starttime=self.config.get_value("time.starttime"),
+            endtime=self.config.get_value("time.endtime"),
+            time_chunk=time_chunk,
+            time_units=time_units,
+            **kwargs,
+        )
+        # Set back to the config
+        self.config.set("input.path_forcing", filename.as_posix())
+        self.config.set("time.starttime", starttime)
+        self.config.set("time.endtime", endtime)
 
     @hydromt_step
     def read_states(self):
@@ -6194,7 +6019,7 @@ change name input.path_forcing "
             ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
-            self.set_forcing(ds_forcing)
+            self.forcing.set(ds_forcing)
 
     @hydromt_step
     def clip_states(self):
