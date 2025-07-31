@@ -196,14 +196,6 @@ class WflowModel(Model):
             gdf = None
         return gdf
 
-    def set_grid(
-        self,
-        data: xr.DataArray | xr.Dataset,
-        name: str | None = None,
-    ):
-        """Set the grid data with a DataArray or Dataset."""
-        self.staticmaps.set(data=data, name=name)
-
     ## SETUP METHODS
     @hydromt_step
     def setup_config(self, data: Dict[str, Any]):
@@ -375,7 +367,7 @@ class WflowModel(Model):
         if "idx_out" in ds_base:
             ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
-        self.set_grid(ds_base.rename(rmdict))
+        self.set_staticmaps(ds_base.rename(rmdict))
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -390,7 +382,7 @@ class WflowModel(Model):
             ds=ds_org, ds_like=self.staticmaps.data, method="average", logger=logger
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
-        self.set_grid(ds_topo.rename(rmdict))
+        self.set_staticmaps(ds_topo.rename(rmdict))
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -586,7 +578,7 @@ Select from {routing_options}.'
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
+        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
         # update config
         for dvar in dvars:
             if dvar == "rivmsk":
@@ -614,7 +606,7 @@ Select from {routing_options}.'
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
-        self.set_grid(ds_nriver.rename(rmdict))
+        self.set_staticmaps(ds_nriver.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_nriver.rename(rmdict).data_vars)
 
@@ -639,7 +631,7 @@ Select from {routing_options}.'
                 logger=logger,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
-            self.set_grid(ds_riv1.rename(rmdict))
+            self.set_staticmaps(ds_riv1.rename(rmdict))
             # update config
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
@@ -672,7 +664,7 @@ Select from {routing_options}.'
                 river_d8=True,
                 logger=logger,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.set_staticmaps(ds_out)
 
             # update toml model.river_routing
             self._update_config_variable_name(name)
@@ -835,7 +827,7 @@ setting new flood_depth dimensions"
                 self._grid = self._grid.drop_dims("flood_depth")
 
             da_fldpln.name = self._MAPS["floodplain_volume"]
-            self.set_grid(da_fldpln)
+            self.set_staticmaps(da_fldpln)
             self._update_config_variable_name(da_fldpln.name)
 
         elif floodplain_type == "2d":
@@ -872,7 +864,7 @@ setting new flood_depth dimensions"
                 river_d8=True,
                 logger=logger,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.set_staticmaps(ds_out)
             # Update the bankfull elevation map
             self.set_config("input.static.river_bank_water__elevation", name)
             # In this case river_bank_elevation is also used for the ground elevation?
@@ -1095,7 +1087,7 @@ and will soon be removed. '
             fit=fit,
             **kwargs,
         )
-        self.set_grid(da_rivwth, name=output_name)
+        self.set_staticmaps(da_rivwth, name=output_name)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
@@ -1225,7 +1217,7 @@ and will soon be removed. '
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
@@ -1389,7 +1381,7 @@ and will soon be removed. '
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.set_staticmaps(ds_lulc_maps.rename(rmdict))
         # update config variable names
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
 
@@ -1498,7 +1490,7 @@ and will soon be removed. '
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self.set_staticmaps(da_lai.rename(rmdict), name=self._MAPS["LAI"])
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     @hydromt_step
@@ -1552,7 +1544,7 @@ and will soon be removed. '
             logger=logger,
         )
         # Add to grid
-        self.set_grid(da_lai, name=self._MAPS["LAI"])
+        self.set_staticmaps(da_lai, name=self._MAPS["LAI"])
         # Add to config
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
@@ -1698,7 +1690,7 @@ skipping adding gauge specific outputs to the toml."
             ids=ids,
             flwdir=self.flwdir,
         )
-        self.set_grid(da_out, name="outlets")
+        self.set_staticmaps(da_out, name="outlets")
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
@@ -1966,7 +1958,7 @@ gauge locations [-] (if derive_subcatch)
 
         # Add to grid
         mapname = f"gauges_{basename}"
-        self.set_grid(da, name=mapname)
+        self.set_staticmaps(da, name=mapname)
 
         # geoms
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs))
@@ -2001,7 +1993,7 @@ gauge locations [-] (if derive_subcatch)
                 self.staticmaps.data, self.flwdir, idxs=idxs, ids=ids
             )[0]
             mapname = self._MAPS["basins"] + "_" + basename
-            self.set_grid(da_basins, name=mapname)
+            self.set_staticmaps(da_basins, name=mapname)
             gdf_basins = self.staticmaps.data[mapname].raster.vectorize()
             self.set_geoms(gdf_basins, name=mapname)
 
@@ -2061,7 +2053,7 @@ gauge locations [-] (if derive_subcatch)
             self._update_config_variable_name(col2raster_name)
         else:
             col2raster_name = col2raster
-        self.set_grid(da_area.rename(col2raster_name))
+        self.set_staticmaps(da_area.rename(col2raster_name))
 
     @hydromt_step
     def setup_lakes(
@@ -2218,7 +2210,7 @@ Using default storage/outflow function parameters."
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
+        self.set_staticmaps(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes, name=geom_name)
         # add the tables
@@ -2349,7 +2341,7 @@ Using default storage/outflow function parameters."
         self._update_naming(output_names)
         # Continue method if data has been found
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.set_staticmaps(ds_res.rename(rmdict))
         self._update_config_variable_name(
             ds_res.rename(rmdict).data_vars, data_type=None
         )
@@ -2400,7 +2392,7 @@ Using default storage/outflow function parameters."
                 gdf_org_points, col_name=name, dtype="float32", nodata=-999
             )
             output_name = self._MAPS.get(name, name)
-            self.set_grid(da_res.rename(output_name))
+            self.set_staticmaps(da_res.rename(output_name))
             self._update_config_variable_name(output_name, data_type="static")
 
         # Save accuracy information on reservoir parameters
@@ -2589,7 +2581,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             logger=logger,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout.rename(rmdict))
+        self.set_staticmaps(dsout.rename(rmdict))
 
         # Update the toml file
         self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
@@ -2651,7 +2643,7 @@ using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout)
+        self.set_staticmaps(daout)
         self._update_config_variable_name(daout.name)
 
     @hydromt_step
@@ -2709,7 +2701,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(KSatVer_vegetation, output_name)
+        self.set_staticmaps(KSatVer_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -2971,7 +2963,7 @@ using 'variable' argument."
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
-        self.set_grid(landuse_maps.rename(rmdict))
+        self.set_staticmaps(landuse_maps.rename(rmdict))
         # update config
         self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
 
@@ -3013,13 +3005,13 @@ using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=logger,
             )
-            self.set_grid(
+            self.set_staticmaps(
                 soil_maps["soil_ksat_vertical_factor"],
                 name=self._MAPS["soil_ksat_vertical_factor"],
             )
             self._update_config_variable_name(self._MAPS["soil_ksat_vertical_factor"])
             if "soil_brooks_corey_c" in soil_maps:
-                self.set_grid(
+                self.set_staticmaps(
                     soil_maps["soil_brooks_corey_c"],
                     name=self._MAPS["soil_brooks_corey_c"],
                 )
@@ -3115,7 +3107,7 @@ using 'variable' argument."
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
-        self.set_grid(ds_glac.rename(rmdict))
+        self.set_staticmaps(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier__flag", True)
@@ -3218,7 +3210,7 @@ using 'variable' argument."
         # Reprojection
         ds_out = ds.raster.reproject_like(self.staticmaps.data, method=reproject_method)
         # Add to grid
-        self.set_grid(ds_out)
+        self.set_staticmaps(ds_out)
 
         # Update config
         if wflow_variables is not None:
@@ -4011,7 +4003,7 @@ Run setup_soilmaps first"
         dsout = dsout.where(self.staticmaps.data[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
-        self.set_grid(dsout)
+        self.set_staticmaps(dsout)
         self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
@@ -4130,7 +4122,7 @@ Run setup_soilmaps first"
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
+            self.set_staticmaps(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
@@ -4168,14 +4160,14 @@ Run setup_soilmaps first"
                 )
 
         # Derive subcatchment map
-        self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
+        self.set_staticmaps(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
         self.set_geoms(gdf_subcatch, name=f"subcatchment_{mapname}")
 
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
+        self.set_staticmaps(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
@@ -4250,7 +4242,7 @@ Run setup_soilmaps first"
             priority_basins=priority_basins,
             minimum_area=minimum_area,
         )
-        self.set_grid(da_alloc, name=output_name)
+        self.set_staticmaps(da_alloc, name=output_name)
         # Update the config
         self.set_config("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
@@ -4374,7 +4366,7 @@ Run setup_soilmaps first"
         self.set_config(f"input.static.{wflow_var}", output_name)
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name=output_name)
+        self.set_staticmaps(w_frac, name=output_name)
 
     @hydromt_step
     def setup_domestic_demand(
@@ -4479,9 +4471,9 @@ Run setup_soilmaps first"
         )
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.set_staticmaps(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="meta_population")
+            self.set_staticmaps(pop, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4564,9 +4556,9 @@ Run setup_soilmaps first"
 
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.set_staticmaps(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="meta_population")
+            self.set_staticmaps(popu_scaled, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4662,7 +4654,7 @@ Run setup_soilmaps first"
             ds_method=resampling_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in demand.data_vars}
-        self.set_grid(demand.rename(rmdict))
+        self.set_staticmaps(demand.rename(rmdict))
 
         # Update the settings toml
         if "domestic_gross" in demand.data_vars:
@@ -4810,7 +4802,7 @@ Run setup_soilmaps first"
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
+            self.set_staticmaps(ds_paddy.rename(rmdict))
             self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
@@ -4843,7 +4835,7 @@ Run setup_soilmaps first"
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.set_staticmaps(ds_nonpaddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
@@ -4989,7 +4981,7 @@ Run setup_soilmaps first"
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
+            self.set_staticmaps(ds_paddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
@@ -5023,7 +5015,7 @@ Run setup_soilmaps first"
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.set_staticmaps(ds_nonpaddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
@@ -5348,8 +5340,7 @@ Run setup_soilmaps first"
     ):
         """Add data to grid.
 
-        All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        All layers of grid must have identical spatial coordinates. If basin data is
         available the grid will be masked to that upon setting.
 
         The first fix is when data with a time axis is being added. Since Wflow.jl
@@ -5375,17 +5366,6 @@ Run setup_soilmaps first"
         """
         # Call the staticmaps set method
         self.staticmaps.set(data, name=name)
-
-    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
-        """
-        Set geometries to the model.
-
-        This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
-        """
-        self.geoms.set(
-            geom=geometry,
-            name=name,
-        )
 
     @hydromt_step
     def read_geoms(
@@ -5450,6 +5430,17 @@ Run setup_soilmaps first"
             to_wgs84=to_wgs84,
             precision=precision,
             kwargs=kwargs,
+        )
+
+    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
+        """
+        Set geometries to the model.
+
+        This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
+        """
+        self.geoms.set(
+            geom=geometry,
+            name=name,
         )
 
     @hydromt_step
@@ -5526,6 +5517,14 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         self.config.set("input.path_forcing", filename.as_posix())
         self.config.set("time.starttime", starttime)
         self.config.set("time.endtime", endtime)
+
+    def set_forcing(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+    ):
+        """Add data for the forcing component."""
+        self.forcing.set(data=data, name=name)
 
     @hydromt_step
     def read_states(self):
@@ -5959,7 +5958,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             self.set_crs(crs)
 
         self._grid = xr.Dataset()
-        self.set_grid(ds_grid)
+        self.set_staticmaps(ds_grid)
 
         # add pits at edges after clipping
         self._flwdir = None  # make sure old flwdir object is removed

@@ -166,7 +166,7 @@ uparea in the grid {float(self.staticmaps[self._MAPS['uparea']].max())}"
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
+        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
         # update config
         for dvar in dvars:
             if dvar == "rivmsk":
@@ -189,7 +189,7 @@ uparea in the grid {float(self.staticmaps[self._MAPS['uparea']].max())}"
                 logger=logger,
             )
             # only add river width
-            self.set_grid(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
+            self.set_staticmaps(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
             # update config
             self._update_config_variable_name(self._MAPS["rivwth"])
 
@@ -264,7 +264,7 @@ uparea in the grid {float(self.staticmaps[self._MAPS['uparea']].max())}"
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
+        self.set_staticmaps(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
 
@@ -362,7 +362,7 @@ coefficient [-]
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.set_staticmaps(ds_res.rename(rmdict))
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
@@ -593,7 +593,7 @@ cell [-]
             )
 
             # Add to grid
-            self.set_grid(usle_c, name=self._MAPS["usle_c"])
+            self.set_staticmaps(usle_c, name=self._MAPS["usle_c"])
 
     @hydromt_step
     def setup_lulcmaps_from_vector(
@@ -727,7 +727,7 @@ cell [-]
             )
 
             # Add to grid
-            self.set_grid(usle_c, name=self._MAPS["usle_c"])
+            self.set_staticmaps(usle_c, name=self._MAPS["usle_c"])
 
     @hydromt_step
     def setup_riverbedsed(
@@ -822,7 +822,7 @@ cell [-]
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_riversed.data_vars}
-        self.set_grid(ds_riversed.rename(rmdict))
+        self.set_staticmaps(ds_riversed.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_riversed.rename(rmdict).data_vars)
 
@@ -860,7 +860,7 @@ cell [-]
         # update name
         wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_height"]]
         self._update_naming({wflow_var: output_name})
-        self.set_grid(dsout["vegetation_height"], name=output_name)
+        self.set_staticmaps(dsout["vegetation_height"], name=output_name)
         # update config
         self._update_config_variable_name(output_name)
 
@@ -940,7 +940,7 @@ capacity [-]
             add_aggregates=add_aggregates,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout.rename(rmdict))
+        self.set_staticmaps(dsout.rename(rmdict))
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     @hydromt_step

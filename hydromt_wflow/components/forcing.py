@@ -51,6 +51,61 @@ class WflowForcingComponent(GridComponent):
             region_filename=region_filename,
         )
 
+    ## Private methods
+    def _get_grid_data(self) -> xr.DataArray | xr.Dataset:
+        """Get grid data as xarray.DataArray from this component or the reference."""
+        if self._region_component is not None:
+            reference_component = self.model.get_component(self._region_component)
+            if not isinstance(reference_component, GridComponent):
+                raise ValueError(
+                    f"Unable to find the referenced grid component: \
+'{self._region_component}'."
+                )
+            if reference_component.data is None:
+                raise ValueError(
+                    f"Unable to get grid from the referenced region component: \
+'{self._region_component}'."
+                )
+            return reference_component.data
+
+        if self._data is None:
+            raise ValueError("Unable to get grid data from this component.")
+        return self._data
+
+    def _reproj_data(
+        self,
+        data: xr.DataArray | xr.Dataset,
+    ) -> xr.DataArray | xr.Dataset:
+        """Compare with staticmaps and maybe reproject."""
+        ref = self._get_grid_data()
+        try:
+            ref.raster.set_spatial_dims()
+        except BaseException:
+            return data
+        if not (data.raster.identical_grid(ref)):
+            logger.warning(
+                "Forcing data differs spatially from staticmaps, reprojecting..",
+            )
+            if data.raster.crs is None:
+                data.raster.set_crs(ref.raster.crs)
+            data = data.raster.reproject_like(ref)
+        return data
+
+    ## Properties
+    @property
+    def data(self) -> xr.Dataset:
+        """Model static gridded data as xarray.Dataset."""
+        if self._data is None:
+            self._initialize_grid()
+        assert self._data is not None
+        # Quick check on the data
+        try:
+            self._data.raster.set_spatial_dims()
+            self._data = self._reproj_data(self._data)
+        except BaseException:
+            ...
+        return self._data
+
     ## I/O methods
     def read(
         self,
@@ -215,10 +270,7 @@ class WflowForcingComponent(GridComponent):
             raise ValueError("'time' dimension not found in data")
 
         # Check spatial extend
-        if not data.raster.identical_grid(self._get_grid_data()):
-            raise ValueError(
-                "Forcing data doesn't match the spatial extend of the staticmaps."
-            )
+        data = self._reproj_data(data)
 
         # Call set of parent class
         super().set(
