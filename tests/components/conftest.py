@@ -137,6 +137,37 @@ def cyclic_layer_large() -> xr.DataArray:
     return da
 
 
+@pytest.fixture
+def forcing_layer() -> xr.DataArray:
+    time = np.arange(
+        np.datetime64("2000-01-01"), np.datetime64("2000-01-21"), np.timedelta64(1, "D")
+    ).astype("datetime64[ns]")
+    da = xr.DataArray(
+        np.ones((20, 2, 2)),
+        coords={
+            "time": time,
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["time", "lat", "lon"],
+        attrs={
+            "crs": "EPSG:4326",
+            "grid_mapping_name": "latitude_longitude",
+        },
+    )
+    da.raster.set_nodata(-9999)
+    da.name = "foo"
+    return da
+
+
+@pytest.fixture
+def forcing_layer_path(tmp_path: Path, forcing_layer: xr.DataArray):
+    p = Path(tmp_path, "tmp_forcing.nc")
+    forcing_layer.to_netcdf(p)
+    assert p.is_file()
+    return p
+
+
 @pytest.fixture(scope="session")
 def grid_dummy_data() -> xr.DataArray:
     """Create a dummy grid data array."""

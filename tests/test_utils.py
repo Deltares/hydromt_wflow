@@ -1,10 +1,10 @@
 """Tests for the utils module."""
 
+import tomllib
 from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
-import tomllib
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config

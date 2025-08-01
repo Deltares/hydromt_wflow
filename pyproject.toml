@@ -41,11 +41,11 @@ classifiers = [
 ]
 
 # Core dependencies
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
   "dask",
   "geopandas>=0.10",
-  "hydromt>=1.0.1",
+  "hydromt@https://github.com/Deltares/hydromt.git", # TODO Set back after hydromt 1.2.1
   "numpy",
   "pandas",
   "pyflwdir>=0.5.7",

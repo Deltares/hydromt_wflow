@@ -531,7 +531,7 @@ def test_setup_outlets(example_wflow_model):
     # Update subcatchment ID
     new_subcatch = example_wflow_model.grid["subcatchment"].copy()
     new_subcatch = new_subcatch.where(new_subcatch == new_subcatch.raster.nodata, 1001)
-    example_wflow_model.set_grid(new_subcatch, "subcatchment")
+    example_wflow_model.set_staticmaps(new_subcatch, "subcatchment")
 
     # Derive outlets
     example_wflow_model.setup_outlets()

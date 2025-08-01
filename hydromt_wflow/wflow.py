@@ -5,7 +5,8 @@
 import glob
 import logging
 import os
-from os.path import basename, dirname, isdir, isfile, join
+import tomllib
+from os.path import basename, isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -15,9 +16,7 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
-import tomllib
 import xarray as xr
-from dask.diagnostics import ProgressBar
 from hydromt import hydromt_step
 from hydromt._typing import NoDataStrategy
 from hydromt.gis import flw
@@ -31,6 +30,7 @@ import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.components import (
     WflowConfigComponent,
+    WflowForcingComponent,
     WflowGeomsComponent,
     WflowStatesComponent,
     WflowStaticmapsComponent,
@@ -88,6 +88,7 @@ class WflowModel(Model):
                     self._DATADIR, "wflow", "wflow_sbm.toml"
                 ),
             ),
+            "forcing": WflowForcingComponent(self, region_component="staticmaps"),
             "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
             "states": WflowStatesComponent(self, region_component="staticmaps"),
             "staticmaps": WflowStaticmapsComponent(self),
@@ -124,8 +125,13 @@ class WflowModel(Model):
         return self.components["config"]
 
     @property
+    def forcing(self) -> WflowForcingComponent:
+        """Return the forcing component."""
+        return self.components["forcing"]
+
+    @property
     def geoms(self) -> WflowGeomsComponent:
-        """Return the WflowGeomsComponent instance."""
+        """Return the geoms component."""
         return self.components["geoms"]
 
     @property
@@ -189,14 +195,6 @@ class WflowModel(Model):
             logger.warning("No river cells detected in the selected basin.")
             gdf = None
         return gdf
-
-    def set_grid(
-        self,
-        data: xr.DataArray | xr.Dataset,
-        name: str | None = None,
-    ):
-        """Set the grid data with a DataArray or Dataset."""
-        self.staticmaps.set(data=data, name=name)
 
     ## SETUP METHODS
     @hydromt_step
@@ -369,7 +367,7 @@ class WflowModel(Model):
         if "idx_out" in ds_base:
             ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
-        self.set_grid(ds_base.rename(rmdict))
+        self.set_staticmaps(ds_base.rename(rmdict))
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -384,7 +382,7 @@ class WflowModel(Model):
             ds=ds_org, ds_like=self.staticmaps.data, method="average", logger=logger
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
-        self.set_grid(ds_topo.rename(rmdict))
+        self.set_staticmaps(ds_topo.rename(rmdict))
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -580,7 +578,7 @@ Select from {routing_options}.'
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
+        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
         # update config
         for dvar in dvars:
             if dvar == "rivmsk":
@@ -608,7 +606,7 @@ Select from {routing_options}.'
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
-        self.set_grid(ds_nriver.rename(rmdict))
+        self.set_staticmaps(ds_nriver.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_nriver.rename(rmdict).data_vars)
 
@@ -633,7 +631,7 @@ Select from {routing_options}.'
                 logger=logger,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
-            self.set_grid(ds_riv1.rename(rmdict))
+            self.set_staticmaps(ds_riv1.rename(rmdict))
             # update config
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
@@ -666,7 +664,7 @@ Select from {routing_options}.'
                 river_d8=True,
                 logger=logger,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.set_staticmaps(ds_out)
 
             # update toml model.river_routing
             self._update_config_variable_name(name)
@@ -829,7 +827,7 @@ setting new flood_depth dimensions"
                 self._grid = self._grid.drop_dims("flood_depth")
 
             da_fldpln.name = self._MAPS["floodplain_volume"]
-            self.set_grid(da_fldpln)
+            self.set_staticmaps(da_fldpln)
             self._update_config_variable_name(da_fldpln.name)
 
         elif floodplain_type == "2d":
@@ -866,7 +864,7 @@ setting new flood_depth dimensions"
                 river_d8=True,
                 logger=logger,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.set_staticmaps(ds_out)
             # Update the bankfull elevation map
             self.set_config("input.static.river_bank_water__elevation", name)
             # In this case river_bank_elevation is also used for the ground elevation?
@@ -1089,7 +1087,7 @@ and will soon be removed. '
             fit=fit,
             **kwargs,
         )
-        self.set_grid(da_rivwth, name=output_name)
+        self.set_staticmaps(da_rivwth, name=output_name)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
@@ -1219,7 +1217,7 @@ and will soon be removed. '
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
@@ -1383,7 +1381,7 @@ and will soon be removed. '
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.set_staticmaps(ds_lulc_maps.rename(rmdict))
         # update config variable names
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
 
@@ -1492,7 +1490,7 @@ and will soon be removed. '
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self.set_staticmaps(da_lai.rename(rmdict), name=self._MAPS["LAI"])
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     @hydromt_step
@@ -1546,7 +1544,7 @@ and will soon be removed. '
             logger=logger,
         )
         # Add to grid
-        self.set_grid(da_lai, name=self._MAPS["LAI"])
+        self.set_staticmaps(da_lai, name=self._MAPS["LAI"])
         # Add to config
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
@@ -1692,7 +1690,7 @@ skipping adding gauge specific outputs to the toml."
             ids=ids,
             flwdir=self.flwdir,
         )
-        self.set_grid(da_out, name="outlets")
+        self.set_staticmaps(da_out, name="outlets")
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
@@ -1960,7 +1958,7 @@ gauge locations [-] (if derive_subcatch)
 
         # Add to grid
         mapname = f"gauges_{basename}"
-        self.set_grid(da, name=mapname)
+        self.set_staticmaps(da, name=mapname)
 
         # geoms
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs))
@@ -1995,7 +1993,7 @@ gauge locations [-] (if derive_subcatch)
                 self.staticmaps.data, self.flwdir, idxs=idxs, ids=ids
             )[0]
             mapname = self._MAPS["basins"] + "_" + basename
-            self.set_grid(da_basins, name=mapname)
+            self.set_staticmaps(da_basins, name=mapname)
             gdf_basins = self.staticmaps.data[mapname].raster.vectorize()
             self.set_geoms(gdf_basins, name=mapname)
 
@@ -2055,7 +2053,7 @@ gauge locations [-] (if derive_subcatch)
             self._update_config_variable_name(col2raster_name)
         else:
             col2raster_name = col2raster
-        self.set_grid(da_area.rename(col2raster_name))
+        self.set_staticmaps(da_area.rename(col2raster_name))
 
     @hydromt_step
     def setup_lakes(
@@ -2212,7 +2210,7 @@ Using default storage/outflow function parameters."
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
+        self.set_staticmaps(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes, name=geom_name)
         # add the tables
@@ -2343,7 +2341,7 @@ Using default storage/outflow function parameters."
         self._update_naming(output_names)
         # Continue method if data has been found
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.set_staticmaps(ds_res.rename(rmdict))
         self._update_config_variable_name(
             ds_res.rename(rmdict).data_vars, data_type=None
         )
@@ -2394,7 +2392,7 @@ Using default storage/outflow function parameters."
                 gdf_org_points, col_name=name, dtype="float32", nodata=-999
             )
             output_name = self._MAPS.get(name, name)
-            self.set_grid(da_res.rename(output_name))
+            self.set_staticmaps(da_res.rename(output_name))
             self._update_config_variable_name(output_name, data_type="static")
 
         # Save accuracy information on reservoir parameters
@@ -2583,7 +2581,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             logger=logger,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout.rename(rmdict))
+        self.set_staticmaps(dsout.rename(rmdict))
 
         # Update the toml file
         self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
@@ -2645,7 +2643,7 @@ using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout)
+        self.set_staticmaps(daout)
         self._update_config_variable_name(daout.name)
 
     @hydromt_step
@@ -2703,7 +2701,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(KSatVer_vegetation, output_name)
+        self.set_staticmaps(KSatVer_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -2965,7 +2963,7 @@ using 'variable' argument."
             logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
-        self.set_grid(landuse_maps.rename(rmdict))
+        self.set_staticmaps(landuse_maps.rename(rmdict))
         # update config
         self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
 
@@ -3007,13 +3005,13 @@ using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=logger,
             )
-            self.set_grid(
+            self.set_staticmaps(
                 soil_maps["soil_ksat_vertical_factor"],
                 name=self._MAPS["soil_ksat_vertical_factor"],
             )
             self._update_config_variable_name(self._MAPS["soil_ksat_vertical_factor"])
             if "soil_brooks_corey_c" in soil_maps:
-                self.set_grid(
+                self.set_staticmaps(
                     soil_maps["soil_brooks_corey_c"],
                     name=self._MAPS["soil_brooks_corey_c"],
                 )
@@ -3109,7 +3107,7 @@ using 'variable' argument."
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
-        self.set_grid(ds_glac.rename(rmdict))
+        self.set_staticmaps(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier__flag", True)
@@ -3212,7 +3210,7 @@ using 'variable' argument."
         # Reprojection
         ds_out = ds.raster.reproject_like(self.staticmaps.data, method=reproject_method)
         # Add to grid
-        self.set_grid(ds_out)
+        self.set_staticmaps(ds_out)
 
         # Update config
         if wflow_variables is not None:
@@ -3312,7 +3310,7 @@ one variable and variables list is not provided."
         precip_out.attrs.update({"precip_fn": precip_fn})
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
     @hydromt_step
@@ -3484,7 +3482,7 @@ one variable and variables list is not provided."
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn})
         precip_out = precip_out.astype("float32")
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
         # Add to geoms
@@ -3697,7 +3695,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
-            self.set_forcing(pet_out.where(mask), name="pet")
+            self.forcing.set(pet_out.where(mask), name="pet")
             self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
         # make sure only temp is written to netcdf
@@ -3726,7 +3724,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 method=fillna_method,
                 fill_value="extrapolate",
             )
-        self.set_forcing(temp_out.where(mask), name="temp")
+        self.forcing.set(temp_out.where(mask), name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step
@@ -3780,7 +3778,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
-        self.set_forcing(pet_out, name="pet")
+        self.forcing.set(pet_out, name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     @hydromt_step
@@ -4005,7 +4003,7 @@ Run setup_soilmaps first"
         dsout = dsout.where(self.staticmaps.data[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
-        self.set_grid(dsout)
+        self.set_staticmaps(dsout)
         self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
@@ -4124,7 +4122,7 @@ Run setup_soilmaps first"
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
+            self.set_staticmaps(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
@@ -4162,14 +4160,14 @@ Run setup_soilmaps first"
                 )
 
         # Derive subcatchment map
-        self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
+        self.set_staticmaps(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
         self.set_geoms(gdf_subcatch, name=f"subcatchment_{mapname}")
 
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
+        self.set_staticmaps(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
@@ -4244,7 +4242,7 @@ Run setup_soilmaps first"
             priority_basins=priority_basins,
             minimum_area=minimum_area,
         )
-        self.set_grid(da_alloc, name=output_name)
+        self.set_staticmaps(da_alloc, name=output_name)
         # Update the config
         self.set_config("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
@@ -4368,7 +4366,7 @@ Run setup_soilmaps first"
         self.set_config(f"input.static.{wflow_var}", output_name)
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name=output_name)
+        self.set_staticmaps(w_frac, name=output_name)
 
     @hydromt_step
     def setup_domestic_demand(
@@ -4473,9 +4471,9 @@ Run setup_soilmaps first"
         )
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.set_staticmaps(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="meta_population")
+            self.set_staticmaps(pop, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4558,9 +4556,9 @@ Run setup_soilmaps first"
 
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.set_staticmaps(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="meta_population")
+            self.set_staticmaps(popu_scaled, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4656,7 +4654,7 @@ Run setup_soilmaps first"
             ds_method=resampling_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in demand.data_vars}
-        self.set_grid(demand.rename(rmdict))
+        self.set_staticmaps(demand.rename(rmdict))
 
         # Update the settings toml
         if "domestic_gross" in demand.data_vars:
@@ -4804,7 +4802,7 @@ Run setup_soilmaps first"
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
+            self.set_staticmaps(ds_paddy.rename(rmdict))
             self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
@@ -4837,7 +4835,7 @@ Run setup_soilmaps first"
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.set_staticmaps(ds_nonpaddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
@@ -4983,7 +4981,7 @@ Run setup_soilmaps first"
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
+            self.set_staticmaps(ds_paddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
@@ -5017,7 +5015,7 @@ Run setup_soilmaps first"
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.set_staticmaps(ds_nonpaddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
@@ -5342,8 +5340,7 @@ Run setup_soilmaps first"
     ):
         """Add data to grid.
 
-        All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        All layers of grid must have identical spatial coordinates. If basin data is
         available the grid will be masked to that upon setting.
 
         The first fix is when data with a time axis is being added. Since Wflow.jl
@@ -5369,17 +5366,6 @@ Run setup_soilmaps first"
         """
         # Call the staticmaps set method
         self.staticmaps.set(data, name=name)
-
-    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
-        """
-        Set geometries to the model.
-
-        This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
-        """
-        self.geoms.set(
-            geom=geometry,
-            name=name,
-        )
 
     @hydromt_step
     def read_geoms(
@@ -5446,8 +5432,23 @@ Run setup_soilmaps first"
             kwargs=kwargs,
         )
 
+    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
+        """
+        Set geometries to the model.
+
+        This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
+        """
+        self.geoms.set(
+            geom=geometry,
+            name=name,
+        )
+
     @hydromt_step
-    def read_forcing(self):
+    def read_forcing(
+        self,
+        filename: str = None,
+        **kwargs,
+    ):
         """
         Read forcing.
 
@@ -5458,47 +5459,35 @@ Run setup_soilmaps first"
         If several files are used using '*' in ``input.path_forcing``, all corresponding
         files are read and merged into one xarray dataset before being split to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name or path to the forcing file(s) to be read.
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `read_nc` method.
         """
-        fn_default = "inmaps.nc"
-        fn = self.get_config(
-            "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.config.get_value("input.path_forcing")
+            or self.staticmaps._filename
         )
+        # Check for input dir
+        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
 
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.get_config(
-                    "input.path_forcing",
-                    fallback=fn_default,
-                ),
-            )
-            logger.info(f"Input directory found {input_dir}")
-
-        if not self._write:
-            # start fresh in read-only mode
-            self._forcing = dict()
-        if fn is not None and isfile(fn):
-            logger.info(f"Read forcing from {fn}")
-            with xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all") as ds:
-                for v in ds.data_vars:
-                    self.set_forcing(ds[v])
-        elif "*" in str(fn):
-            logger.info(f"Read multiple forcing files using {fn}")
-            fns = list(fn.parent.glob(fn.name))
-            if len(fns) == 0:
-                raise IOError(f"No forcing files found using {fn}")
-            with xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all") as ds:
-                for v in ds.data_vars:
-                    self.set_forcing(ds[v])
+        # Call the component method
+        self.staticmaps.read(filename=p_input, **kwargs)
 
     @hydromt_step
     def write_forcing(
         self,
-        fn_out=None,
-        freq_out=None,
-        chunksize=1,
-        decimals=2,
+        filename=None,
+        output_frequency: str | None = None,
+        time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
         **kwargs,
     ):
@@ -5514,191 +5503,52 @@ inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
-        fn_out: str, Path, optional
+        fn_out : Path | str, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
-        freq_out: str (Offset), optional
+        output_frequency : str (Offset), optional
             Write several files for the forcing according to fn_freq. For example 'Y'
             for one file per year or 'M' for one file per month.
             By default writes the one file.
             For more options, \
 see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-        chunksize: int, optional
+        time_chunk : int, optional
             Chunksize on time dimension when saving to disk. By default 1.
-        decimals: int, optional
-            Round the output data to the given number of decimals.
-        time_units: str, optional
+        time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
-
         """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.forcing:
-            logger.info("Write forcing file")
+        # Solve pathing same as read
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        filename = (
+            filename
+            or self.config.get_value("input.path_forcing")
+            or self.forcing._filename
+        )
+        # Check for input dir
+        filename = Path(self.config.get_value("dir_input", fallback=""), filename)
+        # Call the component
+        filename, starttime, endtime = self.forcing.write(
+            filename=filename,
+            output_frequency=output_frequency,
+            starttime=self.config.get_value("time.starttime"),
+            endtime=self.config.get_value("time.endtime"),
+            time_chunk=time_chunk,
+            time_units=time_units,
+            **kwargs,
+        )
+        # Set back to the config
+        self.config.set("input.path_forcing", filename.as_posix())
+        self.config.set("time.starttime", starttime)
+        self.config.set("time.endtime", endtime)
 
-            # Get default forcing name from forcing attrs
-            yr0 = pd.to_datetime(self.get_config("time.starttime")).year
-            yr1 = pd.to_datetime(self.get_config("time.endtime")).year
-            freq = self.get_config("time.timestepsecs")
-            # get output filename
-            if fn_out is not None:
-                self.set_config("input.path_forcing", fn_out)
-            else:
-                fn_name = self.get_config("input.path_forcing", abs_path=False)
-                if fn_name is not None:
-                    if "*" in basename(fn_name):
-                        # get rid of * in case model had multiple forcing files and
-                        # write to single nc file.
-                        logger.warning("Writing multiple forcing files to one file")
-                        fn_name = join(
-                            dirname(fn_name), basename(fn_name).replace("*", "")
-                        )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
-                        fn_out = join(input_dir, fn_name)
-                    else:
-                        fn_out = join(self.root, fn_name)
-                else:
-                    fn_out = None
-
-                # get default filename if file exists
-                if fn_out is None or isfile(fn_out):
-                    logger.warning(
-                        "Netcdf forcing file from input.path_forcing in the TOML  "
-                        "already exists, using default name."
-                    )
-                    sourceP = ""
-                    sourceT = ""
-                    methodPET = ""
-                    if "precip" in self.forcing:
-                        val = self.forcing["precip"].attrs.get("precip_clim_fn", None)
-                        Pdown = "d" if val is not None else ""
-                        val = self.forcing["precip"].attrs.get("precip_fn", None)
-                        if val is not None:
-                            sourceP = f"_{val}{Pdown}"
-                    if "temp" in self.forcing:
-                        val = self.forcing["temp"].attrs.get("temp_correction", "False")
-                        Tdown = "d" if val == "True" else ""
-                        val = self.forcing["temp"].attrs.get("temp_fn", None)
-                        if val is not None:
-                            sourceT = f"_{val}{Tdown}"
-                    if "pet" in self.forcing:
-                        val = self.forcing["pet"].attrs.get("pet_method", None)
-                        if val is not None:
-                            methodPET = f"_{val}"
-                    fn_default = (
-                        f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
-                    )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
-                        fn_default_path = join(input_dir, fn_default)
-                    else:
-                        fn_default_path = join(self.root, fn_default)
-                    if isfile(fn_default_path):
-                        logger.warning(
-                            "Netcdf default forcing file already exists, \
-skipping write_forcing. "
-                            "To overwrite netcdf forcing file: \
-change name input.path_forcing "
-                            "in setup_config section of the build inifile."
-                        )
-                        return
-                    else:
-                        self.set_config("input.path_forcing", fn_default)
-                        fn_out = fn_default_path
-
-            # Check if all dates between (starttime, endtime) are in all da forcing
-            # Check if starttime and endtime timestamps are correct
-            start = pd.to_datetime(self.get_config("time.starttime"))
-            end = pd.to_datetime(self.get_config("time.endtime"))
-            correct_times = False
-            for da in self.forcing.values():
-                if "time" in da.coords:
-                    # only correct dates in toml for standard calendars:
-                    if not hasattr(da.indexes["time"], "to_datetimeindex"):
-                        times = da.time.values
-                        if (start < pd.to_datetime(times[0])) or (start not in times):
-                            start = pd.to_datetime(times[0])
-                            correct_times = True
-                        if (end > pd.to_datetime(times[-1])) or (end not in times):
-                            end = pd.to_datetime(times[-1])
-                            correct_times = True
-            # merge, process and write forcing
-            ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
-            ds.raster.set_crs(self.crs)
-            # Send warning, and update config with new start and end time
-            if correct_times:
-                logger.warning(
-                    f"Not all dates found in precip_fn changing starttime to \
-{start} and endtime to {end} in the toml."
-                )
-                # Set the strings first
-                self.set_config("time.starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
-                self.set_config("time.endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
-
-            if decimals is not None:
-                ds = ds.round(decimals)
-            # clean-up forcing and write CRS according to CF-conventions
-            ds = ds.raster.gdal_compliant(rename_dims=True, force_sn=False)
-            ds = ds.drop_vars(["mask", "idx_out"], errors="ignore")
-
-            # write with output chunksizes with single timestep and complete
-            # spatial grid to speed up the reading from wflow.jl
-            # dims are always ordered (time, y, x)
-            ds.raster._check_dimensions()
-            chunksizes = (chunksize, ds.raster.ycoords.size, ds.raster.xcoords.size)
-            encoding = {
-                v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
-                for v in ds.data_vars.keys()
-            }
-            # make sure no _FillValue is written to the time / x_dim / y_dim dimension
-            # For several forcing files add common units attributes to time
-            for v in ["time", ds.raster.x_dim, ds.raster.y_dim]:
-                ds[v].attrs.pop("_FillValue", None)
-                encoding[v] = {"_FillValue": None}
-
-            # Check if all sub-folders in fn_out exists and if not create them
-            if not isdir(dirname(fn_out)):
-                os.makedirs(dirname(fn_out))
-
-            forcing_list = []
-
-            if freq_out is None:
-                # with compute=False we get a delayed object which is executed when
-                # calling .compute where we can pass more arguments to
-                # the dask.compute method
-                forcing_list.append([fn_out, ds])
-            else:
-                logger.info(f"Writing several forcing with freq {freq_out}")
-                # For several forcing files add common units attributes to time
-                encoding["time"] = {"_FillValue": None, "units": time_units}
-                # Updating path forcing in config
-                fns_out = os.path.relpath(fn_out, self.root)
-                fns_out = f"{str(fns_out)[0:-3]}_*.nc"
-                self.set_config("input.path_forcing", fns_out)
-                for label, ds_gr in ds.resample(time=freq_out):
-                    # ds_gr = group[1]
-                    start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
-                    fn_out_gr = f"{str(fn_out)[0:-3]}_{start}.nc"
-                    forcing_list.append([fn_out_gr, ds_gr])
-
-            for fn_out_gr, ds_gr in forcing_list:
-                logger.info(f"Process forcing; saving to {fn_out_gr}")
-                delayed_obj = ds_gr.to_netcdf(
-                    fn_out_gr, encoding=encoding, mode="w", compute=False
-                )
-                with ProgressBar():
-                    delayed_obj.compute(**kwargs)
-
-            # TO profile uncomment lines below to replace lines above
-            # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
-            # import cachey
-            # with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof,
-            # ResourceProfiler() as rprof:
-            #     delayed_obj.compute()
-            # visualize([prof, cprof, rprof],
-            # file_path=r'c:\Users\eilan_dk\work\profile2.html')
+    def set_forcing(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+    ):
+        """Add data for the forcing component."""
+        self.forcing.set(data=data, name=name)
 
     @hydromt_step
     def read_states(self):
@@ -6132,7 +5982,7 @@ change name input.path_forcing "
             self.set_crs(crs)
 
         self._grid = xr.Dataset()
-        self.set_grid(ds_grid)
+        self.set_staticmaps(ds_grid)
 
         # add pits at edges after clipping
         self._flwdir = None  # make sure old flwdir object is removed
@@ -6227,12 +6077,12 @@ change name input.path_forcing "
             Clipped forcing.
 
         """
-        if len(self.forcing) > 0:
+        if len(self.forcing._data) > 0:
             logger.info("Clipping NetCDF forcing..")
-            ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
+            ds_forcing = self.forcing._data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
-            self.set_forcing(ds_forcing)
+            self.forcing.set(ds_forcing)
 
     @hydromt_step
     def clip_states(self):
