@@ -5444,7 +5444,11 @@ Run setup_soilmaps first"
         )
 
     @hydromt_step
-    def read_forcing(self):
+    def read_forcing(
+        self,
+        filename: str = None,
+        **kwargs,
+    ):
         """
         Read forcing.
 
@@ -5455,8 +5459,28 @@ Run setup_soilmaps first"
         If several files are used using '*' in ``input.path_forcing``, all corresponding
         files are read and merged into one xarray dataset before being split to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name or path to the forcing file(s) to be read.
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `read_nc` method.
         """
-        self.forcing.read()
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.config.get_value("input.path_forcing")
+            or self.staticmaps._filename
+        )
+        # Check for input dir
+        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
+
+        # Call the component method
+        self.staticmaps.read(filename=p_input, **kwargs)
 
     @hydromt_step
     def write_forcing(
@@ -6053,9 +6077,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             Clipped forcing.
 
         """
-        if len(self.forcing) > 0:
+        if len(self.forcing._data) > 0:
             logger.info("Clipping NetCDF forcing..")
-            ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
+            ds_forcing = self.forcing._data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
             self.forcing.set(ds_forcing)

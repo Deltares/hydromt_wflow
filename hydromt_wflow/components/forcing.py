@@ -52,6 +52,7 @@ class WflowForcingComponent(GridComponent):
         )
 
     ## Private methods
+    # TODO Remove once #1229 in core gets merged
     def _get_grid_data(self) -> xr.DataArray | xr.Dataset:
         """Get grid data as xarray.DataArray from this component or the reference."""
         if self._region_component is not None:
@@ -269,7 +270,7 @@ class WflowForcingComponent(GridComponent):
         if "time" not in data.dims:
             raise ValueError("'time' dimension not found in data")
 
-        # Check spatial extend
+        # Check spatial extent
         data = self._reproj_data(data)
 
         # Call set of parent class
