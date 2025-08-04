@@ -2035,10 +2035,30 @@ gauge locations [-] (if derive_subcatch)
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
         """  # noqa: E501
-        # Derive reservoir area and outlet maps
-        gdf_org, ds_reservoirs = self._setup_waterbodies(lakes_fn, min_area, **kwargs)
-        if ds_reservoirs is None:
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir maps.")
+        if "predicate" not in kwargs:
+            kwargs.update(predicate="contains")
+        gdf_org = self.data_catalog.get_geodataframe(
+            lakes_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
+        )
+        if gdf_org is None:
             self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Derive reservoir area and outlet maps
+        ds_reservoirs, gdf_org = workflows.reservoir_id_maps(
+            gdf=gdf_org,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
+        )
+        if ds_reservoirs is None:
+            # No reservoirs of sufficient size found
             return
         self._update_naming(output_names)
 
@@ -2114,8 +2134,7 @@ gauge locations [-] (if derive_subcatch)
             reservoir_maps = [
                 self._MAPS.get(k, k) for k in workflows.waterbodies.RESERVOIR_LAYERS
             ]
-            # TODO make a function like set_grid
-            self._grid = self._grid.drop_vars(reservoir_maps, errors="ignore")
+            self.drop_vars_grid(reservoir_maps, errors="ignore")
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_reservoirs.data_vars}
@@ -2267,12 +2286,31 @@ gauge locations [-] (if derive_subcatch)
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
         """  # noqa: E501
-        # Derive reservoir area and outlet maps
-        gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, min_area, **kwargs)
-
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir with simple control maps.")
+        if "predicate" not in kwargs:
+            kwargs.update(predicate="contains")
+        gdf_org = self.data_catalog.get_geodataframe(
+            reservoirs_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
+        )
         # Skip method if no data is returned
-        if ds_res is None:
+        if gdf_org is None:
             self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Derive reservoir area and outlet maps
+        ds_res, gdf_org = workflows.reservoir_id_maps(
+            gdf=gdf_org,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
+        )
+        if ds_res is None:
+            # No reservoir of sufficient size found
             return
         self._update_naming(output_names)
 
@@ -2304,8 +2342,7 @@ gauge locations [-] (if derive_subcatch)
             reservoir_maps = [
                 self._MAPS.get(k, k) for k in workflows.waterbodies.RESERVOIR_LAYERS
             ]
-            # TODO make a function like set_grid
-            self._grid = self._grid.drop_vars(reservoir_maps, errors="ignore")
+            self.drop_vars_grid(reservoir_maps, errors="ignore")
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
@@ -2325,37 +2362,6 @@ gauge locations [-] (if derive_subcatch)
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar], data_type="static")
-
-    def _setup_waterbodies(self, waterbodies_fn, min_area=0.0, **kwargs):
-        """Help with common workflow of setup_lakes and setup_reservoirs.
-
-        See specific methods for more info about the arguments.
-        """
-        # retrieve data for basin
-        self.logger.info("Preparing reservoir maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
-        gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn,
-            geom=self.basins_highres,
-            handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
-        )
-        if gdf_org is None:
-            # Return two times None (similar to main function output), if there is no
-            # data found
-            return None, None
-
-        # get waterbodies maps and parameters
-        ds_waterbody, gdf_org = workflows.reservoir_id_maps(
-            gdf=gdf_org,
-            ds_like=self.grid,
-            min_area=min_area,
-            uparea_name=self._MAPS["uparea"],
-            logger=self.logger,
-        )
-
-        return gdf_org, ds_waterbody
 
     def setup_soilmaps(
         self,
@@ -4921,13 +4927,9 @@ Run setup_soilmaps first"
           **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
 
-        If lakes, also adds:
-
-        * **lake_instantaneous_water_level**: lake water level [m]
-
         If reservoirs, also adds:
 
-        * **reservoir_instantaneous_volume**: reservoir volume [m3]
+        * **reservoir_instantaneous_water_level**: reservoir water level [m]
 
         If glaciers, also adds:
 
@@ -5240,7 +5242,7 @@ Run setup_soilmaps first"
                     f"dimension: {vars_to_drop}"
                 )
                 # Use `_grid` as `grid` cannot be set
-                self._grid = self.grid.drop_vars(vars_to_drop)
+                self.drop_vars_grid(vars_to_drop)
 
         if isinstance(data, np.ndarray):
             # TODO: because of all types for data, masking should move to
@@ -5253,6 +5255,23 @@ Run setup_soilmaps first"
             data = utils.mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
+
+    def drop_vars_grid(self, names: list[str], errors: str = "raise"):
+        """
+        Drop variables from the grid.
+
+        This method is a wrapper around the xarray.Dataset.drop_vars method.
+
+        Parameters
+        ----------
+        names : list of str
+            List of variable names to drop from the grid.
+        errors : str, optional {raise, ignore}
+            How to handle errors. If 'raise', raises a ValueError error if any of the
+            variable passed are not in the dataset. If 'ignore', any given names that
+            are in the dataset are dropped and no error is raised.
+        """
+        self._grid = self.grid.drop_vars(names, errors=errors)
 
     def read_geoms(
         self,
@@ -6104,79 +6123,52 @@ change name input.path_forcing "
         self.basins
         self.rivers
 
-        # Update reservoir and lakes
-        remove_reservoir = False
+        # Update reservoirs
         if self._MAPS["reservoir_area_id"] in self.grid:
             reservoir = self.grid[self._MAPS["reservoir_area_id"]]
             if not np.any(reservoir > 0):
-                remove_reservoir = True
                 remove_maps = [
                     self._MAPS["reservoir_area_id"],
                     self._MAPS["reservoir_outlet_id"],
+                    self._MAPS["reservoir_lower_id"],
+                    self._MAPS["reservoir_storage_curve"],
+                    self._MAPS["reservoir_rating_curve"],
                     self._MAPS["reservoir_area"],
+                    self._MAPS["reservoir_initial_depth"],
                     self._MAPS["reservoir_demand"],
                     self._MAPS["reservoir_target_full_fraction"],
                     self._MAPS["reservoir_target_min_fraction"],
                     self._MAPS["reservoir_max_release"],
                     self._MAPS["reservoir_max_volume"],
+                    "meta_reservoir_mean_outflow",  # this is a hydromt meta map
+                    self._MAPS["reservoir_outflow_threshold"],
+                    self._MAPS["reservoir_b"],
+                    self._MAPS["reservoir_e"],
                 ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                self.drop_vars_grid(remove_maps, errors="ignore")
 
-        remove_lake = False
-        if self._MAPS["lake_area_id"] in self.grid:
-            lake = self.grid[self._MAPS["lake_area_id"]]
-            if not np.any(lake > 0):
-                remove_lake = True
-                remove_maps = [
-                    self._MAPS["lake_area_id"],
-                    self._MAPS["lake_outlet_id"],
-                    self._MAPS["lake_lower_id"],
-                    self._MAPS["lake_storage_curve"],
-                    self._MAPS["lake_rating_curve"],
-                    self._MAPS["lake_area"],
-                    self._MAPS["lake_initial_depth"],
-                    "meta_lake_mean_outflow",  # this is a hydromt meta map
-                    self._MAPS["lake_outflow_threshold"],
-                    self._MAPS["lake_b"],
-                    self._MAPS["lake_e"],
-                ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                # Update config
+                # Remove the absolute path and if needed remove reservoirs
+                # change reservoir__flag = true to false
+                self.set_config("model.reservoir__flag", False)
+                # remove states
+                if (
+                    self.get_config(
+                        "state.variables.reservoir_water_surface__instantaneous_elevation"  # noqa: E501
+                    )
+                    is not None
+                ):
+                    del self.config["state"]["variables"][
+                        "reservoir_water_surface__instantaneous_elevation"
+                    ]
 
             # Update tables
-            ids = np.unique(lake)
+            ids = np.unique(reservoir)
             self._tables = {
                 k: v
                 for k, v in self.tables.items()
                 if not any([str(x) in k for x in ids])
             }
-
-        # Update config
-        # Remove the absolute path and if needed remove lakes and reservoirs
-        if remove_reservoir:
-            # change reservoir__flag = true to false
-            self.set_config("model.reservoir__flag", False)
-            # remove states
-            if (
-                self.get_config("state.variables.reservoir_water__instantaneous_volume")
-                is not None
-            ):
-                del self.config["state"]["variables"][
-                    "reservoir_water__instantaneous_volume"
-                ]
-
-        if remove_lake:
-            # change lake__flag = true to false
-            self.set_config("model.lake__flag", False)
-            # remove states
-            if (
-                self.get_config(
-                    "state.variables.lake_water_surface__instantaneous_elevation"
-                )
-                is not None
-            ):
-                del self.config["state"]["variables"][
-                    "lake_water_surface__instantaneous_elevation"
-                ]
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
@@ -6207,21 +6199,15 @@ change name input.path_forcing "
             ds_states = xr.merge(self.states.values()).raster.clip_bbox(
                 self.grid.raster.bounds
             )
-            # Check for reservoirs/lakes presence in the clipped model
+            # Check for reservoirs presence in the clipped model
             remove_maps = []
             if self._MAPS["reservoir_area_id"] not in self.grid:
                 state_name = self.get_config(
-                    "state.variables.reservoir_water__instantaneous_volume",
-                    fallback="reservoir_instantaneous_volume",
+                    "state.variables.reservoir_water_surface__instantaneous_elevation",
+                    fallback="reservoir_instantaneous_water_level",
                 )
                 if state_name in ds_states:
                     remove_maps.extend([state_name])
-            if self._MAPS["lake_area_id"] not in self.grid:
-                state_name = self.get_config(
-                    "state.variables.lake_water_surface__instantaneous_elevation",
-                    fallback="lake_instantaneous_water_level",
-                )
-                if state_name in ds_states:
-                    remove_maps.extend([state_name])
+
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)

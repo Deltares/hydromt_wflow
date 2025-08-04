@@ -151,10 +151,6 @@ of the config.
                         mask = maps[
                             f"{config['input'].get('reservoir_location__count')}"
                         ].copy()
-                    elif "lake" in col["parameter"]:
-                        mask = maps[
-                            f"{config['input'].get('lake_location__count')}"
-                        ].copy()
                     elif "river" in col["parameter"]:
                         mask = maps[
                             f"{config['input'].get('river_location__mask')}"
