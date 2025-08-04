@@ -211,9 +211,9 @@ def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms["lakes"]
     lake_id = lakes["waterbody_id"].iloc[0]
-    area = lakes["lake_area"].iloc[0]
-    dis = lakes["meta_lake_mean_outflow"].iloc[0]
-    lvl = lakes["lake_initial_depth"].iloc[0]
+    area = lakes["reservoir_area"].iloc[0]
+    dis = lakes["meta_reservoir_mean_outflow"].iloc[0]
+    lvl = lakes["reservoir_initial_depth"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
     lvls = np.linspace(0, lvl)
 
@@ -245,25 +245,24 @@ def test_setup_lake(tmpdir, example_wflow_model):
         lakes_fn="hydro_lakes",
         rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
-        add_maxstorage=True,
     )
 
-    assert f"lake_sh_{lake_id}" in example_wflow_model.tables
-    assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
-    assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
+    assert f"reservoir_sh_{lake_id}" in example_wflow_model.tables
+    assert f"reservoir_hq_{lake_id}" in example_wflow_model.tables
+    assert 2 in np.unique(example_wflow_model.grid["reservoir_storage_curve"].values)
+    assert 1 in np.unique(example_wflow_model.grid["reservoir_rating_curve"].values)
     assert (
-        "meta_lake_max_storage" not in example_wflow_model.grid
+        "meta_reservoir_max_storage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
     example_wflow_model.set_root(join(tmpdir, "wflow_lake_test"))
     example_wflow_model.write_tables()
-    test_table = example_wflow_model.tables[f"lake_sh_{lake_id}"]
+    test_table = example_wflow_model.tables[f"reservoir_sh_{lake_id}"]
     example_wflow_model._tables = dict()
     example_wflow_model.read_tables()
 
-    assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
+    assert example_wflow_model.tables[f"reservoir_sh_{lake_id}"].equals(test_table)
 
 
 @pytest.mark.timeout(120)  # max 2 min
@@ -282,6 +281,7 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
+            "update_existing": False,
         }
     }
 
@@ -296,6 +296,9 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         "reservoir_area",
         "reservoir_target_full_fraction",
         "reservoir_target_min_fraction",
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_initial_depth",
     ]
     assert all(
         x == True for x in [k in example_wflow_model.grid.keys() for k in required]
@@ -1064,6 +1067,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
     clipped_wflow_model.setup_reservoirs(
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
+        overwrite_existing=True,
     )
     assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers

@@ -1,9 +1,11 @@
-"""Waterbody workflows for Wflow plugin."""
+"""Reservoir workflows for Wflow plugin."""
 
 import json
 import logging
+from os.path import join
+from pathlib import Path
 
-import geopandas as gp
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import shapely
@@ -12,24 +14,61 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["waterbodymaps", "reservoirattrs", "lakeattrs"]
+__all__ = [
+    "reservoir_id_maps",
+    "reservoir_simple_control_parameters",
+    "reservoir_parameters",
+    "merge_reservoirs",
+]
+
+RESERVOIR_COMMON_PARAMETERS = [
+    "reservoir_area",
+    "reservoir_initial_depth",
+    "reservoir_rating_curve",
+    "reservoir_storage_curve",
+]
+
+RESERVOIR_CONTROL_PARAMETERS = [
+    "reservoir_max_volume",
+    "reservoir_target_min_fraction",
+    "reservoir_target_full_fraction",
+    "reservoir_demand",
+    "reservoir_max_release",
+]
+
+RESERVOIR_UNCONTROL_PARAMETERS = [
+    "reservoir_b",
+    "reservoir_e",
+    "reservoir_outflow_threshold",
+    "reservoir_lower_id",
+]
+
+RESERVOIR_LAYERS = (
+    RESERVOIR_COMMON_PARAMETERS
+    + RESERVOIR_CONTROL_PARAMETERS
+    + RESERVOIR_UNCONTROL_PARAMETERS
+    + [
+        "reservoir_area_id",
+        "reservoir_outlet_id",
+    ]
+)
 
 
-def waterbodymaps(
-    gdf,
-    ds_like,
-    wb_type="reservoir",
-    uparea_name="uparea",
+def reservoir_id_maps(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    min_area: float = 0.0,
+    uparea_name: str = "uparea",
     logger=logger,
 ):
-    """Return waterbody (reservoir/lake) maps (see list below).
+    """Return reservoir location maps (see list below).
 
     At model resolution based on gridded upstream area data input or outlet coordinates.
 
-    The following waterbody maps are calculated:
+    The following reservoir maps are calculated:
 
-    - reservoir_area_id/lake_area_id : waterbody areas mask [ID]
-    - reservoir_outlet_id/lake_outet_id : waterbody outlets [ID]
+    - reservoir_area_id : reservoir areas mask [ID]
+    - reservoir_outlet_id : reservoir outlets [ID]
 
     Parameters
     ----------
@@ -37,18 +76,43 @@ def waterbodymaps(
         GeoDataFrame containing reservoirs/lakes geometries and attributes.
     ds_like : xarray.DataArray
         Dataset at model resolution.
+    min_area : float, optional
+        Minimum reservoir area threshold [km2], by default 0.0 km2.
     uparea_name : str, optional
         Name of uparea variable in ds_like. If None then database coordinates will be
         used to setup outlets
-    wb_type : str, optional either "reservoir" or "lake"
-        Option to change the name of the maps depending on reservoir or lake
 
     Returns
     -------
     ds_out : xarray.DataArray
-        Dataset containing gridded waterbody data
+        Dataset containing gridded reservoir data
     """
-    # Rasterize the GeoDataFrame to get the areas mask of waterbodies
+    # Check if uparea_name in ds_like
+    if uparea_name not in ds_like.data_vars:
+        logger.warning(
+            "Upstream area map for reservoir outlet setup not found. "
+            "Database coordinates used instead"
+        )
+        uparea_name = None
+
+    # skip small size reservoirs
+    if "Area_avg" in gdf.columns and gdf.geometry.size > 0:
+        min_area_m2 = min_area * 1e6
+        gdf = gdf[gdf.Area_avg >= min_area_m2]
+    else:
+        logger.warning(
+            "Reservoir's database has no area attribute. "
+            "All reservoirs will be considered."
+        )
+
+    # check if any reservoirs are left after filtering
+    nb_wb = gdf.geometry.size
+    if nb_wb == 0:
+        logger.info(f"{nb_wb} reservoir(s) of sufficient size found within region.")
+        return None, None
+
+    ### Compute reservoir maps
+    # Rasterize the GeoDataFrame to get the areas mask of reservoirs
     res_id = gdf["waterbody_id"].values
     da_wbmask = ds_like.raster.rasterize(
         gdf,
@@ -70,12 +134,12 @@ def waterbodymaps(
             " Consider increasing the lakes min_area threshold."
         )
 
-    # Initialize the waterbody outlet map
+    # Initialize the reservoir outlet map
     ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], -999)
     # If an upstream area map is present in the model, gets outlets coordinates using/
-    # the maximum uparea in each waterbody mask to match model river network.
+    # the maximum uparea in each reservoir mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
-        logger.debug(f"Setting {wb_type} outlet map based maximum upstream area.")
+        logger.debug("Setting reservoir outlet map based maximum upstream area.")
         # create dataframe with x and y coord to be filled in either from uparea or from
         # xout and yout in hydrolakes data
         outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
@@ -91,16 +155,16 @@ def waterbodymaps(
             ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
             outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
             outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
-        outgdf = gp.GeoDataFrame(
-            outdf, geometry=gp.points_from_xy(outdf.xout, outdf.yout)
+        outgdf = gpd.GeoDataFrame(
+            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
         )
 
-    # ELse use coordinates from the waterbody database
+    # ELse use coordinates from the reservoir database
     elif "xout" in gdf.columns and "yout" in gdf.columns:
-        logger.debug(f"Setting {wb_type} outlet map based on coordinates.")
+        logger.debug("Setting reservoir outlet map based on coordinates.")
         outdf = gdf[["waterbody_id", "xout", "yout"]]
-        outgdf = gp.GeoDataFrame(
-            outdf, geometry=gp.points_from_xy(outdf.xout, outdf.yout)
+        outgdf = gpd.GeoDataFrame(
+            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
         )
         ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
             outgdf, col_name="waterbody_id", nodata=-999
@@ -109,8 +173,8 @@ def waterbodymaps(
     else:
         ds_out["reservoir_outlet_id"] = ds_out["reservoir_area_id"]
         logger.warning(
-            f"Neither upstream area map nor {wb_type}'s outlet coordinates found. "
-            f"Setting {wb_type} outlet map equal to the area map."
+            "Neither upstream area map nor reservoir's outlet coordinates found. "
+            "Setting reservoir outlet map equal to the area map."
         )
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
@@ -119,18 +183,20 @@ def waterbodymaps(
     ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
     ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
 
-    if wb_type == "lake":
-        ds_out = ds_out.rename(
-            {
-                "reservoir_area_id": "lake_area_id",
-                "reservoir_outlet_id": "lake_outlet_id",
-            }
-        )
+    # update/replace xout and yout in gdf_org from outgdf:
+    gdf.loc[:, "xout"] = outgdf["xout"].values
+    gdf.loc[:, "yout"] = outgdf["yout"].values
 
-    return ds_out, outgdf
+    return ds_out, gdf
 
 
-def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
+def reservoir_simple_control_parameters(
+    gdf: gpd.GeoDataFrame,
+    ds_reservoirs: xr.Dataset,
+    timeseries_fn: str = None,
+    output_folder: str | Path | None = None,
+    logger=logger,
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Return reservoir attributes (see list below) needed for modelling.
 
     When specified, some of the reservoir attributes can be derived from \
@@ -142,33 +208,129 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
     - reservoir_max_volume : reservoir maximum volume [m3]
     - reservoir_area : reservoir area [m2]
+    - reservoir_initial_depth : reservoir initial water level [m]
+    - reservoir_rating_curve : option to compute rating curve [-]
+    - reservoir_storage_curve : option to compute storage curve [-]
     - reservoir_demand : reservoir demand flow [m3/s]
     - reservoir_max_release : reservoir maximum release flow [m3/s]
     - reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]
     - reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]
+
+    Two additional tables will be prepared and saved if output_folder is specified:
+    "reservoir_timeseries_{timeseries_fn}.csv" contains the timeseries downloaded from
+    ``timeseries_fn``; "reservoir_accuracy.csv" contains debugging values for reservoir
+    building.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoirs geometries and attributes.
+    ds_reservoirs : xarray.Dataset
+        Dataset containing reservoir location and outlet id at model resolution.
+    timeseries_fn : str, optional
+        Name of database from which time series of reservoir surface water area
+        will be retrieved.
+        Currently available: ['jrc', 'gww']
+        Defaults to Deltares' Global Water Watch database.
+    output_folder: str or Path, optional
+        Folder to save the reservoir time series data and parameter accuracy as .csv
+        files. If None, no file will be saved.
+
+    Returns
+    -------
+    ds_reservoirs : xarray.Dataset
+        Dataset containing reservoir locations and parameters at model resolution.
+    gdf_out : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir parameters.
+    """
+    layers = (
+        ["waterbody_id"] + RESERVOIR_COMMON_PARAMETERS + RESERVOIR_CONTROL_PARAMETERS
+    )
+    # if present use directly
+    if np.all(np.isin(layers, gdf.columns)):
+        df_reservoirs = gdf[layers]
+    # else compute
+    else:
+        df_reservoirs = compute_reservoir_simple_control_parameters(
+            gdf=gdf,
+            timeseries_fn=timeseries_fn,
+            output_folder=output_folder,
+            logger=logger,
+        )
+
+    # create a geodf with id of reservoir and geometry at outflow location
+    gdf_points = gpd.GeoDataFrame(
+        gdf["waterbody_id"],
+        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+    )
+    gdf_points = gdf_points.merge(df_reservoirs, on="waterbody_id")  # merge
+    # add parameter attributes to polygon gdf:
+    gdf = gdf.merge(df_reservoirs, on="waterbody_id")
+
+    # rasterize parameters to model resolution and add to ds_reservoirs
+    for name in gdf_points.columns[2:]:
+        gdf_points[name] = gdf_points[name].astype("float32")
+        ds_reservoirs[name] = ds_reservoirs.raster.rasterize(
+            gdf_points, col_name=name, dtype="float32", nodata=-999
+        )
+
+    # return ds and gdf
+    return ds_reservoirs, gdf
+
+
+def compute_reservoir_simple_control_parameters(
+    gdf: gpd.GeoDataFrame,
+    timeseries_fn: str = None,
+    perc_norm: int = 50,
+    perc_min: int = 20,
+    output_folder: str | Path | None = None,
+    logger=logger,
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+    """Return reservoir attributes (see list below) needed for modelling.
+
+    When specified, some of the reservoir attributes can be derived from \
+earth observation data.
+    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
+using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+
+    The following reservoir attributes are calculated:
+
+    - reservoir_max_volume : reservoir maximum volume [m3]
+    - reservoir_area : reservoir area [m2]
+    - reservoir_initial_depth : reservoir initial water level [m]
+    - reservoir_rating_curve : option to compute rating curve [-]
+    - reservoir_storage_curve : option to compute storage curve [-]
+    - reservoir_demand : reservoir demand flow [m3/s]
+    - reservoir_max_release : reservoir maximum release flow [m3/s]
+    - reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]
+    - reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]
+
+    Two additional tables will be prepared and saved if output_folder is specified:
+    "reservoir_timeseries_{timeseries_fn}.csv" contains the timeseries downloaded from
+    ``timeseries_fn``; "reservoir_accuracy.csv" contains debugging values for reservoir
+    building.
 
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs geometries and attributes.
     timeseries_fn : str, optional
-        Name of database from which time series of reservoir surface water area \
-will be retrieved.
+        Name of database from which time series of reservoir surface water area
+        will be retrieved.
         Currently available: ['jrc', 'gww']
         Defaults to Deltares' Global Water Watch database.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
     perc_min: int, optional
         Percentile for minimal (operational) surface area
+    output_folder: str or Path, optional
+        Folder to save the reservoir time series data and parameter accuracy as .csv
+        files. If None, no file will be saved.
 
     Returns
     -------
     df_out : pandas.DataFrame
-        DataFrame containing reservoir attributes.
-    df_plot : pandas.DataFrame
-        DataFrame containing debugging values for reservoir building.
-    df_ts : pandas.DataFrame
-        DataFrame containing all downloaded reservoir time series.
+        DataFrame containing reservoir parameters.
     """
     if timeseries_fn == "jrc":
         try:
@@ -209,6 +371,9 @@ please use one of [gww, jrc] or None."
                 "resid",
                 "resmaxvolume",
                 "resarea",
+                "resinitialdepth",
+                "resratingcurve",
+                "resstoragecurve",
                 "resdemand",
                 "resmaxrelease",
                 "resfullfrac",
@@ -318,7 +483,7 @@ please use one of [gww, jrc] or None."
     # Sort timeseries dataframe (will be saved to root as .csv later)
     df_ts = df_ts.sort_index()
 
-    # Compute resdemand and resmaxrelease either from average discharge
+    # Compute resdemand and resmaxrelease from average discharge
     if "Dis_avg" in gdf.columns:
         df_out["resdemand"] = gdf["Dis_avg"].values * 0.5
         df_out["resmaxrelease"] = gdf["Dis_avg"].values * 4.0
@@ -350,10 +515,12 @@ please use one of [gww, jrc] or None."
         df_out["resfullfrac"] = gdf["Capacity_norm"].values / df_out["resmaxvolume"]
         df_plot["accuracy_norm"] = np.repeat(1.0, len(df_plot["accuracy_norm"]))
 
+    # Add storage and rating curve values (1 and 4)
+    df_out["resratingcurve"] = np.repeat(4, len(df_out["resratingcurve"]))
+    df_out["resstoragecurve"] = np.repeat(1, len(df_out["resstoragecurve"]))
+
     # Then compute from EO data and fill or replace the previous values
     # (if a valid source is provided)
-    # TODO for now assumes that the reservoir-db is used
-    # (combination of GRanD and HydroLAKES)
     gdf = gdf.fillna(value=np.nan).infer_objects(copy=False)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
@@ -389,12 +556,6 @@ please use one of [gww, jrc] or None."
 
         # coefficient for linear relationship
         lin_coeff = max_area / max_level_f  # [m2/m]
-
-        #        # adjust factor based on chosen method
-        #        if method == 0:
-        #            factor_used = factor_shape
-        #        elif method == 1:
-        #            factor_used = 1.0
         factor_used = 1.0
 
         # Operational (norm) level
@@ -508,136 +669,139 @@ please use one of [gww, jrc] or None."
             np.float64
         ) / (df_out.loc[mask, "resmaxvolume"].values).astype(np.float32)
 
+    # Add initial depth
+    df_out["resinitialdepth"] = (
+        df_out["resfullfrac"] * df_out["resmaxvolume"] / df_out["resarea"]
+    ).astype(np.float32)
+
     # rename to wflow naming convention
     tbls = {
         "resarea": "reservoir_area",
+        "resstoragecurve": "reservoir_storage_curve",
+        "resratingcurve": "reservoir_rating_curve",
+        "resinitialdepth": "reservoir_initial_depth",
         "resdemand": "reservoir_demand",
         "resfullfrac": "reservoir_target_full_fraction",
         "resminfrac": "reservoir_target_min_fraction",
         "resmaxrelease": "reservoir_max_release",
         "resmaxvolume": "reservoir_max_volume",
-        "resid": "expr1",
+        "resid": "waterbody_id",
     }
     df_out = df_out.rename(columns=tbls)
 
-    return df_out, df_plot, df_ts
+    # Save accuracy information on reservoir parameters
+    if output_folder is not None:
+        df_plot.to_csv(join(output_folder, "reservoir_accuracy.csv"))
+        df_ts.to_csv(join(output_folder, f"reservoir_timeseries_{timeseries_fn}.csv"))
+
+    return df_out
 
 
-def lakeattrs(
+def reservoir_parameters(
     ds: xr.Dataset,
-    gdf: gp.GeoDataFrame,
+    gdf: gpd.GeoDataFrame,
     rating_dict: dict = dict(),
-    add_maxstorage: bool = False,
     logger=logger,
-):
+) -> tuple[xr.Dataset, gpd.GeoDataFrame, dict]:
     """
-    Return lake attributes (see list below) needed for modelling.
+    Return (unconctrolled) reservoir attributes (see list below) needed for modelling.
 
     If rating_dict is not empty, prepares also rating tables for wflow.
 
     The following reservoir attributes are calculated:
 
     - waterbody_id : waterbody id
-    - lake_area : lake area [m2]
-    - lake_initial_depth: lake average level or initial depth (cold state) [m]
-    - meta_lake_mean_outflow: lake average outflow [m3/s]
-    - lake_b: lake rating curve coefficient [-]
-    - lake_e: lake rating curve exponent [-]
-    - lake_storage_curve: option to compute storage curve [-]
-    - lake_rating_curve: option to compute rating curve [-]
-    - lake_outflow_threshold: minimum threshold for lake outflow [m]
-    - lake_lower_id: id of linked lake location if any
-    - meta_lake_max_storage: maximum storage [m3] (optional)
+    - reservoir_area : reservoir area [m2]
+    - reservoir_initial_depth: reservoir average level or initial depth (cold state) [m]
+    - meta_reservoir_mean_outflow: reservoir average outflow [m3/s]
+    - reservoir_b: reservoir rating curve coefficient [-]
+    - reservoir_e: reservoir rating curve exponent [-]
+    - reservoir_storage_curve: option to compute storage curve [-]
+    - reservoir_rating_curve: option to compute rating curve [-]
+    - reservoir_outflow_threshold: minimum threshold for reservoir outflow [m]
+    - reservoir_lower_id: id of linked reservoir location if any
 
     Parameters
     ----------
     ds : xr.Dataset
-        Dataset containing the lake locations and area
-    gdf : gp.GeoDataFrame
-        GeoDataFrame containing the lake locations and area
+        Dataset containing the reservoir locations and area
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame containing the reservoir locations and area
     rating_dict : dict, optional
         Dictionary containing the rating curve parameters, by default dict()
-    add_maxstorage : bool, optional
-        If True, adds the maximum storage to the output, by default False
 
     Returns
     -------
     ds : xr.Dataset
-        Dataset containing the lake locations with the attributes
-    gdf : gp.GeoDataFrame
-        GeoDataFrame containing the lake locations with the attributes
+        Dataset containing the reservoir locations with the attributes
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame containing the reservoir locations with the attributes
     rating_curves : dict
         Dictionary containing the rating curves in wflow format
     """
     # rename to param values
     gdf = gdf.rename(
         columns={
-            "Area_avg": "lake_area",
-            "Depth_avg": "lake_initial_depth",
-            "Dis_avg": "meta_lake_mean_outflow",
+            "Area_avg": "reservoir_area",
+            "Depth_avg": "reservoir_initial_depth",
+            "Dis_avg": "meta_reservoir_mean_outflow",
         }
     )
-    # Add maximum volume / no filling of NaNs as assumes then
-    # natural lake and not controlled
-    if add_maxstorage:
-        if "Vol_max" in gdf.columns:
-            gdf = gdf.rename(columns={"Vol_max": "meta_lake_max_storage"})
-        else:
-            logger.warning(
-                "No maximum storage 'Vol_max' column found, \
-skip adding meta_lake_max_storage map."
-            )
+
     # Minimum value for LakeAvgOut
-    LakeAvgOut = gdf["meta_lake_mean_outflow"].copy()
-    gdf["meta_lake_mean_outflow"] = np.maximum(gdf["meta_lake_mean_outflow"], 0.01)
-    if "lake_b" not in gdf.columns:
-        gdf["lake_b"] = gdf["meta_lake_mean_outflow"].values / (
-            gdf["lake_initial_depth"].values
+    LakeAvgOut = gdf["meta_reservoir_mean_outflow"].copy()
+    gdf["meta_reservoir_mean_outflow"] = np.maximum(
+        gdf["meta_reservoir_mean_outflow"], 0.01
+    )
+    if "reservoir_b" not in gdf.columns:
+        gdf["reservoir_b"] = gdf["meta_reservoir_mean_outflow"].values / (
+            gdf["reservoir_initial_depth"].values
         ) ** (2)
-    if "lake_e" not in gdf.columns:
-        gdf["lake_e"] = 2
-    if "lake_outflow_threshold" not in gdf.columns:
-        gdf["lake_outflow_threshold"] = 0.0
-    if "lake_lower_id" not in gdf.columns:
-        gdf["lake_lower_id"] = 0
-    if "lake_storage_curve" not in gdf.columns:
-        gdf["lake_storage_curve"] = 1
-    if "lake_rating_curve" not in gdf.columns:
-        gdf["lake_rating_curve"] = 3
+    if "reservoir_e" not in gdf.columns:
+        gdf["reservoir_e"] = 2
+    if "reservoir_outflow_threshold" not in gdf.columns:
+        gdf["reservoir_outflow_threshold"] = 0.0
+    if "reservoir_lower_id" not in gdf.columns:
+        gdf["reservoir_lower_id"] = 0
+    if "reservoir_storage_curve" not in gdf.columns:
+        gdf["reservoir_storage_curve"] = 1
+    if "reservoir_rating_curve" not in gdf.columns:
+        gdf["reservoir_rating_curve"] = 3
 
     # Check if some LakeAvgOut values have been replaced
-    if not np.all(LakeAvgOut == gdf["meta_lake_mean_outflow"]):
+    if not np.all(LakeAvgOut == gdf["meta_reservoir_mean_outflow"]):
         logger.warning(
-            "Some values of meta_lake_mean_outflow have been replaced by \
-a minimum value of 0.01m3/s"
+            "Some values of meta_reservoir_mean_outflow have been replaced by "
+            "a minimum value of 0.01m3/s"
         )
 
     # Check if rating curve is provided
     rating_curves = dict()
     if len(rating_dict) != 0:
-        # Assume one rating curve per lake index
+        # Assume one rating curve per reservoir index
         for id in gdf["waterbody_id"].values:
             id = int(id)
             if id in rating_dict.keys():
                 df_rate = rating_dict[id]
                 # Prepare the right tables for wflow
-                # Update LakeStor and lake_rating_curve
+                # Update storage and rating curves
                 # Storage
                 if "volume" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "lake_storage_curve"] = 2
+                    gdf.loc[gdf["waterbody_id"] == id, "reservoir_storage_curve"] = 2
                     df_stor = df_rate[["elevtn", "volume"]].dropna(
                         subset=["elevtn", "volume"]
                     )
                     df_stor.rename(columns={"elevtn": "H", "volume": "S"}, inplace=True)
                     # add to rating_curves
-                    rating_curves[f"lake_sh_{id}"] = df_stor
+                    rating_curves[f"reservoir_sh_{id}"] = df_stor
                 else:
                     logger.warning(
-                        f"Storage data not available for lake {id}. Using default S=AH"
+                        f"Storage data not available for reservoir {id}. "
+                        "Using default S=AH"
                     )
                 # Rating
                 if "discharge" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "lake_rating_curve"] = 1
+                    gdf.loc[gdf["waterbody_id"] == id, "reservoir_rating_curve"] = 1
                     df_rate = df_rate[["elevtn", "discharge"]].dropna(
                         subset=["elevtn", "discharge"]
                     )
@@ -650,38 +814,111 @@ a minimum value of 0.01m3/s"
                     df_q[0] = df_rate["H"]
                     df_q.rename(columns={0: "H"}, inplace=True)
                     # add to rating_curves
-                    rating_curves[f"lake_hq_{id}"] = df_q
+                    rating_curves[f"reservoir_hq_{id}"] = df_q
                 else:
                     logger.warning(
-                        f"Rating data not available for lake {id}. \
-Using default Modified Puls Approach"
+                        f"Rating data not available for reservoir {id}. "
+                        "Using default Modified Puls Approach"
                     )
 
-    # Create raster of lake params
-    lake_params = [
-        "waterbody_id",
-        "lake_area",
-        "lake_initial_depth",
-        "meta_lake_mean_outflow",
-        "lake_b",
-        "lake_e",
-        "lake_storage_curve",
-        "lake_rating_curve",
-        "lake_outflow_threshold",
-        "lake_lower_id",
-    ]
-    if "meta_lake_max_storage" in gdf.columns:
-        lake_params.append("meta_lake_max_storage")
-
-    gdf_org_points = gp.GeoDataFrame(
-        gdf[lake_params],
-        geometry=gp.points_from_xy(gdf.xout, gdf.yout),
+    # Create raster of reservoir params
+    reservoir_params = (
+        ["waterbody_id", "meta_reservoir_mean_outflow"]
+        + RESERVOIR_COMMON_PARAMETERS
+        + RESERVOIR_UNCONTROL_PARAMETERS
     )
 
-    for name in lake_params[1:]:
-        da_lake = ds.raster.rasterize(
+    gdf_org_points = gpd.GeoDataFrame(
+        gdf[reservoir_params],
+        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+    )
+
+    for name in reservoir_params[1:]:
+        da_reservoir = ds.raster.rasterize(
             gdf_org_points, col_name=name, dtype="float32", nodata=-999
         )
-        ds[name] = da_lake
+        ds[name] = da_reservoir
 
     return ds, gdf, rating_curves
+
+
+def merge_reservoirs(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    logger=logger,
+) -> xr.Dataset | None:
+    """
+    Merge reservoir layers in ds to layers in ds_like.
+
+    It will first check if the IDs in ds are not duplicated in ds_like.
+    If they are, the function will raise a warning and return None.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset containing the reservoir layers to be merged.
+    ds_like : xr.Dataset
+        Dataset containing the reservoir layers to merge into.
+
+    Returns
+    -------
+    xr.Dataset
+        Merged dataset of reservoir parameters.
+    """
+    # # Check if IDs in ds are not duplicated in ds_like
+    # ids_ds = np.unique(ds["reservoir_area_id"].raster.mask_nodata().values)
+    # ids_ds_like = np.unique(ds_like["reservoir_area_id"].raster.mask_nodata().values)
+    # ids_common = np.intersect1d(ids_ds, ids_ds_like)
+    # # Remove NaN values from ids_common
+    # ids_common = ids_common[~np.isnan(ids_common)]
+    # if ids_common.size > 0:
+    #     logger.warning(
+    #         f"Reservoir ID(s) {ids_common} of the new reservoirs are already present "
+    #         "in the Wflow model. Adding the new reservoirs is then skipped."
+    #     )
+    #     # TODO: or replace ID? eg using max+1 of both ds and ds_like?
+    #     return None
+
+    # Loop over layers to merge
+    ds_out = ds.copy()
+    for layer in RESERVOIR_LAYERS:
+        # if layer is not in ds, skip it
+        # TODO check if default values are needed or if NaN is ok
+        # e.g. natural lake does not have reservoir_demand
+        if layer not in ds and layer in ds_like:
+            ds_out[layer] = ds_like[layer]
+
+        # if layer is in ds_like, merge it
+        if layer in ds and layer in ds_like:
+            # merge the layer
+            ds_out[layer] = ds[layer].where(
+                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
+            )
+        # else we just keep ds[layer] as it is
+
+    # Check if there is no duplicated reservoir_outlet_id after merging
+    ids = ds_out["reservoir_outlet_id"].raster.mask_nodata().values
+    # Remove NaN values from ids
+    ids = ids[~np.isnan(ids)]
+    # Get unique ids and their counts
+    ids_unique, counts = np.unique(ids, return_counts=True)
+    # Check if any id is duplicated
+    if np.any(counts > 1):
+        logger.warning(
+            f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged "
+            "dataset. This may lead to incorrect results. SKip adding new reservoirs."
+        )
+        return None
+
+    return ds_out
+
+    # Create a GeoDataFrame with the merged reservoirs
+    # Rasterize outlets to points
+    # outlets = ds_out["reservoir_outlet_id"].raster.rasterize()
+    # outlets["geometry"] = outlets["geometry"].centroid
+
+    # Sample parameters at outlet points
+    # params = ds_out.raster.sample(outlets)
+
+    # Create
+    # gdf_reservoirs = ds_out["reservoir_area_id"].raster.rasterize()
