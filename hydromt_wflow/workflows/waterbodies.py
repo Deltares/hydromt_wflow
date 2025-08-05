@@ -53,6 +53,13 @@ RESERVOIR_LAYERS = (
     ]
 )
 
+RESERVOIR_LAYERS_SEDIMENT = [
+    "reservoir_area_id",
+    "reservoir_outlet_id",
+    "reservoir_area",
+    "reservoir_trapping_efficiency",
+]
+
 
 def reservoir_id_maps(
     gdf: gpd.GeoDataFrame,
@@ -842,6 +849,40 @@ def reservoir_parameters(
     return ds, gdf, rating_curves
 
 
+def _check_duplicated_ids_in_merge(
+    ds: xr.Dataset,
+) -> xr.Dataset | None:
+    """
+    Check if reservoir IDs in ds are not duplicated in ds_like.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset containing the merged reservoir layers.
+
+    Returns
+    -------
+    xr.Dataset | None
+        Returns None if there are duplicated reservoir IDs, otherwise returns the
+        dataset.
+    """
+    # Check if there is no duplicated reservoir_outlet_id after merging
+    ids = ds["reservoir_outlet_id"].raster.mask_nodata().values
+    # Remove NaN values from ids
+    ids = ids[~np.isnan(ids)]
+    # Get unique ids and their counts
+    ids_unique, counts = np.unique(ids, return_counts=True)
+    # Check if any id is duplicated
+    if np.any(counts > 1):
+        logger.warning(
+            f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged "
+            "dataset. This may lead to incorrect results. SKip adding new reservoirs."
+        )
+        return None
+
+    return ds
+
+
 def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
@@ -896,29 +937,48 @@ def merge_reservoirs(
             )
         # else we just keep ds[layer] as it is
 
-    # Check if there is no duplicated reservoir_outlet_id after merging
-    ids = ds_out["reservoir_outlet_id"].raster.mask_nodata().values
-    # Remove NaN values from ids
-    ids = ids[~np.isnan(ids)]
-    # Get unique ids and their counts
-    ids_unique, counts = np.unique(ids, return_counts=True)
-    # Check if any id is duplicated
-    if np.any(counts > 1):
-        logger.warning(
-            f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged "
-            "dataset. This may lead to incorrect results. SKip adding new reservoirs."
-        )
-        return None
+    return _check_duplicated_ids_in_merge(ds_out)
 
-    return ds_out
 
-    # Create a GeoDataFrame with the merged reservoirs
-    # Rasterize outlets to points
-    # outlets = ds_out["reservoir_outlet_id"].raster.rasterize()
-    # outlets["geometry"] = outlets["geometry"].centroid
+def merge_reservoirs_sediment(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    logger=logger,
+) -> xr.Dataset | None:
+    """
+    Merge reservoir layers in ds to layers in ds_like for wflow sediment.
 
-    # Sample parameters at outlet points
-    # params = ds_out.raster.sample(outlets)
+    It will check if the IDs in ds are not duplicated in ds_like.
+    If they are, the function will raise a warning and return None.
 
-    # Create
-    # gdf_reservoirs = ds_out["reservoir_area_id"].raster.rasterize()
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset containing the reservoir layers to be merged.
+    ds_like : xr.Dataset
+        Dataset containing the reservoir layers to merge into.
+
+    Returns
+    -------
+    xr.Dataset
+        Merged dataset of reservoir parameters.
+    """
+    # Loop over layers to merge
+    ds_out = ds.copy()
+    for layer in RESERVOIR_LAYERS_SEDIMENT:
+        # if layer is in ds_like, merge it
+        if layer in ds and layer in ds_like:
+            # merge the layer
+            ds_out[layer] = ds[layer].where(
+                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
+            )
+        else:
+            # all parameters for sediment should be in both
+            logger.warning(
+                f"Reservoir layer {layer} is not present in either the new dataset or"
+                "the wflow model. Skipping adding new reservoirs. Consider overwritting"
+                "to solve this issue."
+            )
+            return None
+
+    return _check_duplicated_ids_in_merge(ds_out)

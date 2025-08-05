@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import tomlkit
 import xarray as xr
+from hydromt.nodata import NoDataStrategy
 
 from hydromt_wflow.utils import (
     DATADIR,
@@ -204,30 +205,37 @@ river cells."
 
     def setup_lakes(
         self,
-        lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
+        lakes_fn: str | Path | gpd.GeoDataFrame,
+        overwrite_existing: bool = False,
         min_area: float = 1.0,
         output_names: Dict = {
-            "lake_area__count": "lake_area_id",
-            "lake_location__count": "lake_outlet_id",
-            "lake_surface__area": "lake_area",
+            "reservoir_area__count": "reservoir_area_id",
+            "reservoir_location__count": "reservoir_outlet_id",
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "lakes",
         **kwargs,
     ):
-        """Generate maps of lake areas and outlets.
+        """Generate maps of natural reservoir areas (lakes) and outlets.
 
-        Also generates average lake area.
+        Also generates average reservoir area.
+
+        Created reservoirs can be added to the existing ones `overwrite_existing=False`
+        (default) or overwrite them `overwrite_existing=True`.
 
         The data is generated from features with ``min_area`` [km2] from a database with
-        lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id',
-        average area 'Area_avg' [m2].
+        reservoir geometry, IDs and metadata. Data required are reservoir ID
+        'waterbody_id', average area 'Area_avg' [m2].
 
         Adds model layers:
 
-        * **lake_area_id** map: lake IDs [-]
-        * **lake_outlet_id** map: lake IDs at outlet locations [-]
-        * **lake_area** map: lake area [m2]
-        * **lakes** geom: polygon with lakes and wflow lake parameters
+        * **reservoir_area_id** map: reservoir IDs [-]
+        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
+         coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
+        * **lakes** geom: polygon with natural reservoirs (lakes) and wflow parameters
 
         Parameters
         ----------
@@ -235,6 +243,8 @@ river cells."
             Name of GeoDataFrame source for lake parameters.
 
             * Required variables: ['waterbody_id', 'Area_avg']
+        overwrite_existing : bool, optional
+            If True, overwrite existing lakes in the model grid, by default False.
         min_area : float, optional
             Minimum lake area threshold [km2], by default 1.0 km2.
         output_names : dict, optional
@@ -248,34 +258,73 @@ river cells."
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
         """
-        # Derive lake are and outlet maps
-        gdf_lakes, ds_lakes = self._setup_waterbodies(
-            lakes_fn, "lake", min_area, **kwargs
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir maps.")
+        if "predicate" not in kwargs:
+            kwargs.update(predicate="contains")
+        gdf_res = self.data_catalog.get_geodataframe(
+            lakes_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
         )
-        if ds_lakes is None:
+        if gdf_res is None:
             self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Derive reservoir area and outlet maps
+        ds_res, gdf_res = workflows.reservoir_id_maps(
+            gdf=gdf_res,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
+        )
+        if ds_res is None:
+            # No reservoirs of sufficient size found
             return
         self._update_naming(output_names)
 
-        # add lake area
+        # add lake area and trapping efficiency of zero
+        gdf_res["reservoir_trapping_efficiency"] = 0.0
         gdf_points = gpd.GeoDataFrame(
-            gdf_lakes[["waterbody_id", "Area_avg"]],
-            geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
+            gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
+            geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
         )
-        ds_lakes["lake_area"] = self.grid.raster.rasterize(
+        ds_res["reservoir_area"] = self.grid.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
+        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
+            gdf_points,
+            col_name="reservoir_trapping_efficiency",
+            dtype="float32",
+            nodata=-999,
+        )
+
+        # merge with existing reservoirs
+        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
+            ds_res = workflows.waterbodies.merge_reservoirs_sediment(
+                ds_res,
+                self.grid.rename(inv_rename),
+                logger=self.logger,
+            )
+            # Check if ds_res is None ie duplicate IDs
+            if ds_res is None:
+                return
 
         # add to grid
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
-        # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
+        self.set_grid(ds_res.rename(rmdict))
+        # write reservoirs with attr tables to static geoms.
+        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
-        # Lake settings in the toml to update
-        self.set_config("model.lake__flag", True)
-        for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
+        # Reservoir settings in the toml to update
+        self.set_config("model.reservoir__flag", True)
+        for dvar in ds_res.data_vars:
+            if dvar == "reservoir_area_id" or dvar == "reservoir_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -283,6 +332,7 @@ river cells."
     def setup_reservoirs(
         self,
         reservoirs_fn: str | Path | gpd.GeoDataFrame,
+        overwrite_existing: bool = False,
         min_area: float = 1.0,
         trapping_default: float = 1.0,
         output_names: Dict = {
@@ -294,9 +344,9 @@ river cells."
         geom_name: str = "reservoirs",
         **kwargs,
     ):
-        """Generate maps of reservoir areas and outlets.
+        """Generate maps of reservoir with dam areas and outlets.
 
-        Also generates well as parameters with average reservoir area,
+        Also generates parameters with average reservoir area,
         and trapping efficiency for large particles.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
@@ -307,8 +357,8 @@ river cells."
         * **reservoir_area_id** map: reservoir IDs [-]
         * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
-         coefficient [-]
+        * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
+         coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
 
         Parameters
         ----------
@@ -318,6 +368,8 @@ river cells."
             * Required variables: ['waterbody_id', 'Area_avg']
 
             * Optional variables: ['reservoir_trapping_efficiency']
+        overwrite_existing : bool, optional
+            If True, overwrite existing reservoirs in the model grid, by default False.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         trapping_default : float, optional
@@ -336,12 +388,31 @@ river cells."
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
         """
-        # Derive lake are and outlet maps
-        gdf_res, ds_res = self._setup_waterbodies(
-            reservoirs_fn, "reservoir", min_area, **kwargs
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir with simple control maps.")
+        if "predicate" not in kwargs:
+            kwargs.update(predicate="contains")
+        gdf_res = self.data_catalog.get_geodataframe(
+            reservoirs_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
+        )
+        # Skip method if no data is returned
+        if gdf_res is None:
+            self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Derive reservoir area and outlet maps
+        ds_res, gdf_res = workflows.reservoir_id_maps(
+            gdf=gdf_res,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
         )
         if ds_res is None:
-            self.logger.info("Skipping method, as no data has been found")
+            # No reservoir of sufficient size found
             return
         self._update_naming(output_names)
 
@@ -362,6 +433,20 @@ river cells."
             dtype="float32",
             nodata=-999,
         )
+
+        # merge with existing reservoirs
+        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
+            ds_res = workflows.waterbodies.merge_reservoirs_sediment(
+                ds_res,
+                self.grid.rename(inv_rename),
+                logger=self.logger,
+            )
+            # Check if ds_res is None ie duplicate IDs
+            if ds_res is None:
+                return
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}

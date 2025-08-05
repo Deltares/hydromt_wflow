@@ -599,12 +599,12 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "lake_area_id": {
         "wflow_v0": "vertical.lakeareas",
-        "wflow_v1": "lake_area__count",
+        "wflow_v1": "reservoir_area__count",
         "hydromt_name": "lake_area_id",
     },
     "lake_outlet_id": {
         "wflow_v0": "lateral.river.lakelocs",
-        "wflow_v1": "lake_location__count",
+        "wflow_v1": "reservoir_location__count",
         "hydromt_name": "lake_outlet_id",
     },
     "reservoir_area_id": {
