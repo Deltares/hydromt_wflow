@@ -216,3 +216,46 @@ def test_wflow_forcing_component_write_time(
     assert Path(tmp_path, "inmaps.nc").is_file()
     assert starttime == "2000-01-01T00:00:00"
     assert endtime == "2000-01-20T00:00:00"
+
+
+def test_wflow_forcing_component_reproj_data(
+    mock_model_staticmaps, forcing_layer, grid_dummy_data
+):
+    component = WflowForcingComponent(
+        mock_model_staticmaps, region_component="staticmaps"
+    )
+
+    # Case 1: Identical grid → should return input unchanged
+    mock_model_staticmaps.staticmaps._data = (
+        forcing_layer.isel(time=0).drop_vars("time").to_dataset()
+    )
+    result = component._reproj_data(forcing_layer)
+    xr.testing.assert_equal(result, forcing_layer)
+
+    # Case 2: Different grid with CRS → should trigger reprojection
+    # Set staticmaps with a known grid
+    ref_layer = grid_dummy_data.copy()
+    ref_layer.raster.set_crs("EPSG:4326")
+    ref_ds = ref_layer.to_dataset(name="static")
+    ref_ds.raster.set_spatial_dims()
+    mock_model_staticmaps.staticmaps._data = ref_ds
+
+    # Modify forcing layer to have different coords but same CRS
+    different_layer = forcing_layer.assign_coords(lat=forcing_layer.lat + 1)
+    different_layer.raster.set_crs("EPSG:4326")
+
+    reprojected = component._reproj_data(different_layer)
+    assert reprojected.raster.identical_grid(ref_ds)
+    assert "time" in reprojected.dims
+
+    # Case 3: Different grid without CRS → CRS should be set from ref
+    no_crs_layer = different_layer.copy()
+    no_crs_layer.raster._crs = None  # Remove CRS
+
+    result = component._reproj_data(no_crs_layer)
+    assert result.raster.crs == "EPSG:4326"
+
+    # Case 4: Reference grid missing spatial dims → return input unchanged
+    mock_model_staticmaps.staticmaps._data = xr.Dataset()
+    output = component._reproj_data(different_layer)
+    xr.testing.assert_equal(output, different_layer)
