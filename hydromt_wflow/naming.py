@@ -679,7 +679,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "lake_area": {
         "wflow_v0": "lateral.river.lakearea",
-        "wflow_v1": "lake_surface__area",
+        "wflow_v1": "reservoir_surface__area",
         "hydromt_name": "lake_area",
     },
     "reservoir_trapping_efficiency": {

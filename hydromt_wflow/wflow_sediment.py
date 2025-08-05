@@ -11,14 +11,14 @@ import tomlkit
 import xarray as xr
 from hydromt.nodata import NoDataStrategy
 
-from hydromt_wflow.utils import (
-    DATADIR,
+from hydromt_wflow import workflows
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
+from hydromt_wflow.utils import DATADIR
+from hydromt_wflow.version_upgrade import (
+    convert_reservoirs_to_wflow_v1_sediment,
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
-
-from . import workflows
-from .naming import _create_hydromt_wflow_mapping_sediment
 
 __all__ = ["WflowSedimentModel"]
 
@@ -1035,10 +1035,14 @@ river cells."
 
         The function reads a TOML from wflow v0x and converts it to wflow v1x format.
         The other components stay the same.
+
         A few variables that used to be computed within Wflow.jl are now moved to
         HydroMT to allow more flexibility for the users to update if they do get local
         data or calibrate some of the parameters specifically. For this, the
         ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.
+
+        Lakes and reservoirs have also been merged into one structure and parameters in
+        the resulted staticmaps will be combined.
 
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
@@ -1053,6 +1057,7 @@ river cells."
             strord_name argument of setup_riverbedsed method.
         """
         self.read()
+        config_v0 = self.config.copy()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
         # tomlkit loads errors on this file so we have to do it in two steps
         with open(DATADIR / "default_config_headers.toml", "r") as file:
@@ -1072,3 +1077,16 @@ river cells."
 
         # Rerun setup_riverbedsed
         self.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)
+
+        # Merge lakes and reservoirs layers
+        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
+            self.grid, config_v0, logger=self.logger
+        )
+        if ds_res is not None:
+            # Remove older maps from grid
+            self.drop_vars_grid(vars_to_remove)
+            # Add new reservoir maps to grid
+            self.set_grid(ds_res)
+            # Update the config with the new names
+            for option in config_opt:
+                self.set_config(option, config_opt[option])

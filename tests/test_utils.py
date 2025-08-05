@@ -105,6 +105,14 @@ def test_convert_to_wflow_v1_sediment():
     assert "soil_sagg_fraction" in wflow.grid
     assert "land_govers_c" in wflow.grid
     assert "river_kodatie_a" in wflow.grid
+    assert "reservoir_outlet_id" in wflow.grid
+    res_ids = np.unique(wflow.grid["reservoir_outlet_id"].raster.mask_nodata())
+    assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
+    assert np.all(
+        np.isin(
+            [0.0, 1.0], wflow.grid["reservoir_trapping_efficiency"].raster.mask_nodata()
+        )
+    )
 
 
 def test_config_toml_grouping(tmpdir):
