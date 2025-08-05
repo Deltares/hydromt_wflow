@@ -51,28 +51,6 @@ class WflowForcingComponent(GridComponent):
             region_filename=region_filename,
         )
 
-    ## Private methods
-    # TODO Remove once #1229 in core gets merged
-    def _get_grid_data(self) -> xr.DataArray | xr.Dataset:
-        """Get grid data as xarray.DataArray from this component or the reference."""
-        if self._region_component is not None:
-            reference_component = self.model.get_component(self._region_component)
-            if not isinstance(reference_component, GridComponent):
-                raise ValueError(
-                    f"Unable to find the referenced grid component: \
-'{self._region_component}'."
-                )
-            if reference_component.data is None:
-                raise ValueError(
-                    f"Unable to get grid from the referenced region component: \
-'{self._region_component}'."
-                )
-            return reference_component.data
-
-        if self._data is None:
-            raise ValueError("Unable to get grid data from this component.")
-        return self._data
-
     def _reproj_data(
         self,
         data: xr.DataArray | xr.Dataset,
@@ -99,12 +77,6 @@ class WflowForcingComponent(GridComponent):
         if self._data is None:
             self._initialize_grid()
         assert self._data is not None
-        # Quick check on the data
-        try:
-            self._data.raster.set_spatial_dims()
-            self._data = self._reproj_data(self._data)
-        except BaseException:
-            ...
         return self._data
 
     ## I/O methods

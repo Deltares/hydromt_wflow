@@ -72,13 +72,14 @@ def test_wflow_forcing_component_set_reproj_after(
     assert "temp" in component.data.data_vars
     assert list(component.data.dims) == ["time", "lon", "lat"]
     assert component.data.time.size == 20
-    np.testing.assert_almost_equal(component.data.temp.mean().values, 1)
+    assert (component.data.temp.values == 1).all()
 
     # Set staticmaps data
     mock_model_staticmaps.staticmaps._data = grid_dummy_data.to_dataset()
 
     # Reprojecting should result in nodata
-    np.testing.assert_almost_equal(component.data.temp.mean().values, -9999)
+    component.set(forcing_layer, "temp")
+    assert (component.data.temp.values == -9999).all()
 
 
 def test_wflow_forcing_component_set_errors(
