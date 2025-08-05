@@ -44,12 +44,12 @@ WFLOW_NAMES = {
     },
     "lake_area_id": {
         "wflow_v0": "lateral.river.lake.areas",
-        "wflow_v1": "lake_area__count",
+        "wflow_v1": None,
         "hydromt_name": "lake_area_id",
     },
     "lake_outlet_id": {
         "wflow_v0": "lateral.river.lake.locs",
-        "wflow_v1": "lake_location__count",
+        "wflow_v1": None,
         "hydromt_name": "lake_outlet_id",
     },
     "reservoir_area_id": {
@@ -378,7 +378,7 @@ WFLOW_NAMES = {
     # lakes
     "lake_area": {
         "wflow_v0": "lateral.river.lake.area",
-        "wflow_v1": "lake_surface__area",
+        "wflow_v1": None,
         "hydromt_name": "lake_area",
     },
     "reservoir_initial_depth": {
@@ -573,11 +573,11 @@ WFLOW_STATES_NAMES = {
     },
     "lake_instantaneous_water_level": {
         "wflow_v0": "lateral.river.lake.waterlevel",
-        "wflow_v1": "lake_water_surface__instantaneous_elevation",
+        "wflow_v1": "reservoir_water_surface__instantaneous_elevation",
     },
     "reservoir_instantaneous_volume": {
         "wflow_v0": "lateral.river.reservoir.volume",
-        "wflow_v1": "reservoir_water__instantaneous_volume",
+        "wflow_v1": None,
     },
     "demand_paddy_h": {
         "wflow_v0": "vertical.paddy.h",
@@ -599,12 +599,12 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "lake_area_id": {
         "wflow_v0": "vertical.lakeareas",
-        "wflow_v1": "reservoir_area__count",
+        "wflow_v1": None,
         "hydromt_name": "lake_area_id",
     },
     "lake_outlet_id": {
         "wflow_v0": "lateral.river.lakelocs",
-        "wflow_v1": "reservoir_location__count",
+        "wflow_v1": None,
         "hydromt_name": "lake_outlet_id",
     },
     "reservoir_area_id": {
@@ -679,7 +679,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "lake_area": {
         "wflow_v0": "lateral.river.lakearea",
-        "wflow_v1": "reservoir_surface__area",
+        "wflow_v1": None,
         "hydromt_name": "lake_area",
     },
     "reservoir_trapping_efficiency": {

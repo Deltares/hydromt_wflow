@@ -1057,6 +1057,7 @@ river cells."
             strord_name argument of setup_riverbedsed method.
         """
         self.read()
+
         config_v0 = self.config.copy()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
         # tomlkit loads errors on this file so we have to do it in two steps

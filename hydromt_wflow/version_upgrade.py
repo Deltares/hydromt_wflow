@@ -16,6 +16,11 @@ from hydromt_wflow.naming import (
 )
 from hydromt_wflow.utils import get_config, set_config
 from hydromt_wflow.workflows.waterbodies import (
+    RESERVOIR_COMMON_PARAMETERS,
+    RESERVOIR_CONTROL_PARAMETERS,
+    RESERVOIR_LAYERS_SEDIMENT,
+    RESERVOIR_UNCONTROL_PARAMETERS,
+    merge_reservoirs,
     merge_reservoirs_sediment,
 )
 
@@ -328,7 +333,7 @@ def convert_to_wflow_v1_sbm(
         "reinit": "cold_start__flag",
         "sizeinmetres": "cell_length_in_meter__flag",
         "reservoirs": "reservoir__flag",
-        "lakes": "lake__flag",
+        "lakes": "reservoir__flag",
         "snow": "snow__flag",
         "glacier": "glacier__flag",
         "pits": "pit__flag",
@@ -471,6 +476,154 @@ def convert_to_wflow_v1_sediment(
     return config_out
 
 
+def convert_reservoirs_to_wflow_v1_sbm(
+    grid: xr.Dataset,
+    config: Dict,
+    logger: logging.Logger = logger,
+) -> tuple[xr.Dataset | None, list[str], dict[str, str]]:
+    """
+    Merge reservoirs and lakes layers from a v0.x model config.
+
+    Returns None if no reservoirs or lakes are present in the config.
+    If reservoirs are present, also add rating_curve, storage_curve and initial_depth.
+    The output variables will use standard names for the variables (e.g.
+    "reservoir_area_id").
+
+    Parameters
+    ----------
+    grid : xr.Dataset
+        The grid dataset containing the reservoirs and lakes layers.
+    config : dict
+        The model configuration dictionary.
+
+    Returns
+    -------
+    xr.Dataset | None
+        The merged dataset with reservoirs and lakes layers, or None if not applicable.
+    list[str]
+        List of variables to remove from the grid (will be replaced by the merged ones).
+    dict[str, str]
+        Dictionary of wflow v1 config options to update with the new variable names.
+    """
+    variables_to_remove = []
+    config_options = {}
+    ds_res = xr.Dataset()
+
+    has_reservoirs = get_config(config, "model.reservoirs", fallback=False)
+    has_lakes = get_config(config, "model.lakes", fallback=False)
+
+    if not has_reservoirs and not has_lakes:
+        logger.info("No reservoirs or lakes found in the config. Skipping conversion.")
+        return None, variables_to_remove, config_options
+    else:
+        logger.info(
+            "Reservoirs/lakes found in the grid, converting to Wflow v1 format."
+        )
+        # config options will need to be updated with the standard names
+        config_options["model.reservoir__flag"] = True
+        config_options[
+            "state.variables.reservoir_water_surface__instantaneous_elevation"
+        ] = "reservoir_instantaneous_water_level"
+
+    # Start with the reservoir layers
+    if has_reservoirs:
+        reservoir_layers = (
+            RESERVOIR_COMMON_PARAMETERS
+            + RESERVOIR_CONTROL_PARAMETERS
+            + [
+                "reservoir_area_id",
+                "reservoir_outlet_id",
+            ]
+        )
+        for layer in reservoir_layers:
+            if layer in [
+                "reservoir_initial_depth",
+                "reservoir_rating_curve",
+                "reservoir_storage_curve",
+            ]:
+                # These layers are not in the config, so we skip them
+                continue
+            wflow_var = WFLOW_NAMES[layer]["wflow_v0"]
+            # get the map name from config
+            map_name = get_config(config, f"input.{wflow_var}")
+            # add to the variables to remove
+            variables_to_remove.append(map_name)
+            if map_name in grid:
+                ds_res[layer] = grid[map_name].copy()
+            else:
+                logger.warning(f"Reservoir layer {map_name} not found in the grid.")
+
+        # Add the additional layers that are not in the config
+        res_mask_inv = (
+            ds_res["reservoir_outlet_id"] == ds_res["reservoir_outlet_id"].raster.nodata
+        )
+        ds_res["reservoir_rating_curve"] = ds_res["reservoir_outlet_id"].where(
+            res_mask_inv,
+            4.0,
+        )
+        ds_res["reservoir_storage_curve"] = ds_res["reservoir_outlet_id"].where(
+            res_mask_inv,
+            1.0,
+        )
+        ds_res["reservoir_initial_depth"] = (
+            ds_res["reservoir_target_full_fraction"]
+            * ds_res["reservoir_max_volume"]
+            / ds_res["reservoir_area"]
+        )
+
+        # Update the config options
+        for layer in reservoir_layers:
+            if layer in [
+                "reservoir_area_id",
+                "reservoir_outlet_id",
+                "reservoir_lower_id",
+            ]:
+                wflow_var_v1 = f"input.{WFLOW_NAMES[layer]['wflow_v1']}"
+            else:
+                wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer]['wflow_v1']}"
+            config_options[wflow_var_v1] = layer
+
+    # Move to the lake layers
+    if has_lakes:
+        lake_layers = RESERVOIR_UNCONTROL_PARAMETERS + [
+            "lake_area_id",
+            "lake_outlet_id",
+            "lake_area",
+            "reservoir_initial_depth",
+            "reservoir_rating_curve",
+            "reservoir_storage_curve",
+        ]
+        ds_lakes = xr.Dataset()
+
+        for layer in lake_layers:
+            wflow_var = WFLOW_NAMES[layer]["wflow_v0"]
+            # get the map name from config
+            map_name = get_config(config, f"input.{wflow_var}")
+            # add to the variables to remove
+            variables_to_remove.append(map_name)
+            if map_name in grid:
+                # Replace lake by reservoir in the output layer name
+                layer_out = layer.replace("lake", "reservoir")
+                ds_lakes[layer_out] = grid[map_name].copy()
+
+        # Merge lakes into the reservoirs dataset if needed
+        if not has_reservoirs:
+            ds_res = ds_lakes
+        else:
+            ds_res = merge_reservoirs(ds_lakes, ds_res, logger=logger)
+
+        # Update the config options
+        for layer in lake_layers:
+            layer_out = layer.replace("lake", "reservoir")
+            if layer in ["lake_area_id", "lake_outlet_id", "reservoir_lower_id"]:
+                wflow_var_v1 = f"input.{WFLOW_NAMES[layer_out]['wflow_v1']}"
+            else:
+                wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer_out]['wflow_v1']}"
+            config_options[wflow_var_v1] = layer_out
+
+    return ds_res, variables_to_remove, config_options
+
+
 def convert_reservoirs_to_wflow_v1_sediment(
     grid: xr.Dataset,
     config: Dict,
@@ -506,13 +659,6 @@ def convert_reservoirs_to_wflow_v1_sediment(
     has_reservoirs = get_config(config, "model.doreservoir", fallback=False)
     has_lakes = get_config(config, "model.dolake", fallback=False)
 
-    reservoir_layers = [
-        "reservoir_area_id",
-        "reservoir_outlet_id",
-        "reservoir_area",
-        "reservoir_trapping_efficiency",
-    ]
-
     if not has_reservoirs and not has_lakes:
         logger.info("No reservoirs or lakes found in the config. Skipping conversion.")
         return None, variables_to_remove, config_options
@@ -522,7 +668,7 @@ def convert_reservoirs_to_wflow_v1_sediment(
         )
         # config options will need to be updated with the standard names
         config_options["model.reservoir__flag"] = True
-        for layer in reservoir_layers:
+        for layer in RESERVOIR_LAYERS_SEDIMENT:
             if layer in ["reservoir_area_id", "reservoir_outlet_id"]:
                 wflow_var_v1 = f"input.{WFLOW_SEDIMENT_NAMES[layer]['wflow_v1']}"
             else:
@@ -531,7 +677,7 @@ def convert_reservoirs_to_wflow_v1_sediment(
 
     # Start with the reservoir layers
     if has_reservoirs:
-        for layer in reservoir_layers:
+        for layer in RESERVOIR_LAYERS_SEDIMENT:
             wflow_var = WFLOW_SEDIMENT_NAMES[layer]["wflow_v0"]
             # get the map name from config
             map_name = get_config(config, f"input.{wflow_var}")
@@ -544,14 +690,18 @@ def convert_reservoirs_to_wflow_v1_sediment(
 
     # Move to the lake layers
     if has_lakes:
-        layers = [
+        ds_lakes = xr.Dataset()
+
+        lake_layers = [
             "lake_area_id",
             "lake_outlet_id",
             "lake_area",
+            "reservoir_trapping_efficiency",
         ]
-        ds_lakes = xr.Dataset()
-
-        for layer in layers:
+        for layer in lake_layers:
+            if layer == "reservoir_trapping_efficiency":
+                # This layer is not in the config, so we skip it
+                continue
             wflow_var = WFLOW_SEDIMENT_NAMES[layer]["wflow_v0"]
             # get the map name from config
             map_name = get_config(config, f"input.{wflow_var}")

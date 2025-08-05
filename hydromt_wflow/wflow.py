@@ -28,6 +28,10 @@ from shapely.geometry import box
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
+from hydromt_wflow.version_upgrade import (
+    convert_reservoirs_to_wflow_v1_sbm,
+    convert_to_wflow_v1_sbm,
+)
 
 __all__ = ["WflowModel"]
 
@@ -4967,11 +4971,16 @@ Run setup_soilmaps first"
 
         The function reads a TOML from wflow v0x and converts it to wflow v1x format.
         The other components stay the same.
+
+        Lakes and reservoirs have also been merged into one structure and parameters in
+        the resulted staticmaps will be combined.
+
         This function should be followed by write_config() to write the upgraded file.
         """
         self.read()
 
-        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=self.logger)
+        config_v0 = self.config.copy()
+        config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
         # tomlkit loads errors on this file so we have to do it in two steps
         with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
             default_header_str = file.read()
@@ -4980,6 +4989,19 @@ Run setup_soilmaps first"
 
         for option in config_out:
             self.set_config(option, config_out[option])
+
+        # Merge lakes and reservoirs layers
+        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
+            self.grid, config_v0, logger=self.logger
+        )
+        if ds_res is not None:
+            # Remove older maps from grid
+            self.drop_vars_grid(vars_to_remove)
+            # Add new reservoir maps to grid
+            self.set_grid(ds_res)
+            # Update the config with the new names
+            for option in config_opt:
+                self.set_config(option, config_opt[option])
 
     # I/O
     def read(

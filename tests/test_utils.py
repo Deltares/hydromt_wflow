@@ -68,10 +68,10 @@ def test_grid_from_config(demda):
 
 def test_convert_to_wflow_v1_sbm():
     # Initialize wflow model
-    root = join(TESTDATADIR, "wflow_v0x", "sbm")
+    root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    wflow = WflowModel(root, config_fn=config_fn, mode="r+")
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
@@ -80,6 +80,13 @@ def test_convert_to_wflow_v1_sbm():
     wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
 
     assert wflow.config == wflow_v1.config, "Config files are not equal"
+
+    # Checks on extra data in staticmaps
+    res_ids = np.unique(wflow.grid["reservoir_outlet_id"].raster.mask_nodata())
+    assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
+    assert np.all(
+        np.isin([3.0, 4.0], wflow.grid["reservoir_rating_curve"].raster.mask_nodata())
+    )
 
 
 def test_convert_to_wflow_v1_sediment():
