@@ -610,7 +610,7 @@ def convert_reservoirs_to_wflow_v1_sbm(
         if not has_reservoirs:
             ds_res = ds_lakes
         else:
-            ds_res = merge_reservoirs(ds_lakes, ds_res, logger=logger)
+            ds_res = merge_reservoirs(ds_lakes, ds_res)
 
         # Update the config options
         for layer in lake_layers:

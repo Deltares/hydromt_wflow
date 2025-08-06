@@ -2133,7 +2133,6 @@ gauge locations [-] (if derive_subcatch)
             ds_reservoirs = workflows.reservoirs.merge_reservoirs(
                 ds_reservoirs,
                 self.grid.rename(inv_rename),
-                logger=self.logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_reservoirs is None:
@@ -2342,7 +2341,6 @@ gauge locations [-] (if derive_subcatch)
             ds_res = workflows.reservoirs.merge_reservoirs(
                 ds_res,
                 self.grid.rename(inv_rename),
-                logger=self.logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_res is None:
