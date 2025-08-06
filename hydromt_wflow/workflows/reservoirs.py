@@ -799,7 +799,7 @@ def reservoir_parameters(
                     )
                     df_stor.rename(columns={"elevtn": "H", "volume": "S"}, inplace=True)
                     # add to rating_curves
-                    rating_curves[f"reservoir_sh_{id}"] = df_stor
+                    rating_curves[f"reservoir_sh_{wid}"] = df_stor
                 else:
                     logger.warning(
                         f"Storage data not available for reservoir {wid}. "
