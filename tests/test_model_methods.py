@@ -207,9 +207,9 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     )
 
 
-def test_setup_lake(tmpdir, example_wflow_model):
+def test_setup_reservoirs_no_control(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
-    lakes = example_wflow_model.geoms["lakes"]
+    lakes = example_wflow_model.geoms["reservoirs_no_control"]
     lake_id = lakes["waterbody_id"].iloc[0]
     area = lakes["reservoir_area"].iloc[0]
     dis = lakes["meta_reservoir_mean_outflow"].iloc[0]
@@ -241,8 +241,8 @@ def test_setup_lake(tmpdir, example_wflow_model):
         }
     )
     # Update model with it
-    example_wflow_model.setup_lakes(
-        lakes_fn="hydro_lakes",
+    example_wflow_model.setup_reservoirs_no_control(
+        reservoirs_fn="hydro_lakes",
         rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
     )
@@ -267,7 +267,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
 
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
-def test_setup_reservoirs(source, tmpdir, example_wflow_model):
+def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
     example_wflow_model.read()
@@ -277,7 +277,7 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     example_wflow_model.set_root(destination, mode="w")
 
     config = {
-        "setup_reservoirs": {
+        "setup_reservoirs_simple_control": {
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
@@ -1064,7 +1064,7 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
 
 def test_skip_nodata_reservoir(clipped_wflow_model):
     # Using the clipped_wflow_model as the reservoirs are not in this model
-    clipped_wflow_model.setup_reservoirs(
+    clipped_wflow_model.setup_reservoirs_simple_control(
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
         overwrite_existing=True,

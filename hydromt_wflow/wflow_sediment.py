@@ -219,115 +219,25 @@ river cells."
     ):
         """Generate maps of natural reservoir areas (lakes) and outlets.
 
-        Also generates average reservoir area.
+        This method is a specialized version of the `setup_reservoirs` method
+        that is specifically designed for lakes, which are natural water bodies
+        without artificial dams.
 
-        Created reservoirs can be added to the existing ones `overwrite_existing=False`
-        (default) or overwrite them `overwrite_existing=True`.
+        This means the trapping efficiency is set to 0.0 by default and the output
+        staticgeoms will be called lakes.geojson by default.
 
-        The data is generated from features with ``min_area`` [km2] from a database with
-        reservoir geometry, IDs and metadata. Data required are reservoir ID
-        'waterbody_id', average area 'Area_avg' [m2].
-
-        Adds model layers:
-
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
-         coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
-        * **lakes** geom: polygon with natural reservoirs (lakes) and wflow parameters
-
-        Parameters
-        ----------
-        lakes_fn :
-            Name of GeoDataFrame source for lake parameters.
-
-            * Required variables: ['waterbody_id', 'Area_avg']
-        overwrite_existing : bool, optional
-            If True, overwrite existing lakes in the model grid, by default False.
-        min_area : float, optional
-            Minimum lake area threshold [km2], by default 1.0 km2.
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
-        geom_name : str, optional
-            Name of the lakes geometry in the staticgeoms folder, by default 'lakes'
-            for lakes.geojson.
-        kwargs: optional
-            Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+        For a description of the parameters and functionality, see
+        py:meth:`setup_reservoirs`.
         """
-        # retrieve data for basin
-        self.logger.info("Preparing reservoir maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
-        gdf_res = self.data_catalog.get_geodataframe(
-            lakes_fn,
-            geom=self.basins_highres,
-            handle_nodata=NoDataStrategy.IGNORE,
+        self.setup_reservoirs(
+            reservoirs_fn=lakes_fn,
+            overwrite_existing=overwrite_existing,
+            min_area=min_area,
+            trapping_default=0.0,  # lakes have no trapping efficiency
+            output_names=output_names,
+            geom_name=geom_name,
             **kwargs,
         )
-        if gdf_res is None:
-            self.logger.info("Skipping method, as no data has been found")
-            return
-
-        # Derive reservoir area and outlet maps
-        ds_res, gdf_res = workflows.reservoir_id_maps(
-            gdf=gdf_res,
-            ds_like=self.grid,
-            min_area=min_area,
-            uparea_name=self._MAPS["uparea"],
-            logger=self.logger,
-        )
-        if ds_res is None:
-            # No reservoirs of sufficient size found
-            return
-        self._update_naming(output_names)
-
-        # add lake area and trapping efficiency of zero
-        gdf_res["reservoir_trapping_efficiency"] = 0.0
-        gdf_points = gpd.GeoDataFrame(
-            gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
-            geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
-        )
-        ds_res["reservoir_area"] = self.grid.raster.rasterize(
-            gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
-        )
-        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
-            gdf_points,
-            col_name="reservoir_trapping_efficiency",
-            dtype="float32",
-            nodata=-999,
-        )
-
-        # merge with existing reservoirs
-        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
-            inv_rename = {
-                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
-            }
-            ds_res = workflows.waterbodies.merge_reservoirs_sediment(
-                ds_res,
-                self.grid.rename(inv_rename),
-                logger=self.logger,
-            )
-            # Check if ds_res is None ie duplicate IDs
-            if ds_res is None:
-                return
-
-        # add to grid
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
-        # write reservoirs with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
-
-        # Reservoir settings in the toml to update
-        self.set_config("model.reservoir__flag", True)
-        for dvar in ds_res.data_vars:
-            if dvar == "reservoir_area_id" or dvar == "reservoir_outlet_id":
-                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
-            elif dvar in self._WFLOW_NAMES:
-                self._update_config_variable_name(self._MAPS[dvar])
 
     def setup_reservoirs(
         self,
@@ -344,7 +254,7 @@ river cells."
         geom_name: str = "reservoirs",
         **kwargs,
     ):
-        """Generate maps of reservoir with dam areas and outlets.
+        """Generate maps of reservoir (with dam) areas and outlets.
 
         Also generates parameters with average reservoir area,
         and trapping efficiency for large particles.
@@ -376,7 +286,7 @@ river cells."
             Default trapping efficiency coefficient for large particles [between 0 and
             1], by default 1 to trap 100% of large particles (sand to gravel) for
             example for gravity dam. For the others the natural deposition in
-            waterbodies from Camp is used.
+            reservoirs from Camp is used.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -389,7 +299,7 @@ river cells."
             hydromt.DataCatalog.get_rasterdataset()
         """
         # retrieve data for basin
-        self.logger.info("Preparing reservoir with simple control maps.")
+        self.logger.info("Preparing reservoir maps.")
         if "predicate" not in kwargs:
             kwargs.update(predicate="contains")
         gdf_res = self.data_catalog.get_geodataframe(
@@ -439,7 +349,7 @@ river cells."
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
             }
-            ds_res = workflows.waterbodies.merge_reservoirs_sediment(
+            ds_res = workflows.reservoirs.merge_reservoirs_sediment(
                 ds_res,
                 self.grid.rename(inv_rename),
                 logger=self.logger,

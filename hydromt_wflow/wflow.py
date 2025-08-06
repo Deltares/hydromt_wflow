@@ -1939,9 +1939,9 @@ gauge locations [-] (if derive_subcatch)
             col2raster_name = col2raster
         self.set_grid(da_area.rename(col2raster_name))
 
-    def setup_lakes(
+    def setup_reservoirs_no_control(
         self,
-        lakes_fn: str | Path | gpd.GeoDataFrame,
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
         rating_curve_fns: List[str | Path | pd.DataFrame] | None = None,
         overwrite_existing: bool = False,
         min_area: float = 10.0,
@@ -1957,7 +1957,7 @@ gauge locations [-] (if derive_subcatch)
             "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
             "reservoir~lower_location__count": "reservoir_lower_id",
         },
-        geom_name: str = "lakes",
+        geom_name: str = "reservoirs_no_control",
         **kwargs,
     ):
         """Generate maps of reservoir areas, outlets and parameters.
@@ -1971,8 +1971,9 @@ gauge locations [-] (if derive_subcatch)
         * 2 for Q = b(H - H0)^e (general power law)
         * 3 for Q = b(H - H0)^2 (Modified Puls Approach)
 
-        Created reservoirs can be added to the existing ones `overwrite_existing=False`
-        (default) or overwrite them `overwrite_existing=True`.
+        Created reservoirs can be added to already existing ones in the model
+        `overwrite_existing=False` (default) or overwrite them
+        `overwrite_existing=True`.
 
         Reservoir data is generated from features with ``min_area`` [km2] (default 1
         km2) from a database with reservoir geometry, IDs and metadata. Parameters can
@@ -1982,7 +1983,11 @@ gauge locations [-] (if derive_subcatch)
         If rating curve data is available for storage and discharge they can be prepared
         via ``rating_curve_fns`` (see below for syntax and requirements).
         Else the parameters 'reservoir_b' and 'reservoir_e' will be used for discharge,
-        and a rectangular profile will be used to compute storage.
+        and a rectangular profile will be used to compute storage. This corresponds to
+        the following storage curve types in Wflow:
+
+        * 1 for S = A * H
+        * 2 for S = f(H) from reservoir data and interpolation
 
         Adds model layers:
 
@@ -1997,7 +2002,8 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_rating_curve** map: option to compute rating curve [-]
         * **reservoir_storage_curve** map: option to compute storage curve [-]
         * **reservoir_lower_id** map: optional, lower linked reservoir locations [-]
-        * **lakes** geom: polygon with lakes and wflow lake parameters
+        * **reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or weirs)
+          and wflow parameters.
 
         Parameters
         ----------
@@ -2033,8 +2039,8 @@ gauge locations [-] (if derive_subcatch)
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
         geom_name : str, optional
-            Name of the reservoir geometry in the staticgeoms folder, by default 'lakes'
-            for lakes.geojson.
+            Name of the reservoir geometry in the staticgeoms folder, by default
+            'reservoirs_no_control' for reservoirs_no_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -2044,7 +2050,7 @@ gauge locations [-] (if derive_subcatch)
         if "predicate" not in kwargs:
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
-            lakes_fn,
+            reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
@@ -2110,9 +2116,9 @@ gauge locations [-] (if derive_subcatch)
                 "Using default storage/outflow function parameters."
             )
 
-        # add waterbody parameters
+        # add reservoir parameters
         ds_reservoirs, gdf_reservoirs, rating_curves = (
-            workflows.waterbodies.reservoir_parameters(
+            workflows.reservoirs.reservoir_parameters(
                 ds_reservoirs,
                 gdf_org,
                 rating_dict,
@@ -2124,7 +2130,7 @@ gauge locations [-] (if derive_subcatch)
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
             }
-            ds_reservoirs = workflows.waterbodies.merge_reservoirs(
+            ds_reservoirs = workflows.reservoirs.merge_reservoirs(
                 ds_reservoirs,
                 self.grid.rename(inv_rename),
                 logger=self.logger,
@@ -2136,7 +2142,7 @@ gauge locations [-] (if derive_subcatch)
             # remove all reservoir layers from the grid as some control parameters
             # like demand will not be in ds_reservoirs and won't be overwritten
             reservoir_maps = [
-                self._MAPS.get(k, k) for k in workflows.waterbodies.RESERVOIR_LAYERS
+                self._MAPS.get(k, k) for k in workflows.reservoirs.RESERVOIR_LAYERS
             ]
             self.drop_vars_grid(reservoir_maps, errors="ignore")
 
@@ -2166,7 +2172,7 @@ gauge locations [-] (if derive_subcatch)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
 
-    def setup_reservoirs(
+    def setup_reservoirs_simple_control(
         self,
         reservoirs_fn: str | gpd.GeoDataFrame,
         timeseries_fn: str | None = None,
@@ -2185,24 +2191,25 @@ gauge locations [-] (if derive_subcatch)
             "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
             "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
-        geom_name: str = "reservoirs",
+        geom_name: str = "reservoirs_simple_control",
         **kwargs,
     ):
         """Generate maps of controlled reservoir areas, outlets and parameters.
 
-        Also meant to generate parameters with average reservoir area, demand,
+        Also generates parameters with average reservoir area, demand,
         min and max target storage capacities and discharge capacity values.
 
-        This function adds controlled reservoirs to the model. It prepares rating and
-        storage curves parameters for the reservoirs modelled with the following rating
-        curve types (see
+        This function adds reservoirs with simple control operations to the model. It
+        prepares rating and storage curves parameters for the reservoirs modelled with
+        the following rating curve types (see
         `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html>`__
         ):
 
         * 4 simple reservoir operational parameters
 
-        Created reservoirs can be added to the existing ones `overwrite_existing=False`
-        (default) or overwrite them ``overwrite_existing=True``.
+        Created reservoirs can be added to already existing ones in the model
+        `overwrite_existing=False` (default) or overwrite them
+        `overwrite_existing=True`.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with reservoir geometry, IDs and metadata. Parameters can
@@ -2248,7 +2255,7 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
         * **reservoir_demand** map: reservoir demand flow [m3/s]
         * **reservoir_max_release** map: reservoir max release flow [m3/s]
-        * **reservoirs_controlled** geom: polygon with reservoirs and parameters
+        * **reservoirs_simple_control** geom: polygon with reservoirs and parameters
 
         Parameters
         ----------
@@ -2285,7 +2292,7 @@ gauge locations [-] (if derive_subcatch)
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "reservoirs_controlled" for reservoirs_controlled.geojson.
+            "reservoirs_simple_control" for reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -2332,7 +2339,7 @@ gauge locations [-] (if derive_subcatch)
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
             }
-            ds_res = workflows.waterbodies.merge_reservoirs(
+            ds_res = workflows.reservoirs.merge_reservoirs(
                 ds_res,
                 self.grid.rename(inv_rename),
                 logger=self.logger,
@@ -2344,7 +2351,7 @@ gauge locations [-] (if derive_subcatch)
             # remove all reservoir layers from the grid as some parameters
             # like b or e will not be in ds_res and won't be overwritten
             reservoir_maps = [
-                self._MAPS.get(k, k) for k in workflows.waterbodies.RESERVOIR_LAYERS
+                self._MAPS.get(k, k) for k in workflows.reservoirs.RESERVOIR_LAYERS
             ]
             self.drop_vars_grid(reservoir_maps, errors="ignore")
 
@@ -4909,7 +4916,7 @@ Run setup_soilmaps first"
         To be run last as this requires some soil parameters or constant_pars to be
         computed already.
 
-        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        To be run after setup_reservoirs methods and setup_glaciers to also create
         cold states for them if they are present in the basin.
 
         This function is mainly useful in case the wflow model is read into Delft-FEWS.

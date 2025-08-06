@@ -15,7 +15,7 @@ from hydromt_wflow.naming import (
     WFLOW_STATES_NAMES,
 )
 from hydromt_wflow.utils import get_config, set_config
-from hydromt_wflow.workflows.waterbodies import (
+from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
     RESERVOIR_LAYERS_SEDIMENT,

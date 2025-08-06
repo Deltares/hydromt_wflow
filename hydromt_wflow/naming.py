@@ -671,7 +671,7 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v1": "river__width",
         "hydromt_name": "rivwth",
     },
-    # waterbodies
+    # reservoirs
     "reservoir_area": {
         "wflow_v0": "lateral.river.resarea",
         "wflow_v1": "reservoir_surface__area",
