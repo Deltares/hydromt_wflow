@@ -31,8 +31,8 @@ Setup components
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
-   WflowModel.setup_lakes
-   WflowModel.setup_reservoirs
+   WflowModel.setup_reservoirs_no_control
+   WflowModel.setup_reservoirs_simple_control
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_lulcmaps_from_vector
@@ -280,9 +280,9 @@ Wflow workflows
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
    workflows.update_soil_with_paddy
-   workflows.waterbodymaps
-   workflows.reservoirattrs
-   workflows.lakeattrs
+   workflows.reservoir_id_maps
+   workflows.reservoir_simple_control_parameters
+   workflows.reservoir_parameters
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim
