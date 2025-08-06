@@ -41,7 +41,7 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_floodplains`
       - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
     * - :py:func:`~WflowModel.setup_reservoirs_no_control`
-      - This component generates maps of uncontrolled reservoirs (lakes, weirs) areas and outlets as well as parameters with average lake area, depth a discharge values.
+      - This component generates maps of uncontrolled reservoirs (lakes, weirs) areas and outlets as well as parameters with average reservoir area, depth a discharge values.
     * - :py:func:`~WflowModel.setup_reservoirs_simple_control`
       - This component generates maps of controlled reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
     * - :py:func:`~WflowModel.setup_glaciers`

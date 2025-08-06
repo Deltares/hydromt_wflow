@@ -254,7 +254,7 @@ river cells."
         geom_name: str = "reservoirs",
         **kwargs,
     ):
-        """Generate maps of reservoir (with dam) areas and outlets.
+        """Generate maps of reservoir areas and outlets.
 
         Also generates parameters with average reservoir area,
         and trapping efficiency for large particles.

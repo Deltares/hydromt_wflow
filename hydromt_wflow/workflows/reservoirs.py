@@ -281,7 +281,6 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
             gdf_points, col_name=name, dtype="float32", nodata=-999
         )
 
-    # return ds and gdf
     return ds_reservoirs, gdf
 
 
@@ -392,11 +391,11 @@ please use one of [gww, jrc] or None."
     df_out["resid"] = gdf["waterbody_id"].values
 
     # Create similar dataframe for EO time series
-    df_EO = pd.DataFrame(
+    df_eo = pd.DataFrame(
         index=range(len(gdf["waterbody_id"])),
         columns=(["resid", "maxarea", "normarea", "minarea", "capmin", "capmax"]),
     )
-    df_EO["resid"] = gdf["waterbody_id"].values
+    df_eo["resid"] = gdf["waterbody_id"].values
 
     # Create dtaframe for accuracy plots
     df_plot = pd.DataFrame(
@@ -431,11 +430,11 @@ please use one of [gww, jrc] or None."
                 # Save area stats
                 area_series = np.array(time_series["water_area"])  # [m2]
                 area_series_nozeros = area_series[area_series > 0]
-                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
-                df_EO.loc[i, "normarea"] = np.percentile(
+                df_eo.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_eo.loc[i, "normarea"] = np.percentile(
                     area_series_nozeros, perc_norm, axis=0
                 )
-                df_EO.loc[i, "minarea"] = np.percentile(
+                df_eo.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
             except Exception:
@@ -477,11 +476,11 @@ please use one of [gww, jrc] or None."
                 # Compute stats
                 area_series = utils.to_timeseries(time_series)["area"].to_numpy()
                 area_series_nozeros = area_series[area_series > 0]
-                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
-                df_EO.loc[i, "normarea"] = np.percentile(
+                df_eo.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_eo.loc[i, "normarea"] = np.percentile(
                     area_series_nozeros, perc_norm, axis=0
                 )
-                df_EO.loc[i, "minarea"] = np.percentile(
+                df_eo.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
             except Exception:
@@ -499,15 +498,15 @@ please use one of [gww, jrc] or None."
     if "Area_avg" in gdf.columns:
         df_out["resarea"] = gdf["Area_avg"].values.astype(np.float32)
         if timeseries_fn is not None:
-            df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
-                pd.notna(df_EO["maxarea"])
+            df_out.loc[pd.notna(df_eo["maxarea"]), "resarea"] = df_eo["maxarea"][
+                pd.notna(df_eo["maxarea"])
             ].values.astype(np.float32)
         else:
-            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
+            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_eo["maxarea"][
                 pd.isna(df_out["resarea"])
             ].values.astype(np.float32)
     else:
-        df_out["resarea"] = df_EO["maxarea"].values.astype(np.float32)
+        df_out["resarea"] = df_eo["maxarea"].values.astype(np.float32)
 
     # Get resmaxvolume from database
     if "Vol_avg" in gdf.columns:
@@ -535,12 +534,12 @@ please use one of [gww, jrc] or None."
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])
         max_cap = np.nanmax([df_out["resmaxvolume"].iloc[i], 0.0])
-        norm_area = np.nanmax([df_EO["normarea"].iloc[i], 0.0])
+        norm_area = np.nanmax([df_eo["normarea"].iloc[i], 0.0])
         if "Capacity_norm" in gdf.columns:
             norm_cap = np.nanmax([gdf["Capacity_norm"].iloc[i], 0.0])
         else:
             norm_cap = 0.0
-        min_area = np.nanmax([df_EO["minarea"].iloc[i], 0.0])
+        min_area = np.nanmax([df_eo["minarea"].iloc[i], 0.0])
         if "Capacity_min" in gdf.columns:
             min_cap = np.nanmax([gdf["Capacity_min"].iloc[i], 0.0])
         else:
@@ -655,24 +654,24 @@ please use one of [gww, jrc] or None."
             accuracy_min = 5
 
         # Resume results
-        df_EO.loc[i, "capmin"] = min_cap_f
-        df_EO.loc[i, "capmax"] = norm_cap_f
+        df_eo.loc[i, "capmin"] = min_cap_f
+        df_eo.loc[i, "capmax"] = norm_cap_f
         df_plot.loc[i, "factor"] = factor_shape
         df_plot.loc[i, "accuracy_min"] = accuracy_min
         df_plot.loc[i, "accuracy_norm"] = accuracy_norm
 
     # Depending on priority EO update fullfrac and min frac
     if timeseries_fn is not None:
-        df_out.resminfrac = df_EO["capmin"].values / df_out["resmaxvolume"].values
-        df_out.resfullfrac = df_EO["capmax"].values / df_out["resmaxvolume"].values
+        df_out.resminfrac = df_eo["capmin"].values / df_out["resmaxvolume"].values
+        df_out.resfullfrac = df_eo["capmax"].values / df_out["resmaxvolume"].values
     else:
         mask = pd.isna(df_out["resminfrac"])
-        df_out.loc[mask, "resminfrac"] = df_EO.loc[mask, "capmin"].values.astype(
+        df_out.loc[mask, "resminfrac"] = df_eo.loc[mask, "capmin"].values.astype(
             np.float64
         ) / (df_out.loc[mask, "resmaxvolume"].values).astype(np.float32)
 
         mask = pd.isna(df_out["resfullfrac"])
-        df_out.loc[mask, "resfullfrac"] = df_EO.loc[mask, "capmax"].values.astype(
+        df_out.loc[mask, "resfullfrac"] = df_eo.loc[mask, "capmax"].values.astype(
             np.float64
         ) / (df_out.loc[mask, "resmaxvolume"].values).astype(np.float32)
 
@@ -707,11 +706,11 @@ please use one of [gww, jrc] or None."
 def reservoir_parameters(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
-    rating_dict: dict = dict(),
+    rating_dict: dict = {},
     logger=logger,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame, dict]:
     """
-    Return (unconctrolled) reservoir attributes (see list below) needed for modelling.
+    Return (uncontrolled) reservoir attributes (see list below) needed for modelling.
 
     If rating_dict is not empty, prepares also rating tables for wflow.
 
@@ -755,8 +754,8 @@ def reservoir_parameters(
         }
     )
 
-    # Minimum value for LakeAvgOut
-    LakeAvgOut = gdf["meta_reservoir_mean_outflow"].copy()
+    # Minimum value for mean_outflow
+    mean_outflow = gdf["meta_reservoir_mean_outflow"].copy()
     gdf["meta_reservoir_mean_outflow"] = np.maximum(
         gdf["meta_reservoir_mean_outflow"], 0.01
     )
@@ -775,26 +774,26 @@ def reservoir_parameters(
     if "reservoir_rating_curve" not in gdf.columns:
         gdf["reservoir_rating_curve"] = 3
 
-    # Check if some LakeAvgOut values have been replaced
-    if not np.all(LakeAvgOut == gdf["meta_reservoir_mean_outflow"]):
+    # Check if some mean_outflow values have been replaced
+    if not np.all(mean_outflow == gdf["meta_reservoir_mean_outflow"]):
         logger.warning(
             "Some values of meta_reservoir_mean_outflow have been replaced by "
             "a minimum value of 0.01m3/s"
         )
 
     # Check if rating curve is provided
-    rating_curves = dict()
+    rating_curves = {}
     if len(rating_dict) != 0:
         # Assume one rating curve per reservoir index
-        for id in gdf["waterbody_id"].values:
-            id = int(id)
-            if id in rating_dict.keys():
-                df_rate = rating_dict[id]
+        for wid in gdf["waterbody_id"].values:
+            wid = int(wid)
+            if wid in rating_dict.keys():
+                df_rate = rating_dict[wid]
                 # Prepare the right tables for wflow
                 # Update storage and rating curves
                 # Storage
                 if "volume" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "reservoir_storage_curve"] = 2
+                    gdf.loc[gdf["waterbody_id"] == wid, "reservoir_storage_curve"] = 2
                     df_stor = df_rate[["elevtn", "volume"]].dropna(
                         subset=["elevtn", "volume"]
                     )
@@ -803,12 +802,12 @@ def reservoir_parameters(
                     rating_curves[f"reservoir_sh_{id}"] = df_stor
                 else:
                     logger.warning(
-                        f"Storage data not available for reservoir {id}. "
+                        f"Storage data not available for reservoir {wid}. "
                         "Using default S=AH"
                     )
                 # Rating
                 if "discharge" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "reservoir_rating_curve"] = 1
+                    gdf.loc[gdf["waterbody_id"] == wid, "reservoir_rating_curve"] = 1
                     df_rate = df_rate[["elevtn", "discharge"]].dropna(
                         subset=["elevtn", "discharge"]
                     )
@@ -821,10 +820,10 @@ def reservoir_parameters(
                     df_q[0] = df_rate["H"]
                     df_q.rename(columns={0: "H"}, inplace=True)
                     # add to rating_curves
-                    rating_curves[f"reservoir_hq_{id}"] = df_q
+                    rating_curves[f"reservoir_hq_{wid}"] = df_q
                 else:
                     logger.warning(
-                        f"Rating data not available for reservoir {id}. "
+                        f"Rating data not available for reservoir {wid}. "
                         "Using default Modified Puls Approach"
                     )
 
@@ -886,7 +885,6 @@ def _check_duplicated_ids_in_merge(
 def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
-    logger=logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like.
@@ -906,26 +904,11 @@ def merge_reservoirs(
     xr.Dataset
         Merged dataset of reservoir parameters.
     """
-    # # Check if IDs in ds are not duplicated in ds_like
-    # ids_ds = np.unique(ds["reservoir_area_id"].raster.mask_nodata().values)
-    # ids_ds_like = np.unique(ds_like["reservoir_area_id"].raster.mask_nodata().values)
-    # ids_common = np.intersect1d(ids_ds, ids_ds_like)
-    # # Remove NaN values from ids_common
-    # ids_common = ids_common[~np.isnan(ids_common)]
-    # if ids_common.size > 0:
-    #     logger.warning(
-    #         f"Reservoir ID(s) {ids_common} of the new reservoirs are already present "
-    #         "in the Wflow model. Adding the new reservoirs is then skipped."
-    #     )
-    #     # TODO: or replace ID? eg using max+1 of both ds and ds_like?
-    #     return None
-
     # Loop over layers to merge
     ds_out = ds.copy()
     for layer in RESERVOIR_LAYERS:
         # if layer is not in ds, skip it
-        # TODO check if default values are needed or if NaN is ok
-        # e.g. natural lake does not have reservoir_demand
+        # NaN can be ok: e.g. natural lake does not have reservoir_demand
         if layer not in ds and layer in ds_like:
             ds_out[layer] = ds_like[layer]
 

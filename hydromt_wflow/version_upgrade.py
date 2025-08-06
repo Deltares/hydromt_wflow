@@ -62,7 +62,7 @@ def _convert_to_wflow_v1(
     wflow_vars: Dict,
     states_vars: Dict,
     model_options: Dict = {},
-    cross_options: Dict = {},  # TODO we shouldnt pass mutables as defaults
+    cross_options: Dict = {},
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
