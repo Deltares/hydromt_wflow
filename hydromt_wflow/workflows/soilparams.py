@@ -53,7 +53,6 @@ the predefined KsatHorFrac map.
     # Set the default no fill value for doubles
     da = da.fillna(-9999.0)
     da.raster.set_nodata(-9999.0)
-    # Return as a dataset to be used for 'set_staticmaps'
     return da
 
 

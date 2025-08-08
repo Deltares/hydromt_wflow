@@ -1,4 +1,4 @@
-"""Forcing component module."""
+"""Wflow forcing component."""
 
 import logging
 import re
@@ -16,7 +16,10 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowForcingComponent(GridComponent):
-    """Wflow forcing component."""
+    """Wflow forcing component.
+    
+    This class is used for setting, creating, writing, and reading the Wflow forcing. The forcing component data stored in the ``data`` property of this class is of the hydromt.gis.raster.RasterDataset type which is an extension of xarray.Dataset for regular grid.
+    """
 
     def __init__(
         self,
@@ -34,15 +37,15 @@ class WflowForcingComponent(GridComponent):
         model : Model
             HydroMT model instance
         filename : str, optional
-            The path to use for reading and writing of component data by default.
+            Default path relative to the root where the forcing file(s) will be read and written. By default 'inmaps.nc'.
             By default "inmaps.nc".
         region_component : str, optional
             The name of the region component to use as reference for this component's
             region. If None, the region will be set to the grid extent. Note that the
             create method only works if the region_component is None.
         region_filename : str, optional
-            The path to use for reading and writing of the region data by default.
-            By default "geoms/forcing_region.geojson".
+            A path relative to the root where the region file will be written.
+            By default 'staticgeoms/forcing_region.geojson'.
         """
         super().__init__(
             model=model,
@@ -85,7 +88,7 @@ class WflowForcingComponent(GridComponent):
         filename: Path | str | None = None,
         **kwargs,
     ):
-        """Read forcing model data.
+        """Read forcing model data at root/filename.
 
         Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
 
@@ -190,6 +193,8 @@ class WflowForcingComponent(GridComponent):
                 filepath=filename,
                 compress=True,
                 gdal_compliant=True,
+                rename_dims=True,
+                force_sn=False,
                 compute=False,
                 force_overwrite=True,
                 encoding=encoding,
@@ -211,6 +216,8 @@ class WflowForcingComponent(GridComponent):
                     filepath=filename_freq,
                     compress=True,
                     gdal_compliant=True,
+                    rename_dims=True,
+                    force_sn=False,
                     compute=False,
                     force_overwrite=True,
                     encoding=encoding,
@@ -226,9 +233,9 @@ class WflowForcingComponent(GridComponent):
         data: xr.DataArray | xr.Dataset,
         name: str | None = None,
     ):
-        """Add data to grid.
+        """Add data to forcing.
 
-        All layers of grid must have identical spatial coordinates.
+        All layers in data must have identical spatial coordinates to existing forcing/staticmaps.
 
         Parameters
         ----------

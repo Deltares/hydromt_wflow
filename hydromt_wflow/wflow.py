@@ -5474,13 +5474,13 @@ Run setup_soilmaps first"
         p = (
             filename
             or self.config.get_value("input.path_forcing")
-            or self.staticmaps._filename
+            or self.forcing._filename
         )
         # Check for input dir
         p_input = Path(self.config.get_value("dir_input", fallback=""), p)
 
         # Call the component method
-        self.staticmaps.read(filename=p_input, **kwargs)
+        self.forcing.read(filename=p_input, **kwargs)
 
     @hydromt_step
     def write_forcing(
@@ -6077,9 +6077,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             Clipped forcing.
 
         """
-        if len(self.forcing._data) > 0:
+        if len(self.forcing.data) > 0:
             logger.info("Clipping NetCDF forcing..")
-            ds_forcing = self.forcing._data.raster.clip_bbox(
+            ds_forcing = self.forcing.data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
             self.forcing.set(ds_forcing)
