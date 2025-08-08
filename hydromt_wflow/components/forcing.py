@@ -1,10 +1,12 @@
 """Wflow forcing component."""
 
 import logging
-import re
+from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 from hydromt._io import _write_nc
 from hydromt.model import Model
@@ -17,8 +19,11 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 class WflowForcingComponent(GridComponent):
     """Wflow forcing component.
-    
-    This class is used for setting, creating, writing, and reading the Wflow forcing. The forcing component data stored in the ``data`` property of this class is of the hydromt.gis.raster.RasterDataset type which is an extension of xarray.Dataset for regular grid.
+
+    This class is used for setting, creating, writing, and reading the Wflow forcing.
+    The forcing component data stored in the ``data`` property of this class is of the
+    hydromt.gis.raster.RasterDataset type which is an extension of xarray.Dataset for
+    regular grid.
     """
 
     def __init__(
@@ -27,7 +32,7 @@ class WflowForcingComponent(GridComponent):
         *,
         filename: str = "inmaps.nc",
         region_component: str | None = None,
-        region_filename: str = "geoms/forcing_region.geojson",
+        region_filename: str = "staticgeoms/forcing_region.geojson",
     ):
         """
         Initialize a WflowForcingComponent.
@@ -37,8 +42,8 @@ class WflowForcingComponent(GridComponent):
         model : Model
             HydroMT model instance
         filename : str, optional
-            Default path relative to the root where the forcing file(s) will be read and written. By default 'inmaps.nc'.
-            By default "inmaps.nc".
+            Default path relative to the root where the forcing file(s) will be read
+            and written. By default 'inmaps.nc'. By default "inmaps.nc".
         region_component : str, optional
             The name of the region component to use as reference for this component's
             region. If None, the region will be set to the grid extent. Note that the
@@ -53,34 +58,6 @@ class WflowForcingComponent(GridComponent):
             region_component=region_component,
             region_filename=region_filename,
         )
-
-    def _reproj_data(
-        self,
-        data: xr.DataArray | xr.Dataset,
-    ) -> xr.DataArray | xr.Dataset:
-        """Compare with staticmaps and maybe reproject."""
-        ref = self._get_grid_data()
-        try:
-            ref.raster.set_spatial_dims()
-        except BaseException:
-            return data
-        if not (data.raster.identical_grid(ref)):
-            logger.warning(
-                "Forcing data differs spatially from staticmaps, reprojecting..",
-            )
-            if data.raster.crs is None:
-                data.raster.set_crs(ref.raster.crs)
-            data = data.raster.reproject_like(ref)
-        return data
-
-    ## Properties
-    @property
-    def data(self) -> xr.Dataset:
-        """Model static gridded data as xarray.Dataset."""
-        if self._data is None:
-            self._initialize_grid()
-        assert self._data is not None
-        return self._data
 
     ## I/O methods
     def read(
@@ -113,8 +90,9 @@ class WflowForcingComponent(GridComponent):
         endtime: str | None = None,
         time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
+        decimals: int = 2,
         **kwargs,
-    ) -> tuple[Path, str, str]:
+    ) -> tuple[Path, datetime, datetime]:
         """Write forcing model data.
 
         Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
@@ -122,56 +100,67 @@ class WflowForcingComponent(GridComponent):
         Parameters
         ----------
         filename : str, optional
-            Filename relative to model root, by default None
+            Filepath to write the forcing data to, either absolute or relative to the
+            model root. If None, the default filename will be used.
         output_frequency : str, optional
             The frequency of the files being written. If e.g. '3M' (3 months) is
             specified then files are written with a maximum of 3 months worth of data.
             By default None
+        starttime : str, optional
+            The start time for the output files. If None or not within the data,
+            the first index of the data will be used.
+        endtime : str, optional
+            The end time for the output files. If None or not within the data,
+            the last index of the data will be used.
         time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
+        decimals : int, optional
+            Number of decimals to use when writing the forcing data.
+            By default 2.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
         self.root._assert_write_mode()
-        # Make absolute
-        filename = Path(self.root.path, filename)
-        # Clean the filename when an asterisk is present
-        filename = Path(filename.parent, re.sub(r"_?\*", "", filename.name))
 
         # Logging the output
         logger.info("Write forcing file")
+        start_time, end_time = self._validate_timespan(starttime, endtime)
 
-        # Check if all dates between (starttime, endtime) are in all da forcing
-        # Check if starttime and endtime timestamps are correct
-        starttime = np.datetime64(
-            starttime or np.datetime_as_string(min(self.data.time.values), unit="s")
-        )
-        if (
-            starttime < min(self.data.time.values)
-            or starttime not in self.data.time.values
-        ):
-            starttime = min(self.data.time.values)
-        starttime = str(np.datetime_as_string(starttime, unit="s"))
-        # Same for endtime
-        endtime = np.datetime64(
-            endtime or np.datetime_as_string(max(self.data.time.values), unit="s")
-        )
-        if endtime > max(self.data.time.values) or endtime not in self.data.time.values:
-            endtime = max(self.data.time.values)
-        endtime = str(np.datetime_as_string(endtime, unit="s"))
+        filename = filename or self._filename
+        if Path(filename).is_absolute():
+            filepath = Path(filename)
+        else:
+            filepath = (self.root.path / filename).resolve()
+
+        if filepath.exists():
+            filepath = self._create_new_filename(
+                filepath=filepath,
+                start_time=start_time,
+                end_time=end_time,
+                frequency=output_frequency,
+            )
+            if filepath is None:  # should skip writing
+                return (
+                    None,
+                    start_time,
+                    end_time,
+                )
 
         # Clean-up forcing and write
-        self._data = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
+        ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
+
+        if decimals is not None:
+            ds = ds.round(decimals)
 
         # Write with output chunksizes with single timestep and complete
         # spatial grid to speed up the reading from wflow.jl
         # Dims are always ordered (time, y, x)
-        self.data.raster._check_dimensions()
+        ds.raster._check_dimensions()
         chunksizes = (
             time_chunk,
-            self.data.raster.ycoords.size,
-            self.data.raster.xcoords.size,
+            ds.raster.ycoords.size,
+            ds.raster.xcoords.size,
         )
 
         # Set the encoding for the outgoing dataset
@@ -179,7 +168,7 @@ class WflowForcingComponent(GridComponent):
         encoding.update(
             {
                 v: {"dtype": "float32", "chunksizes": chunksizes}
-                for v in self.data.data_vars.keys()
+                for v in ds.data_vars.keys()
             }
         )
         encoding["time"] = {"units": time_units}
@@ -187,10 +176,10 @@ class WflowForcingComponent(GridComponent):
         # Write the file either in one go
         if output_frequency is None:
             # TODO remove logging message when core goes from debug to info
-            logger.info(f"Writing file {filename.as_posix()}")
+            logger.info(f"Writing file {filepath.as_posix()}")
             _write_nc(
-                self.data,
-                filepath=filename,
+                ds,
+                filepath=filepath,
                 compress=True,
                 gdal_compliant=True,
                 rename_dims=True,
@@ -204,16 +193,16 @@ class WflowForcingComponent(GridComponent):
         else:
             logger.info(f"Writing several forcing with freq {output_frequency}")
             # Updating path forcing in config
-            for _, data_freq in self.data.resample(time=output_frequency):
+            for _, data_freq in ds.resample(time=output_frequency):
                 # Sort out the outgoing filename
                 start = data_freq["time"].dt.strftime("%Y%m%d")[0].item()
-                filename_freq = Path(filename.parent, f"{filename.stem}_{start}.nc")
+                filepath_freq = Path(filepath.parent, f"{filepath.stem}_{start}.nc")
                 # TODO Remove when core logging goes from debug to info
-                logger.info(f"Writing file {filename_freq.as_posix()}")
+                logger.info(f"Writing file {filepath_freq.as_posix()}")
                 # Write to file
                 _write_nc(
                     data_freq,
-                    filepath=filename_freq,
+                    filepath=filepath_freq,
                     compress=True,
                     gdal_compliant=True,
                     rename_dims=True,
@@ -223,9 +212,9 @@ class WflowForcingComponent(GridComponent):
                     encoding=encoding,
                     **kwargs,
                 )
-            filename = Path(filename.parent, f"{filename.stem}_*{filename.suffix}")
+            filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
-        return filename, starttime, endtime
+        return filepath, start_time, end_time
 
     ## Mutating methods
     def set(
@@ -235,7 +224,8 @@ class WflowForcingComponent(GridComponent):
     ):
         """Add data to forcing.
 
-        All layers in data must have identical spatial coordinates to existing forcing/staticmaps.
+        All layers in data must have identical spatial coordinates to existing
+        forcing and staticmaps.
 
         Parameters
         ----------
@@ -249,11 +239,120 @@ class WflowForcingComponent(GridComponent):
         if "time" not in data.dims:
             raise ValueError("'time' dimension not found in data")
 
-        # Check spatial extent
-        data = self._reproj_data(data)
+        if self._region_component is not None:
+            # Ensure the data is aligned with the region component (staticmaps)
+            region_grid = self._get_grid_data()
+            if not data.raster.identical_grid(region_grid):
+                raise ValueError(
+                    f"Data grid must be identical to {self._region_component} component"
+                )
 
         # Call set of parent class
         super().set(
             data=data,
             name=name,
         )
+
+    def _create_new_filename(
+        self, filepath: Path, start_time: datetime, end_time: datetime, frequency: str
+    ) -> Path:
+        """Determine the filename to use for writing.
+
+        Parameters
+        ----------
+        filepath : Path
+            The filepath to use.
+
+        Returns
+        -------
+        Path
+            The determined filepath as a Path object.
+        """
+        if "*" in filepath.name:
+            # get rid of * in case model had multiple forcing files and
+            # write to single nc file.
+            logger.warning("Writing multiple forcing files to one file")
+            filepath = filepath.parent / filepath.name.replace("*", "")
+
+        if filepath.exists():
+            logger.warning(
+                f"""Netcdf forcing file `{filepath}` already exists.
+                Be careful, overwriting models partially can lead to inconsistencies."""
+            )
+            while filepath.exists():
+                # Create a new filename with a timestamp to avoid overwriting
+                filepath = (
+                    filepath.parent
+                    / f"{filepath.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.nc"
+                )
+            logger.warning(f"Writing forcings to file: `{filepath}`")
+
+            # @hboisgon, Can delete this old code below or keep it.
+
+            # # Create filename based on attributes
+            # sourceP = ""
+            # sourceT = ""
+            # methodPET = ""
+            # if "precip" in self.data:
+            #     val = self.data["precip"].attrs.get("precip_clim_fn", None)
+            #     Pdown = "d" if val is not None else ""
+            #     val = self.data["precip"].attrs.get("precip_fn", None)
+            #     if val is not None:
+            #         sourceP = f"_{val}{Pdown}"
+            # if "temp" in self.data:
+            #     val = self.data["temp"].attrs.get("temp_correction", "False")
+            #     Tdown = "d" if val == "True" else ""
+            #     val = self.data["temp"].attrs.get("temp_fn", None)
+            #     if val is not None:
+            #         sourceT = f"_{val}{Tdown}"
+            # if "pet" in self.data:
+            #     val = self.data["pet"].attrs.get("pet_method", None)
+            #     if val is not None:
+            #         methodPET = f"_{val}"
+
+            # fn_default = f"inmaps{sourceP}{sourceT}{methodPET}_{frequency}_{start_time.year}_{end_time.year}.nc"  # noqa: E501
+            # filepath = filepath.parent / fn_default
+
+            # if filepath.exists():
+            #     logger.warning(
+            #         f"""Netcdf default forcing file `{filepath}` already exists,
+            #         skipping write_forcing. To overwrite netcdf forcing file: change
+            #         name input.path_forcing in setup_config section of the build
+            #         inifile."""
+            #     )
+            #     return None
+
+        return filepath
+
+    def _validate_timespan(
+        self, starttime: Optional[str] = None, endtime: Optional[str] = None
+    ) -> tuple[datetime, datetime]:
+        """Validate the timespan of the forcing data."""
+        # Check if all dates between (starttime, endtime) are in all da forcing
+        # Check if starttime and endtime timestamps are correct
+        starttime = np.datetime64(
+            starttime or np.datetime_as_string(min(self.data.time.values), unit="s")
+        )
+        if (
+            starttime < min(self.data.time.values)
+            or starttime not in self.data.time.values
+        ):
+            starttime = min(self.data.time.values)
+            logger.warning(
+                f"Start time {starttime} does not match the beginning of the data."
+                f"Changing starttime to start of the data: {starttime}."
+            )
+        starttime = pd.Timestamp(starttime).to_pydatetime()
+
+        endtime = np.datetime64(
+            endtime or np.datetime_as_string(max(self.data.time.values), unit="s")
+        )
+        if endtime > max(self.data.time.values) or endtime not in self.data.time.values:
+            endtime = max(self.data.time.values)
+            logger.warning(
+                f"End time {endtime} does not match the end of the data."
+                f"Changing endtime to end of the data: {endtime}."
+            )
+        endtime = pd.Timestamp(endtime).to_pydatetime()
+
+        return starttime, endtime

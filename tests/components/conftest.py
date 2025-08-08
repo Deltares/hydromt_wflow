@@ -8,11 +8,11 @@ import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.model import ModelRoot
-from hydromt.model.components import GridComponent
 from pyproj.crs import CRS
 from pytest_mock import MockerFixture
 
 from hydromt_wflow import WflowModel
+from hydromt_wflow.components.staticmaps import WflowStaticmapsComponent
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -64,11 +64,10 @@ def mock_model_staticmaps(
     mock_model_factory: Callable[[Path, str], WflowModel],
     grid_dummy_data: xr.DataArray,
 ) -> WflowModel:
-    # TODO: replace with WflowStaticmapsComponent when available
     # Add a GridComponent to mock model
     mock_model = mock_model_factory()
-    staticmaps = GridComponent(mock_model)
-    staticmaps._data = grid_dummy_data.to_dataset(name="basin")
+    staticmaps = WflowStaticmapsComponent(mock_model)
+    staticmaps._data = grid_dummy_data.to_dataset(name="basin", promote_attrs=True)
 
     type(mock_model).components = PropertyMock(
         side_effect=lambda: {"staticmaps": staticmaps}
@@ -78,6 +77,27 @@ def mock_model_staticmaps(
     mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
 
     return mock_model
+
+
+@pytest.fixture
+def mock_model_staticmaps_factory(
+    grid_dummy_data: xr.DataArray,
+    mock_model_factory: Callable[[Path, str], WflowModel],
+    tmp_path: Path,
+) -> WflowModel:
+    def factory(path: Path = tmp_path, mode: str = "w"):
+        mock_model = mock_model_factory(path, mode)
+        staticmaps = WflowStaticmapsComponent(mock_model)
+        staticmaps._data = grid_dummy_data.to_dataset(name="basin", promote_attrs=True)
+        mock_model.components = {"staticmaps": staticmaps}
+        type(mock_model).components = PropertyMock(
+            side_effect=lambda: {"staticmaps": staticmaps}
+        )
+        type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+        mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
+        return mock_model
+
+    return factory
 
 
 ## Extra data structures

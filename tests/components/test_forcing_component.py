@@ -1,19 +1,18 @@
-import logging
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
-from hydromt._typing.model_mode import ModelMode
 
 from hydromt_wflow.components import WflowForcingComponent
+from hydromt_wflow.wflow import WflowModel
 
 
 @pytest.fixture
-def mock_model(mock_model_factory) -> MagicMock:
+def mock_model(mock_model_staticmaps_factory) -> MagicMock:
     """Create a mock model with a root."""
-    return mock_model_factory(mode="w")
+    return mock_model_staticmaps_factory()
 
 
 def test_wflow_forcing_component_init(mock_model: MagicMock):
@@ -30,12 +29,12 @@ def test_wflow_forcing_component_init(mock_model: MagicMock):
 
 
 def test_wflow_forcing_component_set(
-    mock_model_staticmaps: MagicMock,
+    mock_model: MagicMock,
     forcing_layer: xr.DataArray,
 ):
     # Setup the component
     component = WflowForcingComponent(
-        mock_model_staticmaps,
+        mock_model,
         region_component="staticmaps",
     )
 
@@ -48,89 +47,37 @@ def test_wflow_forcing_component_set(
     assert component.data.time.size == 20
 
 
-def test_wflow_forcing_component_set_reproj_after(
-    mock_model_staticmaps: MagicMock,
-    forcing_layer: xr.DataArray,
-    grid_dummy_data: xr.DataArray,
-):
-    # Empty the staticmaps
-    mock_model_staticmaps.staticmaps._data = xr.Dataset()
-    # Setup the component
-    component = WflowForcingComponent(
-        mock_model_staticmaps,
-        region_component="staticmaps",
-    )
-
-    # Set the lat coords to something else, which should result in it not being
-    # the same as the staticmaps anymore
-    forcing_layer = forcing_layer.assign_coords({"lat": [2, 3]})
-
-    # Set the data in the component
-    component.set(forcing_layer, "temp")
-
-    # Assert the data
-    assert "temp" in component.data.data_vars
-    assert list(component.data.dims) == ["time", "lon", "lat"]
-    assert component.data.time.size == 20
-    assert (component.data.temp.values == 1).all()
-
-    # Set staticmaps data
-    mock_model_staticmaps.staticmaps._data = grid_dummy_data.to_dataset()
-
-    # Reprojecting should result in nodata
-    component.set(forcing_layer, "temp")
-    assert (component.data.temp.values == -9999).all()
-
-
 def test_wflow_forcing_component_set_errors(
-    mock_model: MagicMock,
-    static_layer: xr.DataArray,
+    mock_model: WflowModel,
+    forcing_layer: xr.DataArray,
 ):
-    # Setup the component
-    component = WflowForcingComponent(
-        mock_model,
-    )
+    # Setup
+    component = WflowForcingComponent(mock_model, region_component="staticmaps")
 
-    # Static layer has no time dimension, so this should result in an error
+    # staticmaps doesnt have time dim
+    # No time dim should error
+    da_no_time = forcing_layer.isel(time=0, drop=True)
     with pytest.raises(
         ValueError,
         match="'time' dimension not found in data",
     ):
-        component.set(static_layer, "foo")
+        component.set(da_no_time, "foo")
 
-
-def test_wflow_forcing_component_set_warnings(
-    caplog: pytest.LogCaptureFixture,
-    mock_model_staticmaps: MagicMock,
-    forcing_layer: xr.DataArray,
-):
-    caplog.set_level(logging.WARNING)
-    # Setup the component
-    component = WflowForcingComponent(
-        mock_model_staticmaps,
-        region_component="staticmaps",
-    )
-
-    # Set the lat coords to something else, which should result in it not being
-    # the same as the staticmaps anymore
-    forcing_layer = forcing_layer.assign_coords({"lat": [2, 3]})
-    component.set(forcing_layer, "foo")
-    # Assert the logging of reprojecting
-    assert (
-        "Forcing data differs spatially from staticmaps, \
-reprojecting.."
-        in caplog.text
-    )
-    # Funny extra assert, all data should now be nodata
-    np.testing.assert_almost_equal(component.data.foo.mean().values, -9999)
+    # not the same grid as staticmaps should error
+    da_grid_diff = forcing_layer.assign_coords({"lat": forcing_layer["lat"] + 10})
+    with pytest.raises(
+        ValueError,
+        match="Data grid must be identical to staticmaps component",
+    ):
+        component.set(da_grid_diff, "foo")
 
 
 def test_wflow_forcing_component_read(
-    mock_model: MagicMock,
+    mock_model_staticmaps_factory: MagicMock,
     forcing_layer_path: xr.DataArray,
 ):
-    mock_model.root._mode = ModelMode["READ"]
     # Setup the component
+    mock_model = mock_model_staticmaps_factory(mode="r")
     component = WflowForcingComponent(
         mock_model,
     )
@@ -146,31 +93,55 @@ def test_wflow_forcing_component_read(
 
 
 def test_wflow_forcing_component_write(
-    tmp_path: Path,
-    mock_model: MagicMock,
-    forcing_layer: xr.DataArray,
+    mock_model: MagicMock, forcing_layer: xr.DataArray, caplog
 ):
     # Setup the component
     component = WflowForcingComponent(
         mock_model,
     )
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+    out_path = mock_model.root.path / "inmaps.nc"
 
-    # Set the data like a dummy
-    component._data = forcing_layer.to_dataset()
-
-    # Write to the drive
-    filename, starttime, endtime = component.write(filename="inmaps.nc")
+    # Write once -> out_path
+    filename, starttime, endtime = component.write(filename=out_path)
 
     # Assert the output
-    assert Path(tmp_path, "inmaps.nc").is_file()
-    assert len(list(tmp_path.glob("*.nc"))) == 1
-    assert filename == Path(tmp_path, "inmaps.nc")
-    assert starttime == "2000-01-01T00:00:00"
-    assert endtime == "2000-01-20T00:00:00"
+    assert out_path.is_file()
+    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
+    assert filename == out_path
+    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
+    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
+
+    # Write twice -> out_path exists, so warn and create new name
+    filename, starttime, endtime = component.write(filename=out_path)
+
+    # Assert the output
+    warnings = [
+        f"Netcdf forcing file `{out_path}` already exists. Be careful, overwriting models partially can lead to inconsistencies."  # noqa: E501
+        in " ".join(message.split())
+        for message in caplog.messages
+    ]
+    assert warnings.count(True) == 1
+    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 2
+    assert filename != out_path
+    assert filename.exists()
+    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
+    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
+
+    # Write again will warn and skip writing
+    filename, starttime, endtime = component.write(filename=out_path)
+    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 3
+    warnings = [
+        f"Netcdf forcing file `{out_path}` already exists. Be careful, overwriting models partially can lead to inconsistencies."  # noqa: E501
+        in " ".join(message.split())
+        for message in caplog.messages
+    ]
+    assert warnings.count(True) == 2
+    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
+    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
 
 
 def test_wflow_forcing_component_write_freq(
-    tmp_path: Path,
     mock_model: MagicMock,
     forcing_layer: xr.DataArray,
 ):
@@ -178,22 +149,19 @@ def test_wflow_forcing_component_write_freq(
     component = WflowForcingComponent(
         mock_model,
     )
-
-    # Set the data like a dummy
-    component._data = forcing_layer.to_dataset()
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+    out_path = mock_model.root.path / "inmaps.nc"
 
     # Write to the drive
-    filename, _, _ = component.write(filename="inmaps.nc", output_frequency="5D")
+    filename, _, _ = component.write(filename=out_path, output_frequency="5D")
     # I.e. 5 day output freq
 
     # Assert the output
-    assert Path(tmp_path, "inmaps_20000101.nc").is_file()
-    assert len(list(tmp_path.glob("*.nc"))) == 4
-    assert filename == Path(tmp_path, "inmaps_*.nc")
+    assert filename == out_path.parent / "inmaps_*.nc"
+    assert len(list(out_path.parent.glob("*.nc"))) == 4
 
 
 def test_wflow_forcing_component_write_time(
-    tmp_path: Path,
     mock_model: MagicMock,
     forcing_layer: xr.DataArray,
 ):
@@ -201,61 +169,84 @@ def test_wflow_forcing_component_write_time(
     component = WflowForcingComponent(
         mock_model,
     )
-
-    # Set the data like a dummy
-    component._data = forcing_layer.to_dataset()
+    out_path = mock_model.root.path / "inmaps.nc"
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+    expected_start = pd.Timestamp(min(forcing_layer.time).values).to_pydatetime()
+    expected_end = pd.Timestamp(max(forcing_layer.time).values).to_pydatetime()
 
     # Write to the drive
-    _, starttime, endtime = component.write(
-        filename="inmaps.nc",
-        starttime="1999-01-01",
-        endtime="2005-01-01",
+    file_path, starttime, endtime = component.write(
+        filename=out_path,
+        starttime=expected_start - pd.Timedelta(weeks=2),
+        endtime=expected_end + pd.Timedelta(weeks=2),
     )  # Both exceeding their respective end
 
     # Assert the output
-    assert Path(tmp_path, "inmaps.nc").is_file()
-    assert starttime == "2000-01-01T00:00:00"
-    assert endtime == "2000-01-20T00:00:00"
+    assert out_path.is_file()
+    assert file_path == out_path
+    assert starttime == expected_start
+    assert endtime == expected_end
 
 
-def test_wflow_forcing_component_reproj_data(
-    mock_model_staticmaps, forcing_layer, grid_dummy_data
+def test_wflow_forcing_component_write_no_filename(
+    mock_model: MagicMock,
+    forcing_layer: xr.DataArray,
 ):
+    # Setup the component
     component = WflowForcingComponent(
-        mock_model_staticmaps, region_component="staticmaps"
+        mock_model,
+    )
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+
+    # Write to the drive
+    file_path, _, _ = component.write(
+        filename=None,
     )
 
-    # Case 1: Identical grid → should return input unchanged
-    mock_model_staticmaps.staticmaps._data = (
-        forcing_layer.isel(time=0).drop_vars("time").to_dataset()
+    # Assert the output
+    assert file_path.is_file()
+    assert file_path == mock_model.root.path / component._filename
+
+
+@pytest.mark.parametrize("rel_path", ["forcing/inmaps.nc", "../forcing/inmaps.nc"])
+def test_wflow_forcing_component_write_relative_filename(
+    rel_path: str,
+    mock_model: MagicMock,
+    forcing_layer: xr.DataArray,
+):
+    # Setup the component
+    component = WflowForcingComponent(
+        mock_model,
     )
-    result = component._reproj_data(forcing_layer)
-    xr.testing.assert_equal(result, forcing_layer)
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
 
-    # Case 2: Different grid with CRS → should trigger reprojection
-    # Set staticmaps with a known grid
-    ref_layer = grid_dummy_data.copy()
-    ref_layer.raster.set_crs("EPSG:4326")
-    ref_ds = ref_layer.to_dataset(name="static")
-    ref_ds.raster.set_spatial_dims()
-    mock_model_staticmaps.staticmaps._data = ref_ds
+    # Write to the drive
+    file_path, _, _ = component.write(
+        filename=rel_path,
+    )
 
-    # Modify forcing layer to have different coords but same CRS
-    different_layer = forcing_layer.assign_coords(lat=forcing_layer.lat + 1)
-    different_layer.raster.set_crs("EPSG:4326")
+    # Assert the output
+    assert file_path.is_file()
+    assert file_path == (mock_model.root.path / rel_path).resolve()
 
-    reprojected = component._reproj_data(different_layer)
-    assert reprojected.raster.identical_grid(ref_ds)
-    assert "time" in reprojected.dims
 
-    # Case 3: Different grid without CRS → CRS should be set from ref
-    no_crs_layer = different_layer.copy()
-    no_crs_layer.raster._crs = None  # Remove CRS
+def test_wflow_forcing_component_write_abs_file(
+    mock_model: MagicMock,
+    forcing_layer: xr.DataArray,
+    tmp_path: Path,
+):
+    # Setup the component
+    component = WflowForcingComponent(
+        mock_model,
+    )
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+    abs_path = tmp_path / "abs/forcing/inmaps.nc"
 
-    result = component._reproj_data(no_crs_layer)
-    assert result.raster.crs == "EPSG:4326"
+    # Write to the drive
+    file_path, _, _ = component.write(
+        filename=abs_path,
+    )
 
-    # Case 4: Reference grid missing spatial dims → return input unchanged
-    mock_model_staticmaps.staticmaps._data = xr.Dataset()
-    output = component._reproj_data(different_layer)
-    xr.testing.assert_equal(output, different_layer)
+    # Assert the output
+    assert file_path.is_file()
+    assert file_path == abs_path

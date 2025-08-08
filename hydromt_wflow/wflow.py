@@ -5517,6 +5517,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `write_nc` method.
         """
         # Solve pathing same as read
         # Hierarchy is: 1: signature, 2: config, 3: default
@@ -5526,10 +5528,12 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             or self.forcing._filename
         )
         # Check for input dir
-        filename = Path(self.config.get_value("dir_input", fallback=""), filename)
+        input_dir = self.get_config("dir_input", abs_path=True) or self.root.path
+        filepath = Path(input_dir, filename).resolve()
+
         # Call the component
-        filename, starttime, endtime = self.forcing.write(
-            filename=filename,
+        filepath, starttime, endtime = self.forcing.write(
+            filename=filepath,
             output_frequency=output_frequency,
             starttime=self.config.get_value("time.starttime"),
             endtime=self.config.get_value("time.endtime"),
@@ -5538,9 +5542,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             **kwargs,
         )
         # Set back to the config
-        self.config.set("input.path_forcing", filename.as_posix())
-        self.config.set("time.starttime", starttime)
-        self.config.set("time.endtime", endtime)
+        self.config.set("input.path_forcing", filepath.as_posix())
+        self.config.set("time.starttime", starttime.strftime("%Y-%m-%dT%H:%M:%S"))
+        self.config.set("time.endtime", endtime.strftime("%Y-%m-%dT%H:%M:%S"))
 
     def set_forcing(
         self,
