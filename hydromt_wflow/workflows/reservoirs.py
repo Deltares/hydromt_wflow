@@ -67,7 +67,7 @@ def reservoir_id_maps(
     min_area: float = 0.0,
     uparea_name: str = "uparea",
     logger=logger,
-):
+) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below).
 
     At model resolution based on gridded upstream area data input or outlet coordinates.
@@ -93,6 +93,8 @@ def reservoir_id_maps(
     -------
     ds_out : xarray.DataArray
         Dataset containing gridded reservoir data
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing (updated) reservoir outlet coordinates.
     """
     # Check if uparea_name in ds_like
     if uparea_name not in ds_like.data_vars:
@@ -291,7 +293,7 @@ def compute_reservoir_simple_control_parameters(
     perc_min: int = 20,
     output_folder: str | Path | None = None,
     logger=logger,
-) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+) -> pd.DataFrame:
     """Return reservoir attributes (see list below) needed for modelling.
 
     When specified, some of the reservoir attributes can be derived from \
@@ -901,7 +903,7 @@ def merge_reservoirs(
 
     Returns
     -------
-    xr.Dataset
+    xr.Dataset | None
         Merged dataset of reservoir parameters.
     """
     # Loop over layers to merge
@@ -943,7 +945,7 @@ def merge_reservoirs_sediment(
 
     Returns
     -------
-    xr.Dataset
+    xr.Dataset | None
         Merged dataset of reservoir parameters.
     """
     # Loop over layers to merge
