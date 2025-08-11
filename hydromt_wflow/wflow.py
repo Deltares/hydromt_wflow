@@ -3310,7 +3310,7 @@ one variable and variables list is not provided."
         precip_out.attrs.update({"precip_fn": precip_fn})
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
-        self.forcing.set(precip_out.where(mask), name="precip")
+        self.set_forcing(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
     @hydromt_step
@@ -3482,7 +3482,7 @@ one variable and variables list is not provided."
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn})
         precip_out = precip_out.astype("float32")
-        self.forcing.set(precip_out.where(mask), name="precip")
+        self.set_forcing(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
         # Add to geoms
@@ -3695,7 +3695,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
-            self.forcing.set(pet_out.where(mask), name="pet")
+            self.set_forcing(pet_out.where(mask), name="pet")
             self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
         # make sure only temp is written to netcdf
@@ -3724,7 +3724,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 method=fillna_method,
                 fill_value="extrapolate",
             )
-        self.forcing.set(temp_out.where(mask), name="temp")
+        self.set_forcing(temp_out.where(mask), name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step
@@ -3778,7 +3778,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
-        self.forcing.set(pet_out, name="pet")
+        self.set_forcing(pet_out, name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     @hydromt_step
@@ -6086,7 +6086,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             ds_forcing = self.forcing.data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
-            self.forcing.set(ds_forcing)
+            self.set_forcing(ds_forcing)
 
     @hydromt_step
     def clip_states(self):
