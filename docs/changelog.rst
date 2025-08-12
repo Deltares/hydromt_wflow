@@ -20,6 +20,7 @@ Added
 
 Changed
 -------
+- Increased minimum python version to 3.11 according to https://scientific-python.org/specs/spec-0000/
 - Model root is now a ``ModelRoot`` class. To access the root path, use ``wflow.root.path``.
 - Model components like config, forcing are now ``ModelComponent`` classes.
   To access the inherent data objects (dictionary, xarray.Dataset etc.) of the components, the ``data`` property is now used.
@@ -27,9 +28,6 @@ Changed
 - The names of some of the model components have changed: ``grid`` to ``staticmaps``.
 - **setup_config**: the method now explicitly uses a dictionary with the options to add/update.
 - Reverted the use of TOMLkit dependency
-
-Fixed
------
 
 
 Unreleased
@@ -81,7 +79,7 @@ Deprecated
 - **setup_soilmaps**: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334
 
 Removed
-----------
+-------
 - Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
 
 

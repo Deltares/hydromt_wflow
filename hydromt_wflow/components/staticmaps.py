@@ -112,8 +112,7 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Add data to the staticmaps.
 
-        All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        All layers of grid must have identical spatial coordinates. If basin data is
         available the grid will be masked to that upon setting.
 
         The first fix is when data with a time axis is being added. Since Wflow.jl

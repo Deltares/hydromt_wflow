@@ -1,13 +1,13 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
+import tomllib
 from pathlib import Path
 from typing import Dict, List
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import tomllib
 import xarray as xr
 from hydromt import hydromt_step
 
