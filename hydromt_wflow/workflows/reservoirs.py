@@ -11,6 +11,8 @@ import pandas as pd
 import shapely
 import xarray as xr
 
+from hydromt_wflow import utils
+
 logger = logging.getLogger(__name__)
 
 
@@ -1001,3 +1003,67 @@ def merge_reservoirs_sediment(
     return _check_duplicated_ids_in_merge(
         ds_out, duplicate_id=duplicate_id, logger=logger
     )
+
+
+def create_reservoirs_geoms_sediment(
+    ds_res: xr.Dataset,
+) -> gpd.GeoDataFrame:
+    """
+    Create a GeoDataFrame of reservoir geometries for the sediment model.
+
+    Parameters
+    ----------
+    ds_res : xr.Dataset
+        Dataset containing the reservoir data.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame containing the reservoir geometries and properties.
+    """
+    return create_reservoirs_geoms(ds_res, layers=RESERVOIR_LAYERS_SEDIMENT)
+
+
+def create_reservoirs_geoms(
+    ds_res: xr.Dataset,
+    layers: list[str] = RESERVOIR_LAYERS,
+) -> gpd.GeoDataFrame:
+    """
+    Create a GeoDataFrame of reservoir geometries for the sediment model.
+
+    Parameters
+    ----------
+    ds_res : xr.Dataset
+        Dataset containing the reservoir data.
+    layers : list[str], optional
+        List of layer names to include in the GeoDataFrame.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame containing the reservoir geometries and properties.
+    """
+    # Vectorize the outlets in order to sample parameters values
+    gdf_outlets = ds_res["reservoir_outlet_id"].raster.vectorize()
+    # Convert to points
+    centroid = utils.planar_operation_in_utm(
+        gdf_outlets["geometry"], lambda geom: geom.centroid
+    )
+    gdf_outlets["geometry"] = centroid
+
+    # Sample reservoir properties at the outlet locations
+    res_layers = [layer for layer in layers if layer in ds_res]
+    params = ds_res[res_layers].raster.sample(gdf_outlets)
+    # Convert to dataframe
+    df_params = params.to_dataframe()
+
+    # Now we can vectorize the reservoir shapes and add the parameters by ID
+    gdf_reservoirs = ds_res["reservoir_area_id"].raster.vectorize()
+    # Merge by index with df_params
+    gdf_reservoirs = gdf_reservoirs.merge(
+        df_params, left_on="value", right_on="reservoir_area_id", how="left"
+    )
+    # Only keep geometry, layers and y, x columns
+    gdf_reservoirs = gdf_reservoirs[res_layers + ["y", "x", "geometry"]]
+
+    return gdf_reservoirs

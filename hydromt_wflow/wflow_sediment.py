@@ -272,6 +272,8 @@ river cells."
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
          coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
+        * **reservoirs** geom: polygon with reservoirs and parameters
+        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -363,15 +365,24 @@ river cells."
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_res is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skip adding the new reservoirs."
+                )
                 return
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
-        # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
-        # Lake settings in the toml to update
+        # write reservoirs with attr tables to static geoms.
+        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms_sediment(
+            ds_res.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
+
+        # Reservoir settings in the toml to update
         self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:

@@ -2005,6 +2005,7 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_lower_id** map: optional, lower linked reservoir locations [-]
         * **reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or weirs)
           and wflow parameters.
+        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -2160,6 +2161,11 @@ gauge locations [-] (if derive_subcatch)
         self.set_grid(ds_reservoirs.rename(rmdict))
         # write reservoirs with attr tables to static geoms.
         self.set_geoms(gdf_reservoirs, name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
+            ds_reservoirs.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
@@ -2266,6 +2272,7 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_demand** map: reservoir demand flow [m3/s]
         * **reservoir_max_release** map: reservoir max release flow [m3/s]
         * **reservoirs_simple_control** geom: polygon with reservoirs and parameters
+        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -2378,6 +2385,11 @@ gauge locations [-] (if derive_subcatch)
 
         # write reservoirs with param values to geoms
         self.set_geoms(gdf_res, name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
+            ds_res.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
 
         # update toml
         self.set_config("model.reservoir__flag", True)

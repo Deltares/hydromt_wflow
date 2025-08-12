@@ -283,6 +283,8 @@ Wflow workflows
    workflows.reservoir_id_maps
    workflows.reservoir_simple_control_parameters
    workflows.reservoir_parameters
+   workflows.merge_reservoirs
+   workflows.merge_reservoirs_sediment
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim

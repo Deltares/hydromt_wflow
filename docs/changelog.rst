@@ -13,6 +13,7 @@ Lakes and controlled reservoirs have been merged into one structure in Wflow.jl.
 Added
 -----
 - Reservoirs can now overwrite or be added to existing ones in the model. PR #515
+- Create a combined staticgeom for all reservoirs "wflow_reservoirs". PR #515
 
 Changed
 -------
