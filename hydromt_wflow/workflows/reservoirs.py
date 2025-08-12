@@ -19,6 +19,7 @@ __all__ = [
     "reservoir_simple_control_parameters",
     "reservoir_parameters",
     "merge_reservoirs",
+    "merge_reservoirs_sediment",
 ]
 
 RESERVOIR_COMMON_PARAMETERS = [
@@ -116,8 +117,8 @@ def reservoir_id_maps(
 
     # check if any reservoirs are left after filtering
     nb_wb = gdf.geometry.size
+    logger.info(f"{nb_wb} reservoir(s) of sufficient size found within region.")
     if nb_wb == 0:
-        logger.info(f"{nb_wb} reservoir(s) of sufficient size found within region.")
         return None, None
 
     ### Compute reservoir maps
@@ -852,6 +853,8 @@ def reservoir_parameters(
 
 def _check_duplicated_ids_in_merge(
     ds: xr.Dataset,
+    duplicate_id: str = "error",
+    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Check if reservoir IDs in ds are not duplicated in ds_like.
@@ -860,6 +863,10 @@ def _check_duplicated_ids_in_merge(
     ----------
     ds : xr.Dataset
         Dataset containing the merged reservoir layers.
+    duplicate_id: str, optional {"error", "skip"}
+        Action to take if duplicate reservoir IDs are found when merging with
+        existing reservoirs. Options are "error" to raise an error (default); "skip"
+        to skip adding new reservoirs.
 
     Returns
     -------
@@ -875,11 +882,23 @@ def _check_duplicated_ids_in_merge(
     ids_unique, counts = np.unique(ids, return_counts=True)
     # Check if any id is duplicated
     if np.any(counts > 1):
-        logger.warning(
-            f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged "
-            "dataset. This may lead to incorrect results. SKip adding new reservoirs."
-        )
-        return None
+        if duplicate_id == "error":
+            raise ValueError(
+                f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged"
+                " dataset. This may lead to incorrect results. Either update the IDs "
+                "in the source dataset or use a different duplicate_id action."
+            )
+        elif duplicate_id == "skip":
+            logger.warning(
+                f"Reservoir ID(s) {ids_unique[counts > 1]} are duplicated in the merged"
+                " dataset. This may lead to incorrect results. Skip merging reservoirs."
+            )
+            return None
+        else:
+            raise ValueError(
+                f"Unknown duplicate_id action: {duplicate_id}. "
+                "Choose from {'error', 'skip'}"
+            )
 
     return ds
 
@@ -887,6 +906,8 @@ def _check_duplicated_ids_in_merge(
 def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
+    duplicate_id: str = "error",
+    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like.
@@ -900,6 +921,10 @@ def merge_reservoirs(
         Dataset containing the reservoir layers to be merged.
     ds_like : xr.Dataset
         Dataset containing the reservoir layers to merge into.
+    duplicate_id: str, optional {"error", "skip"}
+        Action to take if duplicate reservoir IDs are found when merging with
+        existing reservoirs. Options are "error" to raise an error (default); "skip"
+        to skip adding new reservoirs.
 
     Returns
     -------
@@ -922,13 +947,16 @@ def merge_reservoirs(
             )
         # else we just keep ds[layer] as it is
 
-    return _check_duplicated_ids_in_merge(ds_out)
+    return _check_duplicated_ids_in_merge(
+        ds_out, duplicate_id=duplicate_id, logger=logger
+    )
 
 
 def merge_reservoirs_sediment(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
-    logger=logger,
+    duplicate_id: str = "error",
+    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like for wflow sediment.
@@ -942,6 +970,10 @@ def merge_reservoirs_sediment(
         Dataset containing the reservoir layers to be merged.
     ds_like : xr.Dataset
         Dataset containing the reservoir layers to merge into.
+    duplicate_id: str, optional {"error", "skip"}
+        Action to take if duplicate reservoir IDs are found when merging with
+        existing reservoirs. Options are "error" to raise an error (default); "skip"
+        to skip adding new reservoirs.
 
     Returns
     -------
@@ -966,4 +998,6 @@ def merge_reservoirs_sediment(
             )
             return None
 
-    return _check_duplicated_ids_in_merge(ds_out)
+    return _check_duplicated_ids_in_merge(
+        ds_out, duplicate_id=duplicate_id, logger=logger
+    )

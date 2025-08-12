@@ -1944,6 +1944,7 @@ gauge locations [-] (if derive_subcatch)
         reservoirs_fn: str | Path | gpd.GeoDataFrame,
         rating_curve_fns: List[str | Path | pd.DataFrame] | None = None,
         overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 10.0,
         output_names: Dict = {
             "reservoir_area__count": "reservoir_area_id",
@@ -2032,6 +2033,10 @@ gauge locations [-] (if derive_subcatch)
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
             reservoirs_fn data.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 10.0 km2.
         output_names : dict, optional
@@ -2047,8 +2052,7 @@ gauge locations [-] (if derive_subcatch)
         """  # noqa: E501
         # retrieve data for basin
         self.logger.info("Preparing reservoir maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
+        kwargs.setdefault("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
@@ -2070,6 +2074,7 @@ gauge locations [-] (if derive_subcatch)
         if ds_reservoirs is None:
             # No reservoirs of sufficient size found
             return
+
         self._update_naming(output_names)
 
         # If rating_curve_fn prepare rating curve dict
@@ -2133,9 +2138,14 @@ gauge locations [-] (if derive_subcatch)
             ds_reservoirs = workflows.reservoirs.merge_reservoirs(
                 ds_reservoirs,
                 self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
+                logger=self.logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_reservoirs is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skipping adding new reservoirs."
+                )
                 return
         else:
             # remove all reservoir layers from the grid as some control parameters
@@ -2176,6 +2186,7 @@ gauge locations [-] (if derive_subcatch)
         reservoirs_fn: str | gpd.GeoDataFrame,
         timeseries_fn: str | None = None,
         overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         output_names: Dict = {
             "reservoir_area__count": "reservoir_area_id",
@@ -2283,6 +2294,10 @@ gauge locations [-] (if derive_subcatch)
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
             reservoirs_fn data.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         output_names : dict, optional
@@ -2298,8 +2313,7 @@ gauge locations [-] (if derive_subcatch)
         """  # noqa: E501
         # retrieve data for basin
         self.logger.info("Preparing reservoir with simple control maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
+        kwargs.setdefault("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
@@ -2341,9 +2355,14 @@ gauge locations [-] (if derive_subcatch)
             ds_res = workflows.reservoirs.merge_reservoirs(
                 ds_res,
                 self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
+                logger=self.logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_res is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skipping adding new reservoirs."
+                )
                 return
         else:
             # remove all reservoir layers from the grid as some parameters

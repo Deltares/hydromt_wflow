@@ -207,6 +207,7 @@ river cells."
         self,
         lakes_fn: str | Path | gpd.GeoDataFrame,
         overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         output_names: Dict = {
             "reservoir_area__count": "reservoir_area_id",
@@ -232,6 +233,7 @@ river cells."
         self.setup_reservoirs(
             reservoirs_fn=lakes_fn,
             overwrite_existing=overwrite_existing,
+            duplicate_id=duplicate_id,
             min_area=min_area,
             trapping_default=0.0,  # lakes have no trapping efficiency
             output_names=output_names,
@@ -243,6 +245,7 @@ river cells."
         self,
         reservoirs_fn: str | Path | gpd.GeoDataFrame,
         overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         trapping_default: float = 1.0,
         output_names: Dict = {
@@ -280,6 +283,10 @@ river cells."
             * Optional variables: ['reservoir_trapping_efficiency']
         overwrite_existing : bool, optional
             If True, overwrite existing reservoirs in the model grid, by default False.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         trapping_default : float, optional
@@ -300,8 +307,7 @@ river cells."
         """
         # retrieve data for basin
         self.logger.info("Preparing reservoir maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
+        kwargs.setdefault("predicate", "contains")
         gdf_res = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
@@ -352,6 +358,7 @@ river cells."
             ds_res = workflows.reservoirs.merge_reservoirs_sediment(
                 ds_res,
                 self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
                 logger=self.logger,
             )
             # Check if ds_res is None ie duplicate IDs
