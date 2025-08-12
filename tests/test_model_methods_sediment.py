@@ -3,13 +3,11 @@
 from os.path import abspath, dirname, join
 
 import numpy as np
-import pytest
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover_2009",
@@ -29,7 +27,6 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     assert np.all(da.values == np.array([0.0881, 0.2188]))
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_lulc_vector(
     example_sediment_model,
     globcover_gdf,
@@ -47,7 +44,6 @@ def test_setup_lulc_vector(
     assert "erosion_usle_c" in example_sediment_model.staticmaps.data
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_soilmaps_sed(
     example_sediment_model,
 ):

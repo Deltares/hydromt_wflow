@@ -69,7 +69,6 @@ def test_setup_basemaps(tmpdir: Path):
     )
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_grid(example_wflow_model):
     # Tests on setup_grid_from_raster
     example_wflow_model.setup_grid_from_raster(
@@ -256,7 +255,7 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         }
     }
 
-    example_wflow_model.update(model_out=destination, steps=[config])
+    example_wflow_model.update(model_out=destination, steps=[config], write=False)
     example_wflow_model.write()
 
     # Check if all parameter maps are available
@@ -270,13 +269,13 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     ]
     assert all(
         x == True
-        for x in [k in example_wflow_model.staticmaps.keys() for k in required]
+        for x in [k in example_wflow_model.staticmaps.data.keys() for k in required]
     ), "1 or more reservoir map missing"
 
     # Check if all parameter maps contain x non-null values, where x equals
     # the number of reservoirs in the model area
-    grid = example_wflow_model.staticmaps.where(
-        example_wflow_model.staticmaps.reservoir_outlet_id != -999
+    grid = example_wflow_model.staticmaps.data.where(
+        example_wflow_model.staticmaps.data.reservoir_outlet_id != -999
     )
     stacked = grid.reservoir_outlet_id.stack(x=[grid.raster.y_dim, grid.raster.x_dim])
     stacked = stacked[stacked.notnull()]
@@ -301,7 +300,6 @@ number of reservoirs in model area"
         )
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     # Read the modeldata
     model = "wflow"
@@ -332,7 +330,6 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     assert np.isclose(mean_val, 220.206)
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_ksatver_vegetation(example_wflow_model):
     # Build the soil_ksat_vertical vegetation map
     example_wflow_model.setup_ksatver_vegetation(
@@ -408,7 +405,6 @@ def test_setup_lai(example_wflow_model: WflowModel):
     )
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_rootzoneclim(example_wflow_model):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
@@ -545,7 +541,6 @@ def test_setup_rootzoneclim(example_wflow_model):
     ] == pytest.approx(104.96931418911882, abs=0.5)
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_outlets(example_wflow_model):
     # Update subcatchment ID
     new_subcatch = example_wflow_model.staticmaps.data["subcatchment"].copy()
@@ -711,7 +706,6 @@ def test_setup_gauges(
     assert np.all(ds_samp["river_mask"].values == 1)
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
@@ -845,7 +839,6 @@ def test_setup_floodplains_1d(example_wflow_model: WflowModel, floodplain1d_test
     )
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_floodplains_2d(
     elevtn_map, example_wflow_model: WflowModel, floodplain1d_testdata
@@ -980,13 +973,13 @@ def test_setup_pet_forcing(example_wflow_model, da_pet):
         pet_fn=da_pet,
     )
 
-    assert "pet" in example_wflow_model.forcing
+    assert "pet" in example_wflow_model.forcing.data
     # Check dtype
-    assert example_wflow_model.forcing["pet"].dtype == "float32"
+    assert example_wflow_model.forcing.data["pet"].dtype == "float32"
     # used to be debruin before update
-    assert "pet_method" not in example_wflow_model.forcing["pet"].attrs
-    assert example_wflow_model.forcing["pet"].min().values == da_pet.min().values
-    mean_val = example_wflow_model.forcing["pet"].mean().values
+    assert "pet_method" not in example_wflow_model.forcing.data["pet"].attrs
+    assert example_wflow_model.forcing.data["pet"].min().values == da_pet.min().values
+    mean_val = example_wflow_model.forcing.data["pet"].mean().values
     assert int(mean_val * 1000) == 2984
 
 
@@ -1070,7 +1063,6 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowModel):
         )
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_setup_lulc_vector(
     example_wflow_model: WflowModel,
     globcover_gdf,

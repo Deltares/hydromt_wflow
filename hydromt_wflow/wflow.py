@@ -3139,7 +3139,7 @@ using 'variable' argument."
                     f"Please check the name."
                 )
             # check if param is already in toml and will be overwritten
-            if self.get_config(wflow_var, None) is not None:
+            if self.get_config(wflow_var) is not None:
                 logger.info(
                     f"Parameter {wflow_var} already in toml and will be overwritten."
                 )
@@ -3267,7 +3267,7 @@ one variable and variables list is not provided."
             large/small catchments. By default None.
         **kwargs : dict, optional
             Additional arguments passed to the forcing function.
-            See hydromt.workflows.forcing.precip for more details.
+            See hydromt.model.processes.meteo.precip for more details.
         """
         starttime = self.get_config("time.starttime")
         endtime = self.get_config("time.endtime")
@@ -3639,34 +3639,31 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             ).squeeze()
             dem_forcing = dem_forcing.astype("float32")
 
-        temp_in = hydromt.workflows.forcing.temp(
+        temp_in = hydromt.model.processes.meteo.temp(
             ds["temp"],
             dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
-            logger=logger,
             freq=None,  # resample time after pet workflow
         )
 
         if (
             "penman-monteith" in pet_method
         ):  # also downscaled temp_min and temp_max for Penman needed
-            temp_max_in = hydromt.workflows.forcing.temp(
+            temp_max_in = hydromt.model.processes.meteo.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=logger,
                 freq=None,  # resample time after pet workflow
             )
             temp_max_in.name = "temp_max"
 
-            temp_min_in = hydromt.workflows.forcing.temp(
+            temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=logger,
                 freq=None,  # resample time after pet workflow
             )
             temp_min_in.name = "temp_min"
@@ -3674,7 +3671,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in])
 
         if not skip_pet:
-            pet_out = hydromt.workflows.forcing.pet(
+            pet_out = hydromt.model.processes.meteo.pet(
                 ds[variables[1:]],
                 temp=temp_in,
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
@@ -3685,7 +3682,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
-                logger=logger,
             )
             # Update meta attributes with setup opt
             opt_attr = {
@@ -5541,10 +5537,15 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             overwrite=overwrite,
             **kwargs,
         )
+
         # Set back to the config
-        self.config.set("input.path_forcing", filepath.as_posix())
-        self.config.set("time.starttime", starttime.strftime("%Y-%m-%dT%H:%M:%S"))
-        self.config.set("time.endtime", endtime.strftime("%Y-%m-%dT%H:%M:%S"))
+        # If write was skipped (filepath/starttime/endtime are None): keep previous config  # noqa: E501
+        if filepath is not None:
+            self.config.set("input.path_forcing", filepath.as_posix())
+        if starttime is not None:
+            self.config.set("time.starttime", starttime.strftime("%Y-%m-%dT%H:%M:%S"))
+        if endtime is not None:
+            self.config.set("time.endtime", endtime.strftime("%Y-%m-%dT%H:%M:%S"))
 
     def set_forcing(
         self,
@@ -5646,9 +5647,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             # start fresh in read-only mode
             self._results = dict()
 
-        output_dir = ""
-        if self.get_config("dir_output") is not None:
-            output_dir = self.get_config("dir_output")
+        output_dir = self.get_config("dir_output", fallback="")
 
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.netcdf_grid.path", abs_path=True)

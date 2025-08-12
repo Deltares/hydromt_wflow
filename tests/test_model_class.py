@@ -22,17 +22,19 @@ _supported_models: dict[str, type[WflowModel]] = {
 }
 
 
-def _compare_wflow_models(mod0, mod1):
+def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}
-    if mod0._grid is not None:
-        maps = mod0.staticmaps.raster.vars
+    if mod0.staticmaps._data:
+        maps = mod0.staticmaps.data.raster.vars
         assert np.all(mod0.crs == mod1.crs), "map crs grid"
         # check on dims names and values
-        for dim in mod1._grid.dims:
+        for dim in mod1.staticmaps.data.dims:
             try:
-                xr.testing.assert_identical(mod1._grid[dim], mod0._grid[dim])
+                xr.testing.assert_identical(
+                    mod1.staticmaps.data[dim], mod0.staticmaps.data[dim]
+                )
             except AssertionError:
                 raise AssertionError(f"dim {dim} in map not identical")
 
@@ -78,8 +80,8 @@ def _compare_wflow_models(mod0, mod1):
     # ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
-    if mod0._geoms:
-        for name in mod0.geoms:
+    if mod0.geoms._data:
+        for name in mod0.geoms.data:
             geom0 = mod0.geoms.get(name)
             geom1 = mod1.geoms.get(name)
             assert geom0.index.size == geom1.index.size
@@ -92,9 +94,9 @@ def _compare_wflow_models(mod0, mod1):
             if not np.all(geom0.geometry == geom1.geometry):
                 warnings.warn(f"New geom {name} different than the example one.")
     # check config
-    if mod0._config:
+    if mod0.config._data:
         # flatten
-        assert mod0._config == mod1._config, "config mismatch"
+        assert mod0.config.data == mod1.config.data, "config mismatch"
 
 
 @pytest.mark.timeout(300)  # max 5 min
@@ -189,7 +191,6 @@ def test_model_inverse_clip(
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column
