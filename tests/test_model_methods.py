@@ -1500,7 +1500,7 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
 def test_remove_config(example_wflow_model):
     assert example_wflow_model.get_config("model", "river_routing") == "kinematic-wave"
     # Remove a config entry
-    popped = example_wflow_model.remove_config("model", "river_routing")
+    popped = example_wflow_model.remove_config("model.river_routing")
     assert popped == "kinematic-wave"
 
     # Check if it is removed
@@ -1512,3 +1512,8 @@ def test_remove_config(example_wflow_model):
 
     with pytest.raises(KeyError):
         example_wflow_model.remove_config("model", "non_existing_key", "some_stuff")
+
+    assert (
+        example_wflow_model.remove_config("model.non_existing_key", errors="ignore")
+        is None
+    )

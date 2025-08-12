@@ -5914,7 +5914,7 @@ change name input.path_forcing "
             *args,
         )
 
-    def remove_config(self, *args: str, errors="raise") -> Any:
+    def remove_config(self, *args: str, errors: str = "raise") -> Any:
         """
         Remove a config key and return its value.
 
@@ -5930,6 +5930,10 @@ change name input.path_forcing "
         -------
         The popped value, or raises a KeyError if the key is not found.
         """
+        args = list(args)
+        if len(args) == 1 and "." in args[0]:
+            args = args[0].split(".") + args[1:]
+
         current = self.config
         for index, key in enumerate(args):
             if current is None:
