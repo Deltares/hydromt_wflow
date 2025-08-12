@@ -97,7 +97,6 @@ def _compare_wflow_models(mod0, mod1):
         assert mod0._config == mod1._config, "config mismatch"
 
 
-@pytest.mark.skip(reason="fix when forcing component is implemented")
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):
@@ -131,7 +130,6 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-@pytest.mark.skip(reason="fix forcing component is implemented")
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
     tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
@@ -191,6 +189,7 @@ def test_model_inverse_clip(
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
+@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column

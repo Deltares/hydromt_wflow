@@ -106,6 +106,7 @@ Components
    :toctree: _generated
 
    WflowModel.config
+   WflowModel.forcing
    WflowModel.staticmaps
    WflowModel.states
    WflowModel.geoms
@@ -131,7 +132,8 @@ Other general methods
 
    WflowModel.set_config
    WflowModel.get_config
-   WflowModel.set_staticmaps
+   WflowModel.set_forcing
+   WflowModel.set_grid
    WflowModel.set_tables
    WflowModel.set_states
 
@@ -215,6 +217,7 @@ Components
    :toctree: _generated
 
    WflowSedimentModel.config
+   WflowSedimentModel.forcing
    WflowSedimentModel.staticmaps
 
 Attributes
@@ -237,7 +240,8 @@ Other general methods
 
    WflowSedimentModel.set_config
    WflowSedimentModel.get_config
-   WflowSedimentModel.set_staticmaps
+   WflowSedimentModel.set_forcing
+   WflowSedimentModel.set_grid
    WflowSedimentModel.set_states
 
 .. _data_containers:
@@ -254,6 +258,15 @@ WflowConfigComponent
    components.WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.get_value
+
+WflowForcingComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowForcingComponent
+   components.WflowForcingComponent.data
 
 WflowGeomsComponent
 -------------------

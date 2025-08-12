@@ -8,6 +8,7 @@ from hydromt_wflow.components.tables import WflowTablesComponent
 
 __all__ = [
     "WflowConfigComponent",
+    "WflowForcingComponent",
     "WflowGeomsComponent",
     "WflowStatesComponent",
     "WflowStaticmapsComponent",
