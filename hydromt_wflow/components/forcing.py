@@ -46,8 +46,7 @@ class WflowForcingComponent(GridComponent):
             and written. By default 'inmaps.nc'. By default "inmaps.nc".
         region_component : str, optional
             The name of the region component to use as reference for this component's
-            region. If None, the region will be set to the grid extent. Note that the
-            create method only works if the region_component is None.
+            region. If None, the region will be set to the grid extent.
         region_filename : str, optional
             A path relative to the root where the region file will be written.
             By default 'staticgeoms/forcing_region.geojson'.
@@ -134,6 +133,10 @@ class WflowForcingComponent(GridComponent):
             filepath = (self.root.path / filename).resolve()
 
         if filepath.exists():
+            logger.warning(
+                f"""Netcdf forcing file `{filepath}` already exists.
+                Be careful, overwriting models partially can lead to inconsistencies."""
+            )
             filepath = self._create_new_filename(
                 filepath=filepath,
                 start_time=start_time,
@@ -141,11 +144,13 @@ class WflowForcingComponent(GridComponent):
                 frequency=output_frequency,
             )
             if filepath is None:  # should skip writing
-                return (
-                    None,
-                    start_time,
-                    end_time,
+                logger.warning(
+                    f"""Netcdf generated forcing file `{filepath}` already exists,
+                    skipping write_forcing. To overwrite netcdf forcing file: change
+                    name `input.path_forcing` in setup_config section of the build
+                    inifile."""
                 )
+                return None, start_time, end_time
 
         # Clean-up forcing and write
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -175,7 +180,6 @@ class WflowForcingComponent(GridComponent):
 
         # Write the file either in one go
         if output_frequency is None:
-            # TODO remove logging message when core goes from debug to info
             logger.info(f"Writing file {filepath.as_posix()}")
             _write_nc(
                 ds,
@@ -197,7 +201,6 @@ class WflowForcingComponent(GridComponent):
                 # Sort out the outgoing filename
                 start = data_freq["time"].dt.strftime("%Y%m%d")[0].item()
                 filepath_freq = Path(filepath.parent, f"{filepath.stem}_{start}.nc")
-                # TODO Remove when core logging goes from debug to info
                 logger.info(f"Writing file {filepath_freq.as_posix()}")
                 # Write to file
                 _write_nc(
@@ -274,55 +277,37 @@ class WflowForcingComponent(GridComponent):
             logger.warning("Writing multiple forcing files to one file")
             filepath = filepath.parent / filepath.name.replace("*", "")
 
-        if filepath.exists():
-            logger.warning(
-                f"""Netcdf forcing file `{filepath}` already exists.
-                Be careful, overwriting models partially can lead to inconsistencies."""
-            )
-            while filepath.exists():
-                # Create a new filename with a timestamp to avoid overwriting
-                filepath = (
-                    filepath.parent
-                    / f"{filepath.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.nc"
-                )
-            logger.warning(f"Writing forcings to file: `{filepath}`")
+        if not filepath.exists():
+            return filepath
 
-            # @hboisgon, Can delete this old code below or keep it.
+        # Create filename based on attributes
+        sourceP = ""
+        sourceT = ""
+        methodPET = ""
+        if "precip" in self.data:
+            val = self.data["precip"].attrs.get("precip_clim_fn", None)
+            Pdown = "d" if val is not None else ""
+            val = self.data["precip"].attrs.get("precip_fn", None)
+            if val is not None:
+                sourceP = f"_{val}{Pdown}"
+        if "temp" in self.data:
+            val = self.data["temp"].attrs.get("temp_correction", "False")
+            Tdown = "d" if val == "True" else ""
+            val = self.data["temp"].attrs.get("temp_fn", None)
+            if val is not None:
+                sourceT = f"_{val}{Tdown}"
+        if "pet" in self.data:
+            val = self.data["pet"].attrs.get("pet_method", None)
+            if val is not None:
+                methodPET = f"_{val}"
 
-            # # Create filename based on attributes
-            # sourceP = ""
-            # sourceT = ""
-            # methodPET = ""
-            # if "precip" in self.data:
-            #     val = self.data["precip"].attrs.get("precip_clim_fn", None)
-            #     Pdown = "d" if val is not None else ""
-            #     val = self.data["precip"].attrs.get("precip_fn", None)
-            #     if val is not None:
-            #         sourceP = f"_{val}{Pdown}"
-            # if "temp" in self.data:
-            #     val = self.data["temp"].attrs.get("temp_correction", "False")
-            #     Tdown = "d" if val == "True" else ""
-            #     val = self.data["temp"].attrs.get("temp_fn", None)
-            #     if val is not None:
-            #         sourceT = f"_{val}{Tdown}"
-            # if "pet" in self.data:
-            #     val = self.data["pet"].attrs.get("pet_method", None)
-            #     if val is not None:
-            #         methodPET = f"_{val}"
+        fn_default = f"inmaps{sourceP}{sourceT}{methodPET}_{frequency}_{start_time.year}_{end_time.year}.nc"  # noqa: E501
+        filepath = filepath.parent / fn_default
 
-            # fn_default = f"inmaps{sourceP}{sourceT}{methodPET}_{frequency}_{start_time.year}_{end_time.year}.nc"  # noqa: E501
-            # filepath = filepath.parent / fn_default
+        if not filepath.exists():
+            return filepath
 
-            # if filepath.exists():
-            #     logger.warning(
-            #         f"""Netcdf default forcing file `{filepath}` already exists,
-            #         skipping write_forcing. To overwrite netcdf forcing file: change
-            #         name input.path_forcing in setup_config section of the build
-            #         inifile."""
-            #     )
-            #     return None
-
-        return filepath
+        return None
 
     def _validate_timespan(
         self, starttime: Optional[str] = None, endtime: Optional[str] = None

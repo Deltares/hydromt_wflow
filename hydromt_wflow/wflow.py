@@ -5470,25 +5470,28 @@ Run setup_soilmaps first"
             Additional keyword arguments to be passed to the `read_nc` method.
         """
         # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
+        # Hierarchy is: 1: signature, 2: config, 3: default from component
+        rel_path = (
             filename
             or self.config.get_value("input.path_forcing")
             or self.forcing._filename
         )
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
-
-        # Call the component method
-        self.forcing.read(filename=p_input, **kwargs)
+        dir_input = self.config.get_value("dir_input", abs_path=True) or self.root.path
+        # hydrom:: GridComponent.read() requires filename to be relative to model root.
+        # To allow us to include `dir_input`: filepath has to be relative to model root.
+        filepath = Path(dir_input, rel_path).resolve()
+        self.forcing.read(
+            filename=filepath.relative_to(self.root.path, walk_up=True), **kwargs
+        )
 
     @hydromt_step
     def write_forcing(
         self,
-        filename=None,
+        filename: str | None = None,
         output_frequency: str | None = None,
         time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
+        decimals: int = 2,
         **kwargs,
     ):
         """Write forcing at ``fn_out`` in model ready format.
@@ -5533,12 +5536,13 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
 
         # Call the component
         filepath, starttime, endtime = self.forcing.write(
-            filename=filepath,
+            filename=filepath.relative_to(self.root.path, walk_up=True),
             output_frequency=output_frequency,
             starttime=self.config.get_value("time.starttime"),
             endtime=self.config.get_value("time.endtime"),
             time_chunk=time_chunk,
             time_units=time_units,
+            decimals=decimals,
             **kwargs,
         )
         # Set back to the config
