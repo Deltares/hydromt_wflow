@@ -5162,23 +5162,18 @@ Run setup_soilmaps first"
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
         if "staticmaps" in self.components:
-            self.staticmaps.write(filename=grid_fn)
+            self.write_grid(filename=grid_fn)
         if "geoms" in self.components:
-            geoms_fn = (
-                Path(geoms_fn)
-                if geoms_fn is not isinstance(geoms_fn, Path)
-                else geoms_fn
-            )
-            self.geoms.write(dir_out=geoms_fn)
+            self.write_geoms(geoms_fn=geoms_fn)
         if "forcing" in self.components:
-            self.forcing.write(filename=forcing_fn)
+            self.write_forcing(filename=forcing_fn)
         if "tables" in self.components:
             self.write_tables()
         if "states" in self.components:
-            self.states.write(filename=states_fn)
+            self.write_states(filename=states_fn)
 
         # Write the config last as variables can get set in other write methods
-        self.config.write(path=config_fn)
+        self.write_config(config_filename=config_fn)
 
     @hydromt_step
     def read(
@@ -5203,9 +5198,9 @@ Run setup_soilmaps first"
         else:
             self.read_config(config_filename)
         if not staticmaps_filename:
-            self.read_staticmaps()
+            self.read_grid()
         else:
-            self.read_staticmaps(staticmaps_filename)
+            self.read_grid(staticmaps_filename)
         if not geoms_filename:
             self.read_geoms()
         else:
@@ -5257,12 +5252,12 @@ Run setup_soilmaps first"
         # Call the component
         self.config.write(p)
 
-    def read_staticmaps(
+    def read_grid(
         self,
         filename: Path | str | None = None,
         **kwargs,
     ):
-        """Read staticmaps model data.
+        """Read grid model data.
 
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
@@ -5292,7 +5287,7 @@ Run setup_soilmaps first"
         self.staticmaps.read(filename=p_input, **kwargs)
 
     @hydromt_step
-    def write_staticmaps(
+    def write_grid(
         self,
         filename: Path | str | None = None,
         **kwargs,
@@ -5972,10 +5967,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
     ## WFLOW specific modification (clip for now) methods
 
     @hydromt_step
-    def clip_staticmaps(
-        self, region, buffer=0, align=None, crs=4326, inverse_clip=False
-    ):
-        """Clip staticmaps to subbasin.
+    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
+        """Clip grid to subbasin.
 
         Parameters
         ----------

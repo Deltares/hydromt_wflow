@@ -79,9 +79,9 @@ High level and I/O methods
    WflowModel.read_config
    WflowModel.write_config
 
-   WflowModel.read_staticmaps
-   WflowModel.write_staticmaps
-   WflowModel.clip_staticmaps
+   WflowModel.read_grid
+   WflowModel.write_grid
+   WflowModel.clip_grid
 
    WflowModel.read_geoms
    WflowModel.write_geoms
@@ -194,9 +194,9 @@ High level and I/O methods
    WflowSedimentModel.read_config
    WflowSedimentModel.write_config
 
-   WflowSedimentModel.read_staticmaps
-   WflowSedimentModel.write_staticmaps
-   WflowSedimentModel.clip_staticmaps
+   WflowSedimentModel.read_grid
+   WflowSedimentModel.write_grid
+   WflowSedimentModel.clip_grid
 
    WflowSedimentModel.read_geoms
    WflowSedimentModel.write_geoms

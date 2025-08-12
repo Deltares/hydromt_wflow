@@ -146,7 +146,7 @@ def test_model_clip(
     # Clip workflow, based on example model
     example_wflow_model.read()
     example_wflow_model.set_root(destination, mode="w")
-    example_wflow_model.clip_staticmaps(region)
+    example_wflow_model.clip_grid(region)
     example_wflow_model.clip_forcing()
     example_wflow_model.write()
 
@@ -174,14 +174,14 @@ def test_model_inverse_clip(
     inv_clip_model.read()
     # Get number of active pixels from full model
     n_pixels_full = inv_clip_model.staticmaps.data["subcatchment"].sum()
-    inv_clip_model.clip_staticmaps(region.copy(), inverse_clip=True)
+    inv_clip_model.clip_grid(region.copy(), inverse_clip=True)
     # Get number of active pixels from inversely clipped model
     n_pixels_inverse_clipped = inv_clip_model.staticmaps.data["subcatchment"].sum()
 
     # Do clipping again, but normally
     normal_clip_model = example_wflow_model_factory()
     normal_clip_model.read()
-    normal_clip_model.clip_staticmaps(region.copy(), inverse_clip=False)
+    normal_clip_model.clip_grid(region.copy(), inverse_clip=False)
     # Get number of active pixels from clipped model
     n_pixels_clipped = normal_clip_model.staticmaps.data["subcatchment"].sum()
 

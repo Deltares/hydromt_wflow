@@ -917,11 +917,11 @@ def test_setup_precip_from_point_timeseries(
             buffer=1e6,
         )
         # Check forcing and dtype
-        assert "precip" in example_wflow_model.forcing
-        assert example_wflow_model.forcing["precip"].dtype == "float32"
+        assert "precip" in example_wflow_model.forcing.data
+        assert example_wflow_model.forcing.data["precip"].dtype == "float32"
 
         # Compare computed value with expected value using all stations
-        mean_all = example_wflow_model.forcing["precip"].mean().values
+        mean_all = example_wflow_model.forcing.data["precip"].mean().values
         assert int(mean_all * 1000) == test_val[0]
 
         # Do the some but only for the 3 stations inside the basin (buffer = 0)
@@ -931,7 +931,7 @@ def test_setup_precip_from_point_timeseries(
             interp_type=interp_type,
             buffer=0,
         )
-        mean_inside = example_wflow_model.forcing["precip"].mean().values
+        mean_inside = example_wflow_model.forcing.data["precip"].mean().values
         assert int(mean_inside * 1000) == test_val[1]
 
     # Similar test but for GeoDataset
@@ -951,11 +951,11 @@ def test_setup_precip_from_point_timeseries(
             buffer=1e6,
         )
         # Check forcing and dtype
-        assert "precip" in example_wflow_model.forcing
-        assert example_wflow_model.forcing["precip"].dtype == "float32"
+        assert "precip" in example_wflow_model.forcing.data
+        assert example_wflow_model.forcing.data["precip"].dtype == "float32"
 
         # Compare computed value with expected value using all stations
-        mean_all = example_wflow_model.forcing["precip"].mean().values
+        mean_all = example_wflow_model.forcing.data["precip"].mean().values
         assert int(mean_all * 1000) == test_val[0]
 
     # Also include a test for uniform precipitation
@@ -965,11 +965,13 @@ def test_setup_precip_from_point_timeseries(
         interp_type="uniform",
     )
     # Check if the values per timestep are unique
-    for i, _ in enumerate(example_wflow_model.forcing["precip"].time):
-        unique_values = np.unique(example_wflow_model.forcing["precip"].isel(time=i))
+    for i, _ in enumerate(example_wflow_model.forcing.data["precip"].time):
+        unique_values = np.unique(
+            example_wflow_model.forcing.data["precip"].isel(time=i)
+        )
         assert len(unique_values[~np.isnan(unique_values)]) == 1
     # Check mean value
-    mean_uniform = example_wflow_model.forcing["precip"].mean().values
+    mean_uniform = example_wflow_model.forcing.data["precip"].mean().values
     assert int(mean_uniform * 1000) == 274
 
 
