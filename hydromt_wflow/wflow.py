@@ -5492,6 +5492,7 @@ Run setup_soilmaps first"
         time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
         decimals: int = 2,
+        overwrite: bool = False,
         **kwargs,
     ):
         """Write forcing at ``fn_out`` in model ready format.
@@ -5543,6 +5544,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             time_chunk=time_chunk,
             time_units=time_units,
             decimals=decimals,
+            overwrite=overwrite,
             **kwargs,
         )
         # Set back to the config

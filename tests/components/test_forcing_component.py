@@ -100,45 +100,93 @@ def test_wflow_forcing_component_write(
         mock_model,
     )
     component._data = forcing_layer.to_dataset(promote_attrs=True)
-    out_path = mock_model.root.path / "inmaps.nc"
+    filename_in = "inmaps.nc"
+    out_path = mock_model.root.path / filename_in
 
     # Write once -> out_path
-    filename, starttime, endtime = component.write(filename=out_path)
+    filepath, starttime, endtime = component.write(filename=filename_in)
 
     # Assert the output
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     assert out_path.is_file()
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
-    assert filename == out_path
-    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
-    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
+    assert filepath == out_path
+    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
+    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
 
     # Write twice -> out_path exists, so warn and create new name
-    filename, starttime, endtime = component.write(filename=out_path)
+    filepath, starttime, endtime = component.write(filename=filename_in)
 
     # Assert the output
-    warnings = [
-        f"Netcdf forcing file `{out_path}` already exists. Be careful, overwriting models partially can lead to inconsistencies."  # noqa: E501
-        in " ".join(message.split())
-        for message in caplog.messages
+    EXISTS_WARNING = " ".join(
+        f"""Netcdf forcing file `{out_path}` already exists and overwriting
+        is not enabled. To enable overwriting, provide the `overwrite` flag.
+        Be careful, overwriting models partially can lead to
+        inconsistencies.""".split()
+    )
+    exists_warnings = [
+        EXISTS_WARNING in " ".join(message.split()) for message in caplog.messages
     ]
-    assert warnings.count(True) == 1
+    assert exists_warnings.count(True) == 1
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 2
-    assert filename != out_path
-    assert filename.exists()
-    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
-    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
+    assert filepath != out_path
+    assert filepath.exists()
+    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
+    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
 
-    # Write again will warn and skip writing
-    filename, starttime, endtime = component.write(filename=out_path)
-    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 3
-    warnings = [
-        f"Netcdf forcing file `{out_path}` already exists. Be careful, overwriting models partially can lead to inconsistencies."  # noqa: E501
-        in " ".join(message.split())
-        for message in caplog.messages
+    # Write 3rd time -> warn, skip writing, return none
+    should_be_none, starttime, endtime = component.write(filename=filename_in)
+
+    SKIP_WARNING = " ".join(
+        f"""Netcdf generated forcing file `{filepath}` already exists,
+        skipping write_forcing. To overwrite netcdf forcing file: change
+        name `input.path_forcing` in setup_config section of the build
+        inifile.""".split()
+    )
+    exists_warnings = [
+        EXISTS_WARNING in " ".join(message.split()) for message in caplog.messages
     ]
-    assert warnings.count(True) == 2
-    assert starttime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-01T00:00:00"
-    assert endtime.strftime("%Y-%m-%dT%H:%M:%S") == "2000-01-20T00:00:00"
+    skip_warnings = [
+        SKIP_WARNING in " ".join(message.split()) for message in caplog.messages
+    ]
+    assert should_be_none is None
+    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 2
+    assert exists_warnings.count(True) == 2
+    assert skip_warnings.count(True) == 1
+    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
+    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
+
+
+def test_wflow_forcing_component_write_with_overwrite(
+    mock_model: MagicMock, forcing_layer: xr.DataArray, caplog
+):
+    # Setup the component
+    component = WflowForcingComponent(
+        mock_model,
+    )
+    component._data = forcing_layer.to_dataset(promote_attrs=True)
+    filename_in = "inmaps.nc"
+    out_path: Path = mock_model.root.path / filename_in
+    out_path.touch()
+    last_modification_time = out_path.stat().st_mtime
+
+    # Write once -> out_path
+    filepath, starttime, endtime = component.write(filename=filename_in, overwrite=True)
+
+    # Assert the output
+    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+    DELETE_WARNING = f"Deleting existing forcing file {filepath.as_posix()}"
+    deletion_warnings = [
+        DELETE_WARNING in " ".join(message.split()) for message in caplog.messages
+    ]
+
+    assert deletion_warnings.count(True) == 1
+    assert out_path.is_file()
+    assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
+    assert filepath == out_path
+    assert last_modification_time < out_path.stat().st_mtime
+    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
+    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
 
 
 def test_wflow_forcing_component_write_freq(

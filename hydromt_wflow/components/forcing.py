@@ -83,7 +83,7 @@ class WflowForcingComponent(GridComponent):
 
     def write(
         self,
-        *, 
+        *,
         filename: Path | str | None = None,
         output_frequency: str | None = None,
         starttime: str | None = None,
@@ -91,6 +91,7 @@ class WflowForcingComponent(GridComponent):
         time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
         decimals: int = 2,
+        overwrite: bool = False,
         **kwargs,
     ) -> tuple[Path, datetime, datetime]:
         """Write forcing model data.
@@ -118,6 +119,8 @@ class WflowForcingComponent(GridComponent):
         decimals : int, optional
             Number of decimals to use when writing the forcing data.
             By default 2.
+        overwrite : bool, optional
+            Whether to overwrite existing files. By default False.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
@@ -134,24 +137,24 @@ class WflowForcingComponent(GridComponent):
             filepath = (self.root.path / filename).resolve()
 
         if filepath.exists():
-            logger.warning(
-                f"""Netcdf forcing file `{filepath}` already exists.
-                Be careful, overwriting models partially can lead to inconsistencies."""
-            )
-            filepath = self._create_new_filename(
-                filepath=filepath,
-                start_time=start_time,
-                end_time=end_time,
-                frequency=output_frequency,
-            )
-            if filepath is None:  # should skip writing
+            if overwrite:
+                logger.warning(f"Deleting existing forcing file {filepath.as_posix()}")
+                filepath.unlink()
+            else:
                 logger.warning(
-                    f"""Netcdf generated forcing file `{filepath}` already exists,
-                    skipping write_forcing. To overwrite netcdf forcing file: change
-                    name `input.path_forcing` in setup_config section of the build
-                    inifile."""
+                    f"""Netcdf forcing file `{filepath}` already exists and overwriting
+                    is not enabled. To enable overwriting, provide the `overwrite` flag.
+                    Be careful, overwriting models partially can lead to
+                    inconsistencies."""
                 )
-                return None, start_time, end_time
+                filepath = self._create_new_filename(
+                    filepath=filepath,
+                    start_time=start_time,
+                    end_time=end_time,
+                    frequency=output_frequency,
+                )
+                if filepath is None:  # should skip writing
+                    return None, start_time, end_time
 
         # Clean-up forcing and write
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -308,6 +311,12 @@ class WflowForcingComponent(GridComponent):
         if not filepath.exists():
             return filepath
 
+        logger.warning(
+            f"""Netcdf generated forcing file `{filepath}` already exists,
+            skipping write_forcing. To overwrite netcdf forcing file: change
+            name `input.path_forcing` in setup_config section of the build
+            inifile."""
+        )
         return None
 
     def _validate_timespan(
