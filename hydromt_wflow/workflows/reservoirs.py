@@ -1064,6 +1064,12 @@ def create_reservoirs_geoms(
         df_params, left_on="value", right_on="reservoir_area_id", how="left"
     )
     # Only keep geometry, layers and y, x columns
-    gdf_reservoirs = gdf_reservoirs[res_layers + ["y", "x", "geometry"]]
+    gdf_reservoirs = gdf_reservoirs[
+        res_layers + [ds_res.raster.y_dim, ds_res.raster.x_dim, "geometry"]
+    ]
+    # Rename to xout and yout
+    gdf_reservoirs = gdf_reservoirs.rename(
+        columns={ds_res.raster.x_dim: "xout", ds_res.raster.y_dim: "yout"}
+    )
 
     return gdf_reservoirs
