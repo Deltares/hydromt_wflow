@@ -162,7 +162,7 @@ Setup components
    WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
    WflowSedimentModel.setup_rivers
-   WflowSedimentModel.setup_lakes
+   WflowSedimentModel.setup_natural_reservoirs
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_lulcmaps_from_vector

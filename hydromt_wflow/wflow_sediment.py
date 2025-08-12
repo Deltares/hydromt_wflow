@@ -203,9 +203,9 @@ river cells."
         self.geoms.pop("rivers", None)  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
-    def setup_lakes(
+    def setup_natural_reservoirs(
         self,
-        lakes_fn: str | Path | gpd.GeoDataFrame,
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
         overwrite_existing: bool = False,
         duplicate_id: str = "error",
         min_area: float = 1.0,
@@ -215,7 +215,7 @@ river cells."
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
-        geom_name: str = "lakes",
+        geom_name: str = "meta_natural_reservoirs",
         **kwargs,
     ):
         """Generate maps of natural reservoir areas (lakes) and outlets.
@@ -225,13 +225,13 @@ river cells."
         without artificial dams.
 
         This means the trapping efficiency is set to 0.0 by default and the output
-        staticgeoms will be called lakes.geojson by default.
+        staticgeoms will be called meta_natural_reservoirs.geojson by default.
 
         For a description of the parameters and functionality, see
         py:meth:`setup_reservoirs`.
         """
         self.setup_reservoirs(
-            reservoirs_fn=lakes_fn,
+            reservoirs_fn=reservoirs_fn,
             overwrite_existing=overwrite_existing,
             duplicate_id=duplicate_id,
             min_area=min_area,
@@ -254,7 +254,7 @@ river cells."
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
-        geom_name: str = "reservoirs",
+        geom_name: str = "meta_reservoirs",
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -272,8 +272,8 @@ river cells."
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
          coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
-        * **reservoirs** geom: polygon with reservoirs and parameters
-        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
+        * **meta_reservoirs** geom: polygon with reservoirs and parameters
+        * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -302,7 +302,7 @@ river cells."
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "reservoirs" for reservoirs.geojson.
+            "meta_reservoirs" for meta_reservoirs.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -380,7 +380,7 @@ river cells."
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms_sediment(
             ds_res.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
+        self.set_geoms(gdf_res_all, name="reservoirs")
 
         # Reservoir settings in the toml to update
         self.set_config("model.reservoir__flag", True)

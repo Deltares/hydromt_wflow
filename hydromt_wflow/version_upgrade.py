@@ -205,7 +205,6 @@ def _convert_to_wflow_v1(
     config_out["input"]["cyclic"] = {}
     config_out["input"]["static"] = {}
     for key, variables in wflow_vars.items():
-        print(f"key: {key}, variables: {variables}")
         name = get_config(config, f"input.{variables['wflow_v0']}", fallback=None)
         if variables["wflow_v0"] == "vertical.g_ttm" and name is None:
             # this change is probably too recent for most models

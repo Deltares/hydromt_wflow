@@ -13,14 +13,14 @@ setup_config: # options parsed to wflow toml file <section>.<option>
 setup_riverbedsed:
   bedsed_mapping_fn:       # path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used
 
-# # If you do have reservoirs, you can re-run setup_lakes and setup_reservoirs to add it
+# # If you do have reservoirs, you can re-run setup_natural_reservoirs and setup_reservoirs to add it
 # setup_reservoirs:
 #   reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
 #   min_area: 1.0           # minimum lake area to consider [km2]
 #   trapping_default: 1.0   # default trapping efficiency for reservoirs [0-1]
 #
-# setup_lakes:
-#   lakes_fn: hydro_lakes   # source for uncontrolled reservoirs (e.g. lakes) based on hydroLAKES: {hydro_lakes}
+# setup_natural_reservoirs:
+#   reservoirs_fn: hydro_lakes   # source for uncontrolled reservoirs (e.g. lakes) based on hydroLAKES: {hydro_lakes}
 #   min_area: 10.0          # minimum reservoir area to consider [km2]
 
 setup_lulcmaps:

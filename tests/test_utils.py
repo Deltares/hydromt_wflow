@@ -71,7 +71,7 @@ def test_convert_to_wflow_v1_sbm():
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r+")
+    wflow = WflowModel(root, config_fn=config_fn, mode="r")
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 

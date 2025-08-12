@@ -1958,7 +1958,7 @@ gauge locations [-] (if derive_subcatch)
             "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
             "reservoir~lower_location__count": "reservoir_lower_id",
         },
-        geom_name: str = "reservoirs_no_control",
+        geom_name: str = "meta_reservoirs_no_control",
         **kwargs,
     ):
         """Generate maps of reservoir areas, outlets and parameters.
@@ -2003,9 +2003,9 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_rating_curve** map: option to compute rating curve [-]
         * **reservoir_storage_curve** map: option to compute storage curve [-]
         * **reservoir_lower_id** map: optional, lower linked reservoir locations [-]
-        * **reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or weirs)
-          and wflow parameters.
-        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
+        * **meta_reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or
+          weirs) and wflow parameters.
+        * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -2046,7 +2046,7 @@ gauge locations [-] (if derive_subcatch)
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoir geometry in the staticgeoms folder, by default
-            'reservoirs_no_control' for reservoirs_no_control.geojson.
+            'meta_reservoirs_no_control' for reservoirs_no_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -2165,7 +2165,7 @@ gauge locations [-] (if derive_subcatch)
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
             ds_reservoirs.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
+        self.set_geoms(gdf_res_all, name="reservoirs")
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
@@ -2207,7 +2207,7 @@ gauge locations [-] (if derive_subcatch)
             "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
             "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
-        geom_name: str = "reservoirs_simple_control",
+        geom_name: str = "meta_reservoirs_simple_control",
         **kwargs,
     ):
         """Generate maps of controlled reservoir areas, outlets and parameters.
@@ -2271,8 +2271,8 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
         * **reservoir_demand** map: reservoir demand flow [m3/s]
         * **reservoir_max_release** map: reservoir max release flow [m3/s]
-        * **reservoirs_simple_control** geom: polygon with reservoirs and parameters
-        * **wflow_reservoirs** geom: polygon with all reservoirs as in the model
+        * **meta_reservoirs_simple_control** geom: polygon with reservoirs and parameters
+        * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -2313,7 +2313,7 @@ gauge locations [-] (if derive_subcatch)
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "reservoirs_simple_control" for reservoirs_simple_control.geojson.
+            "meta_reservoirs_simple_control" for reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -2389,7 +2389,7 @@ gauge locations [-] (if derive_subcatch)
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
             ds_res.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="wflow_reservoirs")
+        self.set_geoms(gdf_res_all, name="reservoirs")
 
         # update toml
         self.set_config("model.reservoir__flag", True)
