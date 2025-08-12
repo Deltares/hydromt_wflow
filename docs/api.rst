@@ -133,7 +133,7 @@ Other general methods
    WflowModel.set_config
    WflowModel.get_config
    WflowModel.set_forcing
-   WflowModel.set_staticmaps
+   WflowModel.set_grid
    WflowModel.set_tables
    WflowModel.set_states
 
@@ -241,7 +241,7 @@ Other general methods
    WflowSedimentModel.set_config
    WflowSedimentModel.get_config
    WflowSedimentModel.set_forcing
-   WflowSedimentModel.set_staticmaps
+   WflowSedimentModel.set_grid
    WflowSedimentModel.set_states
 
 .. _data_containers:
