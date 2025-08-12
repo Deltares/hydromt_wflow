@@ -53,7 +53,7 @@ Updating a Wflow model
 
  | **Q**: Is there an easy way to update reservoir parameters in my Wflow model ?
 
-To easily update reservoir parameters, you can directly use the *reservoirs_simple_control.geojson* and *reservoirs_no_control.geojson* that are saved
+To easily update reservoir parameters, you can directly use the *meta_reservoirs_simple_control.geojson* and *meta_reservoirs_no_control.geojson* that are saved
 by HydroMT into the *staticgeoms* folder. Once you have updated the parameters with the new value, just use these geojson files as
 your new "local" input data!
 

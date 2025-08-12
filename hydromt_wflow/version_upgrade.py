@@ -609,7 +609,20 @@ def convert_reservoirs_to_wflow_v1_sbm(
         if not has_reservoirs:
             ds_res = ds_lakes
         else:
-            ds_res = merge_reservoirs(ds_lakes, ds_res)
+            ds_merge = merge_reservoirs(
+                ds_lakes,
+                ds_res,
+                duplicate_id="skip",
+                logger=logger,
+            )
+            if ds_merge is None:
+                logger.warning(
+                    "Merging lakes into reservoirs failed because of duplicated IDs. "
+                    "Only reservoirs will be converted and you may need to update the "
+                    "models to add the missing lakes manually."
+                )
+            else:
+                ds_res = ds_merge
 
         # Update the config options
         for layer in lake_layers:
@@ -724,6 +737,19 @@ def convert_reservoirs_to_wflow_v1_sediment(
         if not has_reservoirs:
             ds_res = ds_lakes
         else:
-            ds_res = merge_reservoirs_sediment(ds_lakes, ds_res, logger=logger)
+            ds_merge = merge_reservoirs_sediment(
+                ds_lakes,
+                ds_res,
+                duplicate_id="skip",
+                logger=logger,
+            )
+            if ds_merge is None:
+                logger.warning(
+                    "Merging lakes into reservoirs failed because of duplicated IDs. "
+                    "Only reservoirs will be converted and you may need to update the "
+                    "models to add the missing lakes manually."
+                )
+            else:
+                ds_res = ds_merge
 
     return ds_res, variables_to_remove, config_options

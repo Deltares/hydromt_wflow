@@ -792,47 +792,24 @@ setting new flood_depth dimensions"
                 "land_instantaneous_q",
             )
             # Remove local-inertial land states
-            if (
-                self.get_config(
-                    "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"]["variables"].pop(
-                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
-            if (
-                self.get_config(
-                    "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"]["variables"].pop(
-                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
+            self.remove_config(
+                "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+
             # Remove from output.netcdf_grid section
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
         else:
             # Add local-inertial land routing states
             self.set_config(
@@ -844,41 +821,27 @@ setting new flood_depth dimensions"
                 "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
-            if (
-                self.get_config(
-                    "state.variables.land_surface_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"]["variables"].pop(
-                    "land_surface_water__instantaneous_volume_flow_rate", None
-                )
-            if (
-                self.get_config(
-                    "state.variables.floodplain_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"]["variables"].pop(
-                    "floodplain_water__instantaneous_volume_flow_rate", None
-                )
-            if (
-                self.get_config("state.variables.floodplain_water__instantaneous_depth")
-                is not None
-            ):
-                self.config["state"]["variables"].pop(
-                    "floodplain_water__instantaneous_depth", None
-                )
+            self.remove_config(
+                "state.variables.land_surface_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.floodplain_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.floodplain_water__instantaneous_depth",
+                errors="ignore",
+            )
             # Remove from output.netcdf_grid section
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__instantaneous_volume_flow_rate", None
-                )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__instantaneous_depth",
+                errors="ignore",
+            )
 
     def setup_riverwidth(
         self,
@@ -2046,7 +2009,7 @@ gauge locations [-] (if derive_subcatch)
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoir geometry in the staticgeoms folder, by default
-            'meta_reservoirs_no_control' for reservoirs_no_control.geojson.
+            'meta_reservoirs_no_control' for meta_reservoirs_no_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -2313,7 +2276,7 @@ gauge locations [-] (if derive_subcatch)
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "meta_reservoirs_simple_control" for reservoirs_simple_control.geojson.
+            "meta_reservoirs_simple_control" for meta_reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -5951,7 +5914,7 @@ change name input.path_forcing "
             *args,
         )
 
-    def remove_config(self, *args: str) -> Any:
+    def remove_config(self, *args: str, errors="raise") -> Any:
         """
         Remove a config key and return its value.
 
@@ -5960,6 +5923,8 @@ change name input.path_forcing "
         key: str, tuple[str, ...]
             Key to remove from the config.
             Can be a dotted toml string when providing a list of strings.
+        errors: str, optional
+            What to do if the key is not found. Can be "raise" (default) or "ignore".
 
         Returns
         -------
@@ -5968,11 +5933,17 @@ change name input.path_forcing "
         current = self.config
         for index, key in enumerate(args):
             if current is None:
-                raise KeyError(f"Key {'.'.join(args)} not found in config.")
+                if errors == "ignore":
+                    return None
+                else:
+                    raise KeyError(f"Key {'.'.join(args)} not found in config.")
 
             if index == len(args) - 1:
                 # Last key, pop it
-                current = current.pop(key)
+                if errors == "ignore":
+                    current = current.pop(key, None)
+                else:
+                    current = current.pop(key)
                 break
 
             # Not the last key, go deeper
@@ -6210,15 +6181,10 @@ change name input.path_forcing "
                 # change reservoir__flag = true to false
                 self.set_config("model.reservoir__flag", False)
                 # remove states
-                if (
-                    self.get_config(
-                        "state.variables.reservoir_water_surface__instantaneous_elevation"  # noqa: E501
-                    )
-                    is not None
-                ):
-                    del self.config["state"]["variables"][
-                        "reservoir_water_surface__instantaneous_elevation"
-                    ]
+                self.remove_config(
+                    "state.variables.reservoir_water_surface__instantaneous_elevation",
+                    errors="ignore",
+                )
 
             # Update tables
             ids = np.unique(reservoir)

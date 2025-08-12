@@ -22,6 +22,8 @@ __all__ = [
     "reservoir_parameters",
     "merge_reservoirs",
     "merge_reservoirs_sediment",
+    "create_reservoirs_geoms",
+    "create_reservoirs_geoms_sediment",
 ]
 
 RESERVOIR_COMMON_PARAMETERS = [

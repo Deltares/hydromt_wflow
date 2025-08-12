@@ -209,7 +209,7 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
 
 def test_setup_reservoirs_no_control(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
-    lakes = example_wflow_model.geoms["reservoirs_no_control"]
+    lakes = example_wflow_model.geoms["meta_reservoirs_no_control"]
     lake_id = lakes["waterbody_id"].iloc[0]
     area = lakes["reservoir_area"].iloc[0]
     dis = lakes["meta_reservoir_mean_outflow"].iloc[0]
