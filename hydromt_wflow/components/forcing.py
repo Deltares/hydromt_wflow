@@ -43,7 +43,7 @@ class WflowForcingComponent(GridComponent):
             HydroMT model instance
         filename : str, optional
             Default path relative to the root where the forcing file(s) will be read
-            and written. By default 'inmaps.nc'. By default "inmaps.nc".
+            and written. By default 'inmaps.nc'.
         region_component : str, optional
             The name of the region component to use as reference for this component's
             region. If None, the region will be set to the grid extent.
@@ -83,6 +83,7 @@ class WflowForcingComponent(GridComponent):
 
     def write(
         self,
+        *, 
         filename: Path | str | None = None,
         output_frequency: str | None = None,
         starttime: str | None = None,
