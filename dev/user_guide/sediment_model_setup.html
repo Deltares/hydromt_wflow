@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model methods and components &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/sediment_model_setup';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building a model" href="sediment_build.html" />
+    <link rel="prev" title="Working with the Wflow Sediment model" href="sediment.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0.dev" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wflow_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wflow_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wflow_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sediment_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sediment_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="process_analyze.html">Pre and postprocessing and visualization</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="sediment.html" class="nav-link">Working with the Wflow Sediment model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Model methods and components</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="model-methods-and-components">
+<h1>Model methods and components<a class="headerlink" href="#model-methods-and-components" title="Link to this heading">#</a></h1>
+<p>This plugin helps you preparing or updating several components of a Wflow Sediment model such as topography information, landuse or soil.
+The main interactions are available from the HydroMT Command Line Interface and allow you to configure
+HydroMT in order to build or update or clip Wflow Sediment models.</p>
+<p>When building or updating a model from command line a
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">model region</a>; a model setup
+<a class="reference internal" href="sediment_build.html#model-config-sed"><span class="std std-ref">configuration</span></a> (.yml file) with model components and options and, optionally,
+a <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_main">data sources</a> (.yml) file should be prepared.</p>
+<section id="model-methods">
+<span id="model-methods-sed"></span><h2>Model methods<a class="headerlink" href="#model-methods" title="Link to this heading">#</a></h2>
+<p>An overview of the available Wflow Sediment model setup components
+is provided in the table below. When using HydroMT from the command line only the
+setup components are exposed. Click on
+a specific method see its documentation.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 26.7%" />
+<col style="width: 73.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Method</p></th>
+<th class="head"><p>Explanation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_config.html#hydromt_wflow.WflowSedimentModel.setup_config" title="hydromt_wflow.WflowSedimentModel.setup_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config()</span></code></a></p></th>
+<td><p>Update config with a dictionary</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></th>
+<td><p>This component sets the region of interest and res (resolution in degrees) of the model.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers" title="hydromt_wflow.WflowSedimentModel.setup_rivers"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a></p></th>
+<td><p>This component sets the all river parameter maps.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes" title="hydromt_wflow.WflowSedimentModel.setup_lakes"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lakes()</span></code></a></p></th>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs" title="hydromt_wflow.WflowSedimentModel.setup_reservoirs"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_reservoirs()</span></code></a></p></th>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps" title="hydromt_wflow.WflowSedimentModel.setup_lulcmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a></p></th>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) raster data.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowModel.setup_lulcmaps_from_vector" title="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector()</span></code></a></p></th>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) vector data.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps.html#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="hydromt_wflow.WflowSedimentModel.setup_laimaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps()</span></code></a></p></th>
+<td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping" title="hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps_from_lulc_mapping()</span></code></a></p></th>
+<td><p>This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps" title="hydromt_wflow.WflowSedimentModel.setup_canopymaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_canopymaps()</span></code></a></p></th>
+<td><p>Setup sediments based canopy height maps.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p></th>
+<td><p>Setup sediments based soil parameter maps.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverwidth.html#hydromt_wflow.WflowSedimentModel.setup_riverwidth" title="hydromt_wflow.WflowSedimentModel.setup_riverwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverwidth()</span></code></a></p></th>
+<td><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverbedsed()</span></code></a></p></th>
+<td><p>Setup sediments based river bed characteristics maps.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets" title="hydromt_wflow.WflowSedimentModel.setup_outlets"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_outlets()</span></code></a></p></th>
+<td><p>This method sets the default gauge map based on basin outlets.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges" title="hydromt_wflow.WflowSedimentModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
+<td><p>This method sets the default gauge map based on a gauges_fn data.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
+<td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html#hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries" title="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config_output_timeseries()</span></code></a></p></th>
+<td><p>This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_constant_pars.html#hydromt_wflow.WflowSedimentModel.setup_constant_pars" title="hydromt_wflow.WflowSedimentModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
+<td><p>Setup constant parameter maps.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html#hydromt_wflow.WflowSedimentModel.setup_grid_from_raster" title="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a></p></th>
+<td><p>Setup staticmaps from raster to add parameters from direct data.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow" title="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow()</span></code></a></p></th>
+<td><p>Upgrade a model from a Wflow.jl 0.x to 1.0 .</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="model-components">
+<span id="model-components-sed"></span><h2>model components<a class="headerlink" href="#model-components" title="Link to this heading">#</a></h2>
+<p>The following table provides an overview of which <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel" title="hydromt_wflow.WflowSedimentModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowSedimentModel</span></code></a>
+component contains which Wflow Sediment in- and output files. The files are read and written with the associated
+read- and write- methods, i.e. <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.read_config.html#hydromt_wflow.WflowSedimentModel.read_config" title="hydromt_wflow.WflowSedimentModel.read_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_config()</span></code></a>
+and <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.write_config.html#hydromt_wflow.WflowSedimentModel.write_config" title="hydromt_wflow.WflowSedimentModel.write_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_config()</span></code></a> for the
+<a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.config.html#hydromt_wflow.WflowSedimentModel.config" title="hydromt_wflow.WflowSedimentModel.config"><code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code></a>  component.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">Wflow Sediment mdel data</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel" title="hydromt_wflow.WflowSedimentModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowSedimentModel</span></code></a> component</p></th>
+<th class="head"><p>Wflow sediment files</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.config.html#hydromt_wflow.WflowSedimentModel.config" title="hydromt_wflow.WflowSedimentModel.config"><code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code></a></p></td>
+<td><p>wflow_sediment.toml</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">grid</span></code></p></td>
+<td><p>staticmaps.nc</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">geoms</span></code></p></td>
+<td><p>geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.forcing.html#hydromt_wflow.WflowSedimentModel.forcing" title="hydromt_wflow.WflowSedimentModel.forcing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">forcing</span></code></a></p></td>
+<td><p>inmaps.nc</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">states</span></code></p></td>
+<td><p>instates.nc</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">results</span></code></p></td>
+<td><p>output.nc, output_scalar.nc, output.csv</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.staticmaps.html#hydromt_wflow.WflowSedimentModel.staticmaps" title="hydromt_wflow.WflowSedimentModel.staticmaps"><code class="xref py py-attr docutils literal notranslate"><span class="pre">staticmaps</span></code></a> (deprecated, removed in hydromt_wflow v0.6.0)</p></td>
+<td><p>staticmaps.nc</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">staticgeoms</span></code> (deprecated, removed in hydromt_wflow v0.6.0)</p></td>
+<td><p>geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sediment.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Working with the Wflow Sediment model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sediment_build.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Building a model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-methods">Model methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-components">model components</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/user_guide/sediment_model_setup.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/sediment_model_setup.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
