@@ -34,7 +34,6 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
-    logger=logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -309,7 +308,6 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
-    logger=logger,
 ):
     """Return topography maps (see list below) at model resolution.
 
@@ -448,7 +446,6 @@ def parse_region(
         raise ValueError("wflow region geometry has no CRS")
 
     # Set the basins geometry
-    logger.debug("Adding basins vector to geoms.")
     ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
     ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 

@@ -365,7 +365,6 @@ class WflowModel(Model):
             res=res,
             xy=xy,
             upscale_method=upscale_method,
-            logger=logger,
         )
 
         # Rename and add to grid
@@ -385,7 +384,7 @@ class WflowModel(Model):
 
         # setup topography maps
         ds_topo = workflows.topography(
-            ds=ds_org, ds_like=self.staticmaps.data, method="average", logger=logger
+            ds=ds_org, ds_like=self.staticmaps.data, method="average"
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
@@ -576,7 +575,6 @@ Select from {routing_options}.'
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -609,7 +607,6 @@ Select from {routing_options}.'
             da=strord,
             ds_like=self.staticmaps.data,
             df=df,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
         self.set_grid(ds_nriver.rename(rmdict))
@@ -634,7 +631,6 @@ Select from {routing_options}.'
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
-                logger=logger,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
@@ -818,7 +814,6 @@ the value found in the grid ({new_river_upa})"
                 ds_model=self.staticmaps.data.rename(inv_rename),
                 river_upa=new_river_upa,
                 flood_depths=flood_depths,
-                logger=logger,
             )
 
             # check if the layer already exists, since overwriting with different
@@ -1089,7 +1084,6 @@ and will soon be removed. '
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
-            logger=logger,
             fit=fit,
             **kwargs,
         )
@@ -1220,7 +1214,6 @@ and will soon be removed. '
             ds_like=self.staticmaps.data,
             df=df_map,
             params=list(lulc_vars.keys()),
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -1384,7 +1377,6 @@ and will soon be removed. '
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -1398,7 +1390,7 @@ and will soon be removed. '
         lulc_fn: str | xr.DataArray | None = None,
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
-        buffer: int = 2,
+        buffer: int = 20_000,
         output_name: str = "vegetation_leaf_area_index",
     ):
         """
@@ -1456,7 +1448,7 @@ and will soon be removed. '
             maps, urban surfaces and bare areas can be included here as well.
             By default empty.
         buffer : int, optional
-            Buffer around the region to read the data, by default 2.
+            Buffer around the region to read the data in meters, by default 20_000.
         output_name : str
             Name of the output vegetation__leaf-area_index map.
             By default "vegetation_leaf_area_index".
@@ -1479,7 +1471,6 @@ and will soon be removed. '
                 da_lai=da.copy(),
                 sampling_method=lulc_sampling_method,
                 lulc_zero_classes=lulc_zero_classes,
-                logger=logger,
             )
             # Save to csv
             if isinstance(lulc_fn, str) and not isfile(lulc_fn):
@@ -1492,7 +1483,6 @@ and will soon be removed. '
         da_lai = workflows.lai(
             da=da,
             ds_like=self.staticmaps.data,
-            logger=logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
@@ -1547,7 +1537,6 @@ and will soon be removed. '
             da=da,
             ds_like=self.staticmaps.data,
             df=df_lai_mapping,
-            logger=logger,
         )
         # Add to grid
         self.set_grid(da_lai, name=self._MAPS["LAI"])
@@ -1925,7 +1914,6 @@ gauge locations [-] (if derive_subcatch)
                 rel_error=rel_error,
                 abs_error=abs_error,
                 fillna=fillna,
-                logger=logger,
             )
         else:
             # Derive gauge map
@@ -2365,9 +2353,7 @@ Using default storage/outflow function parameters."
                 intbl_reservoirs,
                 reservoir_accuracy,
                 reservoir_timeseries,
-            ) = workflows.reservoirattrs(
-                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=logger
-            )
+            ) = workflows.reservoirattrs(gdf=gdf_org, timeseries_fn=timeseries_fn)
 
         # create a geodf with id of reservoir and geometry at outflow location
         gdf_org_points = gpd.GeoDataFrame(
@@ -2456,7 +2442,6 @@ Using default storage/outflow function parameters."
                 ds_like=self.staticmaps.data,
                 wb_type=wb_type,
                 uparea_name=uparea_name,
-                logger=logger,
             )
             # update/replace xout and yout in gdf_org from gdf_wateroutlet:
             gdf_org["xout"] = gdf_wateroutlet["xout"]
@@ -2568,7 +2553,9 @@ a map for each of the wflow_sbm soil layers (n in total)
         logger.info("Preparing soil parameter maps.")
         self._update_naming(output_names)
         # TODO add variables list with required variable names
-        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
+        dsin = self.data_catalog.get_rasterdataset(
+            soil_fn, geom=self.region, buffer=20_000
+        )
 
         dsout = workflows.soilgrids(
             ds=dsin,
@@ -2576,7 +2563,6 @@ a map for each of the wflow_sbm soil layers (n in total)
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
             wflow_layers=wflow_thicknesslayers,
-            logger=logger,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
@@ -2958,7 +2944,6 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             df=df_mapping,
             params=list(lulc_vars.keys()),
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
         self.set_grid(landuse_maps.rename(rmdict))
@@ -3001,7 +2986,6 @@ using 'variable' argument."
                 update_c=update_c,
                 wflow_layers=wflow_thicknesslayers,
                 target_conductivity=target_conductivity,
-                logger=logger,
             )
             self.set_grid(
                 soil_maps["soil_ksat_vertical_factor"],
@@ -3101,7 +3085,6 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
-            logger=logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
@@ -3987,7 +3970,6 @@ Run setup_soilmaps first"
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold,
-            logger=logger,
         )
 
         # set nodata value outside basin
@@ -4107,7 +4089,6 @@ Run setup_soilmaps first"
             area_max=area_max,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
-            logger=logger,
             **kwargs,
         )
 
@@ -4771,7 +4752,6 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -4951,7 +4931,6 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=logger,
         )
 
         # Check if paddy and non paddy are present

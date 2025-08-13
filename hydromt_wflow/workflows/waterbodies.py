@@ -20,7 +20,6 @@ def waterbodymaps(
     ds_like,
     wb_type="reservoir",
     uparea_name="uparea",
-    logger=logger,
 ):
     """Return waterbody (reservoir/lake) maps (see list below).
 
@@ -130,7 +129,7 @@ def waterbodymaps(
     return ds_out, outgdf
 
 
-def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
+def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20):
     """Return reservoir attributes (see list below) needed for modelling.
 
     When specified, some of the reservoir attributes can be derived from \

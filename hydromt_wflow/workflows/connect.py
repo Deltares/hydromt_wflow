@@ -22,7 +22,6 @@ def wflow_1dmodel_connection(
     area_max: float = 30.0,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
-    logger=logger,
     **kwargs,
 ) -> xr.Dataset:
     """
@@ -67,8 +66,6 @@ def wflow_1dmodel_connection(
     include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
-    logger : logging.Logger, optional
-        Logger object, by default logger
     **kwargs
         Additional keyword arguments passed to the snapping method
         hydromt.gis.flw.gauge_map. See its documentation for more information.

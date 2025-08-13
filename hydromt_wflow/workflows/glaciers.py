@@ -16,7 +16,6 @@ def glaciermaps(
     ds_like,
     id_column="simple_id",
     elevtn_name="elevtn",
-    logger=logger,
 ):
     """Return glacier maps (see list below) at model resolution.
 
@@ -145,7 +144,6 @@ def glacierattrs(
     Cfmax=5.3,
     SIfrac=0.002,
     id_column="simple_id",
-    logger=logger,
 ):
     """Return glacier intbls (see list below).
 
