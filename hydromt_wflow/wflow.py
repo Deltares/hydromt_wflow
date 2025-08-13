@@ -115,7 +115,7 @@ class WflowModel(Model):
             self.config.data
         )
         # Read model from disk when in read mode
-        if mode == "r" or mode == "r+":
+        if self.root.is_reading_mode():
             self.read(config_filename=config_filename)
 
     ## Properties
@@ -6157,9 +6157,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         xarray.DataSet
             Clipped states.
         """
-        if len(self.states) > 0:
+        if len(self.states.data) > 0:
             logger.info("Clipping NetCDF states..")
-            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+            ds_states = xr.merge(self.states.data.values()).raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
             # Check for reservoirs/lakes presence in the clipped model
@@ -6179,4 +6179,6 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 if state_name in ds_states:
                     remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
+
+            self.states._data = xr.Dataset()  # Clear existing states
             self.set_states(ds_states)

@@ -150,6 +150,7 @@ def test_model_clip(
     example_wflow_model.set_root(destination, mode="w")
     example_wflow_model.clip_grid(region)
     example_wflow_model.clip_forcing()
+    example_wflow_model.clip_states()
     example_wflow_model.write()
 
     # Compare with model from examples folder
