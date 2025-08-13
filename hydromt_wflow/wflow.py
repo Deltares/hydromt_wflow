@@ -3464,7 +3464,6 @@ one variable and variables list is not provided."
             interp_type=interp_type,
             ds_like=self.staticmaps.data,
             mask_name=self._MAPS["basins"],
-            logger=logger,
             **kwargs,
         )
 
@@ -3754,9 +3753,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
             geom=self.region,
-            buffer=2,
+            buffer=20_000,
             variables=["pet"],
-            time_tuple=(starttime, endtime),
+            time_range=(starttime, endtime),
         )
         pet = pet.astype("float32")
 
@@ -3766,7 +3765,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
-            logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)

@@ -968,7 +968,7 @@ def test_setup_precip_from_point_timeseries(
     assert int(mean_uniform * 1000) == 274
 
 
-def test_setup_pet_forcing(example_wflow_model, da_pet):
+def test_setup_pet_forcing(example_wflow_model: WflowModel, da_pet: xr.DataArray):
     example_wflow_model.setup_pet_forcing(
         pet_fn=da_pet,
     )

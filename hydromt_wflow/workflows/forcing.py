@@ -18,7 +18,6 @@ def pet(
     freq: str = "D",
     mask_name: Optional[str] = None,
     chunksize: Optional[int] = None,
-    logger: Optional[logging.Logger] = logger,
 ) -> xr.DataArray:
     """
     Resample and reproject PET to the grid of ds_like.
@@ -86,7 +85,6 @@ def spatial_interpolation(
     src_drift: Optional[np.ndarray] = None,
     trg_drift: Optional[np.ndarray] = None,
     mask_name: Optional[str] = None,
-    logger: Optional[logging.Logger] = logger,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.
