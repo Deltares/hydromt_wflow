@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from hydromt.model import Model
@@ -200,6 +201,10 @@ class WflowStaticmapsComponent(GridComponent):
                     data[dvar] = data[dvar].where(mask, data[dvar].raster.nodata)
                 else:
                     data[dvar] = data[dvar].where(mask, False)
+            if dvar == "meta_subgrid_outlet_idx":
+                plt.figure()
+                data[dvar].plot()
+                plt.show()
             self._data[dvar] = data[dvar]
 
     ## Setup and update methods
