@@ -31,7 +31,7 @@ class WflowStaticmapsComponent(GridComponent):
         model: Model,
         *,
         filename: str = "staticmaps.nc",
-        region_filename: str = "staticgeoms/staticmaps_region.geojson",
+        region_filename: str = "staticgeoms/region.geojson",
     ):
         """Initialize a WflowStaticmapsComponent.
 
@@ -44,7 +44,7 @@ class WflowStaticmapsComponent(GridComponent):
             By default "staticmaps.nc".
         region_filename : str
             The path to use for reading and writing of the region data by default.
-            By default "staticgeoms/staticmaps_region.geojson".
+            By default "staticgeoms/region.geojson".
         """
         super().__init__(
             model,
