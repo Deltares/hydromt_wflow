@@ -131,30 +131,69 @@ defaulting to {_new_path.as_posix()}"
         else:
             logger.warning("Model config has no data, skip writing.")
 
+    def get_value(
+        self,
+        key: str,
+        fallback: Any | None = None,
+        abs_path: bool = False,
+    ) -> Any | None:
+        """Get config options.
 
-def get_value(
-    self,
-    key: str,
-    fallback: Any | None = None,
-    abs_path: bool = False,
-) -> Any | None:
-    """Get config options.
+        Parameters
+        ----------
+        key : str
+            Keys are a string with '.' indicating a new level: ('key1.key2')
+        fallback : Any, optional
+            Fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+        """
+        # Refer to utils function of get_config
+        return utils.get_config(
+            self.data,
+            key,
+            root=self.root.path,
+            fallback=fallback,
+            abs_path=abs_path,
+        )
 
-    Parameters
-    ----------
-    key : str
-        Keys are a string with '.' indicating a new level: ('key1.key2')
-    fallback : Any, optional
-        Fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-    """
-    # Refer to utils function of get_config
-    return utils.get_config(
-        self.data,
-        key,
-        root=self.root.path,
-        fallback=fallback,
-        abs_path=abs_path,
-    )
+    def remove(self, *args: str, errors: str = "raise") -> Any:
+        """
+        Remove a config key and return its value.
+
+        Parameters
+        ----------
+        key: str, tuple[str, ...]
+            Key to remove from the config.
+            Can be a dotted toml string when providing a list of strings.
+        errors: str, optional
+            What to do if the key is not found. Can be "raise" (default) or "ignore".
+
+        Returns
+        -------
+        The popped value, or raises a KeyError if the key is not found.
+        """
+        args = list(args)
+        if len(args) == 1 and "." in args[0]:
+            args = args[0].split(".") + args[1:]
+
+        current = self.data
+        for index, key in enumerate(args):
+            if current is None:
+                if errors == "ignore":
+                    return None
+                else:
+                    raise KeyError(f"Key {'.'.join(args)} not found in config.")
+
+            if index == len(args) - 1:
+                # Last key, pop it
+                if errors == "ignore":
+                    current = current.pop(key, None)
+                else:
+                    current = current.pop(key)
+                break
+
+            # Not the last key, go deeper
+            current = current.get(key)
+        return current

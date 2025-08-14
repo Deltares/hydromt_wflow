@@ -46,7 +46,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.8.8
+        uses: prefix-dev/setup-pixi@v0.8.14
         with:
           pixi-version: "v0.47.0"
       - name: Run the test suite
@@ -55,7 +55,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --locked test-cov
+            pixi run --locked -e test-full-py311 test-cov
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:

@@ -80,6 +80,37 @@ def test_wflow_config_component_update(mock_model: MagicMock):
     assert len(component.data) == 2
 
 
+def test_wflow_config_component_remove(mock_model: MagicMock):
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+
+    # Update the config
+    component._data = {
+        "model": {
+            "river_routing": "kinematic-wave",
+            "land_routing": "kinematic-wave",
+        },
+        "time": "now",
+    }
+
+    assert component.get_value("model.river_routing") == "kinematic-wave"
+    # Remove a config entry
+    popped = component.remove("model.river_routing")
+    assert popped == "kinematic-wave"
+
+    # Check if it is removed
+    assert component.get_value("model.river_routing") is None
+    assert component.get_value("model") is not None
+
+    with pytest.raises(KeyError):
+        component.remove("model", "river_routing")
+
+    with pytest.raises(KeyError):
+        component.remove("model", "non_existing_key", "some_stuff")
+
+    assert component.remove("model.non_existing_key", errors="ignore") is None
+
+
 def test_wflow_config_component_read(
     mock_model: MagicMock,
     model_subbasin_cached: Path,

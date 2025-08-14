@@ -2,13 +2,18 @@
 
 from os.path import abspath, dirname, join
 
+import geopandas as gpd
 import numpy as np
+
+from hydromt_wflow.utils import planar_operation_in_utm
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+def test_setup_lulc_sed(
+    example_sediment_model, planted_forest_testdata: gpd.GeoDataFrame
+):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover_2009",
         lulc_mapping_fn="globcover_mapping_default",
@@ -18,8 +23,12 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         orchard_name="Orchard",
         orchard_c=0.2188,
     )
+
+    centroid = planar_operation_in_utm(
+        planted_forest_testdata, lambda geom: geom.centroid
+    )
     da = example_sediment_model.staticmaps.data["erosion_usle_c"].raster.sample(
-        planted_forest_testdata.geometry.centroid
+        centroid
     )
 
     # Strict equality checking is okay here because no processing is actually happening

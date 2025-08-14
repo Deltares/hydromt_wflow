@@ -68,7 +68,7 @@ def test_grid_from_config(demda):
 
 def test_convert_to_wflow_v1_sbm():
     # Initialize wflow model
-    root = join(TESTDATADIR, "wflow_v0x", "sbm")
+    root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowModel(root, config_filename=config_fn, mode="r")
@@ -80,6 +80,18 @@ def test_convert_to_wflow_v1_sbm():
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
     wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
     assert wflow.config.test_equal(wflow_v1.config)[0]
+
+    # Checks on extra data in staticmaps
+    res_ids = np.unique(
+        wflow.staticmaps.data["reservoir_outlet_id"].raster.mask_nodata()
+    )
+    assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
+    assert np.all(
+        np.isin(
+            [3.0, 4.0],
+            wflow.staticmaps.data["reservoir_rating_curve"].raster.mask_nodata(),
+        )
+    )
 
 
 def test_convert_to_wflow_v1_sediment():
@@ -105,6 +117,17 @@ def test_convert_to_wflow_v1_sediment():
     assert "soil_sagg_fraction" in wflow.staticmaps.data
     assert "land_govers_c" in wflow.staticmaps.data
     assert "river_kodatie_a" in wflow.staticmaps.data
+    assert "reservoir_outlet_id" in wflow.staticmaps.data
+    res_ids = np.unique(
+        wflow.staticmaps.data["reservoir_outlet_id"].raster.mask_nodata()
+    )
+    assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
+    assert np.all(
+        np.isin(
+            [0.0, 1.0],
+            wflow.staticmaps.data["reservoir_trapping_efficiency"].raster.mask_nodata(),
+        )
+    )
 
 
 def test_config_toml_grouping(tmpdir, static_layer):
@@ -155,3 +178,8 @@ def test_config_toml_overwrite(tmpdir: Path):
         200,
     )
     assert dummy_model.config.get_value("input.forcing.khorfrac.value") == 200
+
+    # Test overwriting top-level key
+    dummy_model.config.set("path_log", "log_file.log")
+    dummy_model.config.set("path_log", "log_file2.log")
+    assert dummy_model.config.get_value("path_log") == "log_file2.log"

@@ -468,7 +468,7 @@ def surfacewaterfrac_used(
         )
 
     # Get the fractions based on area count
-    x, y = np.where(~np.isnan(gwfrac_raw_mr))
+    x, y = np.nonzero(~np.isnan(gwfrac_raw_mr))
     if mask_and_scale_gwfrac:
         gw_pixels = np.take(
             np.bincount(
@@ -494,7 +494,7 @@ def surfacewaterfrac_used(
         1 - ncfrac_mr.values[x, y],
     )
     if mask_and_scale_gwfrac:
-        gwfrac_val[np.where(gwbodies_mr.values[x, y] == 0)] = 0
+        gwfrac_val[np.nonzero(gwbodies_mr.values[x, y] == 0)] = 0
     # invert to get surface water frac
     swfrac_val = np.maximum(np.minimum(1 - gwfrac_val - ncfrac_mr.values[x, y], 1), 0)
 

@@ -160,7 +160,7 @@ class WflowStaticmapsComponent(GridComponent):
                 )
             tname = "time"
             time_axes = {
-                k: v for k, v in self.data.sizes.items() if k.startswith("time")
+                k: v for k, v in dict(self.data.sizes).items() if k.startswith("time")
             }
             if data["time"].size not in time_axes.values():
                 tname = f"time_{data['time'].size}" if "time" in time_axes else tname
@@ -183,7 +183,7 @@ class WflowStaticmapsComponent(GridComponent):
 ({vars_to_drop}) associated with old coordinate"
                 )
                 # Use `_data` as `data` cannot be set
-                self._data = self.data.drop_vars(vars_to_drop + ["layer"])
+                self.drop_vars(vars_to_drop + ["layer"])
 
         # Check if noth is really up and south therefore is down
         if data.raster.res[1] > 0:
@@ -206,6 +206,23 @@ class WflowStaticmapsComponent(GridComponent):
                 data[dvar].plot()
                 plt.show()
             self._data[dvar] = data[dvar]
+
+    def drop_vars(self, names: list[str], errors: str = "raise"):
+        """
+        Drop variables from the grid.
+
+        This method is a wrapper around the xarray.Dataset.drop_vars method.
+
+        Parameters
+        ----------
+        names : list of str
+            List of variable names to drop from the grid.
+        errors : str, optional {raise, ignore}
+            How to handle errors. If 'raise', raises a ValueError error if any of the
+            variable passed are not in the dataset. If 'ignore', any given names that
+            are in the dataset are dropped and no error is raised.
+        """
+        self._data = self.data.drop_vars(names, errors=errors)
 
     ## Setup and update methods
     @hydromt_step

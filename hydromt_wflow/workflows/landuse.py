@@ -10,7 +10,7 @@ import pandas as pd
 import xarray as xr
 from shapely.geometry import box
 
-from .demand import create_grid_from_bbox
+from hydromt_wflow.workflows.demand import create_grid_from_bbox
 
 logger = logging.getLogger(__name__)
 

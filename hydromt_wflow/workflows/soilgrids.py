@@ -987,7 +987,7 @@ def update_soil_with_paddy(
     )
     if update_c:
         ds_out["soil_ksat_vertical_factor"] = da_kvfrac
-        # Remove wflow_dem
+        # Remove elevation variable
         ds_out = ds_out.drop_vars("elevtn")
     else:
         ds_out = da_kvfrac.to_dataset(name="soil_ksat_vertical_factor")

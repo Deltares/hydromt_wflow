@@ -191,7 +191,9 @@ def get_ks_veg(ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
 
     """
     # get the saturated hydraulic conductivity with fully developed vegetation.
-    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(ksat_vertical))
+    ksmax = 10 ** (
+        3.5 - 1.5 * sndppt**0.13 + np.log10(ksat_vertical.where(ksat_vertical > 0))
+    )
     # get the saturated hydraulic conductivity based on soil and
     # vegetation mean LAI
     ks = ksmax - (ksmax - ksat_vertical) / (1 + (LAI / alfa) ** beta)
@@ -242,10 +244,10 @@ def ksatver_vegetation(
     LAI_mean.raster.set_nodata(255.0)
 
     # in this function, Ksatver should be provided in cm/d
-    KSatVer_vegetation = get_ks_veg(
+    ksatver_vegetation = get_ks_veg(
         ds_like["ksat_vertical"] / 10, sndppt, LAI_mean, alfa, beta
     )
 
     # convert back from cm/d to mm/d
-    KSatVer_vegetation = KSatVer_vegetation * 10
-    return KSatVer_vegetation
+    ksatver_vegetation = ksatver_vegetation * 10
+    return ksatver_vegetation
