@@ -838,10 +838,6 @@ setting new flood_depth dimensions"
                 "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate",
                 errors="ignore",
             )
-            self.remove_config(
-                "output.netcdf_grid.variables.land_surface_water__instantaneous_depth",
-                errors="ignore",
-            )
 
     def setup_riverwidth(
         self,
