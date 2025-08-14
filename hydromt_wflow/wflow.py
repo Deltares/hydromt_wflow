@@ -2693,7 +2693,7 @@ using 'variable' argument."
             v: k for k, v in self._MAPS.items() if v in self.staticmaps.data.data_vars
         }
         ksatver_vegetation = workflows.ksatver_vegetation(
-            ds_like=self.ksatver_vegetation.rename(inv_rename),
+            ds_like=self.staticmaps.data.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
             beta=beta,
@@ -5160,7 +5160,7 @@ Run setup_soilmaps first"
         """
         logger.info(f"Write model data to {self.root.path}")
         # if in r, r+ mode, only write updated components
-        if not self.root.path.is_writing_mode():
+        if not self.root.is_writing_mode():
             logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()

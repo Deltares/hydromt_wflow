@@ -184,20 +184,20 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     mod.setup_glaciers(glacier_fn)
 
     # Confirm glacier maps exist
-    assert "meta_glacier_area_id" in mod.grid
-    assert "glacier_fraction" in mod.grid
-    assert "glacier_initial_leq_depth" in mod.grid
-    assert "glaciers" in mod.geoms
+    assert "meta_glacier_area_id" in mod.staticmaps.data
+    assert "glacier_fraction" in mod.staticmaps.data
+    assert "glacier_initial_leq_depth" in mod.staticmaps.data
+    assert "glaciers" in mod.geoms.data
 
     # Confirm glaciers have the same CRS as the grid (merit_utm is 3857)
-    assert mod.grid["glacier_fraction"].raster.crs == 3857
-    assert mod.geoms["glaciers"].crs == 3857
+    assert mod.staticmaps.data["glacier_fraction"].raster.crs == 3857
+    assert mod.geoms.get("glaciers").crs == 3857
 
     # Confirm glacier fraction has values
-    assert (mod.grid["glacier_fraction"] > 0).any().item()
+    assert (mod.staticmaps.data["glacier_fraction"] > 0).any().item()
 
     # Confirm glacier IDs
-    assert mod.grid["meta_glacier_area_id"].max().item() == 1
+    assert mod.staticmaps.data["meta_glacier_area_id"].max().item() == 1
 
     # Confirm config flags
     assert mod.get_config("model.glacier__flag") is True
