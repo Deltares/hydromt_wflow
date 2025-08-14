@@ -42,13 +42,13 @@ setup_rivers:
 #     - 4.0
 #     - 5.0
 
-setup_reservoirs:
+setup_reservoirs_simple_control:
   reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
   timeseries_fn: gww           # additionnal source for reservoir are timeseries to compute reservoirs, Either 'gww' using gwwapi or 'jrc' using hydroengine.
   min_area: 1.0           # minimum lake area to consider [km2]
 
-setup_lakes:
-  lakes_fn: hydro_lakes   # source for lakes based on hydroLAKES: {hydro_lakes}
+setup_reservoirs_no_control:
+  reservoirs_fn: hydro_lakes   # source for uncontrolled reservoirs (e.g. lakes) based on hydroLAKES: {hydro_lakes}
   min_area: 10.0          # minimum reservoir area to consider [km2]
 
 setup_glaciers:

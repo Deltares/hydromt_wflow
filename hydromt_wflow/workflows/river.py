@@ -467,7 +467,7 @@ def river_width(
         rivmsk = rivwth_org != nodata
         rivwth_org = np.where(rivmsk, rivwth_org, -9999)
 
-        # mask zero and negative riverwidth and waterbodies if present
+        # mask zero and negative riverwidth and reservoirs if present
         mask = rivwth_org > min_wth
         for name in mask_names:
             if name in ds_like:

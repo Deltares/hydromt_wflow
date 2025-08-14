@@ -19,7 +19,6 @@ overland_flow_erosion = "answers" # Overland flow erosion equation: ["answers"]
 land_transport = "yalinpart" # Overland flow transport capacity method: ["yalinpart", "govers", "yalin"]
 river_transport = "bagnold" # River flow transport capacity method: ["bagnold", "engelund", "yang", "kodatie", "molinas"]
 reservoir__flag = true
-lake__flag = true
 
 [state]
 path_input = "instate/instates.nc"
@@ -48,16 +47,14 @@ river_bed_silt__mass = "river_bed_silt_store"
 
 [input]
 path_forcing = "inmaps.nc"
-path_static = "staticmaps.nc"
 basin__local_drain_direction = "local_drain_direction"
 subbasin_location__count = "subcatchment"
 river_location__mask = "river_mask"
 reservoir_area__count = "reservoir_area_id"
 reservoir_location__count = "reservoir_outlet_id"
-lake_area__count = "lake_area_id"
-lake_location__count = "lake_outlet_id"
 outlets = "outlets"
 gauges_grdc = "gauges_grdc"
+path_static = "staticmaps.nc"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
@@ -76,7 +73,6 @@ river__slope = "river_slope"
 river__width = "river_width"
 reservoir_surface__area = "reservoir_area"
 "reservoir_water_sediment~bedload__trapping_efficiency" = "reservoir_trapping_efficiency"
-lake_surface__area = "lake_area"
 river_bottom-and-bank_sediment__median_diameter = "river_bed_sediment_d50"
 river_bottom-and-bank_clay__mass_fraction = "river_bed_clay_fraction"
 river_bottom-and-bank_silt__mass_fraction = "river_bed_silt_fraction"
@@ -137,5 +133,4 @@ parameter = "river_water__volume_flow_rate"
 header = "suspended_solids"
 map = "gauges_grdc"
 parameter = "river_water_sediment~suspended__mass_concentration"
-
 [output.netcdf_scalar]

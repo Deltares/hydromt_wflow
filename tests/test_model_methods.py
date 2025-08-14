@@ -207,13 +207,13 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     )
 
 
-def test_setup_lake(tmpdir, example_wflow_model):
+def test_setup_reservoirs_no_control(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
-    lakes = example_wflow_model.geoms["lakes"]
+    lakes = example_wflow_model.geoms["meta_reservoirs_no_control"]
     lake_id = lakes["waterbody_id"].iloc[0]
-    area = lakes["lake_area"].iloc[0]
-    dis = lakes["meta_lake_mean_outflow"].iloc[0]
-    lvl = lakes["lake_initial_depth"].iloc[0]
+    area = lakes["reservoir_area"].iloc[0]
+    dis = lakes["meta_reservoir_mean_outflow"].iloc[0]
+    lvl = lakes["reservoir_initial_depth"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
     lvls = np.linspace(0, lvl)
 
@@ -241,34 +241,33 @@ def test_setup_lake(tmpdir, example_wflow_model):
         }
     )
     # Update model with it
-    example_wflow_model.setup_lakes(
-        lakes_fn="hydro_lakes",
+    example_wflow_model.setup_reservoirs_no_control(
+        reservoirs_fn="hydro_lakes",
         rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
-        add_maxstorage=True,
     )
 
-    assert f"lake_sh_{lake_id}" in example_wflow_model.tables
-    assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
-    assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
+    assert f"reservoir_sh_{lake_id}" in example_wflow_model.tables
+    assert f"reservoir_hq_{lake_id}" in example_wflow_model.tables
+    assert 2 in np.unique(example_wflow_model.grid["reservoir_storage_curve"].values)
+    assert 1 in np.unique(example_wflow_model.grid["reservoir_rating_curve"].values)
     assert (
-        "meta_lake_max_storage" not in example_wflow_model.grid
+        "meta_reservoir_max_storage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
     example_wflow_model.set_root(join(tmpdir, "wflow_lake_test"))
     example_wflow_model.write_tables()
-    test_table = example_wflow_model.tables[f"lake_sh_{lake_id}"]
+    test_table = example_wflow_model.tables[f"reservoir_sh_{lake_id}"]
     example_wflow_model._tables = dict()
     example_wflow_model.read_tables()
 
-    assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
+    assert example_wflow_model.tables[f"reservoir_sh_{lake_id}"].equals(test_table)
 
 
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
-def test_setup_reservoirs(source, tmpdir, example_wflow_model):
+def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
     example_wflow_model.read()
@@ -278,10 +277,11 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     example_wflow_model.set_root(destination, mode="w")
 
     config = {
-        "setup_reservoirs": {
+        "setup_reservoirs_simple_control": {
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
+            "update_existing": False,
         }
     }
 
@@ -296,6 +296,9 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         "reservoir_area",
         "reservoir_target_full_fraction",
         "reservoir_target_min_fraction",
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_initial_depth",
     ]
     assert all(
         x == True for x in [k in example_wflow_model.grid.keys() for k in required]
@@ -1061,9 +1064,10 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
 
 def test_skip_nodata_reservoir(clipped_wflow_model):
     # Using the clipped_wflow_model as the reservoirs are not in this model
-    clipped_wflow_model.setup_reservoirs(
+    clipped_wflow_model.setup_reservoirs_simple_control(
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
+        overwrite_existing=True,
     )
     assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers
@@ -1496,7 +1500,7 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
 def test_remove_config(example_wflow_model):
     assert example_wflow_model.get_config("model", "river_routing") == "kinematic-wave"
     # Remove a config entry
-    popped = example_wflow_model.remove_config("model", "river_routing")
+    popped = example_wflow_model.remove_config("model.river_routing")
     assert popped == "kinematic-wave"
 
     # Check if it is removed
@@ -1508,3 +1512,8 @@ def test_remove_config(example_wflow_model):
 
     with pytest.raises(KeyError):
         example_wflow_model.remove_config("model", "non_existing_key", "some_stuff")
+
+    assert (
+        example_wflow_model.remove_config("model.non_existing_key", errors="ignore")
+        is None
+    )

@@ -8,12 +8,19 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.
 
 Added
 -----
+- Reservoirs can now overwrite or be added to existing ones in the model. PR #515
+- Create a combined staticgeom for all reservoirs "reservoirs.geojson". PR #515
 
 Changed
 -------
+- **setup_reservoirs** has been renamed to **setup_reservoirs_simple_control** for sbm. The default output geom is meta_reservoirs_simple_control.geojson. PR #515
+- **setup_lakes** has been renamed to **setup_reservoirs_no_control** for sbm. Arguments of the functions have been updated as well. The default output geom is meta_reservoirs_no_control.geojson. PR #515
+- **setup_lakes** has been renamed to **setup_natural_reservoirs** for sediment. Arguments of the functions have been updated as well. The default output geom is meta_natural_reservoirs.geojson. PR #515
+- **workflows.waterbodies** has been renamed to **workflows.reservoirs**. PR #515
 
 Fixed
 -----
