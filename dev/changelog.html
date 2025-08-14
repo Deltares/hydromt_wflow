@@ -438,11 +438,22 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
+<p>Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Reservoirs can now overwrite or be added to existing ones in the model. PR #515</p></li>
+<li><p>Create a combined staticgeom for all reservoirs “reservoirs.geojson”. PR #515</p></li>
+</ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>setup_reservoirs</strong> has been renamed to <strong>setup_reservoirs_simple_control</strong> for sbm. The default output geom is meta_reservoirs_simple_control.geojson. PR #515</p></li>
+<li><p><strong>setup_lakes</strong> has been renamed to <strong>setup_reservoirs_no_control</strong> for sbm. Arguments of the functions have been updated as well. The default output geom is meta_reservoirs_no_control.geojson. PR #515</p></li>
+<li><p><strong>setup_lakes</strong> has been renamed to <strong>setup_natural_reservoirs</strong> for sediment. Arguments of the functions have been updated as well. The default output geom is meta_natural_reservoirs.geojson. PR #515</p></li>
+<li><p><strong>workflows.waterbodies</strong> has been renamed to <strong>workflows.reservoirs</strong>. PR #515</p></li>
+</ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>

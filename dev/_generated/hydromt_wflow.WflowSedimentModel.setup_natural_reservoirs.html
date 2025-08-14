@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.workflows.reservoirattrs &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -45,12 +45,12 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.reservoirattrs';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.lakeattrs" href="hydromt_wflow.workflows.lakeattrs.html" />
-    <link rel="prev" title="hydromt_wflow.workflows.waterbodymaps" href="hydromt_wflow.workflows.waterbodymaps.html" />
+    <link rel="next" title="hydromt_wflow.WflowSedimentModel.setup_reservoirs" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_rivers" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -371,8 +371,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_no_control.html">hydromt_wflow.WflowModel.setup_reservoirs_no_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_simple_control.html">hydromt_wflow.WflowModel.setup_reservoirs_simple_control</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowModel.setup_lulcmaps_from_vector</a></li>
@@ -458,11 +458,11 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">hydromt_wflow.WflowSedimentModel.setup_lakes</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector</a></li>
@@ -526,7 +526,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_results.html">hydromt_wflow.WflowSedimentModel.read_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html">hydromt_wflow.WflowSedimentModel.set_flwdir</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
@@ -552,9 +552,13 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.update_soil_with_paddy.html">hydromt_wflow.workflows.update_soil_with_paddy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.reservoirattrs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_id_maps.html">hydromt_wflow.workflows.reservoir_id_maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_simple_control_parameters.html">hydromt_wflow.workflows.reservoir_simple_control_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_parameters.html">hydromt_wflow.workflows.reservoir_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.merge_reservoirs.html">hydromt_wflow.workflows.merge_reservoirs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.merge_reservoirs_sediment.html">hydromt_wflow.workflows.merge_reservoirs_sediment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_reservoirs_geoms.html">hydromt_wflow.workflows.create_reservoirs_geoms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html">hydromt_wflow.workflows.create_reservoirs_geoms_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -609,7 +613,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.reservoirattrs</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs</span></li>
   </ul>
 </nav>
 </div>
@@ -626,43 +630,19 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-workflows-reservoirattrs">
-<h1>hydromt_wflow.workflows.reservoirattrs<a class="headerlink" href="#hydromt-wflow-workflows-reservoirattrs" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="hydromt_wflow.workflows.reservoirattrs">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">reservoirattrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeseries_fn=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_norm=50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perc_min=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.waterbodies</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/waterbodies.html#reservoirattrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.reservoirattrs" title="Link to this definition">#</a></dt>
-<dd><p>Return reservoir attributes (see list below) needed for modelling.</p>
-<p>When specified, some of the reservoir attributes can be derived from earth observation data.
-Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</p>
-<p>The following reservoir attributes are calculated:</p>
-<ul class="simple">
-<li><p>reservoir_max_volume : reservoir maximum volume [m3]</p></li>
-<li><p>reservoir_area : reservoir area [m2]</p></li>
-<li><p>reservoir_demand : reservoir demand flow [m3/s]</p></li>
-<li><p>reservoir_max_release : reservoir maximum release flow [m3/s]</p></li>
-<li><p>reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]</p></li>
-<li><p>reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>gdf</strong> (<a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><em>geopandas.GeoDataFrame</em></a>) – GeoDataFrame containing reservoirs geometries and attributes.</p></li>
-<li><p><strong>timeseries_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of database from which time series of reservoir surface water area will be retrieved.
-Currently available: [‘jrc’, ‘gww’]
-Defaults to Deltares’ Global Water Watch database.</p></li>
-<li><p><strong>perc_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Percentile for normal (operational) surface area</p></li>
-<li><p><strong>perc_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Percentile for minimal (operational) surface area</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>df_out</strong> (<em>pandas.DataFrame</em>) – DataFrame containing reservoir attributes.</p></li>
-<li><p><strong>df_plot</strong> (<em>pandas.DataFrame</em>) – DataFrame containing debugging values for reservoir building.</p></li>
-<li><p><strong>df_ts</strong> (<em>pandas.DataFrame</em>) – DataFrame containing all downloaded reservoir time series.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+  <section id="hydromt-wflow-wflowsedimentmodel-setup-natural-reservoirs">
+<h1>hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-natural-reservoirs" title="Link to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_natural_reservoirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoirs_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><span class="pre">GeoDataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_existing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'reservoir_area__count':</span> <span class="pre">'reservoir_area_id',</span> <span class="pre">'reservoir_location__count':</span> <span class="pre">'reservoir_outlet_id',</span> <span class="pre">'reservoir_surface__area':</span> <span class="pre">'reservoir_area',</span> <span class="pre">'reservoir_water_sediment~bedload__trapping_efficiency':</span> <span class="pre">'reservoir_trapping_efficiency'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'meta_natural_reservoirs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_natural_reservoirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs" title="Link to this definition">#</a></dt>
+<dd><p>Generate maps of natural reservoir areas (lakes) and outlets.</p>
+<p>This method is a specialized version of the <cite>setup_reservoirs</cite> method
+that is specifically designed for lakes, which are natural water bodies
+without artificial dams.</p>
+<p>This means the trapping efficiency is set to 0.0 by default and the output
+staticgeoms will be called meta_natural_reservoirs.geojson by default.</p>
+<p>For a description of the parameters and functionality, see
+py:meth:<cite>setup_reservoirs</cite>.</p>
 </dd></dl>
 
 </section>
@@ -678,20 +658,20 @@ Defaults to Deltares’ Global Water Watch database.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.workflows.waterbodymaps.html"
+       href="hydromt_wflow.WflowSedimentModel.setup_rivers.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.waterbodymaps</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_rivers</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.lakeattrs.html"
+       href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.lakeattrs</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_reservoirs</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -714,7 +694,7 @@ Defaults to Deltares’ Global Water Watch database.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.reservoirattrs"><code class="docutils literal notranslate"><span class="pre">reservoirattrs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs"><code class="docutils literal notranslate"><span class="pre">WflowSedimentModel.setup_natural_reservoirs()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -722,7 +702,7 @@ Defaults to Deltares’ Global Water Watch database.</p></li>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.reservoirattrs.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -738,7 +718,7 @@ Defaults to Deltares’ Global Water Watch database.</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_generated/hydromt_wflow.workflows.reservoirattrs.rst.txt"
+      <li><a href="../_sources/_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

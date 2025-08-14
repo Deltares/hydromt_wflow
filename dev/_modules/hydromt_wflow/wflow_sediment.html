@@ -420,15 +420,16 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tomlkit</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.nodata</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoDataStrategy</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DATADIR</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sediment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATADIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.version_upgrade</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_reservoirs_to_wflow_v1_sediment</span><span class="p">,</span>
     <span class="n">convert_to_wflow_v1_sediment</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sediment</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowSedimentModel&quot;</span><span class="p">]</span>
 
@@ -621,85 +622,45 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to geoms</span></div>
 
 
-<div class="viewcode-block" id="WflowSedimentModel.setup_lakes">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lakes</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowSedimentModel.setup_natural_reservoirs">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_natural_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lakes_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span>
+        <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;lake_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
         <span class="p">},</span>
-        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lakes&quot;</span><span class="p">,</span>
+        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_natural_reservoirs&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of lake areas and outlets.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of natural reservoir areas (lakes) and outlets.</span>
 
-<span class="sd">        Also generates average lake area.</span>
+<span class="sd">        This method is a specialized version of the `setup_reservoirs` method</span>
+<span class="sd">        that is specifically designed for lakes, which are natural water bodies</span>
+<span class="sd">        without artificial dams.</span>
 
-<span class="sd">        The data is generated from features with ``min_area`` [km2] from a database with</span>
-<span class="sd">        lake geometry, IDs and metadata. Data required are lake ID &#39;waterbody_id&#39;,</span>
-<span class="sd">        average area &#39;Area_avg&#39; [m2].</span>
+<span class="sd">        This means the trapping efficiency is set to 0.0 by default and the output</span>
+<span class="sd">        staticgeoms will be called meta_natural_reservoirs.geojson by default.</span>
 
-<span class="sd">        Adds model layers:</span>
-
-<span class="sd">        * **lake_area_id** map: lake IDs [-]</span>
-<span class="sd">        * **lake_outlet_id** map: lake IDs at outlet locations [-]</span>
-<span class="sd">        * **lake_area** map: lake area [m2]</span>
-<span class="sd">        * **lakes** geom: polygon with lakes and wflow lake parameters</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        lakes_fn :</span>
-<span class="sd">            Name of GeoDataFrame source for lake parameters.</span>
-
-<span class="sd">            * Required variables: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;]</span>
-<span class="sd">        min_area : float, optional</span>
-<span class="sd">            Minimum lake area threshold [km2], by default 1.0 km2.</span>
-<span class="sd">        output_names : dict, optional</span>
-<span class="sd">            Dictionary with output names that will be used in the model netcdf input</span>
-<span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
-<span class="sd">            in the netcdf file.</span>
-<span class="sd">        geom_name : str, optional</span>
-<span class="sd">            Name of the lakes geometry in the staticgeoms folder, by default &#39;lakes&#39;</span>
-<span class="sd">            for lakes.geojson.</span>
-<span class="sd">        kwargs: optional</span>
-<span class="sd">            Keyword arguments passed to the method</span>
-<span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
+<span class="sd">        For a description of the parameters and functionality, see</span>
+<span class="sd">        py:meth:`setup_reservoirs`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Derive lake are and outlet maps</span>
-        <span class="n">gdf_lakes</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
-            <span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
-
-        <span class="c1"># add lake area</span>
-        <span class="n">gdf_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">gdf_lakes</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">]],</span>
-            <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_lakes</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">ds_lakes</span><span class="p">[</span><span class="s2">&quot;lake_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-            <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
-        <span class="p">)</span>
-
-        <span class="c1"># add to grid</span>
-        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-        <span class="c1"># write lakes with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
-
-        <span class="c1"># Lake settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.lake__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lake_area_id&quot;</span> <span class="ow">or</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_reservoirs</span><span class="p">(</span>
+            <span class="n">reservoirs_fn</span><span class="o">=</span><span class="n">reservoirs_fn</span><span class="p">,</span>
+            <span class="n">overwrite_existing</span><span class="o">=</span><span class="n">overwrite_existing</span><span class="p">,</span>
+            <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span>
+            <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
+            <span class="n">trapping_default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># lakes have no trapping efficiency</span>
+            <span class="n">output_names</span><span class="o">=</span><span class="n">output_names</span><span class="p">,</span>
+            <span class="n">geom_name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs">
@@ -707,6 +668,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">trapping_default</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
@@ -715,12 +678,12 @@
             <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
         <span class="p">},</span>
-        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reservoirs&quot;</span><span class="p">,</span>
+        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of reservoir areas and outlets.</span>
 
-<span class="sd">        Also generates well as parameters with average reservoir area,</span>
+<span class="sd">        Also generates parameters with average reservoir area,</span>
 <span class="sd">        and trapping efficiency for large particles.</span>
 
 <span class="sd">        The data is generated from features with ``min_area`` [km2] (default is 1 km2)</span>
@@ -731,8 +694,10 @@
 <span class="sd">        * **reservoir_area_id** map: reservoir IDs [-]</span>
 <span class="sd">        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]</span>
 <span class="sd">        * **reservoir_area** map: reservoir area [m2]</span>
-<span class="sd">        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency</span>
-<span class="sd">         coefficient [-]</span>
+<span class="sd">        * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency</span>
+<span class="sd">         coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)</span>
+<span class="sd">        * **meta_reservoirs** geom: polygon with reservoirs and parameters</span>
+<span class="sd">        * **reservoirs** geom: polygon with all reservoirs as in the model</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -742,30 +707,54 @@
 <span class="sd">            * Required variables: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;]</span>
 
 <span class="sd">            * Optional variables: [&#39;reservoir_trapping_efficiency&#39;]</span>
+<span class="sd">        overwrite_existing : bool, optional</span>
+<span class="sd">            If True, overwrite existing reservoirs in the model grid, by default False.</span>
+<span class="sd">        duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">            Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">            existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">            to skip adding new reservoirs.</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum reservoir area threshold [km2], by default 1.0 km2.</span>
 <span class="sd">        trapping_default : float, optional</span>
 <span class="sd">            Default trapping efficiency coefficient for large particles [between 0 and</span>
 <span class="sd">            1], by default 1 to trap 100% of large particles (sand to gravel) for</span>
 <span class="sd">            example for gravity dam. For the others the natural deposition in</span>
-<span class="sd">            waterbodies from Camp is used.</span>
+<span class="sd">            reservoirs from Camp is used.</span>
 <span class="sd">        output_names : dict, optional</span>
 <span class="sd">            Dictionary with output names that will be used in the model netcdf input</span>
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
 <span class="sd">        geom_name : str, optional</span>
 <span class="sd">            Name of the reservoirs geometry in the staticgeoms folder, by default</span>
-<span class="sd">            &quot;reservoirs&quot; for reservoirs.geojson.</span>
+<span class="sd">            &quot;meta_reservoirs&quot; for meta_reservoirs.geojson.</span>
 <span class="sd">        kwargs: optional</span>
 <span class="sd">            Keyword arguments passed to the method</span>
 <span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Derive lake are and outlet maps</span>
-        <span class="n">gdf_res</span><span class="p">,</span> <span class="n">ds_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
-            <span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="c1"># retrieve data for basin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing reservoir maps.&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;predicate&quot;</span><span class="p">,</span> <span class="s2">&quot;contains&quot;</span><span class="p">)</span>
+        <span class="n">gdf_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+            <span class="n">reservoirs_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
+            <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Skip method if no data is returned</span>
+        <span class="k">if</span> <span class="n">gdf_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Derive reservoir area and outlet maps</span>
+        <span class="n">ds_res</span><span class="p">,</span> <span class="n">gdf_res</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoir_id_maps</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_res</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
+            <span class="n">uparea_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">],</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="c1"># No reservoir of sufficient size found</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
@@ -787,13 +776,37 @@
             <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="c1"># merge with existing reservoirs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite_existing</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">}</span>
+            <span class="n">ds_res</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">merge_reservoirs_sediment</span><span class="p">(</span>
+                <span class="n">ds_res</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+                <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Check if ds_res is None ie duplicate IDs</span>
+            <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Duplicate reservoir IDs found. Skip adding the new reservoirs.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+
         <span class="c1"># add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-        <span class="c1"># write lakes with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
 
-        <span class="c1"># Lake settings in the toml to update</span>
+        <span class="c1"># write reservoirs with attr tables to static geoms.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="c1"># Prepare a combined geoms of all reservoirs</span>
+        <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms_sediment</span><span class="p">(</span>
+            <span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Reservoir settings in the toml to update</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]:</span>
@@ -1398,10 +1411,14 @@
 
 <span class="sd">        The function reads a TOML from wflow v0x and converts it to wflow v1x format.</span>
 <span class="sd">        The other components stay the same.</span>
+
 <span class="sd">        A few variables that used to be computed within Wflow.jl are now moved to</span>
 <span class="sd">        HydroMT to allow more flexibility for the users to update if they do get local</span>
 <span class="sd">        data or calibrate some of the parameters specifically. For this, the</span>
 <span class="sd">        ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.</span>
+
+<span class="sd">        Lakes and reservoirs have also been merged into one structure and parameters in</span>
+<span class="sd">        the resulted staticmaps will be combined.</span>
 
 <span class="sd">        This function should be followed by ``write_config`` to write the upgraded TOML</span>
 <span class="sd">        file and by ``write_grid`` to write the upgraded static netcdf input file.</span>
@@ -1416,6 +1433,8 @@
 <span class="sd">            strord_name argument of setup_riverbedsed method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="n">config_v0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="c1"># tomlkit loads errors on this file so we have to do it in two steps</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
@@ -1434,7 +1453,20 @@
         <span class="p">)</span>
 
         <span class="c1"># Rerun setup_riverbedsed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_riverbedsed</span><span class="p">(</span><span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strord_name</span><span class="o">=</span><span class="n">strord_name</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_riverbedsed</span><span class="p">(</span><span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strord_name</span><span class="o">=</span><span class="n">strord_name</span><span class="p">)</span>
+
+        <span class="c1"># Merge lakes and reservoirs layers</span>
+        <span class="n">ds_res</span><span class="p">,</span> <span class="n">vars_to_remove</span><span class="p">,</span> <span class="n">config_opt</span> <span class="o">=</span> <span class="n">convert_reservoirs_to_wflow_v1_sediment</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">config_v0</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Remove older maps from grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">vars_to_remove</span><span class="p">)</span>
+            <span class="c1"># Add new reservoir maps to grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
+            <span class="c1"># Update the config with the new names</span>
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_opt</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 </div>
 
 </pre></div>

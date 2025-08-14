@@ -453,13 +453,9 @@
 <span class="sd">      overland flow for kinwave [m3/s] or overland flow in x/y directions for</span>
 <span class="sd">      local-inertial [m3/s]</span>
 
-<span class="sd">    If lakes, also adds:</span>
-
-<span class="sd">    * **lake_instantaneous_water_level**: lake water level [m]</span>
-
 <span class="sd">    If reservoirs, also adds:</span>
 
-<span class="sd">    * **reservoir_instantaneous_volume**: reservoir volume [m3]</span>
+<span class="sd">    * **reservoir_instantaneous_water_level**: reservoir water level [m]</span>
 
 <span class="sd">    If glaciers, also adds:</span>
 
@@ -481,9 +477,8 @@
 <span class="sd">            soil_brooks_corey_c, soilthickness,</span>
 <span class="sd">            theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio</span>
 
-<span class="sd">        * Optional variables (exact name from the wflow config): reservoir.locs,</span>
-<span class="sd">            glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,</span>
-<span class="sd">            lake.waterlevel</span>
+<span class="sd">        * Optional variables (exact name from the wflow config):</span>
+<span class="sd">            glacierstore, reservoir_water_surface__initial_elevation</span>
 <span class="sd">    config : dict</span>
 <span class="sd">        Wflow configuration dictionary.</span>
 <span class="sd">    timestamp : str, optional</span>
@@ -666,44 +661,18 @@
 
     <span class="c1"># reservoir</span>
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">tff</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;reservoir_water~full-target__volume_fraction&quot;</span><span class="p">,</span>
+        <span class="n">rl</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
+            <span class="s2">&quot;reservoir_water_surface__initial_elevation&quot;</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">mv</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;reservoir_water__max_volume&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">locs</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">resvol</span> <span class="o">=</span> <span class="n">tff</span> <span class="o">*</span> <span class="n">mv</span>
-        <span class="n">resvol</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">locs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">resvol</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
-        <span class="n">resvol</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_instantaneous_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resvol</span>
+        <span class="n">rl</span> <span class="o">=</span> <span class="n">rl</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rl</span> <span class="o">!=</span> <span class="n">rl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
+        <span class="n">rl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rl</span>
 
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.reservoir_instantaneous_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;reservoir_instantaneous_volume&quot;</span>
-        <span class="p">)</span>
-
-    <span class="c1"># lake</span>
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lake__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">ll</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;lake_water_surface__initial_elevation&quot;</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ll</span> <span class="o">=</span> <span class="n">ll</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ll</span> <span class="o">!=</span> <span class="n">ll</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
-        <span class="n">ll</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;lake_instantaneous_water_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ll</span>
-
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.lake_water_surface__instantaneous_elevation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;lake_instantaneous_water_level&quot;</span>
-        <span class="p">)</span>
+        <span class="n">states_config</span><span class="p">[</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span>
 
     <span class="c1"># glacier</span>
     <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;glacier__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>

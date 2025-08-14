@@ -484,10 +484,10 @@ enumerating the methods by adding a number to the end of the method name. For ex
 <h2>Updating a Wflow model<a class="headerlink" href="#updating-a-wflow-model" title="Link to this heading">#</a></h2>
 <blockquote>
 <div><div class="line-block">
-<div class="line"><strong>Q</strong>: Is there an easy way to update reservoirs or lakes parameters in my Wflow model ?</div>
+<div class="line"><strong>Q</strong>: Is there an easy way to update reservoir parameters in my Wflow model ?</div>
 </div>
 </div></blockquote>
-<p>To easily update reservoirs or lakes parameters, you can directly use the <em>reservoirs.geojson</em> and <em>lakes.geojson</em> that are saved
+<p>To easily update reservoir parameters, you can directly use the <em>meta_reservoirs_simple_control.geojson</em> and <em>meta_reservoirs_no_control.geojson</em> that are saved
 by HydroMT into the <em>staticgeoms</em> folder. Once you have updated the parameters with the new value, just use these geojson files as
 your new “local” input data!</p>
 <blockquote>
@@ -506,13 +506,13 @@ where you can specify which TOML file to use using the <em>config_fn</em> argume
 <h2>Others<a class="headerlink" href="#others" title="Link to this heading">#</a></h2>
 <blockquote>
 <div><div class="line-block">
-<div class="line"><strong>Q</strong>: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?</div>
+<div class="line"><strong>Q</strong>: Can I convert my old Wflow model to the new Wflow Julia version with HydroMT ?</div>
 </div>
 </div></blockquote>
-<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster" title="hydromt_wflow.WflowModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a>. See this example: <a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html"><span class="doc">convert_staticmaps_to_mapstack.ipynb</span></a>.
-So actually just a read and write of your python model will do most of the job :) For lakes and reservoirs parameters,
-the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating
-reservoir).</p>
+<p>Conversion from an old python Wflow model to Wflow Julia is not possible anymore since HydroMT Wflow version 1.0.
+You can use an older version to do so and check the required steps in the previous version of this documentation page.</p>
+<p>We do support conversion of Wflow v0.x Julia models to Wflow v1.x Julia models using the <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowModel.upgrade_to_v1_wflow" title="hydromt_wflow.WflowModel.upgrade_to_v1_wflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">upgrade_to_v1_wflow()</span></code></a> method.
+See the corresponding example for more information: <a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html"><span class="doc">Upgrade to Wflow.jl version 1</span></a></p>
 </section>
 </section>
 

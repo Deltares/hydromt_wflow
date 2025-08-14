@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.WflowModel.setup_lakes &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.workflows.create_reservoirs_geoms &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -45,12 +45,12 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_lakes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.create_reservoirs_geoms';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.setup_reservoirs" href="hydromt_wflow.WflowModel.setup_reservoirs.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.setup_floodplains" href="hydromt_wflow.WflowModel.setup_floodplains.html" />
+    <link rel="next" title="hydromt_wflow.workflows.create_reservoirs_geoms_sediment" href="hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html" />
+    <link rel="prev" title="hydromt_wflow.workflows.merge_reservoirs_sediment" href="hydromt_wflow.workflows.merge_reservoirs_sediment.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -366,13 +366,13 @@
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.html">hydromt_wflow.WflowModel</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_lakes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_no_control.html">hydromt_wflow.WflowModel.setup_reservoirs_no_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_simple_control.html">hydromt_wflow.WflowModel.setup_reservoirs_simple_control</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowModel.setup_lulcmaps_from_vector</a></li>
@@ -462,7 +462,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">hydromt_wflow.WflowSedimentModel.setup_lakes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector</a></li>
@@ -526,7 +526,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_results.html">hydromt_wflow.WflowSedimentModel.read_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html">hydromt_wflow.WflowSedimentModel.set_flwdir</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
@@ -552,9 +552,13 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.update_soil_with_paddy.html">hydromt_wflow.workflows.update_soil_with_paddy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_id_maps.html">hydromt_wflow.workflows.reservoir_id_maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_simple_control_parameters.html">hydromt_wflow.workflows.reservoir_simple_control_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_parameters.html">hydromt_wflow.workflows.reservoir_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.merge_reservoirs.html">hydromt_wflow.workflows.merge_reservoirs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.merge_reservoirs_sediment.html">hydromt_wflow.workflows.merge_reservoirs_sediment</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.create_reservoirs_geoms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html">hydromt_wflow.workflows.create_reservoirs_geoms_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -609,7 +613,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.WflowModel.setup_lakes</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.create_reservoirs_geoms</span></li>
   </ul>
 </nav>
 </div>
@@ -626,74 +630,24 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-wflowmodel-setup-lakes">
-<h1>hydromt_wflow.WflowModel.setup_lakes<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-lakes" title="Link to this heading">#</a></h1>
-<dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_lakes">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lakes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><span class="pre">GeoDataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating_curve_fns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_maxstorage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'lake_area__count':</span> <span class="pre">'lake_area_id',</span> <span class="pre">'lake_location__count':</span> <span class="pre">'lake_outlet_id',</span> <span class="pre">'lake_surface__area':</span> <span class="pre">'lake_area',</span> <span class="pre">'lake_water__rating_curve_coefficient':</span> <span class="pre">'lake_b',</span> <span class="pre">'lake_water__rating_curve_exponent':</span> <span class="pre">'lake_e',</span> <span class="pre">'lake_water__rating_curve_type_count':</span> <span class="pre">'lake_rating_curve',</span> <span class="pre">'lake_water__storage_curve_type_count':</span> <span class="pre">'lake_storage_curve',</span> <span class="pre">'lake_water_flow_threshold-level__elevation':</span> <span class="pre">'lake_outflow_threshold',</span> <span class="pre">'lake_water_surface__initial_elevation':</span> <span class="pre">'lake_initial_depth',</span> <span class="pre">'lake~lower_location__count':</span> <span class="pre">'lake_lower_id'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lakes'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lakes" title="Link to this definition">#</a></dt>
-<dd><p>Generate maps of lake areas and outlets.</p>
-<p>Also meant to generate parameters with average lake area,
-depth and discharge values. The data is generated from features with
-<code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] (default 1 km2) from a database with lake geometry, IDs and
-metadata. Data required are lake ID ‘waterbody_id’,
-average area ‘Area_avg’ [m2], average volume ‘Vol_avg’ [m3],
-average depth ‘Depth_avg’ [m] and average discharge ‘Dis_avg’ [m3/s].</p>
-<p>If rating curve data is available for storage and discharge they can be prepared
-via <code class="docutils literal notranslate"><span class="pre">rating_curve_fns</span></code> (see below for syntax and requirements).
-Else the parameters ‘lake_b’ and ‘lake_e’ will be used for discharge and
-for storage a rectangular profile lake is assumed.
-See Wflow documentation for more information.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">add_maxstorage</span></code> is True, the maximum storage of the lake is added to the
-output (controlled lake) based on ‘Vol_max’ [m3] column of lakes_fn.</p>
-<p>Adds model layers:</p>
-<ul class="simple">
-<li><p><strong>lake_area_id</strong> map: lake IDs [-]</p></li>
-<li><p><strong>lake_outlet_id</strong> map: lake IDs at outlet locations [-]</p></li>
-<li><p><strong>lake_area</strong> map: lake area [m2]</p></li>
-<li><p><strong>lake_initial_depth</strong> map: lake average water level [m]</p></li>
-<li><p><strong>lake_outflow_threshold</strong> map: lake outflow threshold water level [m]</p></li>
-<li><p><strong>meta_lake_mean_outflow</strong> map: lake average discharge [m3/s]</p></li>
-<li><p><strong>lake_b</strong> map: lake rating curve coefficient [-]</p></li>
-<li><p><strong>lake_e</strong> map: lake rating curve exponent [-]</p></li>
-<li><p><strong>lake_rating_curve</strong> map: option to compute rating curve [-]</p></li>
-<li><p><strong>lake_storage_curve</strong> map: option to compute storage curve [-]</p></li>
-<li><p><strong>lake_lower_id</strong> map: optional, lower linked lake locations [-]</p></li>
-<li><p><strong>LakeMaxStorage</strong> map: optional, maximum storage of lake [m3]</p></li>
-<li><p><strong>lakes</strong> geom: polygon with lakes and wflow lake parameters</p></li>
-</ul>
+  <section id="hydromt-wflow-workflows-create-reservoirs-geoms">
+<h1>hydromt_wflow.workflows.create_reservoirs_geoms<a class="headerlink" href="#hydromt-wflow-workflows-create-reservoirs-geoms" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="hydromt_wflow.workflows.create_reservoirs_geoms">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">create_reservoirs_geoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['reservoir_area',</span> <span class="pre">'reservoir_initial_depth',</span> <span class="pre">'reservoir_rating_curve',</span> <span class="pre">'reservoir_storage_curve',</span> <span class="pre">'reservoir_max_volume',</span> <span class="pre">'reservoir_target_min_fraction',</span> <span class="pre">'reservoir_target_full_fraction',</span> <span class="pre">'reservoir_demand',</span> <span class="pre">'reservoir_max_release',</span> <span class="pre">'reservoir_b',</span> <span class="pre">'reservoir_e',</span> <span class="pre">'reservoir_outflow_threshold',</span> <span class="pre">'reservoir_lower_id',</span> <span class="pre">'reservoir_area_id',</span> <span class="pre">'reservoir_outlet_id']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><span class="pre">GeoDataFrame</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/reservoirs.html#create_reservoirs_geoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.create_reservoirs_geoms" title="Link to this definition">#</a></dt>
+<dd><p>Create a GeoDataFrame of reservoir geometries for the sediment model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lakes_fn</strong> – <p>Name of GeoDataFrame source for lake parameters.</p>
-<ul>
-<li><p>Required variables for direct use: ‘waterbody_id’ [-], ‘Area_avg’ [m2], ‘Depth_avg’ [m], ‘Dis_avg’ [m3/s], ‘lake_b’ [-], ‘lake_e’ [-], ‘lake_rating_curve’ [-], ‘lake_storage_curve’ [-], ‘lake_outflow_threshold’ [m], ‘lake_lower_id’ [-]</p></li>
-<li><p>Required variables for parameter estimation: ‘waterbody_id’ [-], ‘Area_avg’ [m2], ‘Vol_avg’ [m3], ‘Depth_avg’ [m], ‘Dis_avg’[m3/s]</p></li>
+<li><p><strong>ds_res</strong> (<em>xr.Dataset</em>) – Dataset containing the reservoir data.</p></li>
+<li><p><strong>layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – List of layer names to include in the GeoDataFrame.</p></li>
 </ul>
-</p></li>
-<li><p><strong>rating_curve_fns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.1)"><em>pandas.DataFrame</em></a><em>, </em><em>List</em><em>, </em><em>optional</em>) – <p>Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
-curve values for lakes. If None then will be derived from properties of
-<cite>lakes_fn</cite>.
-Assumes one file per lake (with all variables) and that the lake ID is
-either in the filename or data catalog entry name (eg using placeholder).
-The ID should be placed at the end separated by an underscore (eg
-‘rating_curve_12.csv’ or ‘rating_curve_12’)</p>
-<ul>
-<li><p>Required variables for storage curve: ‘elevtn’ [m+REF], ‘volume’ [m3]</p></li>
-<li><p>Required variables for rating curve: ‘elevtn’ [m+REF], ‘discharge’ [m3/s]</p></li>
-</ul>
-</p></li>
-<li><p><strong>min_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum lake area threshold [km2], by default 10.0 km2.</p></li>
-<li><p><strong>add_maxstorage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, maximum storage of the lake is added to the output
-(controlled lake) based on ‘Vol_max’ [m3] column of lakes_fn.
-By default False (natural lake).</p></li>
-<li><p><strong>output_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with output names that will be used in the model netcdf input
-files. Users should provide the Wflow.jl variable name followed by the name
-in the netcdf file.</p></li>
-<li><p><strong>geom_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the lakes geometry in the staticgeoms folder, by default ‘lakes’
-for lakes.geojson.</p></li>
-<li><p><strong>kwargs</strong> (<em>optional</em>) – Keyword arguments passed to the method
-hydromt.DataCatalog.get_rasterdataset()</p></li>
-</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>GeoDataFrame containing the reservoir geometries and properties.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>gpd.GeoDataFrame</p>
 </dd>
 </dl>
 </dd></dl>
@@ -711,20 +665,20 @@ hydromt.DataCatalog.get_rasterdataset()</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowModel.setup_floodplains.html"
+       href="hydromt_wflow.workflows.merge_reservoirs_sediment.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_floodplains</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.merge_reservoirs_sediment</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.WflowModel.setup_reservoirs.html"
+       href="hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_reservoirs</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.create_reservoirs_geoms_sediment</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -747,7 +701,7 @@ hydromt.DataCatalog.get_rasterdataset()</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.setup_lakes"><code class="docutils literal notranslate"><span class="pre">WflowModel.setup_lakes()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.create_reservoirs_geoms"><code class="docutils literal notranslate"><span class="pre">create_reservoirs_geoms()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -755,7 +709,7 @@ hydromt.DataCatalog.get_rasterdataset()</p></li>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.setup_lakes.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.create_reservoirs_geoms.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -771,7 +725,7 @@ hydromt.DataCatalog.get_rasterdataset()</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_lakes.rst.txt"
+      <li><a href="../_sources/_generated/hydromt_wflow.workflows.create_reservoirs_geoms.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

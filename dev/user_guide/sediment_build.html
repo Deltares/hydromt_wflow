@@ -525,8 +525,8 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
 <span class="w">  </span><span class="nt">trapping_default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">   </span><span class="c1"># default trapping efficiency for reservoirs [0-1]</span>
 
-<span class="nt">setup_lakes</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">lakes_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_lakes</span><span class="w">      </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
+<span class="nt">setup_natural_reservoirs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reservoirs_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_lakes</span><span class="w">      </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
 <span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">              </span><span class="c1"># minimum reservoir area to consider [km2]</span>
 
 <span class="nt">setup_riverbedsed</span><span class="p">:</span>
@@ -610,12 +610,15 @@ command line would be:</p>
 <span class="nt">setup_riverbedsed</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">bedsed_mapping_fn</span><span class="p">:</span><span class="w">       </span><span class="c1"># path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used</span>
 
-<span class="c1"># # If you do have data on trapping efficiency, you can re-run setup_reservoirs to add it</span>
-<span class="c1"># Else you can use a default of 1 via setup_constant_pars below</span>
+<span class="c1"># # If you do have reservoirs, you can re-run setup_natural_reservoirs and setup_reservoirs to add it</span>
 <span class="c1"># setup_reservoirs:</span>
 <span class="c1">#   reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes</span>
 <span class="c1">#   min_area: 1.0           # minimum lake area to consider [km2]</span>
 <span class="c1">#   trapping_default: 1.0   # default trapping efficiency for reservoirs [0-1]</span>
+<span class="c1">#</span>
+<span class="c1"># setup_natural_reservoirs:</span>
+<span class="c1">#   reservoirs_fn: hydro_lakes   # source for uncontrolled reservoirs (e.g. lakes) based on hydroLAKES: {hydro_lakes}</span>
+<span class="c1">#   min_area: 10.0          # minimum reservoir area to consider [km2]</span>
 
 <span class="nt">setup_lulcmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>

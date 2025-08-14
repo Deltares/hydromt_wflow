@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>hydromt_wflow.workflows.waterbodies &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.workflows.reservoirs &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -44,7 +44,7 @@
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/waterbodies';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/reservoirs';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -391,7 +391,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.waterbodies</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.reservoirs</span></li>
   </ul>
 </nav>
 </div>
@@ -408,41 +408,92 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for hydromt_wflow.workflows.waterbodies</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Waterbody workflows for Wflow plugin.&quot;&quot;&quot;</span>
+  <h1>Source code for hydromt_wflow.workflows.reservoirs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Reservoir workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">join</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waterbodymaps&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoirattrs&quot;</span><span class="p">,</span> <span class="s2">&quot;lakeattrs&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;reservoir_id_maps&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_simple_control_parameters&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_parameters&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;merge_reservoirs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;merge_reservoirs_sediment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;create_reservoirs_geoms&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;create_reservoirs_geoms_sediment&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">RESERVOIR_COMMON_PARAMETERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">RESERVOIR_CONTROL_PARAMETERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">RESERVOIR_UNCONTROL_PARAMETERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;reservoir_b&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_e&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">RESERVOIR_LAYERS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">RESERVOIR_COMMON_PARAMETERS</span>
+    <span class="o">+</span> <span class="n">RESERVOIR_CONTROL_PARAMETERS</span>
+    <span class="o">+</span> <span class="n">RESERVOIR_UNCONTROL_PARAMETERS</span>
+    <span class="o">+</span> <span class="p">[</span>
+        <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">RESERVOIR_LAYERS_SEDIMENT</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 
-<div class="viewcode-block" id="waterbodymaps">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">waterbodymaps</span><span class="p">(</span>
-    <span class="n">gdf</span><span class="p">,</span>
-    <span class="n">ds_like</span><span class="p">,</span>
-    <span class="n">wb_type</span><span class="o">=</span><span class="s2">&quot;reservoir&quot;</span><span class="p">,</span>
-    <span class="n">uparea_name</span><span class="o">=</span><span class="s2">&quot;uparea&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="reservoir_id_maps">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoir_id_maps.html#hydromt_wflow.workflows.reservoir_id_maps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reservoir_id_maps</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">uparea_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uparea&quot;</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return waterbody (reservoir/lake) maps (see list below).</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return reservoir location maps (see list below).</span>
 
 <span class="sd">    At model resolution based on gridded upstream area data input or outlet coordinates.</span>
 
-<span class="sd">    The following waterbody maps are calculated:</span>
+<span class="sd">    The following reservoir maps are calculated:</span>
 
-<span class="sd">    - reservoir_area_id/lake_area_id : waterbody areas mask [ID]</span>
-<span class="sd">    - reservoir_outlet_id/lake_outet_id : waterbody outlets [ID]</span>
+<span class="sd">    - reservoir_area_id : reservoir areas mask [ID]</span>
+<span class="sd">    - reservoir_outlet_id : reservoir outlets [ID]</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -450,18 +501,45 @@
 <span class="sd">        GeoDataFrame containing reservoirs/lakes geometries and attributes.</span>
 <span class="sd">    ds_like : xarray.DataArray</span>
 <span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    min_area : float, optional</span>
+<span class="sd">        Minimum reservoir area threshold [km2], by default 0.0 km2.</span>
 <span class="sd">    uparea_name : str, optional</span>
 <span class="sd">        Name of uparea variable in ds_like. If None then database coordinates will be</span>
 <span class="sd">        used to setup outlets</span>
-<span class="sd">    wb_type : str, optional either &quot;reservoir&quot; or &quot;lake&quot;</span>
-<span class="sd">        Option to change the name of the maps depending on reservoir or lake</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xarray.DataArray</span>
-<span class="sd">        Dataset containing gridded waterbody data</span>
+<span class="sd">        Dataset containing gridded reservoir data</span>
+<span class="sd">    gdf : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing (updated) reservoir outlet coordinates.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Rasterize the GeoDataFrame to get the areas mask of waterbodies</span>
+    <span class="c1"># Check if uparea_name in ds_like</span>
+    <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Upstream area map for reservoir outlet setup not found. &quot;</span>
+            <span class="s2">&quot;Database coordinates used instead&quot;</span>
+        <span class="p">)</span>
+        <span class="n">uparea_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># skip small size reservoirs</span>
+    <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">min_area_m2</span> <span class="o">=</span> <span class="n">min_area</span> <span class="o">*</span> <span class="mf">1e6</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">Area_avg</span> <span class="o">&gt;=</span> <span class="n">min_area_m2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Reservoir&#39;s database has no area attribute. &quot;</span>
+            <span class="s2">&quot;All reservoirs will be considered.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># check if any reservoirs are left after filtering</span>
+    <span class="n">nb_wb</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nb_wb</span><span class="si">}</span><span class="s2"> reservoir(s) of sufficient size found within region.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nb_wb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="c1">### Compute reservoir maps</span>
+    <span class="c1"># Rasterize the GeoDataFrame to get the areas mask of reservoirs</span>
     <span class="n">res_id</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="n">da_wbmask</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
         <span class="n">gdf</span><span class="p">,</span>
@@ -483,12 +561,12 @@
             <span class="s2">&quot; Consider increasing the lakes min_area threshold.&quot;</span>
         <span class="p">)</span>
 
-    <span class="c1"># Initialize the waterbody outlet map</span>
+    <span class="c1"># Initialize the reservoir outlet map</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
     <span class="c1"># If an upstream area map is present in the model, gets outlets coordinates using/</span>
-    <span class="c1"># the maximum uparea in each waterbody mask to match model river network.</span>
+    <span class="c1"># the maximum uparea in each reservoir mask to match model river network.</span>
     <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">uparea_name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> outlet map based maximum upstream area.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting reservoir outlet map based maximum upstream area.&quot;</span><span class="p">)</span>
         <span class="c1"># create dataframe with x and y coord to be filled in either from uparea or from</span>
         <span class="c1"># xout and yout in hydrolakes data</span>
         <span class="n">outdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">xout</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">yout</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -504,16 +582,16 @@
             <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ydim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">yacc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">xdim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">xacc</span><span class="p">}]</span> <span class="o">=</span> <span class="n">i</span>
             <span class="n">outdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">outdf</span><span class="o">.</span><span class="n">waterbody_id</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;xout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xacc</span>
             <span class="n">outdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">outdf</span><span class="o">.</span><span class="n">waterbody_id</span> <span class="o">==</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;yout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yacc</span>
-        <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">outdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gp</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">outdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">outdf</span><span class="o">.</span><span class="n">yout</span><span class="p">)</span>
+        <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">outdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">outdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">outdf</span><span class="o">.</span><span class="n">yout</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="c1"># ELse use coordinates from the waterbody database</span>
+    <span class="c1"># ELse use coordinates from the reservoir database</span>
     <span class="k">elif</span> <span class="s2">&quot;xout&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;yout&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> outlet map based on coordinates.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting reservoir outlet map based on coordinates.&quot;</span><span class="p">)</span>
         <span class="n">outdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;xout&quot;</span><span class="p">,</span> <span class="s2">&quot;yout&quot;</span><span class="p">]]</span>
-        <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">outdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gp</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">outdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">outdf</span><span class="o">.</span><span class="n">yout</span><span class="p">)</span>
+        <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">outdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">outdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">outdf</span><span class="o">.</span><span class="n">yout</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">outgdf</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
@@ -522,8 +600,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Neither upstream area map nor </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2">&#39;s outlet coordinates found. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Setting </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> outlet map equal to the area map.&quot;</span>
+            <span class="s2">&quot;Neither upstream area map nor reservoir&#39;s outlet coordinates found. &quot;</span>
+            <span class="s2">&quot;Setting reservoir outlet map equal to the area map.&quot;</span>
         <span class="p">)</span>
         <span class="c1"># dummy outgdf</span>
         <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]]</span>
@@ -532,21 +610,23 @@
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">wb_type</span> <span class="o">==</span> <span class="s2">&quot;lake&quot;</span><span class="p">:</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
+    <span class="c1"># update/replace xout and yout in gdf_org from outgdf:</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;xout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outgdf</span><span class="p">[</span><span class="s2">&quot;xout&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outgdf</span><span class="p">[</span><span class="s2">&quot;yout&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">outgdf</span></div>
+    <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">gdf</span></div>
 
 
 
-<div class="viewcode-block" id="reservoirattrs">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">reservoirattrs</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<div class="viewcode-block" id="reservoir_simple_control_parameters">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoir_simple_control_parameters.html#hydromt_wflow.workflows.reservoir_simple_control_parameters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reservoir_simple_control_parameters</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_reservoirs</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return reservoir attributes (see list below) needed for modelling.</span>
 
 <span class="sd">    When specified, some of the reservoir attributes can be derived from \</span>
@@ -558,33 +638,129 @@
 
 <span class="sd">    - reservoir_max_volume : reservoir maximum volume [m3]</span>
 <span class="sd">    - reservoir_area : reservoir area [m2]</span>
+<span class="sd">    - reservoir_initial_depth : reservoir initial water level [m]</span>
+<span class="sd">    - reservoir_rating_curve : option to compute rating curve [-]</span>
+<span class="sd">    - reservoir_storage_curve : option to compute storage curve [-]</span>
 <span class="sd">    - reservoir_demand : reservoir demand flow [m3/s]</span>
 <span class="sd">    - reservoir_max_release : reservoir maximum release flow [m3/s]</span>
 <span class="sd">    - reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]</span>
 <span class="sd">    - reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]</span>
+
+<span class="sd">    Two additional tables will be prepared and saved if output_folder is specified:</span>
+<span class="sd">    &quot;reservoir_timeseries_{timeseries_fn}.csv&quot; contains the timeseries downloaded from</span>
+<span class="sd">    ``timeseries_fn``; &quot;reservoir_accuracy.csv&quot; contains debugging values for reservoir</span>
+<span class="sd">    building.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing reservoirs geometries and attributes.</span>
+<span class="sd">    ds_reservoirs : xarray.Dataset</span>
+<span class="sd">        Dataset containing reservoir location and outlet id at model resolution.</span>
+<span class="sd">    timeseries_fn : str, optional</span>
+<span class="sd">        Name of database from which time series of reservoir surface water area</span>
+<span class="sd">        will be retrieved.</span>
+<span class="sd">        Currently available: [&#39;jrc&#39;, &#39;gww&#39;]</span>
+<span class="sd">        Defaults to Deltares&#39; Global Water Watch database.</span>
+<span class="sd">    output_folder: str or Path, optional</span>
+<span class="sd">        Folder to save the reservoir time series data and parameter accuracy as .csv</span>
+<span class="sd">        files. If None, no file will be saved.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_reservoirs : xarray.Dataset</span>
+<span class="sd">        Dataset containing reservoir locations and parameters at model resolution.</span>
+<span class="sd">    gdf_out : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing reservoir parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">RESERVOIR_COMMON_PARAMETERS</span> <span class="o">+</span> <span class="n">RESERVOIR_CONTROL_PARAMETERS</span>
+    <span class="p">)</span>
+    <span class="c1"># if present use directly</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">layers</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+        <span class="n">df_reservoirs</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">layers</span><span class="p">]</span>
+    <span class="c1"># else compute</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df_reservoirs</span> <span class="o">=</span> <span class="n">compute_reservoir_simple_control_parameters</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+            <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># create a geodf with id of reservoir and geometry at outflow location</span>
+    <span class="n">gdf_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">],</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">gdf_points</span> <span class="o">=</span> <span class="n">gdf_points</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">)</span>  <span class="c1"># merge</span>
+    <span class="c1"># add parameter attributes to polygon gdf:</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">)</span>
+
+    <span class="c1"># rasterize parameters to model resolution and add to ds_reservoirs</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gdf_points</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+        <span class="n">gdf_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">ds_reservoirs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_reservoirs</span><span class="p">,</span> <span class="n">gdf</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_reservoir_simple_control_parameters</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">perc_norm</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">perc_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return reservoir attributes (see list below) needed for modelling.</span>
+
+<span class="sd">    When specified, some of the reservoir attributes can be derived from \</span>
+<span class="sd">earth observation data.</span>
+<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \</span>
+<span class="sd">using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
+
+<span class="sd">    The following reservoir attributes are calculated:</span>
+
+<span class="sd">    - reservoir_max_volume : reservoir maximum volume [m3]</span>
+<span class="sd">    - reservoir_area : reservoir area [m2]</span>
+<span class="sd">    - reservoir_initial_depth : reservoir initial water level [m]</span>
+<span class="sd">    - reservoir_rating_curve : option to compute rating curve [-]</span>
+<span class="sd">    - reservoir_storage_curve : option to compute storage curve [-]</span>
+<span class="sd">    - reservoir_demand : reservoir demand flow [m3/s]</span>
+<span class="sd">    - reservoir_max_release : reservoir maximum release flow [m3/s]</span>
+<span class="sd">    - reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]</span>
+<span class="sd">    - reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]</span>
+
+<span class="sd">    Two additional tables will be prepared and saved if output_folder is specified:</span>
+<span class="sd">    &quot;reservoir_timeseries_{timeseries_fn}.csv&quot; contains the timeseries downloaded from</span>
+<span class="sd">    ``timeseries_fn``; &quot;reservoir_accuracy.csv&quot; contains debugging values for reservoir</span>
+<span class="sd">    building.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    gdf : geopandas.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame containing reservoirs geometries and attributes.</span>
 <span class="sd">    timeseries_fn : str, optional</span>
-<span class="sd">        Name of database from which time series of reservoir surface water area \</span>
-<span class="sd">will be retrieved.</span>
+<span class="sd">        Name of database from which time series of reservoir surface water area</span>
+<span class="sd">        will be retrieved.</span>
 <span class="sd">        Currently available: [&#39;jrc&#39;, &#39;gww&#39;]</span>
 <span class="sd">        Defaults to Deltares&#39; Global Water Watch database.</span>
 <span class="sd">    perc_norm : int, optional</span>
 <span class="sd">        Percentile for normal (operational) surface area</span>
 <span class="sd">    perc_min: int, optional</span>
 <span class="sd">        Percentile for minimal (operational) surface area</span>
+<span class="sd">    output_folder: str or Path, optional</span>
+<span class="sd">        Folder to save the reservoir time series data and parameter accuracy as .csv</span>
+<span class="sd">        files. If None, no file will be saved.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    df_out : pandas.DataFrame</span>
-<span class="sd">        DataFrame containing reservoir attributes.</span>
-<span class="sd">    df_plot : pandas.DataFrame</span>
-<span class="sd">        DataFrame containing debugging values for reservoir building.</span>
-<span class="sd">    df_ts : pandas.DataFrame</span>
-<span class="sd">        DataFrame containing all downloaded reservoir time series.</span>
+<span class="sd">        DataFrame containing reservoir parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;jrc&quot;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -625,6 +801,9 @@
                 <span class="s2">&quot;resid&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;resarea&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;resinitialdepth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;resratingcurve&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;resstoragecurve&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;resdemand&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;resmaxrelease&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;resfullfrac&quot;</span><span class="p">,</span>
@@ -636,11 +815,11 @@
     <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="c1"># Create similar dataframe for EO time series</span>
-    <span class="n">df_EO</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_eo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])),</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">([</span><span class="s2">&quot;resid&quot;</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]),</span>
     <span class="p">)</span>
-    <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="c1"># Create dtaframe for accuracy plots</span>
     <span class="n">df_plot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -675,11 +854,11 @@
                 <span class="c1"># Save area stats</span>
                 <span class="n">area_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time_series</span><span class="p">[</span><span class="s2">&quot;water_area&quot;</span><span class="p">])</span>  <span class="c1"># [m2]</span>
                 <span class="n">area_series_nozeros</span> <span class="o">=</span> <span class="n">area_series</span><span class="p">[</span><span class="n">area_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -721,11 +900,11 @@
                 <span class="c1"># Compute stats</span>
                 <span class="n">area_series</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">(</span><span class="n">time_series</span><span class="p">)[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
                 <span class="n">area_series_nozeros</span> <span class="o">=</span> <span class="n">area_series</span><span class="p">[</span><span class="n">area_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
-                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -734,7 +913,7 @@
     <span class="c1"># Sort timeseries dataframe (will be saved to root as .csv later)</span>
     <span class="n">df_ts</span> <span class="o">=</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 
-    <span class="c1"># Compute resdemand and resmaxrelease either from average discharge</span>
+    <span class="c1"># Compute resdemand and resmaxrelease from average discharge</span>
     <span class="k">if</span> <span class="s2">&quot;Dis_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resdemand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Dis_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">0.5</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxrelease&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Dis_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">4.0</span>
@@ -743,15 +922,15 @@
     <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">])</span>
+            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">])</span>
             <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
+            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
                 <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">])</span>
             <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># Get resmaxvolume from database</span>
     <span class="k">if</span> <span class="s2">&quot;Vol_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -766,10 +945,12 @@
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span>
         <span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]))</span>
 
+    <span class="c1"># Add storage and rating curve values (1 and 4)</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resratingcurve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resratingcurve&quot;</span><span class="p">]))</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resstoragecurve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resstoragecurve&quot;</span><span class="p">]))</span>
+
     <span class="c1"># Then compute from EO data and fill or replace the previous values</span>
     <span class="c1"># (if a valid source is provided)</span>
-    <span class="c1"># TODO for now assumes that the reservoir-db is used</span>
-    <span class="c1"># (combination of GRanD and HydroLAKES)</span>
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">infer_objects</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
         <span class="c1"># Initialise values</span>
@@ -777,12 +958,12 @@
         <span class="n">max_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Depth_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
-        <span class="n">norm_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;normarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">norm_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;normarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">if</span> <span class="s2">&quot;Capacity_norm&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">norm_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">norm_cap</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">min_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;minarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">min_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;minarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">if</span> <span class="s2">&quot;Capacity_min&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">min_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_min&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -805,12 +986,6 @@
 
         <span class="c1"># coefficient for linear relationship</span>
         <span class="n">lin_coeff</span> <span class="o">=</span> <span class="n">max_area</span> <span class="o">/</span> <span class="n">max_level_f</span>  <span class="c1"># [m2/m]</span>
-
-        <span class="c1">#        # adjust factor based on chosen method</span>
-        <span class="c1">#        if method == 0:</span>
-        <span class="c1">#            factor_used = factor_shape</span>
-        <span class="c1">#        elif method == 1:</span>
-        <span class="c1">#            factor_used = 1.0</span>
         <span class="n">factor_used</span> <span class="o">=</span> <span class="mf">1.0</span>
 
         <span class="c1"># Operational (norm) level</span>
@@ -903,160 +1078,162 @@
             <span class="n">accuracy_min</span> <span class="o">=</span> <span class="mi">5</span>
 
         <span class="c1"># Resume results</span>
-        <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cap_f</span>
-        <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_cap_f</span>
+        <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cap_f</span>
+        <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_cap_f</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;factor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor_shape</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;accuracy_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_min</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_norm</span>
 
     <span class="c1"># Depending on priority EO update fullfrac and min frac</span>
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">resminfrac</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">resfullfrac</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">resminfrac</span> <span class="o">=</span> <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">resfullfrac</span> <span class="o">=</span> <span class="n">df_eo</span><span class="p">[</span><span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resminfrac&quot;</span><span class="p">])</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resminfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resminfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
         <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
         <span class="n">mask</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">])</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
         <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Add initial depth</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resinitialdepth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># rename to wflow naming convention</span>
     <span class="n">tbls</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;resarea&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resstoragecurve&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resratingcurve&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resinitialdepth&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
         <span class="s2">&quot;resdemand&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>
         <span class="s2">&quot;resfullfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;resminfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>
         <span class="s2">&quot;resmaxrelease&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>
         <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;resid&quot;</span><span class="p">:</span> <span class="s2">&quot;expr1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resid&quot;</span><span class="p">:</span> <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="n">df_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">tbls</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span><span class="p">,</span> <span class="n">df_ts</span></div>
+    <span class="c1"># Save accuracy information on reservoir parameters</span>
+    <span class="k">if</span> <span class="n">output_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_plot</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
+        <span class="n">df_ts</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">df_out</span>
 
 
-
-<div class="viewcode-block" id="lakeattrs">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">lakeattrs</span><span class="p">(</span>
+<div class="viewcode-block" id="reservoir_parameters">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoir_parameters.html#hydromt_wflow.workflows.reservoir_parameters">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">reservoir_parameters</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">gdf</span><span class="p">:</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-    <span class="n">rating_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span>
-    <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">rating_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return lake attributes (see list below) needed for modelling.</span>
+<span class="sd">    Return (uncontrolled) reservoir attributes (see list below) needed for modelling.</span>
 
 <span class="sd">    If rating_dict is not empty, prepares also rating tables for wflow.</span>
 
 <span class="sd">    The following reservoir attributes are calculated:</span>
 
 <span class="sd">    - waterbody_id : waterbody id</span>
-<span class="sd">    - lake_area : lake area [m2]</span>
-<span class="sd">    - lake_initial_depth: lake average level or initial depth (cold state) [m]</span>
-<span class="sd">    - meta_lake_mean_outflow: lake average outflow [m3/s]</span>
-<span class="sd">    - lake_b: lake rating curve coefficient [-]</span>
-<span class="sd">    - lake_e: lake rating curve exponent [-]</span>
-<span class="sd">    - lake_storage_curve: option to compute storage curve [-]</span>
-<span class="sd">    - lake_rating_curve: option to compute rating curve [-]</span>
-<span class="sd">    - lake_outflow_threshold: minimum threshold for lake outflow [m]</span>
-<span class="sd">    - lake_lower_id: id of linked lake location if any</span>
-<span class="sd">    - meta_lake_max_storage: maximum storage [m3] (optional)</span>
+<span class="sd">    - reservoir_area : reservoir area [m2]</span>
+<span class="sd">    - reservoir_initial_depth: reservoir average level or initial depth (cold state) [m]</span>
+<span class="sd">    - meta_reservoir_mean_outflow: reservoir average outflow [m3/s]</span>
+<span class="sd">    - reservoir_b: reservoir rating curve coefficient [-]</span>
+<span class="sd">    - reservoir_e: reservoir rating curve exponent [-]</span>
+<span class="sd">    - reservoir_storage_curve: option to compute storage curve [-]</span>
+<span class="sd">    - reservoir_rating_curve: option to compute rating curve [-]</span>
+<span class="sd">    - reservoir_outflow_threshold: minimum threshold for reservoir outflow [m]</span>
+<span class="sd">    - reservoir_lower_id: id of linked reservoir location if any</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xr.Dataset</span>
-<span class="sd">        Dataset containing the lake locations and area</span>
-<span class="sd">    gdf : gp.GeoDataFrame</span>
-<span class="sd">        GeoDataFrame containing the lake locations and area</span>
+<span class="sd">        Dataset containing the reservoir locations and area</span>
+<span class="sd">    gdf : gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the reservoir locations and area</span>
 <span class="sd">    rating_dict : dict, optional</span>
 <span class="sd">        Dictionary containing the rating curve parameters, by default dict()</span>
-<span class="sd">    add_maxstorage : bool, optional</span>
-<span class="sd">        If True, adds the maximum storage to the output, by default False</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds : xr.Dataset</span>
-<span class="sd">        Dataset containing the lake locations with the attributes</span>
-<span class="sd">    gdf : gp.GeoDataFrame</span>
-<span class="sd">        GeoDataFrame containing the lake locations with the attributes</span>
+<span class="sd">        Dataset containing the reservoir locations with the attributes</span>
+<span class="sd">    gdf : gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the reservoir locations with the attributes</span>
 <span class="sd">    rating_curves : dict</span>
 <span class="sd">        Dictionary containing the rating curves in wflow format</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># rename to param values</span>
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Depth_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_initial_depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Depth_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
-    <span class="c1"># Add maximum volume / no filling of NaNs as assumes then</span>
-    <span class="c1"># natural lake and not controlled</span>
-    <span class="k">if</span> <span class="n">add_maxstorage</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;Vol_max&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Vol_max&quot;</span><span class="p">:</span> <span class="s2">&quot;meta_lake_max_storage&quot;</span><span class="p">})</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;No maximum storage &#39;Vol_max&#39; column found, </span><span class="se">\</span>
-<span class="s2">skip adding meta_lake_max_storage map.&quot;</span>
-            <span class="p">)</span>
-    <span class="c1"># Minimum value for LakeAvgOut</span>
-    <span class="n">LakeAvgOut</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_initial_depth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_e&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_e&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_outflow_threshold&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_outflow_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_lower_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_lower_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_storage_curve&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_storage_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="s2">&quot;lake_rating_curve&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;lake_rating_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
 
-    <span class="c1"># Check if some LakeAvgOut values have been replaced</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">LakeAvgOut</span> <span class="o">==</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">]):</span>
+    <span class="c1"># Minimum value for mean_outflow</span>
+    <span class="n">mean_outflow</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">],</span> <span class="mf">0.01</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_e&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_e&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_outflow_threshold&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_lower_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="c1"># Check if some mean_outflow values have been replaced</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">mean_outflow</span> <span class="o">==</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">]):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Some values of meta_lake_mean_outflow have been replaced by </span><span class="se">\</span>
-<span class="s2">a minimum value of 0.01m3/s&quot;</span>
+            <span class="s2">&quot;Some values of meta_reservoir_mean_outflow have been replaced by &quot;</span>
+            <span class="s2">&quot;a minimum value of 0.01m3/s&quot;</span>
         <span class="p">)</span>
 
     <span class="c1"># Check if rating curve is provided</span>
-    <span class="n">rating_curves</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">rating_curves</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rating_dict</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># Assume one rating curve per lake index</span>
-        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">rating_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">df_rate</span> <span class="o">=</span> <span class="n">rating_dict</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="c1"># Assume one rating curve per reservoir index</span>
+        <span class="k">for</span> <span class="n">wid</span> <span class="ow">in</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="n">wid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">wid</span> <span class="ow">in</span> <span class="n">rating_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">df_rate</span> <span class="o">=</span> <span class="n">rating_dict</span><span class="p">[</span><span class="n">wid</span><span class="p">]</span>
                 <span class="c1"># Prepare the right tables for wflow</span>
-                <span class="c1"># Update LakeStor and lake_rating_curve</span>
+                <span class="c1"># Update storage and rating curves</span>
                 <span class="c1"># Storage</span>
                 <span class="k">if</span> <span class="s2">&quot;volume&quot;</span> <span class="ow">in</span> <span class="n">df_rate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;lake_storage_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">wid</span><span class="p">,</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
                     <span class="n">df_stor</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
                         <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">]</span>
                     <span class="p">)</span>
                     <span class="n">df_stor</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;elevtn&quot;</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="c1"># add to rating_curves</span>
-                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lake_sh_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_stor</span>
+                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;reservoir_sh_</span><span class="si">{</span><span class="n">wid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_stor</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Storage data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Using default S=AH&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Storage data not available for reservoir </span><span class="si">{</span><span class="n">wid</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="s2">&quot;Using default S=AH&quot;</span>
                     <span class="p">)</span>
                 <span class="c1"># Rating</span>
                 <span class="k">if</span> <span class="s2">&quot;discharge&quot;</span> <span class="ow">in</span> <span class="n">df_rate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;lake_rating_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">wid</span><span class="p">,</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
                     <span class="n">df_rate</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;discharge&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
                         <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;discharge&quot;</span><span class="p">]</span>
                     <span class="p">)</span>
@@ -1069,41 +1246,266 @@
                     <span class="n">df_q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span>
                     <span class="n">df_q</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="c1"># add to rating_curves</span>
-                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lake_hq_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_q</span>
+                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;reservoir_hq_</span><span class="si">{</span><span class="n">wid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_q</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Rating data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
-<span class="s2">Using default Modified Puls Approach&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Rating data not available for reservoir </span><span class="si">{</span><span class="n">wid</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="s2">&quot;Using default Modified Puls Approach&quot;</span>
                     <span class="p">)</span>
 
-    <span class="c1"># Create raster of lake params</span>
-    <span class="n">lake_params</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_area&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_initial_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_b&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_e&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_storage_curve&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_rating_curve&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_outflow_threshold&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lake_lower_id&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;meta_lake_max_storage&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">lake_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;meta_lake_max_storage&quot;</span><span class="p">)</span>
-
-    <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-        <span class="n">gdf</span><span class="p">[</span><span class="n">lake_params</span><span class="p">],</span>
-        <span class="n">geometry</span><span class="o">=</span><span class="n">gp</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+    <span class="c1"># Create raster of reservoir params</span>
+    <span class="n">reservoir_params</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="n">RESERVOIR_COMMON_PARAMETERS</span>
+        <span class="o">+</span> <span class="n">RESERVOIR_UNCONTROL_PARAMETERS</span>
     <span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lake_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-        <span class="n">da_lake</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+    <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="n">reservoir_params</span><span class="p">],</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">reservoir_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">da_reservoir</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
-        <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_lake</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_reservoir</span>
 
     <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">rating_curves</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_duplicated_ids_in_merge</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if reservoir IDs in ds are not duplicated in ds_like.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing the merged reservoir layers.</span>
+<span class="sd">    duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">        Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">        existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">        to skip adding new reservoirs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset | None</span>
+<span class="sd">        Returns None if there are duplicated reservoir IDs, otherwise returns the</span>
+<span class="sd">        dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if there is no duplicated reservoir_outlet_id after merging</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># Remove NaN values from ids</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ids</span><span class="p">)]</span>
+    <span class="c1"># Get unique ids and their counts</span>
+    <span class="n">ids_unique</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Check if any id is duplicated</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">counts</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">duplicate_id</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Reservoir ID(s) </span><span class="si">{</span><span class="n">ids_unique</span><span class="p">[</span><span class="n">counts</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> are duplicated in the merged&quot;</span>
+                <span class="s2">&quot; dataset. This may lead to incorrect results. Either update the IDs &quot;</span>
+                <span class="s2">&quot;in the source dataset or use a different duplicate_id action.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">duplicate_id</span> <span class="o">==</span> <span class="s2">&quot;skip&quot;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Reservoir ID(s) </span><span class="si">{</span><span class="n">ids_unique</span><span class="p">[</span><span class="n">counts</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> are duplicated in the merged&quot;</span>
+                <span class="s2">&quot; dataset. This may lead to incorrect results. Skip merging reservoirs.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown duplicate_id action: </span><span class="si">{</span><span class="n">duplicate_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Choose from {&#39;error&#39;, &#39;skip&#39;}&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<div class="viewcode-block" id="merge_reservoirs">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.merge_reservoirs.html#hydromt_wflow.workflows.merge_reservoirs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_reservoirs</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge reservoir layers in ds to layers in ds_like.</span>
+
+<span class="sd">    It will first check if the IDs in ds are not duplicated in ds_like.</span>
+<span class="sd">    If they are, the function will raise a warning and return None.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir layers to be merged.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir layers to merge into.</span>
+<span class="sd">    duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">        Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">        existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">        to skip adding new reservoirs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset | None</span>
+<span class="sd">        Merged dataset of reservoir parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Loop over layers to merge</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">RESERVOIR_LAYERS</span><span class="p">:</span>
+        <span class="c1"># if layer is not in ds, skip it</span>
+        <span class="c1"># NaN can be ok: e.g. natural lake does not have reservoir_demand</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+
+        <span class="c1"># if layer is in ds_like, merge it</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+            <span class="c1"># merge the layer</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="c1"># else we just keep ds[layer] as it is</span>
+
+    <span class="k">return</span> <span class="n">_check_duplicated_ids_in_merge</span><span class="p">(</span>
+        <span class="n">ds_out</span><span class="p">,</span> <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="merge_reservoirs_sediment">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.merge_reservoirs_sediment.html#hydromt_wflow.workflows.merge_reservoirs_sediment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_reservoirs_sediment</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge reservoir layers in ds to layers in ds_like for wflow sediment.</span>
+
+<span class="sd">    It will check if the IDs in ds are not duplicated in ds_like.</span>
+<span class="sd">    If they are, the function will raise a warning and return None.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir layers to be merged.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir layers to merge into.</span>
+<span class="sd">    duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">        Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">        existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">        to skip adding new reservoirs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset | None</span>
+<span class="sd">        Merged dataset of reservoir parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Loop over layers to merge</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">RESERVOIR_LAYERS_SEDIMENT</span><span class="p">:</span>
+        <span class="c1"># if layer is in ds_like, merge it</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+            <span class="c1"># merge the layer</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># all parameters for sediment should be in both</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Reservoir layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> is not present in either the new dataset or&quot;</span>
+                <span class="s2">&quot;the wflow model. Skipping adding new reservoirs. Consider overwritting&quot;</span>
+                <span class="s2">&quot;to solve this issue.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">_check_duplicated_ids_in_merge</span><span class="p">(</span>
+        <span class="n">ds_out</span><span class="p">,</span> <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_reservoirs_geoms_sediment">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html#hydromt_wflow.workflows.create_reservoirs_geoms_sediment">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_reservoirs_geoms_sediment</span><span class="p">(</span>
+    <span class="n">ds_res</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a GeoDataFrame of reservoir geometries for the sediment model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_res : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the reservoir geometries and properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">create_reservoirs_geoms</span><span class="p">(</span><span class="n">ds_res</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="n">RESERVOIR_LAYERS_SEDIMENT</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_reservoirs_geoms">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.create_reservoirs_geoms.html#hydromt_wflow.workflows.create_reservoirs_geoms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_reservoirs_geoms</span><span class="p">(</span>
+    <span class="n">ds_res</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESERVOIR_LAYERS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a GeoDataFrame of reservoir geometries for the sediment model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_res : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir data.</span>
+<span class="sd">    layers : list[str], optional</span>
+<span class="sd">        List of layer names to include in the GeoDataFrame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the reservoir geometries and properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Vectorize the outlets in order to sample parameters values</span>
+    <span class="n">gdf_outlets</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+    <span class="c1"># Convert to points</span>
+    <span class="n">centroid</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">planar_operation_in_utm</span><span class="p">(</span>
+        <span class="n">gdf_outlets</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="n">geom</span><span class="o">.</span><span class="n">centroid</span>
+    <span class="p">)</span>
+    <span class="n">gdf_outlets</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroid</span>
+
+    <span class="c1"># Sample reservoir properties at the outlet locations</span>
+    <span class="n">res_layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">layer</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span> <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="p">]</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="n">res_layers</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">gdf_outlets</span><span class="p">)</span>
+    <span class="c1"># Convert to dataframe</span>
+    <span class="n">df_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+
+    <span class="c1"># Now we can vectorize the reservoir shapes and add the parameters by ID</span>
+    <span class="n">gdf_reservoirs</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+    <span class="c1"># Merge by index with df_params</span>
+    <span class="n">gdf_reservoirs</span> <span class="o">=</span> <span class="n">gdf_reservoirs</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">df_params</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Only keep geometry, layers and y, x columns</span>
+    <span class="n">gdf_reservoirs</span> <span class="o">=</span> <span class="n">gdf_reservoirs</span><span class="p">[</span>
+        <span class="n">res_layers</span> <span class="o">+</span> <span class="p">[</span><span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="c1"># Rename to xout and yout</span>
+    <span class="n">gdf_reservoirs</span> <span class="o">=</span> <span class="n">gdf_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">:</span> <span class="s2">&quot;xout&quot;</span><span class="p">,</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="s2">&quot;yout&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdf_reservoirs</span></div>
 
 </pre></div>
 

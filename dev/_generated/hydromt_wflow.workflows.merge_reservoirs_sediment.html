@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.workflows.waterbodymaps &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.workflows.merge_reservoirs_sediment &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -45,12 +45,12 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.waterbodymaps';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.merge_reservoirs_sediment';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.reservoirattrs" href="hydromt_wflow.workflows.reservoirattrs.html" />
-    <link rel="prev" title="hydromt_wflow.workflows.update_soil_with_paddy" href="hydromt_wflow.workflows.update_soil_with_paddy.html" />
+    <link rel="next" title="hydromt_wflow.workflows.create_reservoirs_geoms" href="hydromt_wflow.workflows.create_reservoirs_geoms.html" />
+    <link rel="prev" title="hydromt_wflow.workflows.merge_reservoirs" href="hydromt_wflow.workflows.merge_reservoirs.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -371,8 +371,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_no_control.html">hydromt_wflow.WflowModel.setup_reservoirs_no_control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs_simple_control.html">hydromt_wflow.WflowModel.setup_reservoirs_simple_control</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowModel.setup_lulcmaps_from_vector</a></li>
@@ -462,7 +462,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">hydromt_wflow.WflowSedimentModel.setup_lakes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector</a></li>
@@ -552,9 +552,13 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.update_soil_with_paddy.html">hydromt_wflow.workflows.update_soil_with_paddy</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.waterbodymaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_id_maps.html">hydromt_wflow.workflows.reservoir_id_maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_simple_control_parameters.html">hydromt_wflow.workflows.reservoir_simple_control_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoir_parameters.html">hydromt_wflow.workflows.reservoir_parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.merge_reservoirs.html">hydromt_wflow.workflows.merge_reservoirs</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.merge_reservoirs_sediment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_reservoirs_geoms.html">hydromt_wflow.workflows.create_reservoirs_geoms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_reservoirs_geoms_sediment.html">hydromt_wflow.workflows.create_reservoirs_geoms_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -609,7 +613,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.waterbodymaps</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.merge_reservoirs_sediment</span></li>
   </ul>
 </nav>
 </div>
@@ -626,33 +630,29 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-workflows-waterbodymaps">
-<h1>hydromt_wflow.workflows.waterbodymaps<a class="headerlink" href="#hydromt-wflow-workflows-waterbodymaps" title="Link to this heading">#</a></h1>
+  <section id="hydromt-wflow-workflows-merge-reservoirs-sediment">
+<h1>hydromt_wflow.workflows.merge_reservoirs_sediment<a class="headerlink" href="#hydromt-wflow-workflows-merge-reservoirs-sediment" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="hydromt_wflow.workflows.waterbodymaps">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">waterbodymaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wb_type='reservoir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uparea_name='uparea'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.waterbodies</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/waterbodies.html#waterbodymaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.waterbodymaps" title="Link to this definition">#</a></dt>
-<dd><p>Return waterbody (reservoir/lake) maps (see list below).</p>
-<p>At model resolution based on gridded upstream area data input or outlet coordinates.</p>
-<p>The following waterbody maps are calculated:</p>
-<ul class="simple">
-<li><p>reservoir_area_id/lake_area_id : waterbody areas mask [ID]</p></li>
-<li><p>reservoir_outlet_id/lake_outet_id : waterbody outlets [ID]</p></li>
-</ul>
+<dt class="sig sig-object py" id="hydromt_wflow.workflows.merge_reservoirs_sediment">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">merge_reservoirs_sediment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_id:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'error'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger:</span> <span class="pre">~logging.Logger</span> <span class="pre">=</span> <span class="pre">&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.reservoirs</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/reservoirs.html#merge_reservoirs_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.merge_reservoirs_sediment" title="Link to this definition">#</a></dt>
+<dd><p>Merge reservoir layers in ds to layers in ds_like for wflow sediment.</p>
+<p>It will check if the IDs in ds are not duplicated in ds_like.
+If they are, the function will raise a warning and return None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gdf</strong> (<a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><em>geopandas.GeoDataFrame</em></a>) – GeoDataFrame containing reservoirs/lakes geometries and attributes.</p></li>
-<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
-<li><p><strong>uparea_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of uparea variable in ds_like. If None then database coordinates will be
-used to setup outlets</p></li>
-<li><p><strong>wb_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional either &quot;reservoir&quot;</em><em> or </em><em>&quot;lake&quot;</em>) – Option to change the name of the maps depending on reservoir or lake</p></li>
+<li><p><strong>ds</strong> (<em>xr.Dataset</em>) – Dataset containing the reservoir layers to be merged.</p></li>
+<li><p><strong>ds_like</strong> (<em>xr.Dataset</em>) – Dataset containing the reservoir layers to merge into.</p></li>
+<li><p><strong>duplicate_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional {&quot;error&quot;</em><em>, </em><em>&quot;skip&quot;}</em>) – Action to take if duplicate reservoir IDs are found when merging with
+existing reservoirs. Options are “error” to raise an error (default); “skip”
+to skip adding new reservoirs.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ds_out</strong> – Dataset containing gridded waterbody data</p>
+<dd class="field-even"><p>Merged dataset of reservoir parameters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)">xarray.DataArray</a></p>
+<dd class="field-odd"><p>xr.Dataset | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -670,20 +670,20 @@ used to setup outlets</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.workflows.update_soil_with_paddy.html"
+       href="hydromt_wflow.workflows.merge_reservoirs.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.update_soil_with_paddy</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.merge_reservoirs</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.reservoirattrs.html"
+       href="hydromt_wflow.workflows.create_reservoirs_geoms.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.reservoirattrs</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.create_reservoirs_geoms</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -706,7 +706,7 @@ used to setup outlets</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.waterbodymaps"><code class="docutils literal notranslate"><span class="pre">waterbodymaps()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.merge_reservoirs_sediment"><code class="docutils literal notranslate"><span class="pre">merge_reservoirs_sediment()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -714,7 +714,7 @@ used to setup outlets</p></li>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.waterbodymaps.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.merge_reservoirs_sediment.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -730,7 +730,7 @@ used to setup outlets</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_generated/hydromt_wflow.workflows.waterbodymaps.rst.txt"
+      <li><a href="../_sources/_generated/hydromt_wflow.workflows.merge_reservoirs_sediment.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

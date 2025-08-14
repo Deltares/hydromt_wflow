@@ -439,6 +439,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">_create_hydromt_wflow_mapping_sbm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.version_upgrade</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_reservoirs_to_wflow_v1_sbm</span><span class="p">,</span>
+    <span class="n">convert_to_wflow_v1_sbm</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 
@@ -1212,47 +1216,24 @@
                 <span class="s2">&quot;land_instantaneous_q&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Remove local-inertial land states</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
-                    <span class="kc">None</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
-                    <span class="kc">None</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
             <span class="c1"># Remove from output.netcdf_grid section</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
-                    <span class="kc">None</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
-                    <span class="kc">None</span><span class="p">,</span>
-                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Add local-inertial land routing states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
@@ -1264,41 +1245,23 @@
                 <span class="s2">&quot;land_instantaneous_qy&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Remove kinematic-wave and 1d floodplain states</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span> <span class="kc">None</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.floodplain_water__instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;floodplain_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span> <span class="kc">None</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;state.variables.floodplain_water__instantaneous_depth&quot;</span><span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;floodplain_water__instantaneous_depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
-                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;state.variables.floodplain_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;state.variables.floodplain_water__instantaneous_depth&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="c1"># Remove from output.netcdf_grid section</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-                    <span class="s2">&quot;land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span> <span class="kc">None</span>
-                <span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                <span class="s2">&quot;output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverwidth</span><span class="p">(</span>
@@ -2384,111 +2347,145 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col2raster_name</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="WflowModel.setup_lakes">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lakes</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_reservoirs_no_control">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs_no_control.html#hydromt_wflow.WflowModel.setup_reservoirs_no_control">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs_no_control</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lakes_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
         <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
-        <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;lake_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water_surface__initial_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_initial_depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water_flow_threshold-level__elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_outflow_threshold&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water__rating_curve_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_b&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water__rating_curve_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_e&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water__rating_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_rating_curve&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_water__storage_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_storage_curve&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake~lower_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_lower_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_surface__initial_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_flow_threshold-level__elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water__rating_curve_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water__rating_curve_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_e&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water__rating_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water__storage_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir~lower_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lakes&quot;</span><span class="p">,</span>
+        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs_no_control&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of lake areas and outlets.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of reservoir areas, outlets and parameters.</span>
 
-<span class="sd">        Also meant to generate parameters with average lake area,</span>
-<span class="sd">        depth and discharge values. The data is generated from features with</span>
-<span class="sd">        ``min_area`` [km2] (default 1 km2) from a database with lake geometry, IDs and</span>
-<span class="sd">        metadata. Data required are lake ID &#39;waterbody_id&#39;,</span>
-<span class="sd">        average area &#39;Area_avg&#39; [m2], average volume &#39;Vol_avg&#39; [m3],</span>
-<span class="sd">        average depth &#39;Depth_avg&#39; [m] and average discharge &#39;Dis_avg&#39; [m3/s].</span>
+<span class="sd">        This function adds (uncontrolled) reservoirs such as natural lakes or weirs to</span>
+<span class="sd">        the model. It prepares rating and storage curves parameters for the reservoirs</span>
+<span class="sd">        modelled with the following rating curve types (see</span>
+<span class="sd">        `Wflow reservoir concepts &lt;https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html&gt;`__ ):</span>
+
+<span class="sd">        * 1 for Q = f(H) from reservoir data and interpolation</span>
+<span class="sd">        * 2 for Q = b(H - H0)^e (general power law)</span>
+<span class="sd">        * 3 for Q = b(H - H0)^2 (Modified Puls Approach)</span>
+
+<span class="sd">        Created reservoirs can be added to already existing ones in the model</span>
+<span class="sd">        `overwrite_existing=False` (default) or overwrite them</span>
+<span class="sd">        `overwrite_existing=True`.</span>
+
+<span class="sd">        Reservoir data is generated from features with ``min_area`` [km2] (default 1</span>
+<span class="sd">        km2) from a database with reservoir geometry, IDs and metadata. Parameters can</span>
+<span class="sd">        be directly provided in the GeoDataFrame or derived using common properties such</span>
+<span class="sd">        as average depth, area and discharge.</span>
 
 <span class="sd">        If rating curve data is available for storage and discharge they can be prepared</span>
 <span class="sd">        via ``rating_curve_fns`` (see below for syntax and requirements).</span>
-<span class="sd">        Else the parameters &#39;lake_b&#39; and &#39;lake_e&#39; will be used for discharge and</span>
-<span class="sd">        for storage a rectangular profile lake is assumed.</span>
-<span class="sd">        See Wflow documentation for more information.</span>
+<span class="sd">        Else the parameters &#39;reservoir_b&#39; and &#39;reservoir_e&#39; will be used for discharge,</span>
+<span class="sd">        and a rectangular profile will be used to compute storage. This corresponds to</span>
+<span class="sd">        the following storage curve types in Wflow:</span>
 
-<span class="sd">        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the</span>
-<span class="sd">        output (controlled lake) based on &#39;Vol_max&#39; [m3] column of lakes_fn.</span>
+<span class="sd">        * 1 for S = A * H</span>
+<span class="sd">        * 2 for S = f(H) from reservoir data and interpolation</span>
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **lake_area_id** map: lake IDs [-]</span>
-<span class="sd">        * **lake_outlet_id** map: lake IDs at outlet locations [-]</span>
-<span class="sd">        * **lake_area** map: lake area [m2]</span>
-<span class="sd">        * **lake_initial_depth** map: lake average water level [m]</span>
-<span class="sd">        * **lake_outflow_threshold** map: lake outflow threshold water level [m]</span>
-<span class="sd">        * **meta_lake_mean_outflow** map: lake average discharge [m3/s]</span>
-<span class="sd">        * **lake_b** map: lake rating curve coefficient [-]</span>
-<span class="sd">        * **lake_e** map: lake rating curve exponent [-]</span>
-<span class="sd">        * **lake_rating_curve** map: option to compute rating curve [-]</span>
-<span class="sd">        * **lake_storage_curve** map: option to compute storage curve [-]</span>
-<span class="sd">        * **lake_lower_id** map: optional, lower linked lake locations [-]</span>
-<span class="sd">        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]</span>
-<span class="sd">        * **lakes** geom: polygon with lakes and wflow lake parameters</span>
+<span class="sd">        * **reservoir_area_id** map: reservoir IDs [-]</span>
+<span class="sd">        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]</span>
+<span class="sd">        * **reservoir_area** map: reservoir area [m2]</span>
+<span class="sd">        * **reservoir_initial_depth** map: reservoir average water level [m]</span>
+<span class="sd">        * **reservoir_outflow_threshold** map: reservoir outflow threshold water level [m]</span>
+<span class="sd">        * **meta_reservoir_mean_outflow** map: reservoir average discharge [m3/s]</span>
+<span class="sd">        * **reservoir_b** map: reservoir rating curve coefficient [-]</span>
+<span class="sd">        * **reservoir_e** map: reservoir rating curve exponent [-]</span>
+<span class="sd">        * **reservoir_rating_curve** map: option to compute rating curve [-]</span>
+<span class="sd">        * **reservoir_storage_curve** map: option to compute storage curve [-]</span>
+<span class="sd">        * **reservoir_lower_id** map: optional, lower linked reservoir locations [-]</span>
+<span class="sd">        * **meta_reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or</span>
+<span class="sd">          weirs) and wflow parameters.</span>
+<span class="sd">        * **reservoirs** geom: polygon with all reservoirs as in the model</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lakes_fn :</span>
-<span class="sd">            Name of GeoDataFrame source for lake parameters.</span>
+<span class="sd">        reservoirs_fn : str, Path, gpd.GeoDataFrame</span>
+<span class="sd">            Name of GeoDataFrame source for uncontrolled reservoir parameters.</span>
 
 <span class="sd">            * Required variables for direct use: \</span>
-<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; [m3/s], &#39;lake_b&#39; [-], \</span>
-<span class="sd">&#39;lake_e&#39; [-], &#39;lake_rating_curve&#39; [-], &#39;lake_storage_curve&#39; [-], \</span>
-<span class="sd">&#39;lake_outflow_threshold&#39; [m], &#39;lake_lower_id&#39; [-]</span>
-
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; [m3/s], &#39;reservoir_b&#39; [-], \</span>
+<span class="sd">&#39;reservoir_e&#39; [-], &#39;reservoir_rating_curve&#39; [-], &#39;reservoir_storage_curve&#39; [-], \</span>
+<span class="sd">&#39;reservoir_outflow_threshold&#39; [m], &#39;reservoir_lower_id&#39; [-]</span>
 <span class="sd">            * Required variables for parameter estimation: \</span>
 <span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39;[m3/s]</span>
+
 <span class="sd">        rating_curve_fns: str, Path, pandas.DataFrame, List, optional</span>
 <span class="sd">            Data catalog entry/entries, path(s) or pandas.DataFrame containing rating</span>
-<span class="sd">            curve values for lakes. If None then will be derived from properties of</span>
-<span class="sd">            `lakes_fn`.</span>
-<span class="sd">            Assumes one file per lake (with all variables) and that the lake ID is</span>
-<span class="sd">            either in the filename or data catalog entry name (eg using placeholder).</span>
-<span class="sd">            The ID should be placed at the end separated by an underscore (eg</span>
-<span class="sd">            &#39;rating_curve_12.csv&#39; or &#39;rating_curve_12&#39;)</span>
+<span class="sd">            curve values for reservoirs. If None then will be derived from properties of</span>
+<span class="sd">            `reservoirs_fn`.</span>
+<span class="sd">            Assumes one file per reservoir (with all variables) and that the reservoir</span>
+<span class="sd">            ID is either in the filename or data catalog entry name (eg using</span>
+<span class="sd">            placeholder). The ID should be placed at the end separated by an underscore</span>
+<span class="sd">            (eg &#39;rating_curve_12.csv&#39; or &#39;rating_curve_12&#39;)</span>
 
 <span class="sd">            * Required variables for storage curve: &#39;elevtn&#39; [m+REF], &#39;volume&#39; [m3]</span>
-
 <span class="sd">            * Required variables for rating curve: &#39;elevtn&#39; [m+REF], &#39;discharge&#39; [m3/s]</span>
+
+<span class="sd">        overwrite_existing : bool, optional</span>
+<span class="sd">            If False (default), update existing reservoirs in the model with the new</span>
+<span class="sd">            reservoirs_fn data.</span>
+<span class="sd">        duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">            Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">            existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">            to skip adding new reservoirs.</span>
 <span class="sd">        min_area : float, optional</span>
-<span class="sd">            Minimum lake area threshold [km2], by default 10.0 km2.</span>
-<span class="sd">        add_maxstorage : bool, optional</span>
-<span class="sd">            If True, maximum storage of the lake is added to the output</span>
-<span class="sd">            (controlled lake) based on &#39;Vol_max&#39; [m3] column of lakes_fn.</span>
-<span class="sd">            By default False (natural lake).</span>
+<span class="sd">            Minimum reservoir area threshold [km2], by default 10.0 km2.</span>
 <span class="sd">        output_names : dict, optional</span>
 <span class="sd">            Dictionary with output names that will be used in the model netcdf input</span>
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
 <span class="sd">        geom_name : str, optional</span>
-<span class="sd">            Name of the lakes geometry in the staticgeoms folder, by default &#39;lakes&#39;</span>
-<span class="sd">            for lakes.geojson.</span>
+<span class="sd">            Name of the reservoir geometry in the staticgeoms folder, by default</span>
+<span class="sd">            &#39;meta_reservoirs_no_control&#39; for meta_reservoirs_no_control.geojson.</span>
 <span class="sd">        kwargs: optional</span>
 <span class="sd">            Keyword arguments passed to the method</span>
 <span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Derive lake are and outlet maps</span>
-        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
-            <span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+        <span class="c1"># retrieve data for basin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing reservoir maps.&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;predicate&quot;</span><span class="p">,</span> <span class="s2">&quot;contains&quot;</span><span class="p">)</span>
+        <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+            <span class="n">reservoirs_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
+            <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
             <span class="k">return</span>
+
+        <span class="c1"># Derive reservoir area and outlet maps</span>
+        <span class="n">ds_reservoirs</span><span class="p">,</span> <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoir_id_maps</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
+            <span class="n">uparea_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">],</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_reservoirs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No reservoirs of sufficient size found</span>
+            <span class="k">return</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
         <span class="c1"># If rating_curve_fn prepare rating curve dict</span>
@@ -2502,11 +2499,11 @@
                     <span class="n">fns_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Could not parse integer lake index from </span><span class="se">\</span>
-<span class="s2">rating curve fn </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span>
+                        <span class="s2">&quot;Could not parse integer reservoir index from &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;rating curve fn </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span>
                     <span class="p">)</span>
-            <span class="c1"># assume lake index will be in the path</span>
-            <span class="c1"># Assume one rating curve per lake index</span>
+            <span class="c1"># assume reservoir index will be in the path</span>
+            <span class="c1"># Assume one rating curve per reservoir index</span>
             <span class="k">for</span> <span class="n">_id</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
                 <span class="n">_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
                 <span class="c1"># Find if _id is is one of the paths in rating_curve_fns</span>
@@ -2519,80 +2516,139 @@
                         <span class="n">rating_fn</span>
                     <span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Preparing lake rating curve data from </span><span class="si">{</span><span class="n">rating_fn</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Preparing reservoir rating curve data from </span><span class="si">{</span><span class="n">rating_fn</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
                         <span class="n">df_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">rating_fn</span><span class="p">)</span>
                         <span class="c1"># Add to dict</span>
                         <span class="n">rating_dict</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rate</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Rating curve file not found for lake with id </span><span class="si">{</span><span class="n">_id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
-<span class="s2">Using default storage/outflow function parameters.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Rating curve file not found for reservoir with id </span><span class="si">{</span><span class="n">_id</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="s2">&quot;Using default storage/outflow function parameters.&quot;</span>
                     <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;No rating curve data provided. </span><span class="se">\</span>
-<span class="s2">Using default storage/outflow function parameters.&quot;</span>
+                <span class="s2">&quot;No rating curve data provided. &quot;</span>
+                <span class="s2">&quot;Using default storage/outflow function parameters.&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># add waterbody parameters</span>
-        <span class="n">ds_lakes</span><span class="p">,</span> <span class="n">gdf_lakes</span><span class="p">,</span> <span class="n">rating_curves</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">waterbodies</span><span class="o">.</span><span class="n">lakeattrs</span><span class="p">(</span>
-            <span class="n">ds_lakes</span><span class="p">,</span> <span class="n">gdf_org</span><span class="p">,</span> <span class="n">rating_dict</span><span class="p">,</span> <span class="n">add_maxstorage</span><span class="o">=</span><span class="n">add_maxstorage</span>
+        <span class="c1"># add reservoir parameters</span>
+        <span class="n">ds_reservoirs</span><span class="p">,</span> <span class="n">gdf_reservoirs</span><span class="p">,</span> <span class="n">rating_curves</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">reservoir_parameters</span><span class="p">(</span>
+                <span class="n">ds_reservoirs</span><span class="p">,</span>
+                <span class="n">gdf_org</span><span class="p">,</span>
+                <span class="n">rating_dict</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
+        <span class="c1"># merge with existing reservoirs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite_existing</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">}</span>
+            <span class="n">ds_reservoirs</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">merge_reservoirs</span><span class="p">(</span>
+                <span class="n">ds_reservoirs</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+                <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Check if ds_res is None ie duplicate IDs</span>
+            <span class="k">if</span> <span class="n">ds_reservoirs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Duplicate reservoir IDs found. Skipping adding new reservoirs.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># remove all reservoir layers from the grid as some control parameters</span>
+            <span class="c1"># like demand will not be in ds_reservoirs and won&#39;t be overwritten</span>
+            <span class="n">reservoir_maps</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">RESERVOIR_LAYERS</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">reservoir_maps</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
         <span class="c1"># add to grid</span>
-        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-        <span class="c1"># write lakes with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="c1"># write reservoirs with attr tables to static geoms.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_reservoirs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="c1"># Prepare a combined geoms of all reservoirs</span>
+        <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms</span><span class="p">(</span>
+            <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
         <span class="c1"># add the tables</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rating_curves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
 
-        <span class="c1"># Lake settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.lake__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Reservoir settings in the toml to update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.variables.lake_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_instantaneous_water_level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lake_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">,</span> <span class="s2">&quot;lake_lower_id&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">])</span></div>
 
 
-<div class="viewcode-block" id="WflowModel.setup_reservoirs">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_reservoirs_simple_control">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs_simple_control.html#hydromt_wflow.WflowModel.setup_reservoirs_simple_control">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs_simple_control</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
         <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_surface__initial_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water__rating_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water__storage_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__max_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water~min-target__volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;reservoir_water~full-target__volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;reservoir_water_demand~required~downstream__volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;reservoir_water_release-below-spillway__max_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
-        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reservoirs&quot;</span><span class="p">,</span>
+        <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs_simple_control&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of reservoir areas and outlets.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of controlled reservoir areas, outlets and parameters.</span>
 
-<span class="sd">        Also meant to generate parameters with average reservoir area, demand,</span>
+<span class="sd">        Also generates parameters with average reservoir area, demand,</span>
 <span class="sd">        min and max target storage capacities and discharge capacity values.</span>
 
+<span class="sd">        This function adds reservoirs with simple control operations to the model. It</span>
+<span class="sd">        prepares rating and storage curves parameters for the reservoirs modelled with</span>
+<span class="sd">        the following rating curve types (see</span>
+<span class="sd">        `Wflow reservoir concepts &lt;https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html&gt;`__</span>
+<span class="sd">        ):</span>
+
+<span class="sd">        * 4 simple reservoir operational parameters</span>
+
+<span class="sd">        Created reservoirs can be added to already existing ones in the model</span>
+<span class="sd">        `overwrite_existing=False` (default) or overwrite them</span>
+<span class="sd">        `overwrite_existing=True`.</span>
+
 <span class="sd">        The data is generated from features with ``min_area`` [km2] (default is 1 km2)</span>
-<span class="sd">        from a database with reservoir geometry, IDs and metadata.</span>
+<span class="sd">        from a database with reservoir geometry, IDs and metadata. Parameters can</span>
+<span class="sd">        be directly provided in the GeoDataFrame or derived using common properties such</span>
+<span class="sd">        as average depth, area and discharge.</span>
 
 <span class="sd">        Data requirements for direct use (i.e. wflow parameters are data already present</span>
 <span class="sd">        in reservoirs_fn) are reservoir ID &#39;waterbody_id&#39;, area &#39;reservoir_area&#39; [m2],</span>
+<span class="sd">        initial depth &#39;reservoir_initial_depth&#39; [m], rating curve type</span>
+<span class="sd">        &#39;reservoir_rating_curve&#39; [-], storage curve type &#39;reservoir_storage_curve&#39; [-],</span>
 <span class="sd">        maximum volume &#39;reservoir_max_volume&#39; [m3], the targeted minimum and maximum</span>
 <span class="sd">        fraction of water volume in the reservoir &#39;reservoir_target_min_fraction&#39; and</span>
 <span class="sd">        &#39;reservoir_target_full_fraction&#39; [-], the average water demand</span>
@@ -2620,35 +2676,48 @@
 <span class="sd">        * **reservoir_area_id** map: reservoir IDs [-]</span>
 <span class="sd">        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]</span>
 <span class="sd">        * **reservoir_area** map: reservoir area [m2]</span>
+<span class="sd">        * **reservoir_initial_depth** map: reservoir initial water level [m]</span>
+<span class="sd">        * **reservoir_rating_curve** map: option to compute rating curve [-]</span>
+<span class="sd">        * **reservoir_storage_curve** map: option to compute storage curve [-]</span>
 <span class="sd">        * **reservoir_max_volume** map: reservoir max volume [m3]</span>
 <span class="sd">        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]</span>
 <span class="sd">        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]</span>
 <span class="sd">        * **reservoir_demand** map: reservoir demand flow [m3/s]</span>
 <span class="sd">        * **reservoir_max_release** map: reservoir max release flow [m3/s]</span>
-<span class="sd">        * **reservoirs** geom: polygon with reservoirs and wflow reservoir parameters</span>
+<span class="sd">        * **meta_reservoirs_simple_control** geom: polygon with reservoirs and parameters</span>
+<span class="sd">        * **reservoirs** geom: polygon with all reservoirs as in the model</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        reservoirs_fn : str</span>
 <span class="sd">            Name of data source for reservoir parameters, see data/data_sources.yml.</span>
 
-<span class="sd">            * Required variables for direct use: \</span>
-<span class="sd">&#39;waterbody_id&#39; [-], &#39;reservoir_area&#39; [m2], &#39;reservoir_max_volume&#39; [m3], \</span>
-<span class="sd">&#39;reservoir_target_min_fraction&#39; [m3/m3], &#39;reservoir_target_full_fraction&#39; [m3/m3], \</span>
-<span class="sd">&#39;reservoir_demand&#39; [m3/s], &#39;reservoir_max_release&#39; [m3/s]</span>
+<span class="sd">            * Required variables for direct use:</span>
+<span class="sd">              &#39;waterbody_id&#39; [-], &#39;reservoir_area&#39; [m2], &#39;reservoir_max_volume&#39; [m3],</span>
+<span class="sd">              &#39;reservoir_initial_depth&#39; [m], &#39;reservoir_rating_curve&#39; [-],</span>
+<span class="sd">              &#39;reservoir_storage_curve&#39; [-], &#39;reservoir_target_min_fraction&#39; [m3/m3],</span>
+<span class="sd">              &#39;reservoir_target_full_fraction&#39; [m3/m3], &#39;reservoir_demand&#39; [m3/s],</span>
+<span class="sd">              &#39;reservoir_max_release&#39; [m3/s]</span>
+<span class="sd">            * Required variables for computation with timeseries_fn:</span>
+<span class="sd">              &#39;waterbody_id&#39; [-], &#39;Hylak_id&#39; [-], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m],</span>
+<span class="sd">              &#39;Dis_avg&#39; [m3/s], &#39;Dam_height&#39; [m]</span>
+<span class="sd">            * Required variables for computation without timeseries_fn:</span>
+<span class="sd">              &#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m],</span>
+<span class="sd">              &#39;Dis_avg&#39; [m3/s], &#39;Capacity_max&#39; [m3], &#39;Capacity_norm&#39; [m3],</span>
+<span class="sd">              &#39;Capacity_min&#39; [m3], &#39;Dam_height&#39; [m]</span>
 
-<span class="sd">            * Required variables for computation with timeseries_fn: \</span>
-<span class="sd">&#39;waterbody_id&#39; [-], &#39;Hylak_id&#39; [-], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; [m3/s], \</span>
-<span class="sd">&#39;Dam_height&#39; [m]</span>
-
-<span class="sd">            * Required variables for computation without timeseries_fn: \</span>
-<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; \</span>
-<span class="sd">[m3/s], &#39;Capacity_max&#39; [m3], &#39;Capacity_norm&#39; [m3], &#39;Capacity_min&#39; [m3], &#39;Dam_height&#39; [m]</span>
 <span class="sd">        timeseries_fn : {&#39;gww&#39;, &#39;hydroengine&#39;, None}, optional</span>
 <span class="sd">            Download and use time series of reservoir surface water area to calculate</span>
 <span class="sd">            and overwrite the reservoir volume/areas of the data source. Timeseries are</span>
 <span class="sd">            either downloaded from Global Water Watch &#39;gww&#39; (using gwwapi package) or</span>
 <span class="sd">            JRC &#39;jrc&#39; (using hydroengine package). By default None.</span>
+<span class="sd">        overwrite_existing : bool, optional</span>
+<span class="sd">            If False (default), update existing reservoirs in the model with the new</span>
+<span class="sd">            reservoirs_fn data.</span>
+<span class="sd">        duplicate_id: str, optional {&quot;error&quot;, &quot;skip&quot;}</span>
+<span class="sd">            Action to take if duplicate reservoir IDs are found when merging with</span>
+<span class="sd">            existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
+<span class="sd">            to skip adding new reservoirs.</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum reservoir area threshold [km2], by default 1.0 km2.</span>
 <span class="sd">        output_names : dict, optional</span>
@@ -2657,159 +2726,96 @@
 <span class="sd">            in the netcdf file.</span>
 <span class="sd">        geom_name : str, optional</span>
 <span class="sd">            Name of the reservoirs geometry in the staticgeoms folder, by default</span>
-<span class="sd">            &quot;reservoirs&quot; for reservoirs.geojson.</span>
+<span class="sd">            &quot;meta_reservoirs_simple_control&quot; for meta_reservoirs_simple_control.geojson.</span>
 <span class="sd">        kwargs: optional</span>
 <span class="sd">            Keyword arguments passed to the method</span>
 <span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Derive reservoir area and outlet maps</span>
-        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
-            <span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Skip method if no data is returned</span>
-        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
-        <span class="c1"># Continue method if data has been found</span>
-        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span>
-            <span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span>
-        <span class="p">)</span>
-
-        <span class="c1"># add attributes</span>
-        <span class="c1"># if present use directly</span>
-        <span class="n">resattributes</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">resattributes</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
-            <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="n">resattributes</span><span class="p">]</span>
-            <span class="n">reservoir_accuracy</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">reservoir_timeseries</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="c1"># else compute</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="p">(</span>
-                <span class="n">intbl_reservoirs</span><span class="p">,</span>
-                <span class="n">reservoir_accuracy</span><span class="p">,</span>
-                <span class="n">reservoir_timeseries</span><span class="p">,</span>
-            <span class="p">)</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirattrs</span><span class="p">(</span>
-                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-            <span class="p">)</span>
-
-        <span class="c1"># create a geodf with id of reservoir and geometry at outflow location</span>
-        <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">],</span>
-            <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_org</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">intbl_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;expr1&quot;</span><span class="p">:</span> <span class="s2">&quot;waterbody_id&quot;</span><span class="p">})</span>
-        <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span>
-        <span class="p">)</span>  <span class="c1"># merge</span>
-        <span class="c1"># add parameter attributes to polygon gdf:</span>
-        <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">)</span>
-
-        <span class="c1"># write reservoirs with param values to geoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
-            <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
-            <span class="n">da_res</span> <span class="o">=</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-                <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
-            <span class="p">)</span>
-            <span class="n">output_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">output_name</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Save accuracy information on reservoir parameters</span>
-        <span class="k">if</span> <span class="n">reservoir_accuracy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">reservoir_accuracy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">reservoir_timeseries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">reservoir_timeseries</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-                <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># update toml</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.variables.reservoir_water__instantaneous_volume&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_instantaneous_volume&quot;</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Help with common workflow of setup_lakes and setup_reservoir.</span>
-
-<span class="sd">        See specific methods for more info about the arguments.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
         <span class="c1"># retrieve data for basin</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> maps.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;predicate&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing reservoir with simple control maps.&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;predicate&quot;</span><span class="p">,</span> <span class="s2">&quot;contains&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-            <span class="n">waterbodies_fn</span><span class="p">,</span>
+            <span class="n">reservoirs_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Skip method if no data is returned</span>
         <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Return two times None (similar to main function output), if there is no</span>
-            <span class="c1"># data found</span>
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
 
-        <span class="c1"># skip small size waterbodies</span>
-        <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">min_area_m2</span> <span class="o">=</span> <span class="n">min_area</span> <span class="o">*</span> <span class="mf">1e6</span>
-            <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="n">gdf_org</span><span class="o">.</span><span class="n">Area_avg</span> <span class="o">&gt;=</span> <span class="n">min_area_m2</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2">&#39;s database has no area attribute. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;All </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2">s will be considered.&quot;</span>
-            <span class="p">)</span>
-        <span class="c1"># get waterbodies maps and parameters</span>
-        <span class="n">nb_wb</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span>
-        <span class="n">ds_waterbody</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">nb_wb</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nb_wb</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2">(s) of sufficient size found within region.&quot;</span>
-            <span class="p">)</span>
-            <span class="c1"># add waterbody maps</span>
-            <span class="n">uparea_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Upstream area map for </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> outlet setup not found. &quot;</span>
-                    <span class="s2">&quot;Database coordinates used instead&quot;</span>
-                <span class="p">)</span>
-                <span class="n">uparea_name</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">ds_waterbody</span><span class="p">,</span> <span class="n">gdf_wateroutlet</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">waterbodymaps</span><span class="p">(</span>
-                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
-                <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
-                <span class="n">wb_type</span><span class="o">=</span><span class="n">wb_type</span><span class="p">,</span>
-                <span class="n">uparea_name</span><span class="o">=</span><span class="n">uparea_name</span><span class="p">,</span>
+        <span class="c1"># Derive reservoir area and outlet maps</span>
+        <span class="n">ds_res</span><span class="p">,</span> <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoir_id_maps</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
+            <span class="n">uparea_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">],</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No reservoir of sufficient size found</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
+
+        <span class="c1"># add parameters</span>
+        <span class="n">ds_res</span><span class="p">,</span> <span class="n">gdf_res</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoir_simple_control_parameters</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
+            <span class="n">ds_reservoirs</span><span class="o">=</span><span class="n">ds_res</span><span class="p">,</span>
+            <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># merge with existing reservoirs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite_existing</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">}</span>
+            <span class="n">ds_res</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">merge_reservoirs</span><span class="p">(</span>
+                <span class="n">ds_res</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+                <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">,</span>
                 <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># update/replace xout and yout in gdf_org from gdf_wateroutlet:</span>
-            <span class="n">gdf_org</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;xout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;xout&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-            <span class="n">gdf_org</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;yout&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-
+            <span class="c1"># Check if ds_res is None ie duplicate IDs</span>
+            <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Duplicate reservoir IDs found. Skipping adding new reservoirs.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2">s of sufficient size found within region! &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> procedures!&quot;</span>
-            <span class="p">)</span>
+            <span class="c1"># remove all reservoir layers from the grid as some parameters</span>
+            <span class="c1"># like b or e will not be in ds_res and won&#39;t be overwritten</span>
+            <span class="n">reservoir_maps</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">RESERVOIR_LAYERS</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">reservoir_maps</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
-        <span class="c1"># rasterize points polygons in raster.rasterize --</span>
-        <span class="c1"># you need grid to know the grid</span>
-        <span class="k">return</span> <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_waterbody</span>
+        <span class="c1"># add to grid</span>
+        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+
+        <span class="c1"># write reservoirs with param values to geoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="c1"># Prepare a combined geoms of all reservoirs</span>
+        <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms</span><span class="p">(</span>
+            <span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+
+        <span class="c1"># update toml</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="WflowModel.setup_soilmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>
@@ -5415,7 +5421,7 @@
 <span class="sd">        To be run last as this requires some soil parameters or constant_pars to be</span>
 <span class="sd">        computed already.</span>
 
-<span class="sd">        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create</span>
+<span class="sd">        To be run after setup_reservoirs methods and setup_glaciers to also create</span>
 <span class="sd">        cold states for them if they are present in the basin.</span>
 
 <span class="sd">        This function is mainly useful in case the wflow model is read into Delft-FEWS.</span>
@@ -5437,13 +5443,9 @@
 <span class="sd">          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or</span>
 <span class="sd">          overland flow in x/y directions for local-inertial [m3/s]</span>
 
-<span class="sd">        If lakes, also adds:</span>
-
-<span class="sd">        * **lake_instantaneous_water_level**: lake water level [m]</span>
-
 <span class="sd">        If reservoirs, also adds:</span>
 
-<span class="sd">        * **reservoir_instantaneous_volume**: reservoir volume [m3]</span>
+<span class="sd">        * **reservoir_instantaneous_water_level**: reservoir water level [m]</span>
 
 <span class="sd">        If glaciers, also adds:</span>
 
@@ -5484,11 +5486,16 @@
 
 <span class="sd">        The function reads a TOML from wflow v0x and converts it to wflow v1x format.</span>
 <span class="sd">        The other components stay the same.</span>
+
+<span class="sd">        Lakes and reservoirs have also been merged into one structure and parameters in</span>
+<span class="sd">        the resulted staticmaps will be combined.</span>
+
 <span class="sd">        This function should be followed by write_config() to write the upgraded file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="n">config_out</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">convert_to_wflow_v1_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config_v0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sbm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="c1"># tomlkit loads errors on this file so we have to do it in two steps</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">default_header_str</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -5496,7 +5503,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">default_header_str</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
+
+        <span class="c1"># Merge lakes and reservoirs layers</span>
+        <span class="n">ds_res</span><span class="p">,</span> <span class="n">vars_to_remove</span><span class="p">,</span> <span class="n">config_opt</span> <span class="o">=</span> <span class="n">convert_reservoirs_to_wflow_v1_sbm</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">config_v0</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Remove older maps from grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">vars_to_remove</span><span class="p">)</span>
+            <span class="c1"># Add new reservoir maps to grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
+            <span class="c1"># Update the config with the new names</span>
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_opt</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 
     <span class="c1"># I/O</span>
@@ -5777,7 +5797,7 @@
                     <span class="sa">f</span><span class="s2">&quot;dimension: </span><span class="si">{</span><span class="n">vars_to_drop</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
                 <span class="c1"># Use `_grid` as `grid` cannot be set</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_drop</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">vars_to_drop</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="c1"># TODO: because of all types for data, masking should move to</span>
@@ -5791,6 +5811,23 @@
         <span class="c1"># fall back on default set_grid behaviour</span>
         <span class="n">GridModel</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_vars_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop variables from the grid.</span>
+
+<span class="sd">        This method is a wrapper around the xarray.Dataset.drop_vars method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names : list of str</span>
+<span class="sd">            List of variable names to drop from the grid.</span>
+<span class="sd">        errors : str, optional {raise, ignore}</span>
+<span class="sd">            How to handle errors. If &#39;raise&#39;, raises a ValueError error if any of the</span>
+<span class="sd">            variable passed are not in the dataset. If &#39;ignore&#39;, any given names that</span>
+<span class="sd">            are in the dataset are dropped and no error is raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.read_geoms">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms">[docs]</a>
@@ -6448,7 +6485,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove a config key and return its value.</span>
 
@@ -6457,19 +6494,31 @@
 <span class="sd">        key: str, tuple[str, ...]</span>
 <span class="sd">            Key to remove from the config.</span>
 <span class="sd">            Can be a dotted toml string when providing a list of strings.</span>
+<span class="sd">        errors: str, optional</span>
+<span class="sd">            What to do if the key is not found. Can be &quot;raise&quot; (default) or &quot;ignore&quot;.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        The popped value, or raises a KeyError if the key is not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">current</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s2"> not found in config.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">errors</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="si">}</span><span class="s2"> not found in config.&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="c1"># Last key, pop it</span>
-                <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">errors</span> <span class="o">==</span> <span class="s2">&quot;ignore&quot;</span><span class="p">:</span>
+                    <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
                 <span class="k">break</span>
 
             <span class="c1"># Not the last key, go deeper</span>
@@ -6683,79 +6732,47 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>
 
-        <span class="c1"># Update reservoir and lakes</span>
-        <span class="n">remove_reservoir</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Update reservoirs</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
             <span class="n">reservoir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">reservoir</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">remove_reservoir</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">remove_maps</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_demand&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;meta_reservoir_mean_outflow&quot;</span><span class="p">,</span>  <span class="c1"># this is a hydromt meta map</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_b&quot;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_e&quot;</span><span class="p">],</span>
                 <span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars_grid</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
-        <span class="n">remove_lake</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_area_id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
-            <span class="n">lake</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_area_id&quot;</span><span class="p">]]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">lake</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">remove_lake</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">remove_maps</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_area_id&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_lower_id&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_storage_curve&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_rating_curve&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_area&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_initial_depth&quot;</span><span class="p">],</span>
-                    <span class="s2">&quot;meta_lake_mean_outflow&quot;</span><span class="p">,</span>  <span class="c1"># this is a hydromt meta map</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_outflow_threshold&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_b&quot;</span><span class="p">],</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_e&quot;</span><span class="p">],</span>
-                <span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
+                <span class="c1"># Update config</span>
+                <span class="c1"># Remove the absolute path and if needed remove reservoirs</span>
+                <span class="c1"># change reservoir__flag = true to false</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="c1"># remove states</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span>
+                    <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
+                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
 
             <span class="c1"># Update tables</span>
-            <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">lake</span><span class="p">)</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">reservoir</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">k</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">])</span>
-            <span class="p">}</span>
-
-        <span class="c1"># Update config</span>
-        <span class="c1"># Remove the absolute path and if needed remove lakes and reservoirs</span>
-        <span class="k">if</span> <span class="n">remove_reservoir</span><span class="p">:</span>
-            <span class="c1"># change reservoir__flag = true to false</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="c1"># remove states</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;state.variables.reservoir_water__instantaneous_volume&quot;</span><span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">][</span>
-                    <span class="s2">&quot;reservoir_water__instantaneous_volume&quot;</span>
-                <span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">remove_lake</span><span class="p">:</span>
-            <span class="c1"># change lake__flag = true to false</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.lake__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="c1"># remove states</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.lake_water_surface__instantaneous_elevation&quot;</span>
-                <span class="p">)</span>
-                <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;variables&quot;</span><span class="p">][</span>
-                    <span class="s2">&quot;lake_water_surface__instantaneous_elevation&quot;</span>
-                <span class="p">]</span></div>
+            <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.clip_forcing">
@@ -6792,22 +6809,16 @@
             <span class="n">ds_states</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_bbox</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span>
             <span class="p">)</span>
-            <span class="c1"># Check for reservoirs/lakes presence in the clipped model</span>
+            <span class="c1"># Check for reservoirs presence in the clipped model</span>
             <span class="n">remove_maps</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
                 <span class="n">state_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.reservoir_water__instantaneous_volume&quot;</span><span class="p">,</span>
-                    <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;reservoir_instantaneous_volume&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
+                    <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">state_name</span> <span class="ow">in</span> <span class="n">ds_states</span><span class="p">:</span>
                     <span class="n">remove_maps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">state_name</span><span class="p">])</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lake_area_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
-                <span class="n">state_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                    <span class="s2">&quot;state.variables.lake_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
-                    <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;lake_instantaneous_water_level&quot;</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">state_name</span> <span class="ow">in</span> <span class="n">ds_states</span><span class="p">:</span>
-                    <span class="n">remove_maps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">state_name</span><span class="p">])</span>
+
             <span class="n">ds_states</span> <span class="o">=</span> <span class="n">ds_states</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds_states</span><span class="p">)</span></div>
 </div>

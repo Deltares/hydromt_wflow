@@ -529,126 +529,121 @@ write_config:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-08-14 00:55:59,902 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/hydromt.log.
-2025-08-14 00:55:59,902 - update - log - INFO - HydroMT version: 0.10.1
-2025-08-14 00:55:59,902 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm (r+).
-2025-08-14 00:55:59,902 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
-2025-08-14 00:55:59,902 - update - main - INFO - User settings:
-2025-08-14 00:55:59,929 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v1.0.0.dev0).
-2025-08-14 00:55:59,929 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-08-14 00:55:59,941 - update - wflow - INFO - Supported Wflow.jl version v1+
-2025-08-14 00:56:00,082 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
-2025-08-14 00:56:00,102 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
-2025-08-14 00:56:00,103 - update - wflow - INFO - Reading model table files.
-2025-08-14 00:56:00,104 - update - wflow - INFO - Model read
-2025-08-14 00:56:00,104 - update - utils - INFO - Converting config to Wflow v1 format
-2025-08-14 00:56:00,104 - update - utils - INFO - Converting config general, time and model sections
-2025-08-14 00:56:00,105 - update - utils - INFO - Converting config state section
-2025-08-14 00:56:00,110 - update - utils - INFO - Converting config input section
-key: subcatchment, variables: {&#39;wflow_v0&#39;: &#39;subcatchment&#39;, &#39;wflow_v1&#39;: &#39;subbasin_location__count&#39;, &#39;hydromt_name&#39;: &#39;basins&#39;}
-key: local_drain_direction, variables: {&#39;wflow_v0&#39;: &#39;ldd&#39;, &#39;wflow_v1&#39;: &#39;basin__local_drain_direction&#39;, &#39;hydromt_name&#39;: &#39;flwdir&#39;}
-key: lake_area_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.areas&#39;, &#39;wflow_v1&#39;: &#39;lake_area__count&#39;, &#39;hydromt_name&#39;: &#39;lake_area_id&#39;}
-key: lake_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.locs&#39;, &#39;wflow_v1&#39;: &#39;lake_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_outlet_id&#39;}
-key: reservoir_area_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.areas&#39;, &#39;wflow_v1&#39;: &#39;reservoir_area__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area_id&#39;}
-key: reservoir_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.locs&#39;, &#39;wflow_v1&#39;: &#39;reservoir_location__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_outlet_id&#39;}
-key: river_mask, variables: {&#39;wflow_v0&#39;: &#39;river_location&#39;, &#39;wflow_v1&#39;: &#39;river_location__mask&#39;, &#39;hydromt_name&#39;: &#39;rivmsk&#39;}
-key: pits, variables: {&#39;wflow_v0&#39;: &#39;pits&#39;, &#39;wflow_v1&#39;: &#39;basin_pit_location__mask &#39;}
-key: precip, variables: {&#39;wflow_v0&#39;: &#39;vertical.precipitation&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_water__precipitation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;precip&#39;}
-key: temp, variables: {&#39;wflow_v0&#39;: &#39;vertical.temperature&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__temperature&#39;, &#39;hydromt_name&#39;: &#39;temp&#39;}
-key: pet, variables: {&#39;wflow_v0&#39;: &#39;vertical.potential_evaporation&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__potential_evaporation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;pet&#39;}
-key: snow_degree_day_coefficient, variables: {&#39;wflow_v0&#39;: &#39;vertical.cfmax&#39;, &#39;wflow_v1&#39;: &#39;snowpack__degree-day_coefficient&#39;}
-key: snow_tt, variables: {&#39;wflow_v0&#39;: &#39;vertical.tt&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__snowfall_temperature_threshold&#39;}
-key: snow_tti, variables: {&#39;wflow_v0&#39;: &#39;vertical.tti&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_air__snowfall_temperature_interval&#39;}
-key: snow_ttm, variables: {&#39;wflow_v0&#39;: &#39;vertical.ttm&#39;, &#39;wflow_v1&#39;: &#39;snowpack__melting_temperature_threshold&#39;}
-key: snow_whc, variables: {&#39;wflow_v0&#39;: &#39;vertical.water_holding_capacity&#39;, &#39;wflow_v1&#39;: &#39;snowpack__liquid_water_holding_capacity&#39;}
-key: glacier_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.glacierfrac&#39;, &#39;wflow_v1&#39;: &#39;glacier_surface__area_fraction&#39;, &#39;hydromt_name&#39;: &#39;glacfracs&#39;}
-key: glacier_initial_leq_depth, variables: {&#39;wflow_v0&#39;: &#39;vertical.glacierstore&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__initial_leq-depth&#39;, &#39;hydromt_name&#39;: &#39;glacstore&#39;}
-key: glacier_ttm, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_ttm&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__melting_temperature_threshold&#39;}
-key: glacier_degree_day_coefficient, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_cfmax&#39;, &#39;wflow_v1&#39;: &#39;glacier_ice__degree-day_coefficient&#39;}
-key: glacier_snow_to_ice_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.g_sifrac&#39;, &#39;wflow_v1&#39;: &#39;glacier_firn_accumulation__snowpack~dry_leq-depth_fraction&#39;}
-key: vegetation_gash_e_r, variables: {&#39;wflow_v0&#39;: &#39;vertical.e_r&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio&#39;}
-key: vegetation_kext, variables: {&#39;wflow_v0&#39;: &#39;vertical.kext&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__light-extinction_coefficient&#39;}
-key: vegetation_leaf_area_index, variables: {&#39;wflow_v0&#39;: &#39;vertical.leaf_area_index&#39;, &#39;wflow_v1&#39;: &#39;vegetation__leaf-area_index&#39;, &#39;hydromt_name&#39;: &#39;LAI&#39;}
-key: vegetation_root_depth, variables: {&#39;wflow_v0&#39;: &#39;vertical.rootingdepth&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__depth&#39;}
-key: vegetation_leaf_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.specific_leaf&#39;, &#39;wflow_v1&#39;: &#39;vegetation__specific-leaf_storage&#39;, &#39;hydromt_name&#39;: &#39;leaf_storage&#39;}
-key: vegetation_wood_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.storage_wood&#39;, &#39;wflow_v1&#39;: &#39;vegetation_wood_water__storage_capacity&#39;, &#39;hydromt_name&#39;: &#39;wood_storage&#39;}
-key: vegetation_crop_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.kc&#39;, &#39;wflow_v1&#39;: &#39;vegetation__crop_factor&#39;}
-key: vegetation_feddes_alpha_h1, variables: {&#39;wflow_v0&#39;: &#39;vertical.alpha_h1&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&#39;}
-key: vegetation_feddes_h1, variables: {&#39;wflow_v0&#39;: &#39;vertical.h1&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1&#39;}
-key: vegetation_feddes_h2, variables: {&#39;wflow_v0&#39;: &#39;vertical.h2&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~2&#39;}
-key: vegetation_feddes_h3_high, variables: {&#39;wflow_v0&#39;: &#39;vertical.h3_high&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~high&#39;}
-key: vegetation_feddes_h3_low, variables: {&#39;wflow_v0&#39;: &#39;vertical.h3_low&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~low&#39;}
-key: vegetation_feddes_h4, variables: {&#39;wflow_v0&#39;: &#39;vertical.h4&#39;, &#39;wflow_v1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~4&#39;}
-key: soil_brooks_corey_c, variables: {&#39;wflow_v0&#39;: &#39;vertical.c&#39;, &#39;wflow_v1&#39;: &#39;soil_layer_water__brooks-corey_exponent&#39;, &#39;hydromt_name&#39;: &#39;soil_brooks_corey_c&#39;}
-key: soil_cf, variables: {&#39;wflow_v0&#39;: &#39;vertical.cf_soil&#39;, &#39;wflow_v1&#39;: &#39;soil_surface_water__infiltration_reduction_parameter&#39;}
-key: soil_ksat_vertical, variables: {&#39;wflow_v0&#39;: &#39;vertical.kv_0&#39;, &#39;wflow_v1&#39;: &#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;, &#39;hydromt_name&#39;: &#39;ksat_vertical&#39;}
-key: soil_ksat_vertical_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.kvfrac&#39;, &#39;wflow_v1&#39;: &#39;soil_water__vertical_saturated_hydraulic_conductivity_factor&#39;}
-key: subsurface_ksat_horizontal_ratio, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.ksathorfrac&#39;, &#39;wflow_v1&#39;: &#39;subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio&#39;}
-key: soil_f, variables: {&#39;wflow_v0&#39;: &#39;vertical.f&#39;, &#39;wflow_v1&#39;: &#39;soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter&#39;, &#39;hydromt_name&#39;: &#39;f&#39;}
-key: soil_compacted_infiltration_capacity, variables: {&#39;wflow_v0&#39;: &#39;vertical.infiltcappath&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted_surface_water__infiltration_capacity&#39;}
-key: InfiltCapSoil, variables: {&#39;wflow_v0&#39;: &#39;vertical.infiltcapsoil&#39;, &#39;wflow_v1&#39;: None}
-key: soil_theta_r, variables: {&#39;wflow_v0&#39;: &#39;vertical.theta_r&#39;, &#39;wflow_v1&#39;: &#39;soil_water__residual_volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;theta_r&#39;}
-key: soil_theta_s, variables: {&#39;wflow_v0&#39;: &#39;vertical.theta_s&#39;, &#39;wflow_v1&#39;: &#39;soil_water__saturated_volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;theta_s&#39;}
-key: soil_max_leakage, variables: {&#39;wflow_v0&#39;: &#39;vertical.maxleakage&#39;, &#39;wflow_v1&#39;: &#39;soil_water_sat-zone_bottom__max_leakage_volume_flux&#39;}
-key: soil_compacted_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.pathfrac&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted__area_fraction&#39;}
-key: soil_rootdistpar, variables: {&#39;wflow_v0&#39;: &#39;vertical.rootdistpar&#39;, &#39;wflow_v1&#39;: &#39;soil_root~wet__sigmoid_function_shape_parameter&#39;}
-key: soil_thickness, variables: {&#39;wflow_v0&#39;: &#39;vertical.soilthickness&#39;, &#39;wflow_v1&#39;: &#39;soil__thickness&#39;}
-key: land_water_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.waterfrac&#39;, &#39;wflow_v1&#39;: &#39;land~water-covered__area_fraction&#39;}
-key: demand_allocation_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.allocation.areas&#39;, &#39;wflow_v1&#39;: &#39;land_water_allocation_area__count&#39;, &#39;hydromt_name&#39;: &#39;allocation_areas&#39;}
-key: demand_surface_water_ratio, variables: {&#39;wflow_v0&#39;: &#39;vertical.allocation.frac_sw_used&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__withdrawal_fraction&#39;}
-key: demand_domestic_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.domestic.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~domestic__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;domestic_gross&#39;}
-key: demand_domestic_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.domestic.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~domestic__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;domestic_net&#39;}
-key: demand_industry_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.industry.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~industry__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;industry_gross&#39;}
-key: demand_industry_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.industry.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~industry__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;industry_net&#39;}
-key: demand_livestock_gross, variables: {&#39;wflow_v0&#39;: &#39;vertical.livestock.demand_gross&#39;, &#39;wflow_v1&#39;: &#39;land~livestock__gross_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;livestock_gross&#39;}
-key: demand_livestock_net, variables: {&#39;wflow_v0&#39;: &#39;vertical.livestock.demand_net&#39;, &#39;wflow_v1&#39;: &#39;land~livestock__net_water_demand_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;livestock_net&#39;}
-key: demand_paddy_h_min, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_min&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__min_depth&#39;}
-key: demand_paddy_h_opt, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_opt&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__optimal_depth&#39;}
-key: demand_paddy_h_max, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.h_max&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__max_depth&#39;}
-key: demand_paddy_irrigated_mask, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.irrigation_areas&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy_area__count&#39;}
-key: demand_paddy_irrigation_trigger, variables: {&#39;wflow_v0&#39;: &#39;vertical.paddy.irrigation_trigger&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-paddy__irrigation_trigger_flag&#39;}
-key: demand_nonpaddy_irrigated_mask, variables: {&#39;wflow_v0&#39;: &#39;vertical.nonpaddy.irrigation_areas&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-non-paddy_area__count&#39;}
-key: demand_nonpaddy_irrigation_trigger, variables: {&#39;wflow_v0&#39;: &#39;vertical.nonpaddy.irrigation_trigger&#39;, &#39;wflow_v1&#39;: &#39;land~irrigated-non-paddy__irrigation_trigger_flag&#39;}
-key: N, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.n&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water_flow__manning_n_parameter&#39;}
-key: land_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.elevation&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water_flow__ground_elevation&#39;, &#39;hydromt_name&#39;: &#39;elevtn&#39;}
-key: land_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.slope&#39;, &#39;wflow_v1&#39;: &#39;land_surface__slope&#39;, &#39;hydromt_name&#39;: &#39;lndslp&#39;}
-key: floodplain_volume, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.floodplain.volume&#39;, &#39;wflow_v1&#39;: &#39;floodplain_water__sum_of_volume-per-depth&#39;, &#39;hydromt_name&#39;: &#39;floodplain_volume&#39;}
-key: river_bank_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.bankfull_elevation&#39;, &#39;wflow_v1&#39;: &#39;river_bank_water__elevation&#39;, &#39;hydromt_name&#39;: &#39;hydrodem&#39;}
-key: river_inflow, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.inflow&#39;, &#39;wflow_v1&#39;: &#39;river_water_inflow~external__volume_flow_rate&#39;}
-key: river_depth, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.bankfull_depth&#39;, &#39;wflow_v1&#39;: &#39;river_bank_water__depth&#39;, &#39;hydromt_name&#39;: &#39;rivdph&#39;}
-key: river_length, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.length&#39;, &#39;wflow_v1&#39;: &#39;river__length&#39;, &#39;hydromt_name&#39;: &#39;rivlen&#39;}
-key: river_manning_n, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.n&#39;, &#39;wflow_v1&#39;: &#39;river_water_flow__manning_n_parameter&#39;}
-key: river_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.slope&#39;, &#39;wflow_v1&#39;: &#39;river__slope&#39;, &#39;hydromt_name&#39;: &#39;rivslp&#39;}
-key: river_width, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.width&#39;, &#39;wflow_v1&#39;: &#39;river__width&#39;, &#39;hydromt_name&#39;: &#39;rivwth&#39;}
-key: lake_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.area&#39;, &#39;wflow_v1&#39;: &#39;lake_surface__area&#39;, &#39;hydromt_name&#39;: &#39;lake_area&#39;}
-key: lake_initial_depth, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.waterlevel&#39;, &#39;wflow_v1&#39;: &#39;lake_water_surface__initial_elevation&#39;, &#39;hydromt_name&#39;: &#39;lake_initial_depth&#39;}
-key: lake_outflow_threshold, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.threshold&#39;, &#39;wflow_v1&#39;: &#39;lake_water_flow_threshold-level__elevation&#39;, &#39;hydromt_name&#39;: &#39;lake_outflow_threshold&#39;}
-key: lake_b, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.b&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_coefficient&#39;, &#39;hydromt_name&#39;: &#39;lake_b&#39;}
-key: lake_e, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.e&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_exponent&#39;, &#39;hydromt_name&#39;: &#39;lake_e&#39;}
-key: lake_rating_curve, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.outflowfunc&#39;, &#39;wflow_v1&#39;: &#39;lake_water__rating_curve_type_count&#39;, &#39;hydromt_name&#39;: &#39;lake_rating_curve&#39;}
-key: lake_storage_curve, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.storfunc&#39;, &#39;wflow_v1&#39;: &#39;lake_water__storage_curve_type_count&#39;, &#39;hydromt_name&#39;: &#39;lake_storage_curve&#39;}
-key: lake_lower_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lake.linkedlakelocs&#39;, &#39;wflow_v1&#39;: &#39;lake~lower_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_lower_id&#39;}
-key: reservoir_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.area&#39;, &#39;wflow_v1&#39;: &#39;reservoir_surface__area&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area&#39;}
-key: reservoir_demand, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.demand&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_demand~required~downstream__volume_flow_rate&#39;, &#39;hydromt_name&#39;: &#39;reservoir_demand&#39;}
-key: reservoir_max_release, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.maxrelease&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_release-below-spillway__max_volume_flow_rate&#39;, &#39;hydromt_name&#39;: &#39;reservoir_max_release&#39;}
-key: reservoir_max_volume, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.maxvolume&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water__max_volume&#39;, &#39;hydromt_name&#39;: &#39;reservoir_max_volume&#39;}
-key: reservoir_target_full_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.targetfullfrac&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water~full-target__volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;reservoir_target_full_fraction&#39;}
-key: reservoir_target_min_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reservoir.targetminfrac&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water~min-target__volume_fraction&#39;, &#39;hydromt_name&#39;: &#39;reservoir_target_min_fraction&#39;}
-key: altitude, variables: {&#39;wflow_v0&#39;: &#39;altitude&#39;, &#39;wflow_v1&#39;: &#39;land_surface__elevation&#39;}
-key: groundwater_constant_head, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.constant_head&#39;, &#39;wflow_v1&#39;: &#39;model_boundary_condition~constant_hydraulic_head&#39;}
-key: groundwater_ksat_horizontal, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.conductivity&#39;, &#39;wflow_v1&#39;: &#39;subsurface_surface_water__horizontal_saturated_hydraulic_conductivity&#39;}
-key: river_bed_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.river_bottom&#39;, &#39;wflow_v1&#39;: &#39;river_bottom__elevation&#39;}
-key: river_bed_exfiltration_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.infiltration_conductance&#39;, &#39;wflow_v1&#39;: &#39;river_water__infiltration_conductance&#39;}
-key: river_bed_infiltration_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.exfiltration_conductance&#39;, &#39;wflow_v1&#39;: &#39;river_water__exfiltration_conductance&#39;}
-key: groundwater_specific_yield, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.specific_yield&#39;, &#39;wflow_v1&#39;: &#39;subsurface_water__specific_yield&#39;}
-key: groundwater_f, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.gwf_f&#39;, &#39;wflow_v1&#39;: &#39;subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter&#39;}
-key: drain, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain&#39;, &#39;wflow_v1&#39;: &#39;land_drain_location__mask&#39;}
-key: drain_conductance, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain_conductance&#39;, &#39;wflow_v1&#39;: &#39;land_drain__conductance&#39;}
-key: drain_elevation, variables: {&#39;wflow_v0&#39;: &#39;lateral.subsurface.drain_elevation&#39;, &#39;wflow_v1&#39;: &#39;land_drain__elevation&#39;}
-2025-08-14 00:56:00,139 - update - utils - INFO - Converting config output sections
-2025-08-14 00:56:00,156 - update - model_api - INFO - write_config.config_name: wflow_sbm_v1.toml
-2025-08-14 00:56:00,156 - update - model_api - INFO - write_config.config_root: None
-2025-08-14 00:56:00,156 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v1.toml
+2025-08-14 01:47:40,216 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/hydromt.log.
+2025-08-14 01:47:40,216 - update - log - INFO - HydroMT version: 0.10.1
+2025-08-14 01:47:40,216 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm (r+).
+2025-08-14 01:47:40,216 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
+2025-08-14 01:47:40,216 - update - main - INFO - User settings:
+2025-08-14 01:47:40,241 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v1.0.0.dev0).
+2025-08-14 01:47:40,241 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-08-14 01:47:40,253 - update - wflow - INFO - Supported Wflow.jl version v1+
+2025-08-14 01:47:40,364 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
+2025-08-14 01:47:40,366 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/staticmaps_v0x.nc
+2025-08-14 01:47:40,866 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml
+2025-08-14 01:47:40,866 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/staticmaps_v0x.nc
+2025-08-14 01:47:40,901 - update - model_grid - WARNING - Replacing grid map: x_out
+2025-08-14 01:47:40,902 - update - model_grid - WARNING - Replacing grid map: y_out
+2025-08-14 01:47:40,904 - update - model_grid - WARNING - Replacing grid map: idx_out
+2025-08-14 01:47:40,905 - update - model_grid - WARNING - Replacing grid map: wflow_ldd
+2025-08-14 01:47:40,906 - update - model_grid - WARNING - Replacing grid map: wflow_subcatch
+2025-08-14 01:47:40,907 - update - model_grid - WARNING - Replacing grid map: wflow_uparea
+2025-08-14 01:47:40,909 - update - model_grid - WARNING - Replacing grid map: subare
+2025-08-14 01:47:40,910 - update - model_grid - WARNING - Replacing grid map: dem_subgrid
+2025-08-14 01:47:40,911 - update - model_grid - WARNING - Replacing grid map: wflow_streamorder
+2025-08-14 01:47:40,912 - update - model_grid - WARNING - Replacing grid map: wflow_dem
+2025-08-14 01:47:40,913 - update - model_grid - WARNING - Replacing grid map: Slope
+2025-08-14 01:47:40,914 - update - model_grid - WARNING - Replacing grid map: wflow_river
+2025-08-14 01:47:40,916 - update - model_grid - WARNING - Replacing grid map: wflow_riverlength
+2025-08-14 01:47:40,917 - update - model_grid - WARNING - Replacing grid map: RiverSlope
+2025-08-14 01:47:40,918 - update - model_grid - WARNING - Replacing grid map: N_River
+2025-08-14 01:47:40,919 - update - model_grid - WARNING - Replacing grid map: wflow_riverwidth
+2025-08-14 01:47:40,920 - update - model_grid - WARNING - Replacing grid map: RiverDepth
+2025-08-14 01:47:40,921 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirareas
+2025-08-14 01:47:40,923 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirlocs
+2025-08-14 01:47:40,924 - update - model_grid - WARNING - Replacing grid map: ResMaxVolume
+2025-08-14 01:47:40,925 - update - model_grid - WARNING - Replacing grid map: ResSimpleArea
+2025-08-14 01:47:40,926 - update - model_grid - WARNING - Replacing grid map: ResDemand
+2025-08-14 01:47:40,927 - update - model_grid - WARNING - Replacing grid map: ResMaxRelease
+2025-08-14 01:47:40,928 - update - model_grid - WARNING - Replacing grid map: ResTargetFullFrac
+2025-08-14 01:47:40,930 - update - model_grid - WARNING - Replacing grid map: ResTargetMinFrac
+2025-08-14 01:47:40,931 - update - model_grid - WARNING - Replacing grid map: wflow_lakeareas
+2025-08-14 01:47:40,932 - update - model_grid - WARNING - Replacing grid map: wflow_lakelocs
+2025-08-14 01:47:40,933 - update - model_grid - WARNING - Replacing grid map: LakeArea
+2025-08-14 01:47:40,934 - update - model_grid - WARNING - Replacing grid map: LakeAvgLevel
+2025-08-14 01:47:40,936 - update - model_grid - WARNING - Replacing grid map: LakeAvgOut
+2025-08-14 01:47:40,937 - update - model_grid - WARNING - Replacing grid map: Lake_b
+2025-08-14 01:47:40,938 - update - model_grid - WARNING - Replacing grid map: Lake_e
+2025-08-14 01:47:40,939 - update - model_grid - WARNING - Replacing grid map: LakeStorFunc
+2025-08-14 01:47:40,940 - update - model_grid - WARNING - Replacing grid map: LakeOutflowFunc
+2025-08-14 01:47:40,941 - update - model_grid - WARNING - Replacing grid map: LakeThreshold
+2025-08-14 01:47:40,943 - update - model_grid - WARNING - Replacing grid map: LinkedLakeLocs
+2025-08-14 01:47:40,944 - update - model_grid - WARNING - Replacing grid map: wflow_glacierareas
+2025-08-14 01:47:40,945 - update - model_grid - WARNING - Replacing grid map: wflow_glacierstore
+2025-08-14 01:47:40,946 - update - model_grid - WARNING - Replacing grid map: wflow_glacierfrac
+2025-08-14 01:47:40,947 - update - model_grid - WARNING - Replacing grid map: wflow_landuse
+2025-08-14 01:47:40,948 - update - model_grid - WARNING - Replacing grid map: Kext
+2025-08-14 01:47:40,950 - update - model_grid - WARNING - Replacing grid map: N
+2025-08-14 01:47:40,951 - update - model_grid - WARNING - Replacing grid map: PathFrac
+2025-08-14 01:47:40,952 - update - model_grid - WARNING - Replacing grid map: RootingDepth
+2025-08-14 01:47:40,953 - update - model_grid - WARNING - Replacing grid map: Sl
+2025-08-14 01:47:40,955 - update - model_grid - WARNING - Replacing grid map: Swood
+2025-08-14 01:47:40,956 - update - model_grid - WARNING - Replacing grid map: WaterFrac
+2025-08-14 01:47:40,957 - update - model_grid - WARNING - Replacing grid map: kc
+2025-08-14 01:47:40,958 - update - model_grid - WARNING - Replacing grid map: alpha_h1
+2025-08-14 01:47:40,959 - update - model_grid - WARNING - Replacing grid map: h1
+2025-08-14 01:47:40,960 - update - model_grid - WARNING - Replacing grid map: h2
+2025-08-14 01:47:40,962 - update - model_grid - WARNING - Replacing grid map: h3_high
+2025-08-14 01:47:40,963 - update - model_grid - WARNING - Replacing grid map: h3_low
+2025-08-14 01:47:40,964 - update - model_grid - WARNING - Replacing grid map: h4
+2025-08-14 01:47:40,965 - update - model_grid - WARNING - Replacing grid map: LAI
+2025-08-14 01:47:40,966 - update - model_grid - WARNING - Replacing grid map: thetaS
+2025-08-14 01:47:40,968 - update - model_grid - WARNING - Replacing grid map: thetaR
+2025-08-14 01:47:40,969 - update - model_grid - WARNING - Replacing grid map: SoilThickness
+2025-08-14 01:47:40,970 - update - model_grid - WARNING - Replacing grid map: SoilMinThickness
+2025-08-14 01:47:40,971 - update - model_grid - WARNING - Replacing grid map: c
+2025-08-14 01:47:40,973 - update - model_grid - WARNING - Replacing grid map: KsatVer
+2025-08-14 01:47:40,974 - update - model_grid - WARNING - Replacing grid map: KsatVer_0.0cm
+2025-08-14 01:47:40,975 - update - model_grid - WARNING - Replacing grid map: KsatVer_5.0cm
+2025-08-14 01:47:40,976 - update - model_grid - WARNING - Replacing grid map: KsatVer_15.0cm
+2025-08-14 01:47:40,977 - update - model_grid - WARNING - Replacing grid map: KsatVer_30.0cm
+2025-08-14 01:47:40,978 - update - model_grid - WARNING - Replacing grid map: KsatVer_60.0cm
+2025-08-14 01:47:40,980 - update - model_grid - WARNING - Replacing grid map: KsatVer_100.0cm
+2025-08-14 01:47:40,981 - update - model_grid - WARNING - Replacing grid map: KsatVer_200.0cm
+2025-08-14 01:47:40,982 - update - model_grid - WARNING - Replacing grid map: M_original_
+2025-08-14 01:47:40,983 - update - model_grid - WARNING - Replacing grid map: M_
+2025-08-14 01:47:40,984 - update - model_grid - WARNING - Replacing grid map: f_
+2025-08-14 01:47:40,985 - update - model_grid - WARNING - Replacing grid map: M_original
+2025-08-14 01:47:40,987 - update - model_grid - WARNING - Replacing grid map: M
+2025-08-14 01:47:40,988 - update - model_grid - WARNING - Replacing grid map: f
+2025-08-14 01:47:40,989 - update - model_grid - WARNING - Replacing grid map: wflow_soil
+2025-08-14 01:47:40,990 - update - model_grid - WARNING - Replacing grid map: wflow_gauges
+2025-08-14 01:47:40,991 - update - model_grid - WARNING - Replacing grid map: wflow_gauges_grdc
+2025-08-14 01:47:40,992 - update - model_grid - WARNING - Replacing grid map: KsatHorFrac
+2025-08-14 01:47:40,994 - update - model_grid - WARNING - Replacing grid map: Cfmax
+2025-08-14 01:47:40,995 - update - model_grid - WARNING - Replacing grid map: cf_soil
+2025-08-14 01:47:40,996 - update - model_grid - WARNING - Replacing grid map: EoverR
+2025-08-14 01:47:40,997 - update - model_grid - WARNING - Replacing grid map: InfiltCapPath
+2025-08-14 01:47:40,998 - update - model_grid - WARNING - Replacing grid map: InfiltCapSoil
+2025-08-14 01:47:40,999 - update - model_grid - WARNING - Replacing grid map: MaxLeakage
+2025-08-14 01:47:41,001 - update - model_grid - WARNING - Replacing grid map: rootdistpar
+2025-08-14 01:47:41,002 - update - model_grid - WARNING - Replacing grid map: TT
+2025-08-14 01:47:41,003 - update - model_grid - WARNING - Replacing grid map: TTI
+2025-08-14 01:47:41,005 - update - model_grid - WARNING - Replacing grid map: TTM
+2025-08-14 01:47:41,006 - update - model_grid - WARNING - Replacing grid map: WHC
+2025-08-14 01:47:41,007 - update - model_grid - WARNING - Replacing grid map: G_Cfmax
+2025-08-14 01:47:41,008 - update - model_grid - WARNING - Replacing grid map: G_SIfrac
+2025-08-14 01:47:41,009 - update - model_grid - WARNING - Replacing grid map: G_TT
+2025-08-14 01:47:41,011 - update - wflow - INFO - Reading model table files.
+2025-08-14 01:47:41,011 - update - wflow - INFO - Model read
+2025-08-14 01:47:41,011 - update - version_upgrade - INFO - Converting config to Wflow v1 format
+2025-08-14 01:47:41,012 - update - version_upgrade - INFO - Converting config general, time and model sections
+2025-08-14 01:47:41,013 - update - version_upgrade - INFO - Converting config state section
+2025-08-14 01:47:41,018 - update - version_upgrade - INFO - Converting config input section
+2025-08-14 01:47:41,040 - update - version_upgrade - INFO - Converting config output sections
+2025-08-14 01:47:41,058 - update - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
+2025-08-14 01:47:41,109 - update - model_api - INFO - write_config.config_name: wflow_sbm_v1.toml
+2025-08-14 01:47:41,109 - update - model_api - INFO - write_config.config_root: None
+2025-08-14 01:47:41,109 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v1.toml
 </pre></div></div>
 </div>
 <p>And let’s see the results. Here is what our old TOML file looked like:</p>
@@ -683,7 +678,7 @@ path_output = &#34;outstate/outstates.nc&#34;
 
 [input]
 path_forcing = &#34;inmaps.nc&#34;
-path_static = &#34;staticmaps.nc&#34;
+path_static = &#34;staticmaps_v0x.nc&#34;
 gauges = &#34;wflow_gauges&#34;
 ldd = &#34;wflow_ldd&#34;
 river_location = &#34;wflow_river&#34;
@@ -700,6 +695,8 @@ reinit = true
 reservoirs = true
 lakes = true
 glacier = true
+land_routing = &#34;kinematic-wave&#34;
+river_routing = &#34;kinematic-wave&#34;
 kin_wave_iteration = true
 kw_river_tstep = 900
 kw_land_tstep = 3600
@@ -900,13 +897,14 @@ type = &#34;sbm&#34;
 snow_gravitional_transport__flag = true
 snow__flag = true
 cold_start__flag = true
-reservoir__flag = true
-lake__flag = true
 glacier__flag = true
+land_routing = &#34;kinematic-wave&#34;
+river_routing = &#34;kinematic-wave&#34;
 kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
 soil_layer__thickness = [ 100, 300, 800,]
+reservoir__flag = true
 
 [state]
 path_input = &#34;instate/instates.nc&#34;
@@ -925,22 +923,19 @@ land_surface_water__instantaneous_depth = &#34;h_land&#34;
 subsurface_water__volume_flow_rate = &#34;ssf&#34;
 river_water__instantaneous_volume_flow_rate = &#34;q_river&#34;
 river_water__instantaneous_depth = &#34;h_river&#34;
-lake_water_surface__instantaneous_elevation = &#34;waterlevel_lake&#34;
-reservoir_water__instantaneous_volume = &#34;volume_reservoir&#34;
+reservoir_water_surface__instantaneous_elevation = &#34;reservoir_instantaneous_water_level&#34;
 
 [input]
 path_forcing = &#34;inmaps.nc&#34;
-path_static = &#34;staticmaps.nc&#34;
+path_static = &#34;staticmaps_v0x.nc&#34;
 gauges = &#34;wflow_gauges&#34;
 basin__local_drain_direction = &#34;wflow_ldd&#34;
 river_location__mask = &#34;wflow_river&#34;
 subbasin_location__count = &#34;wflow_subcatch&#34;
 gauges_grdc = &#34;wflow_gauges_grdc&#34;
-lake_area__count = &#34;wflow_lakeareas&#34;
-lake_location__count = &#34;wflow_lakelocs&#34;
-reservoir_area__count = &#34;wflow_reservoirareas&#34;
-reservoir_location__count = &#34;wflow_reservoirlocs&#34;
-&#34;lake~lower_location__count&#34; = &#34;LinkedLakeLocs&#34;
+reservoir_area__count = &#34;reservoir_area_id&#34;
+reservoir_location__count = &#34;reservoir_outlet_id&#34;
+&#34;reservoir~lower_location__count&#34; = &#34;reservoir_lower_id&#34;
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = &#34;precip&#34;
@@ -987,19 +982,18 @@ river__length = &#34;wflow_riverlength&#34;
 river_water_flow__manning_n_parameter = &#34;N_River&#34;
 river__slope = &#34;RiverSlope&#34;
 river__width = &#34;wflow_riverwidth&#34;
-lake_surface__area = &#34;LakeArea&#34;
-lake_water_surface__initial_elevation = &#34;LakeAvgLevel&#34;
-lake_water_flow_threshold-level__elevation = &#34;LakeThreshold&#34;
-lake_water__rating_curve_coefficient = &#34;Lake_b&#34;
-lake_water__rating_curve_exponent = &#34;Lake_e&#34;
-lake_water__rating_curve_type_count = &#34;LakeOutflowFunc&#34;
-lake_water__storage_curve_type_count = &#34;LakeStorFunc&#34;
-reservoir_surface__area = &#34;ResSimpleArea&#34;
-&#34;reservoir_water_demand~required~downstream__volume_flow_rate&#34; = &#34;ResDemand&#34;
-reservoir_water_release-below-spillway__max_volume_flow_rate = &#34;ResMaxRelease&#34;
-reservoir_water__max_volume = &#34;ResMaxVolume&#34;
-&#34;reservoir_water~full-target__volume_fraction&#34; = &#34;ResTargetFullFrac&#34;
-&#34;reservoir_water~min-target__volume_fraction&#34; = &#34;ResTargetMinFrac&#34;
+reservoir_surface__area = &#34;reservoir_area&#34;
+reservoir_water_surface__initial_elevation = &#34;reservoir_initial_depth&#34;
+reservoir_water__rating_curve_type_count = &#34;reservoir_rating_curve&#34;
+reservoir_water__storage_curve_type_count = &#34;reservoir_storage_curve&#34;
+reservoir_water__max_volume = &#34;reservoir_max_volume&#34;
+&#34;reservoir_water~min-target__volume_fraction&#34; = &#34;reservoir_target_min_fraction&#34;
+&#34;reservoir_water~full-target__volume_fraction&#34; = &#34;reservoir_target_full_fraction&#34;
+&#34;reservoir_water_demand~required~downstream__volume_flow_rate&#34; = &#34;reservoir_demand&#34;
+reservoir_water_release-below-spillway__max_volume_flow_rate = &#34;reservoir_max_release&#34;
+reservoir_water__rating_curve_coefficient = &#34;reservoir_b&#34;
+reservoir_water__rating_curve_exponent = &#34;reservoir_e&#34;
+reservoir_water_flow_threshold-level__elevation = &#34;reservoir_outflow_threshold&#34;
 
 [output.netcdf_grid]
 path = &#34;output.nc&#34;
@@ -1069,183 +1063,124 @@ write_config:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-08-14 00:56:03,647 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/hydromt.log.
-2025-08-14 00:56:03,647 - update - log - INFO - HydroMT version: 0.10.1
-2025-08-14 00:56:03,647 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment (r+).
-2025-08-14 00:56:03,647 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
-2025-08-14 00:56:03,647 - update - main - INFO - User settings:
-2025-08-14 00:56:03,684 - update - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-08-14 00:56:03,684 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
-2025-08-14 00:56:04,239 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
-2025-08-14 00:56:04,240 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-08-14 00:56:04,251 - update - wflow - INFO - Supported Wflow.jl version v1+
-2025-08-14 00:56:04,370 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
-2025-08-14 00:56:04,372 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
-2025-08-14 00:56:04,859 - update - model_api - INFO - upgrade_to_v1_wflow.soil_fn: soilgrids
-2025-08-14 00:56:04,859 - update - model_api - INFO - upgrade_to_v1_wflow.usle_k_method: renard
-2025-08-14 00:56:04,859 - update - model_api - INFO - upgrade_to_v1_wflow.strord_name: wflow_streamorder
-2025-08-14 00:56:04,870 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
-2025-08-14 00:56:04,870 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
-2025-08-14 00:56:04,896 - update - model_grid - WARNING - Replacing grid map: x_out
-2025-08-14 00:56:04,897 - update - model_grid - WARNING - Replacing grid map: y_out
-2025-08-14 00:56:04,898 - update - model_grid - WARNING - Replacing grid map: idx_out
-2025-08-14 00:56:04,899 - update - model_grid - WARNING - Replacing grid map: wflow_ldd
-2025-08-14 00:56:04,900 - update - model_grid - WARNING - Replacing grid map: wflow_subcatch
-2025-08-14 00:56:04,901 - update - model_grid - WARNING - Replacing grid map: wflow_uparea
-2025-08-14 00:56:04,902 - update - model_grid - WARNING - Replacing grid map: subare
-2025-08-14 00:56:04,903 - update - model_grid - WARNING - Replacing grid map: dem_subgrid
-2025-08-14 00:56:04,904 - update - model_grid - WARNING - Replacing grid map: wflow_streamorder
-2025-08-14 00:56:04,905 - update - model_grid - WARNING - Replacing grid map: wflow_dem
-2025-08-14 00:56:04,906 - update - model_grid - WARNING - Replacing grid map: Slope
-2025-08-14 00:56:04,907 - update - model_grid - WARNING - Replacing grid map: wflow_river
-2025-08-14 00:56:04,908 - update - model_grid - WARNING - Replacing grid map: wflow_riverlength
-2025-08-14 00:56:04,909 - update - model_grid - WARNING - Replacing grid map: RiverSlope
-2025-08-14 00:56:04,910 - update - model_grid - WARNING - Replacing grid map: N_River
-2025-08-14 00:56:04,911 - update - model_grid - WARNING - Replacing grid map: wflow_riverwidth
-2025-08-14 00:56:04,912 - update - model_grid - WARNING - Replacing grid map: RiverDepth
-2025-08-14 00:56:04,913 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirareas
-2025-08-14 00:56:04,914 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirlocs
-2025-08-14 00:56:04,915 - update - model_grid - WARNING - Replacing grid map: ResMaxVolume
-2025-08-14 00:56:04,916 - update - model_grid - WARNING - Replacing grid map: ResSimpleArea
-2025-08-14 00:56:04,917 - update - model_grid - WARNING - Replacing grid map: ResDemand
-2025-08-14 00:56:04,918 - update - model_grid - WARNING - Replacing grid map: ResMaxRelease
-2025-08-14 00:56:04,919 - update - model_grid - WARNING - Replacing grid map: ResTargetFullFrac
-2025-08-14 00:56:04,920 - update - model_grid - WARNING - Replacing grid map: ResTargetMinFrac
-2025-08-14 00:56:04,921 - update - model_grid - WARNING - Replacing grid map: wflow_lakeareas
-2025-08-14 00:56:04,922 - update - model_grid - WARNING - Replacing grid map: wflow_lakelocs
-2025-08-14 00:56:04,923 - update - model_grid - WARNING - Replacing grid map: LakeArea
-2025-08-14 00:56:04,924 - update - model_grid - WARNING - Replacing grid map: LakeAvgLevel
-2025-08-14 00:56:04,925 - update - model_grid - WARNING - Replacing grid map: LakeAvgOut
-2025-08-14 00:56:04,926 - update - model_grid - WARNING - Replacing grid map: Lake_b
-2025-08-14 00:56:04,927 - update - model_grid - WARNING - Replacing grid map: Lake_e
-2025-08-14 00:56:04,928 - update - model_grid - WARNING - Replacing grid map: LakeStorFunc
-2025-08-14 00:56:04,929 - update - model_grid - WARNING - Replacing grid map: LakeOutflowFunc
-2025-08-14 00:56:04,930 - update - model_grid - WARNING - Replacing grid map: LakeThreshold
-2025-08-14 00:56:04,931 - update - model_grid - WARNING - Replacing grid map: LinkedLakeLocs
-2025-08-14 00:56:04,932 - update - model_grid - WARNING - Replacing grid map: D50_River
-2025-08-14 00:56:04,933 - update - model_grid - WARNING - Replacing grid map: ClayF_River
-2025-08-14 00:56:04,934 - update - model_grid - WARNING - Replacing grid map: SiltF_River
-2025-08-14 00:56:04,935 - update - model_grid - WARNING - Replacing grid map: SandF_River
-2025-08-14 00:56:04,935 - update - model_grid - WARNING - Replacing grid map: GravelF_River
-2025-08-14 00:56:04,936 - update - model_grid - WARNING - Replacing grid map: wflow_landuse
-2025-08-14 00:56:04,937 - update - model_grid - WARNING - Replacing grid map: Kext
-2025-08-14 00:56:04,938 - update - model_grid - WARNING - Replacing grid map: PathFrac
-2025-08-14 00:56:04,939 - update - model_grid - WARNING - Replacing grid map: Sl
-2025-08-14 00:56:04,940 - update - model_grid - WARNING - Replacing grid map: Swood
-2025-08-14 00:56:04,942 - update - model_grid - WARNING - Replacing grid map: USLE_C
-2025-08-14 00:56:04,943 - update - model_grid - WARNING - Replacing grid map: LAI
-2025-08-14 00:56:04,944 - update - model_grid - WARNING - Replacing grid map: CanopyHeight
-2025-08-14 00:56:04,945 - update - model_grid - WARNING - Replacing grid map: PercentClay
-2025-08-14 00:56:04,946 - update - model_grid - WARNING - Replacing grid map: PercentSilt
-2025-08-14 00:56:04,947 - update - model_grid - WARNING - Replacing grid map: PercentOC
-2025-08-14 00:56:04,948 - update - model_grid - WARNING - Replacing grid map: ErosK
-2025-08-14 00:56:04,949 - update - model_grid - WARNING - Replacing grid map: USLE_K
-2025-08-14 00:56:04,949 - update - model_grid - WARNING - Replacing grid map: wflow_gauges
-2025-08-14 00:56:04,950 - update - model_grid - WARNING - Replacing grid map: wflow_gauges_grdc
-2025-08-14 00:56:04,951 - update - model_grid - WARNING - Replacing grid map: c_Bagnold
-2025-08-14 00:56:04,952 - update - model_grid - WARNING - Replacing grid map: eros_expo
-2025-08-14 00:56:04,953 - update - model_grid - WARNING - Replacing grid map: eros_ov
-2025-08-14 00:56:04,954 - update - model_grid - WARNING - Replacing grid map: eros_spl_EUROSEM
-2025-08-14 00:56:04,955 - update - model_grid - WARNING - Replacing grid map: exp_Bagnold
-2025-08-14 00:56:04,956 - update - model_grid - WARNING - Replacing grid map: ResTrapEff
-2025-08-14 00:56:04,957 - update - wflow - INFO - Reading model table files.
-2025-08-14 00:56:04,958 - update - wflow - INFO - Model read
-2025-08-14 00:56:04,958 - update - utils - INFO - Converting config to Wflow v1 format
-2025-08-14 00:56:04,958 - update - utils - INFO - Converting config general, time and model sections
-2025-08-14 00:56:04,959 - update - utils - INFO - Converting config state section
-2025-08-14 00:56:04,961 - update - utils - INFO - Converting config input section
-key: subcatchment, variables: {&#39;wflow_v0&#39;: &#39;subcatchment&#39;, &#39;wflow_v1&#39;: &#39;subbasin_location__count&#39;, &#39;hydromt_name&#39;: &#39;basins&#39;}
-key: local_drain_direction, variables: {&#39;wflow_v0&#39;: &#39;ldd&#39;, &#39;wflow_v1&#39;: &#39;basin__local_drain_direction&#39;, &#39;hydromt_name&#39;: &#39;flwdir&#39;}
-key: lake_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.lakeareas&#39;, &#39;wflow_v1&#39;: &#39;lake_area__count&#39;, &#39;hydromt_name&#39;: &#39;lake_area_id&#39;}
-key: lake_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lakelocs&#39;, &#39;wflow_v1&#39;: &#39;lake_location__count&#39;, &#39;hydromt_name&#39;: &#39;lake_outlet_id&#39;}
-key: reservoir_area_id, variables: {&#39;wflow_v0&#39;: &#39;vertical.resareas&#39;, &#39;wflow_v1&#39;: &#39;reservoir_area__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area_id&#39;}
-key: reservoir_outlet_id, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.reslocs&#39;, &#39;wflow_v1&#39;: &#39;reservoir_location__count&#39;, &#39;hydromt_name&#39;: &#39;reservoir_outlet_id&#39;}
-key: river_mask, variables: {&#39;wflow_v0&#39;: &#39;river_location&#39;, &#39;wflow_v1&#39;: &#39;river_location__mask&#39;, &#39;hydromt_name&#39;: &#39;rivmsk&#39;}
-key: precip, variables: {&#39;wflow_v0&#39;: &#39;vertical.precipitation&#39;, &#39;wflow_v1&#39;: &#39;atmosphere_water__precipitation_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;precip&#39;}
-key: vegetation_interception, variables: {&#39;wflow_v0&#39;: &#39;vertical.interception&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy_water__interception_volume_flux&#39;, &#39;hydromt_name&#39;: &#39;interception&#39;}
-key: land_h, variables: {&#39;wflow_v0&#39;: &#39;vertical.h_land&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__depth&#39;}
-key: land_q, variables: {&#39;wflow_v0&#39;: &#39;vertical.q_land&#39;, &#39;wflow_v1&#39;: &#39;land_surface_water__volume_flow_rate&#39;}
-key: river_h, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.h_riv&#39;, &#39;wflow_v1&#39;: &#39;river_water__depth&#39;}
-key: river_q, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.q_riv&#39;, &#39;wflow_v1&#39;: &#39;river_water__volume_flow_rate&#39;}
-key: land_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.land.slope&#39;, &#39;wflow_v1&#39;: &#39;land_surface__slope&#39;, &#39;hydromt_name&#39;: &#39;lndslp&#39;}
-key: river_length, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.length&#39;, &#39;wflow_v1&#39;: &#39;river__length&#39;, &#39;hydromt_name&#39;: &#39;rivlen&#39;}
-key: river_slope, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.slope&#39;, &#39;wflow_v1&#39;: &#39;river__slope&#39;, &#39;hydromt_name&#39;: &#39;rivslp&#39;}
-key: river_width, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.width&#39;, &#39;wflow_v1&#39;: &#39;river__width&#39;, &#39;hydromt_name&#39;: &#39;rivwth&#39;}
-key: reservoir_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.resarea&#39;, &#39;wflow_v1&#39;: &#39;reservoir_surface__area&#39;, &#39;hydromt_name&#39;: &#39;reservoir_area&#39;}
-key: lake_area, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.lakearea&#39;, &#39;wflow_v1&#39;: &#39;lake_surface__area&#39;, &#39;hydromt_name&#39;: &#39;lake_area&#39;}
-key: reservoir_trapping_efficiency, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.restrapeff&#39;, &#39;wflow_v1&#39;: &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;, &#39;hydromt_name&#39;: &#39;reservoir_trapping_efficiency&#39;}
-key: vegetation_gap_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.canopygapfraction&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__gap_fraction&#39;}
-key: vegetation_height, variables: {&#39;wflow_v0&#39;: &#39;vertical.canopyheight&#39;, &#39;wflow_v1&#39;: &#39;vegetation_canopy__height&#39;}
-key: vegetation_kext, variables: {&#39;wflow_v0&#39;: &#39;vertical.kext&#39;, &#39;wflow_v1&#39;: None}
-key: leaf_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.specific_leaf&#39;, &#39;wflow_v1&#39;: None, &#39;hydromt_name&#39;: &#39;leaf_storage&#39;}
-key: vegetation_wood_storage, variables: {&#39;wflow_v0&#39;: &#39;vertical.storage_wood&#39;, &#39;wflow_v1&#39;: None, &#39;hydromt_name&#39;: &#39;wood_storage&#39;}
-key: soil_compacted_fraction, variables: {&#39;wflow_v0&#39;: &#39;vertical.pathfrac&#39;, &#39;wflow_v1&#39;: &#39;soil~compacted__area_fraction&#39;}
-key: land_water_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land~water-covered__area_fraction&#39;}
-key: erosion_soil_detachability, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosk&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__rainfall_soil_detachability_factor&#39;}
-key: erosion_eurosem_exp, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosspl&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__eurosem_exponent&#39;}
-key: erosion_usle_k, variables: {&#39;wflow_v0&#39;: &#39;vertical.usleK&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__usle_k_factor&#39;, &#39;hydromt_name&#39;: &#39;usle_k&#39;}
-key: erosion_usle_c, variables: {&#39;wflow_v0&#39;: &#39;vertical.usleC&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__usle_c_factor&#39;, &#39;hydromt_name&#39;: &#39;usle_c&#39;}
-key: erosion_answers_sheet_factor, variables: {&#39;wflow_v0&#39;: &#39;vertical.erosov&#39;, &#39;wflow_v1&#39;: &#39;soil_erosion__answers_overland_flow_factor&#39;}
-key: erosion_answers_rain_factor, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_erosion__answers_rainfall_factor&#39;}
-key: soil_clay_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_clay__mass_fraction&#39;}
-key: soil_silt_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_silt__mass_fraction&#39;}
-key: soil_sand_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_sand__mass_fraction&#39;}
-key: soil_sagg_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_aggregates~small__mass_fraction&#39;}
-key: soil_lagg_fraction, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;soil_aggregates~large__mass_fraction&#39;}
-key: land_govers_c, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;}
-key: land_govers_n, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;}
-key: soil_sediment_d50, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;land_surface_sediment__median_diameter&#39;}
-key: sediment_density, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.rhos&#39;, &#39;wflow_v1&#39;: &#39;sediment__particle_density&#39;}
-key: river_sediment_d50, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.d50engelund&#39;, &#39;wflow_v1&#39;: None}
-key: river_bagnold_c, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.cbagnold&#39;, &#39;wflow_v1&#39;: &#39;river_water_sediment__bagnold_transport_capacity_coefficient&#39;}
-key: river_bagnold_exp, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.ebagnold&#39;, &#39;wflow_v1&#39;: &#39;river_water_sediment__bagnold_transport_capacity_exponent&#39;}
-key: river_kodatie_a, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_a-coefficient&#39;}
-key: river_kodatie_b, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_b-coefficient&#39;}
-key: river_kodatie_c, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_c-coefficient&#39;}
-key: river_kodatie_d, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;river_water_sediment__kodatie_transport_capacity_d-coefficient&#39;}
-key: river_bed_sediment_d50, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.d50&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_sediment__median_diameter&#39;}
-key: river_bed_clay_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fclayriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_clay__mass_fraction&#39;}
-key: river_bed_silt_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fsiltriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_silt__mass_fraction&#39;}
-key: river_bed_sand_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fsandriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_sand__mass_fraction&#39;}
-key: river_bed_gravel_fraction, variables: {&#39;wflow_v0&#39;: &#39;lateral.river.fgravelriv&#39;, &#39;wflow_v1&#39;: &#39;river_bottom-and-bank_gravel__mass_fraction&#39;}
-key: sediment_clay_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;clay__mean_diameter&#39;}
-key: sediment_silt_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;silt__mean_diameter&#39;}
-key: sediment_sand_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sand__mean_diameter&#39;}
-key: sediment_sagg_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sediment_aggregates~small__mean_diameter&#39;}
-key: sediment_lagg_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;sediment_aggregates~large__mean_diameter&#39;}
-key: sediment_gravel_dm, variables: {&#39;wflow_v0&#39;: None, &#39;wflow_v1&#39;: &#39;gravel__mean_diameter&#39;}
-2025-08-14 00:56:04,967 - update - utils - INFO - Converting config output sections
-2025-08-14 00:56:04,978 - update - wflow_sediment - INFO - Preparing soil parameter maps.
-2025-08-14 00:56:04,982 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
-2025-08-14 00:56:05,316 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2025-08-14 00:56:05,327 - update - rasterdataset - DEBUG - Convert units for 21 variables.
-2025-08-14 00:56:05,927 - update - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
-2025-08-14 00:56:05,947 - update - soilgrids - INFO - Interpolate NAN values for usle_k
-2025-08-14 00:56:05,983 - update - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
-2025-08-14 00:56:06,025 - update - soilgrids - INFO - Interpolate NAN values for land_govers_c
-2025-08-14 00:56:06,068 - update - soilgrids - INFO - Interpolate NAN values for land_govers_n
-2025-08-14 00:56:06,083 - update - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
-2025-08-14 00:56:06,098 - update - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
-2025-08-14 00:56:06,117 - update - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
-2025-08-14 00:56:06,138 - update - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
+2025-08-14 01:47:44,401 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/hydromt.log.
+2025-08-14 01:47:44,401 - update - log - INFO - HydroMT version: 0.10.1
+2025-08-14 01:47:44,401 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment (r+).
+2025-08-14 01:47:44,401 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
+2025-08-14 01:47:44,401 - update - main - INFO - User settings:
+2025-08-14 01:47:44,458 - update - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-08-14 01:47:44,458 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2025-08-14 01:47:45,014 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
+2025-08-14 01:47:45,014 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-08-14 01:47:45,025 - update - wflow - INFO - Supported Wflow.jl version v1+
+2025-08-14 01:47:45,132 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
+2025-08-14 01:47:45,133 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
+2025-08-14 01:47:45,608 - update - model_api - INFO - upgrade_to_v1_wflow.soil_fn: soilgrids
+2025-08-14 01:47:45,608 - update - model_api - INFO - upgrade_to_v1_wflow.usle_k_method: renard
+2025-08-14 01:47:45,608 - update - model_api - INFO - upgrade_to_v1_wflow.strord_name: wflow_streamorder
+2025-08-14 01:47:45,618 - update - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml
+2025-08-14 01:47:45,618 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v0x.nc
+2025-08-14 01:47:45,643 - update - model_grid - WARNING - Replacing grid map: x_out
+2025-08-14 01:47:45,644 - update - model_grid - WARNING - Replacing grid map: y_out
+2025-08-14 01:47:45,645 - update - model_grid - WARNING - Replacing grid map: idx_out
+2025-08-14 01:47:45,646 - update - model_grid - WARNING - Replacing grid map: wflow_ldd
+2025-08-14 01:47:45,647 - update - model_grid - WARNING - Replacing grid map: wflow_subcatch
+2025-08-14 01:47:45,648 - update - model_grid - WARNING - Replacing grid map: wflow_uparea
+2025-08-14 01:47:45,649 - update - model_grid - WARNING - Replacing grid map: subare
+2025-08-14 01:47:45,650 - update - model_grid - WARNING - Replacing grid map: dem_subgrid
+2025-08-14 01:47:45,651 - update - model_grid - WARNING - Replacing grid map: wflow_streamorder
+2025-08-14 01:47:45,652 - update - model_grid - WARNING - Replacing grid map: wflow_dem
+2025-08-14 01:47:45,652 - update - model_grid - WARNING - Replacing grid map: Slope
+2025-08-14 01:47:45,653 - update - model_grid - WARNING - Replacing grid map: wflow_river
+2025-08-14 01:47:45,654 - update - model_grid - WARNING - Replacing grid map: wflow_riverlength
+2025-08-14 01:47:45,655 - update - model_grid - WARNING - Replacing grid map: RiverSlope
+2025-08-14 01:47:45,656 - update - model_grid - WARNING - Replacing grid map: N_River
+2025-08-14 01:47:45,657 - update - model_grid - WARNING - Replacing grid map: wflow_riverwidth
+2025-08-14 01:47:45,658 - update - model_grid - WARNING - Replacing grid map: RiverDepth
+2025-08-14 01:47:45,660 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirareas
+2025-08-14 01:47:45,661 - update - model_grid - WARNING - Replacing grid map: wflow_reservoirlocs
+2025-08-14 01:47:45,662 - update - model_grid - WARNING - Replacing grid map: ResMaxVolume
+2025-08-14 01:47:45,663 - update - model_grid - WARNING - Replacing grid map: ResSimpleArea
+2025-08-14 01:47:45,664 - update - model_grid - WARNING - Replacing grid map: ResDemand
+2025-08-14 01:47:45,665 - update - model_grid - WARNING - Replacing grid map: ResMaxRelease
+2025-08-14 01:47:45,666 - update - model_grid - WARNING - Replacing grid map: ResTargetFullFrac
+2025-08-14 01:47:45,666 - update - model_grid - WARNING - Replacing grid map: ResTargetMinFrac
+2025-08-14 01:47:45,667 - update - model_grid - WARNING - Replacing grid map: wflow_lakeareas
+2025-08-14 01:47:45,668 - update - model_grid - WARNING - Replacing grid map: wflow_lakelocs
+2025-08-14 01:47:45,669 - update - model_grid - WARNING - Replacing grid map: LakeArea
+2025-08-14 01:47:45,670 - update - model_grid - WARNING - Replacing grid map: LakeAvgLevel
+2025-08-14 01:47:45,671 - update - model_grid - WARNING - Replacing grid map: LakeAvgOut
+2025-08-14 01:47:45,672 - update - model_grid - WARNING - Replacing grid map: Lake_b
+2025-08-14 01:47:45,673 - update - model_grid - WARNING - Replacing grid map: Lake_e
+2025-08-14 01:47:45,674 - update - model_grid - WARNING - Replacing grid map: LakeStorFunc
+2025-08-14 01:47:45,675 - update - model_grid - WARNING - Replacing grid map: LakeOutflowFunc
+2025-08-14 01:47:45,676 - update - model_grid - WARNING - Replacing grid map: LakeThreshold
+2025-08-14 01:47:45,677 - update - model_grid - WARNING - Replacing grid map: LinkedLakeLocs
+2025-08-14 01:47:45,678 - update - model_grid - WARNING - Replacing grid map: D50_River
+2025-08-14 01:47:45,679 - update - model_grid - WARNING - Replacing grid map: ClayF_River
+2025-08-14 01:47:45,680 - update - model_grid - WARNING - Replacing grid map: SiltF_River
+2025-08-14 01:47:45,681 - update - model_grid - WARNING - Replacing grid map: SandF_River
+2025-08-14 01:47:45,682 - update - model_grid - WARNING - Replacing grid map: GravelF_River
+2025-08-14 01:47:45,683 - update - model_grid - WARNING - Replacing grid map: wflow_landuse
+2025-08-14 01:47:45,684 - update - model_grid - WARNING - Replacing grid map: Kext
+2025-08-14 01:47:45,685 - update - model_grid - WARNING - Replacing grid map: PathFrac
+2025-08-14 01:47:45,686 - update - model_grid - WARNING - Replacing grid map: Sl
+2025-08-14 01:47:45,687 - update - model_grid - WARNING - Replacing grid map: Swood
+2025-08-14 01:47:45,688 - update - model_grid - WARNING - Replacing grid map: USLE_C
+2025-08-14 01:47:45,689 - update - model_grid - WARNING - Replacing grid map: LAI
+2025-08-14 01:47:45,690 - update - model_grid - WARNING - Replacing grid map: CanopyHeight
+2025-08-14 01:47:45,691 - update - model_grid - WARNING - Replacing grid map: PercentClay
+2025-08-14 01:47:45,692 - update - model_grid - WARNING - Replacing grid map: PercentSilt
+2025-08-14 01:47:45,693 - update - model_grid - WARNING - Replacing grid map: PercentOC
+2025-08-14 01:47:45,694 - update - model_grid - WARNING - Replacing grid map: ErosK
+2025-08-14 01:47:45,695 - update - model_grid - WARNING - Replacing grid map: USLE_K
+2025-08-14 01:47:45,696 - update - model_grid - WARNING - Replacing grid map: wflow_gauges
+2025-08-14 01:47:45,697 - update - model_grid - WARNING - Replacing grid map: wflow_gauges_grdc
+2025-08-14 01:47:45,698 - update - model_grid - WARNING - Replacing grid map: c_Bagnold
+2025-08-14 01:47:45,699 - update - model_grid - WARNING - Replacing grid map: eros_expo
+2025-08-14 01:47:45,700 - update - model_grid - WARNING - Replacing grid map: eros_ov
+2025-08-14 01:47:45,701 - update - model_grid - WARNING - Replacing grid map: eros_spl_EUROSEM
+2025-08-14 01:47:45,702 - update - model_grid - WARNING - Replacing grid map: exp_Bagnold
+2025-08-14 01:47:45,703 - update - model_grid - WARNING - Replacing grid map: ResTrapEff
+2025-08-14 01:47:45,704 - update - wflow - INFO - Reading model table files.
+2025-08-14 01:47:45,704 - update - wflow - INFO - Model read
+2025-08-14 01:47:45,704 - update - version_upgrade - INFO - Converting config to Wflow v1 format
+2025-08-14 01:47:45,704 - update - version_upgrade - INFO - Converting config general, time and model sections
+2025-08-14 01:47:45,705 - update - version_upgrade - INFO - Converting config state section
+2025-08-14 01:47:45,707 - update - version_upgrade - INFO - Converting config input section
+2025-08-14 01:47:45,712 - update - version_upgrade - INFO - Converting config output sections
+2025-08-14 01:47:45,723 - update - wflow_sediment - INFO - Preparing soil parameter maps.
+2025-08-14 01:47:45,726 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2025-08-14 01:47:46,053 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2025-08-14 01:47:46,064 - update - rasterdataset - DEBUG - Convert units for 21 variables.
+2025-08-14 01:47:46,644 - update - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
+2025-08-14 01:47:46,667 - update - soilgrids - INFO - Interpolate NAN values for usle_k
+2025-08-14 01:47:46,702 - update - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
+2025-08-14 01:47:46,752 - update - soilgrids - INFO - Interpolate NAN values for land_govers_c
+2025-08-14 01:47:46,793 - update - soilgrids - INFO - Interpolate NAN values for land_govers_n
+2025-08-14 01:47:46,808 - update - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
+2025-08-14 01:47:46,823 - update - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
+2025-08-14 01:47:46,842 - update - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
+2025-08-14 01:47:46,861 - update - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
 No numerical nodata value found, skipping set_nodata
-2025-08-14 00:56:06,178 - update - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
-2025-08-14 00:56:06,191 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2025-08-14 00:56:06,191 - update - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2025-08-14 00:56:06,198 - update - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
-2025-08-14 00:56:06,203 - update - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
-2025-08-14 00:56:06,207 - update - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
-2025-08-14 00:56:06,211 - update - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
-2025-08-14 00:56:06,216 - update - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
-2025-08-14 00:56:06,220 - update - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
-2025-08-14 00:56:06,224 - update - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
-2025-08-14 00:56:06,228 - update - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
-2025-08-14 00:56:06,232 - update - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
-2025-08-14 00:56:06,247 - update - model_api - INFO - write_grid.fn_out: staticmaps_v1.nc
-2025-08-14 00:56:06,290 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v1.nc
-2025-08-14 00:56:06,351 - update - model_api - INFO - write_config.config_name: wflow_sediment_v1.toml
-2025-08-14 00:56:06,351 - update - model_api - INFO - write_config.config_root: None
-2025-08-14 00:56:06,351 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v1.toml
+2025-08-14 01:47:46,901 - update - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
+2025-08-14 01:47:46,913 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2025-08-14 01:47:46,914 - update - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2025-08-14 01:47:46,921 - update - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
+2025-08-14 01:47:46,925 - update - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
+2025-08-14 01:47:46,929 - update - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
+2025-08-14 01:47:46,933 - update - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
+2025-08-14 01:47:46,937 - update - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
+2025-08-14 01:47:46,941 - update - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
+2025-08-14 01:47:46,945 - update - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
+2025-08-14 01:47:46,949 - update - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
+2025-08-14 01:47:46,953 - update - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
+2025-08-14 01:47:46,968 - update - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
+2025-08-14 01:47:46,985 - update - model_api - INFO - write_grid.fn_out: staticmaps_v1.nc
+2025-08-14 01:47:47,026 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v1.nc
+2025-08-14 01:47:47,083 - update - model_api - INFO - write_config.config_name: wflow_sediment_v1.toml
+2025-08-14 01:47:47,083 - update - model_api - INFO - write_config.config_root: None
+2025-08-14 01:47:47,083 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v1.toml
 </pre></div></div>
 </div>
 <p>And let’s see the results. Here is what our old TOML file looked like:</p>
@@ -1426,11 +1361,10 @@ timestepsecs = 86400
 type = &#34;sediment&#34;
 cold_start__flag = true
 run_river_model__flag = true
-reservoir__flag = true
-lake__flag = true
 rainfall_erosion = &#34;answers&#34;
 land_transport = &#34;yalinpart&#34;
 river_transport = &#34;bagnold&#34;
+reservoir__flag = true
 
 [state]
 path_input = &#34;instate/instates.nc&#34;
@@ -1463,10 +1397,8 @@ river_location__mask = &#34;wflow_river&#34;
 subbasin_location__count = &#34;wflow_subcatch&#34;
 gauges = &#34;wflow_gauges&#34;
 gauges_grdc = &#34;wflow_gauges_grdc&#34;
-lake_area__count = &#34;wflow_lakeareas&#34;
-lake_location__count = &#34;wflow_lakelocs&#34;
-reservoir_area__count = &#34;wflow_reservoirareas&#34;
-reservoir_location__count = &#34;wflow_reservoirlocs&#34;
+reservoir_area__count = &#34;reservoir_area_id&#34;
+reservoir_location__count = &#34;reservoir_outlet_id&#34;
 path_static = &#34;staticmaps_v1.nc&#34;
 
 [input.forcing]
@@ -1484,9 +1416,6 @@ land_surface__slope = &#34;Slope&#34;
 river__length = &#34;wflow_riverlength&#34;
 river__slope = &#34;RiverSlope&#34;
 river__width = &#34;wflow_riverwidth&#34;
-reservoir_surface__area = &#34;ResSimpleArea&#34;
-lake_surface__area = &#34;LakeArea&#34;
-&#34;reservoir_water_sediment~bedload__trapping_efficiency&#34; = &#34;ResTrapEff&#34;
 vegetation_canopy__height = &#34;CanopyHeight&#34;
 &#34;soil~compacted__area_fraction&#34; = &#34;PathFrac&#34;
 soil_erosion__eurosem_exponent = &#34;eros_spl_EUROSEM&#34;
@@ -1513,6 +1442,8 @@ river_water_sediment__kodatie_transport_capacity_a-coefficient = &#34;river_koda
 river_water_sediment__kodatie_transport_capacity_b-coefficient = &#34;river_kodatie_b&#34;
 river_water_sediment__kodatie_transport_capacity_c-coefficient = &#34;river_kodatie_c&#34;
 river_water_sediment__kodatie_transport_capacity_d-coefficient = &#34;river_kodatie_d&#34;
+reservoir_surface__area = &#34;reservoir_area&#34;
+&#34;reservoir_water_sediment~bedload__trapping_efficiency&#34; = &#34;reservoir_trapping_efficiency&#34;
 
 [output.netcdf_grid]
 path = &#34;output.nc&#34;
@@ -1545,7 +1476,7 @@ column = [{header = &#34;TSS&#34;,map = &#34;gauges&#34;,parameter = &#34;river_
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;x_out&#39;, &#39;y_out&#39;, &#39;idx_out&#39;, &#39;wflow_ldd&#39;, &#39;wflow_subcatch&#39;, &#39;wflow_uparea&#39;, &#39;subare&#39;, &#39;dem_subgrid&#39;, &#39;wflow_streamorder&#39;, &#39;wflow_dem&#39;, &#39;Slope&#39;, &#39;wflow_river&#39;, &#39;wflow_riverlength&#39;, &#39;RiverSlope&#39;, &#39;N_River&#39;, &#39;wflow_riverwidth&#39;, &#39;RiverDepth&#39;, &#39;wflow_reservoirareas&#39;, &#39;wflow_reservoirlocs&#39;, &#39;ResMaxVolume&#39;, &#39;ResSimpleArea&#39;, &#39;ResDemand&#39;, &#39;ResMaxRelease&#39;, &#39;ResTargetFullFrac&#39;, &#39;ResTargetMinFrac&#39;, &#39;wflow_lakeareas&#39;, &#39;wflow_lakelocs&#39;, &#39;LakeArea&#39;, &#39;LakeAvgLevel&#39;, &#39;LakeAvgOut&#39;, &#39;Lake_b&#39;, &#39;Lake_e&#39;, &#39;LakeStorFunc&#39;, &#39;LakeOutflowFunc&#39;, &#39;LakeThreshold&#39;, &#39;LinkedLakeLocs&#39;, &#39;D50_River&#39;, &#39;ClayF_River&#39;, &#39;SiltF_River&#39;, &#39;SandF_River&#39;, &#39;GravelF_River&#39;, &#39;wflow_landuse&#39;, &#39;Kext&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;LAI&#39;, &#39;CanopyHeight&#39;, &#39;PercentClay&#39;, &#39;PercentSilt&#39;, &#39;PercentOC&#39;, &#39;ErosK&#39;, &#39;USLE_K&#39;, &#39;wflow_gauges&#39;, &#39;wflow_gauges_grdc&#39;, &#39;c_Bagnold&#39;, &#39;eros_expo&#39;, &#39;eros_ov&#39;, &#39;eros_spl_EUROSEM&#39;, &#39;exp_Bagnold&#39;, &#39;ResTrapEff&#39;, &#39;erosion_soil_detachability&#39;, &#39;erosion_usle_k&#39;, &#39;soil_sediment_d50&#39;, &#39;land_govers_c&#39;, &#39;land_govers_n&#39;, &#39;soil_clay_fraction&#39;, &#39;soil_silt_fraction&#39;, &#39;soil_sagg_fraction&#39;, &#39;soil_sand_fraction&#39;, &#39;soil_lagg_fraction&#39;, &#39;river_bed_sediment_d50&#39;, &#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;, &#39;river_bed_sand_fraction&#39;, &#39;river_bed_gravel_fraction&#39;, &#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;, &#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;]
+[&#39;x_out&#39;, &#39;y_out&#39;, &#39;idx_out&#39;, &#39;wflow_ldd&#39;, &#39;wflow_subcatch&#39;, &#39;wflow_uparea&#39;, &#39;subare&#39;, &#39;dem_subgrid&#39;, &#39;wflow_streamorder&#39;, &#39;wflow_dem&#39;, &#39;Slope&#39;, &#39;wflow_river&#39;, &#39;wflow_riverlength&#39;, &#39;RiverSlope&#39;, &#39;N_River&#39;, &#39;wflow_riverwidth&#39;, &#39;RiverDepth&#39;, &#39;ResMaxVolume&#39;, &#39;ResDemand&#39;, &#39;ResMaxRelease&#39;, &#39;ResTargetFullFrac&#39;, &#39;ResTargetMinFrac&#39;, &#39;LakeAvgLevel&#39;, &#39;LakeAvgOut&#39;, &#39;Lake_b&#39;, &#39;Lake_e&#39;, &#39;LakeStorFunc&#39;, &#39;LakeOutflowFunc&#39;, &#39;LakeThreshold&#39;, &#39;LinkedLakeLocs&#39;, &#39;D50_River&#39;, &#39;ClayF_River&#39;, &#39;SiltF_River&#39;, &#39;SandF_River&#39;, &#39;GravelF_River&#39;, &#39;wflow_landuse&#39;, &#39;Kext&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;LAI&#39;, &#39;CanopyHeight&#39;, &#39;PercentClay&#39;, &#39;PercentSilt&#39;, &#39;PercentOC&#39;, &#39;ErosK&#39;, &#39;USLE_K&#39;, &#39;wflow_gauges&#39;, &#39;wflow_gauges_grdc&#39;, &#39;c_Bagnold&#39;, &#39;eros_expo&#39;, &#39;eros_ov&#39;, &#39;eros_spl_EUROSEM&#39;, &#39;exp_Bagnold&#39;, &#39;erosion_soil_detachability&#39;, &#39;erosion_usle_k&#39;, &#39;soil_sediment_d50&#39;, &#39;land_govers_c&#39;, &#39;land_govers_n&#39;, &#39;soil_clay_fraction&#39;, &#39;soil_silt_fraction&#39;, &#39;soil_sagg_fraction&#39;, &#39;soil_sand_fraction&#39;, &#39;soil_lagg_fraction&#39;, &#39;river_bed_sediment_d50&#39;, &#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;, &#39;river_bed_sand_fraction&#39;, &#39;river_bed_gravel_fraction&#39;, &#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;, &#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;, &#39;reservoir_area_id&#39;, &#39;reservoir_outlet_id&#39;, &#39;reservoir_area&#39;, &#39;reservoir_trapping_efficiency&#39;]
 </pre></div></div>
 </div>
 </section>

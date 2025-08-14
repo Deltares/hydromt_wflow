@@ -884,7 +884,7 @@
         <span class="n">rivmsk</span> <span class="o">=</span> <span class="n">rivwth_org</span> <span class="o">!=</span> <span class="n">nodata</span>
         <span class="n">rivwth_org</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rivmsk</span><span class="p">,</span> <span class="n">rivwth_org</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
 
-        <span class="c1"># mask zero and negative riverwidth and waterbodies if present</span>
+        <span class="c1"># mask zero and negative riverwidth and reservoirs if present</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">rivwth_org</span> <span class="o">&gt;</span> <span class="n">min_wth</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mask_names</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
