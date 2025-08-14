@@ -26,6 +26,11 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
+# This is the recommended by pandas and will become default behaviour in pandas 3.0.
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+pd.options.mode.copy_on_write = True
+
 
 ## Cached data and models
 @pytest.fixture(scope="session")
