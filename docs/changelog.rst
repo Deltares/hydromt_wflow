@@ -32,6 +32,37 @@ Changed
 
 Unreleased
 ==========
+Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.
+
+Added
+-----
+- Reservoirs can now overwrite or be added to existing ones in the model. PR #515
+- Create a combined staticgeom for all reservoirs "reservoirs.geojson". PR #515
+
+Changed
+-------
+- **setup_reservoirs** has been renamed to **setup_reservoirs_simple_control** for sbm. The default output geom is meta_reservoirs_simple_control.geojson. PR #515
+- **setup_lakes** has been renamed to **setup_reservoirs_no_control** for sbm. Arguments of the functions have been updated as well. The default output geom is meta_reservoirs_no_control.geojson. PR #515
+- **setup_lakes** has been renamed to **setup_natural_reservoirs** for sediment. Arguments of the functions have been updated as well. The default output geom is meta_natural_reservoirs.geojson. PR #515
+- **workflows.waterbodies** has been renamed to **workflows.reservoirs**. PR #515
+
+Fixed
+-----
+- **upgrade_to_v1_wflow**: fixed bug for [model] options that kept the same name in Wflow v1. (e.g. type, river_routing, land_routing). PR #487
+- **setup_floodplains**: states were not correctly added to the model config. PR #486
+- Fix wflow build config example in the docs. PR #486
+- Fix crop_factor and water_frac values for grassland in CORINE. PR #523
+
+Deprecated
+----------
+
+Removed
+-------
+
+
+
+v1.0.0rc1 (26 June 2025)
+========================
 This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
 linked to the TOML file options. We have dropped support for Wflow.jl < 1.0.0, but we allow users
 to upgrade their models to the new version using the `upgrade_to_v1_wflow` function. If you do not want
@@ -56,6 +87,8 @@ Changed
 - Support for Wflow.jl >= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).  PR #364
 - All default names in staticmaps.nc and states have been redefined and harmonized. PR #422
 - Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422
+- ``Wflow._config`` is no longer a dictionary but a ``tomlkit.TOMLDocument`` to ensure structure of existing toml files are preserved upon write.
+  Due to this change we discourage users from modifying the config structure by hand, and instead rely on ``Wflow.set_config`` to avoid issues. (#387)
 - **setup_constant_pars**: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.  PR #364
 - **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.  PR #364
 - **setup_output_config_timeseries**, **setup_outlets**, **setup_gauges**: the option to save parameters to netcdf scalar file as been renamed from `netcdf` to `netcdf_scalar` to better match the TOML file structure.  PR #364
@@ -157,8 +190,6 @@ Changed
 -------
 - Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286
 - More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286
-- ``Wflow._config`` is no longer a dictionary but a ``tomlkit.TOMLDocument`` to ensure structure of existing toml files are preserved upon write.
-  Due to this change we discourage users from modifying the config structure by hand, and instead rely on ``Wflow.set_config`` to avoid issues. (#387)
 
 Fixed
 -----

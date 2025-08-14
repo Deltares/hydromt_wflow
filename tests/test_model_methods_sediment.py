@@ -2,15 +2,20 @@
 
 from os.path import abspath, dirname, join
 
+import geopandas as gpd
 import numpy as np
 import pytest
+
+from hydromt_wflow.utils import planar_operation_in_utm
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
-def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+def test_setup_lulc_sed(
+    example_sediment_model, planted_forest_testdata: gpd.GeoDataFrame
+):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover_2009",
         lulc_mapping_fn="globcover_mapping_default",
@@ -20,9 +25,11 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         orchard_name="Orchard",
         orchard_c=0.2188,
     )
-    da = example_sediment_model.grid["erosion_usle_c"].raster.sample(
-        planted_forest_testdata.geometry.centroid
+
+    centroid = planar_operation_in_utm(
+        planted_forest_testdata, lambda geom: geom.centroid
     )
+    da = example_sediment_model.grid["erosion_usle_c"].raster.sample(centroid)
 
     # Strict equality checking is okay here because no processing is actually happening
     # and we want to make sure we don't add any rounding errors

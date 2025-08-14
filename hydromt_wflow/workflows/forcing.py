@@ -169,7 +169,7 @@ def spatial_interpolation(
     nb_stations = len(gdf_stations)
     if mask_name is not None:
         basins = ds_like[mask_name].raster.vectorize()
-        nb_inside = gdf_stations.within(basins.unary_union).sum()
+        nb_inside = gdf_stations.within(basins.union_all()).sum()
         logger.info(
             f"Found {nb_stations} stations in the forcing data, "
             f"of which {nb_inside} are located inside the basin."

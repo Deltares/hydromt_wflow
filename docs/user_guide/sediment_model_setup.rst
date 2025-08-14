@@ -36,10 +36,10 @@ a specific method see its documentation.
       - This component sets the region of interest and res (resolution in degrees) of the model.
     * - :py:func:`~WflowSedimentModel.setup_rivers`
       - This component sets the all river parameter maps.
-    * - :py:func:`~WflowSedimentModel.setup_lakes`
-      - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
+    * - :py:func:`~WflowSedimentModel.setup_natural_reservoirs`
+      - This component generates maps of lake (natural reservoirs) areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_reservoirs`
-      - This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
+      - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
     * - :py:func:`~WflowModel.setup_lulcmaps_from_vector`

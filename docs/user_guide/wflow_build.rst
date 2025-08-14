@@ -37,7 +37,7 @@ in its corresponding section.
 Note that the order in which the components are listed in the configuration file is important:
 
 - `setup_basemaps` should always be run first to determine the model domain
-- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)
+- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (reservoirs, riverwidth, gauges)
 
 Below is an example configuration file that can be used to build a complete Wflow model
 :download:`.yml file <../_examples/wflow_build.yml>`. Each section corresponds

@@ -40,13 +40,9 @@ def prepare_cold_states(
       overland flow for kinwave [m3/s] or overland flow in x/y directions for
       local-inertial [m3/s]
 
-    If lakes, also adds:
-
-    * **lake_instantaneous_water_level**: lake water level [m]
-
     If reservoirs, also adds:
 
-    * **reservoir_instantaneous_volume**: reservoir volume [m3]
+    * **reservoir_instantaneous_water_level**: reservoir water level [m]
 
     If glaciers, also adds:
 
@@ -68,9 +64,8 @@ def prepare_cold_states(
             soil_brooks_corey_c, soilthickness,
             theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio
 
-        * Optional variables (exact name from the wflow config): reservoir.locs,
-            glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
-            lake.waterlevel
+        * Optional variables (exact name from the wflow config):
+            glacierstore, reservoir_water_surface__initial_elevation
     config : dict
         Wflow configuration dictionary.
     timestamp : str, optional
@@ -253,44 +248,18 @@ def prepare_cold_states(
 
     # reservoir
     if config["model"].get("reservoir__flag", False):
-        tff = get_grid_from_config(
-            "reservoir_water~full-target__volume_fraction",
+        rl = get_grid_from_config(
+            "reservoir_water_surface__initial_elevation",
             config=config,
             grid=ds_like,
         )
-        mv = get_grid_from_config(
-            "reservoir_water__max_volume",
-            config=config,
-            grid=ds_like,
-        )
-        locs = get_grid_from_config(
-            "reservoir_location__count",
-            config=config,
-            grid=ds_like,
-        )
-        resvol = tff * mv
-        resvol = xr.where(locs > 0, resvol, nodata)
-        resvol.raster.set_nodata(nodata)
-        ds_out["reservoir_instantaneous_volume"] = resvol
+        rl = rl.where(rl != rl.raster.nodata, nodata)
+        rl.raster.set_nodata(nodata)
+        ds_out["reservoir_instantaneous_water_level"] = rl
 
-        states_config["state.variables.reservoir_instantaneous_volume"] = (
-            "reservoir_instantaneous_volume"
-        )
-
-    # lake
-    if config["model"].get("lake__flag", False):
-        ll = get_grid_from_config(
-            "lake_water_surface__initial_elevation",
-            config=config,
-            grid=ds_like,
-        )
-        ll = ll.where(ll != ll.raster.nodata, nodata)
-        ll.raster.set_nodata(nodata)
-        ds_out["lake_instantaneous_water_level"] = ll
-
-        states_config["state.variables.lake_water_surface__instantaneous_elevation"] = (
-            "lake_instantaneous_water_level"
-        )
+        states_config[
+            "state.variables.reservoir_water_surface__instantaneous_elevation"
+        ] = "reservoir_instantaneous_water_level"
 
     # glacier
     if config["model"].get("glacier__flag", False):

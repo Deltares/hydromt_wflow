@@ -5,10 +5,8 @@ from itertools import product
 from os.path import abspath, dirname, isfile, join
 from pathlib import Path
 
+import geopandas as gpd
 import numpy as np
-
-# import warnings
-# import pdb
 import pandas as pd
 import pytest
 import xarray as xr
@@ -19,6 +17,7 @@ from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
@@ -113,8 +112,6 @@ def test_setup_grid(example_wflow_model):
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_projected_crs(tmpdir):
-    logger = logging.getLogger(__name__)
-
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
     mod = WflowModel(
@@ -169,13 +166,58 @@ def test_projected_crs(tmpdir):
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
-def test_setup_lake(tmpdir, example_wflow_model):
+@pytest.mark.parametrize("glacier_fn", ["glaciers_4326", "glaciers_3857"])
+def test_projected_crs_glaciers(glacier_fn, tmpdir):
+    # Instantiate wflow model
+    root = str(tmpdir.join("wflow_projected"))
+    mod = WflowModel(
+        root=root,
+        mode="w",
+        data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
+        logger=logger,
+    )
+
+    mod.setup_basemaps(
+        region={"basin": [1427596.0, 5735404.0]},
+        res=2000,
+        hydrography_fn="merit_hydro_1k_utm",
+        basin_index_fn=None,
+    )
+
+    # Add glaciers
+    mod.setup_glaciers(glacier_fn)
+
+    # Confirm glacier maps exist
+    assert "meta_glacier_area_id" in mod.grid
+    assert "glacier_fraction" in mod.grid
+    assert "glacier_initial_leq_depth" in mod.grid
+    assert "glaciers" in mod.geoms
+
+    # Confirm glaciers have the same CRS as the grid (merit_utm is 3857)
+    assert mod.grid["glacier_fraction"].raster.crs == 3857
+    assert mod.geoms["glaciers"].crs == 3857
+
+    # Confirm glacier fraction has values
+    assert (mod.grid["glacier_fraction"] > 0).any().item()
+
+    # Confirm glacier IDs
+    assert mod.grid["meta_glacier_area_id"].max().item() == 1
+
+    # Confirm config flags
+    assert mod.get_config("model.glacier__flag") is True
+    assert (
+        mod.get_config("state.variables.glacier_ice__leq-depth") == "glacier_leq_depth"
+    )
+
+
+@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
+def test_setup_reservoirs_no_control(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
-    lakes = example_wflow_model.geoms["lakes"]
+    lakes = example_wflow_model.geoms["meta_reservoirs_no_control"]
     lake_id = lakes["waterbody_id"].iloc[0]
-    area = lakes["lake_area"].iloc[0]
-    dis = lakes["meta_lake_mean_outflow"].iloc[0]
-    lvl = lakes["lake_initial_depth"].iloc[0]
+    area = lakes["reservoir_area"].iloc[0]
+    dis = lakes["meta_reservoir_mean_outflow"].iloc[0]
+    lvl = lakes["reservoir_initial_depth"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
     lvls = np.linspace(0, lvl)
 
@@ -203,35 +245,34 @@ def test_setup_lake(tmpdir, example_wflow_model):
         }
     )
     # Update model with it
-    example_wflow_model.setup_lakes(
-        lakes_fn="hydro_lakes",
+    example_wflow_model.setup_reservoirs_no_control(
+        reservoirs_fn="hydro_lakes",
         rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
-        add_maxstorage=True,
     )
 
-    assert f"lake_sh_{lake_id}" in example_wflow_model.tables
-    assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
-    assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
+    assert f"reservoir_sh_{lake_id}" in example_wflow_model.tables
+    assert f"reservoir_hq_{lake_id}" in example_wflow_model.tables
+    assert 2 in np.unique(example_wflow_model.grid["reservoir_storage_curve"].values)
+    assert 1 in np.unique(example_wflow_model.grid["reservoir_rating_curve"].values)
     assert (
-        "meta_lake_max_storage" not in example_wflow_model.grid
+        "meta_reservoir_max_storage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
     example_wflow_model.set_root(join(tmpdir, "wflow_lake_test"))
     example_wflow_model.write_tables()
-    test_table = example_wflow_model.tables[f"lake_sh_{lake_id}"]
+    test_table = example_wflow_model.tables[f"reservoir_sh_{lake_id}"]
     example_wflow_model._tables = dict()
     example_wflow_model.read_tables()
 
-    assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
+    assert example_wflow_model.tables[f"reservoir_sh_{lake_id}"].equals(test_table)
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
-def test_setup_reservoirs(source, tmpdir, example_wflow_model):
+def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
     example_wflow_model.read()
@@ -241,10 +282,11 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     example_wflow_model.set_root(destination, mode="w")
 
     config = {
-        "setup_reservoirs": {
+        "setup_reservoirs_simple_control": {
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
+            "update_existing": False,
         }
     }
 
@@ -259,6 +301,9 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         "reservoir_area",
         "reservoir_target_full_fraction",
         "reservoir_target_min_fraction",
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_initial_depth",
     ]
     assert all(
         x == True for x in [k in example_wflow_model.grid.keys() for k in required]
@@ -554,7 +599,7 @@ def test_setup_outlets(example_wflow_model):
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
-def test_setup_gauges(example_wflow_model):
+def test_setup_gauges(example_wflow_model: WflowModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
@@ -790,6 +835,28 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         floodplain1d_testdata.floodplain_volume
     )
 
+    # Check states in config
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.floodplain_water__instantaneous_volume_flow_rate"
+        )
+        == "floodplain_instantaneous_q"
+    )
+
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.floodplain_water__instantaneous_depth"
+        )
+        == "floodplain_instantaneous_h"
+    )
+
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_q"
+    )
+
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
@@ -834,6 +901,20 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         example_wflow_model.grid[f"{mapname}_D4"]
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
+    )
+
+    # Check states in config
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_qx"
+    )
+    assert (
+        example_wflow_model.get_config(
+            "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+        )
+        == "land_instantaneous_qy"
     )
 
 
@@ -1002,9 +1083,10 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_skip_nodata_reservoir(clipped_wflow_model):
     # Using the clipped_wflow_model as the reservoirs are not in this model
-    clipped_wflow_model.setup_reservoirs(
+    clipped_wflow_model.setup_reservoirs_simple_control(
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
+        overwrite_existing=True,
     )
     assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers
@@ -1302,7 +1384,9 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
 
 
 @pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
-def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
+def test_setup_irrigation_nopaddy(
+    example_wflow_model: WflowModel, tmpdir: Path, globcover_gdf: gpd.GeoDataFrame
+):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(Path(tmpdir), mode="w")
@@ -1349,7 +1433,7 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
 
     # Test with geodataframe
     # Use globcover gdf class 11
-    irrigation_gdf = globcover_gdf[globcover_gdf["landuse"].isin([14])]
+    irrigation_gdf = globcover_gdf.loc[globcover_gdf["landuse"].isin([14])]
     example_wflow_model.setup_irrigation_from_vector(
         irrigated_area_fn=irrigation_gdf,
         cropland_class=[11, 14, 20, 30],
