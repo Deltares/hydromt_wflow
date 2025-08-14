@@ -43,6 +43,7 @@
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/soilparams';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -463,6 +464,7 @@
     <span class="c1"># Set the default no fill value for doubles</span>
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
     <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
+    <span class="c1"># Return as a dataset to be used for &#39;set_grid&#39;</span>
     <span class="k">return</span> <span class="n">da</span>
 
 
@@ -601,7 +603,9 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the saturated hydraulic conductivity with fully developed vegetation.</span>
-    <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="p">))</span>
+    <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span>
+        <span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ksat_vertical</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="p">)</span>
     <span class="c1"># get the saturated hydraulic conductivity based on soil and</span>
     <span class="c1"># vegetation mean LAI</span>
     <span class="n">ks</span> <span class="o">=</span> <span class="n">ksmax</span> <span class="o">-</span> <span class="p">(</span><span class="n">ksmax</span> <span class="o">-</span> <span class="n">ksat_vertical</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">LAI</span> <span class="o">/</span> <span class="n">alfa</span><span class="p">)</span> <span class="o">**</span> <span class="n">beta</span><span class="p">)</span>
@@ -654,13 +658,13 @@
     <span class="n">LAI_mean</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mf">255.0</span><span class="p">)</span>
 
     <span class="c1"># in this function, Ksatver should be provided in cm/d</span>
-    <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">get_ks_veg</span><span class="p">(</span>
+    <span class="n">ksatver_vegetation</span> <span class="o">=</span> <span class="n">get_ks_veg</span><span class="p">(</span>
         <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
     <span class="p">)</span>
 
     <span class="c1"># convert back from cm/d to mm/d</span>
-    <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">KSatVer_vegetation</span> <span class="o">*</span> <span class="mi">10</span>
-    <span class="k">return</span> <span class="n">KSatVer_vegetation</span></div>
+    <span class="n">ksatver_vegetation</span> <span class="o">=</span> <span class="n">ksatver_vegetation</span> <span class="o">*</span> <span class="mi">10</span>
+    <span class="k">return</span> <span class="n">ksatver_vegetation</span></div>
 
 </pre></div>
 

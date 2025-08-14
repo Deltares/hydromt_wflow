@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Update a Wflow model: landuse &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_examples/update_model_landuse';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Update a Wflow model: forcing" href="update_model_forcing.html" />
+    <link rel="prev" title="Updating a model" href="../user_guide/wflow_update.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0.dev" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_model.html">Example: Build Wflow model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../user_guide/wflow_update.html">Updating a model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_clip.html">Clipping a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/sediment_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/process_analyze.html">Pre and postprocessing and visualization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide/intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/wflow.html" class="nav-link">Working with the Wflow model</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/wflow_update.html" class="nav-link">Updating a model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Update a Wflow model: landuse</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<div>
+    For an interactive online version click here:
+    <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/update_model_landuse.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
+</div></div>
+<section id="Update-a-Wflow-model:-landuse">
+<h1>Update a Wflow model: landuse<a class="headerlink" href="#Update-a-Wflow-model:-landuse" title="Link to this heading">#</a></h1>
+<p>Once you have a <strong>Wflow</strong> model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.</p>
+<p>With HydroMT, you can easily read your model and update one or several components of your model using the <strong>update</strong> function of the command line interface (CLI). Here are the steps and some examples on how to <strong>update the landuse map and parameters</strong>.</p>
+<p>All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more direct feedback.</p>
+<section id="Import-packages">
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Link to this heading">#</a></h2>
+<p>In this notebook, we will use some functions of HydroMT to check available datasets and also to plot the landuse maps from the original and updated models. Here are the libraries to import to realize these steps.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
+
+<span class="c1"># for plotting</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+
+<span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>  <span class="c1"># plot projection</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Searching-the-data-catalog-for-landuse">
+<h2>Searching the data catalog for landuse<a class="headerlink" href="#Searching-the-data-catalog-for-landuse" title="Link to this heading">#</a></h2>
+<p>In our previous notebook, we built a Wflow model using the <em>GlobCover</em> landuse classification. But we could as well have chosen another one. Let’s what other landuse landcover data are available in HydroMT and choose another landuse classification for our model. For this we will open the data catalog.</p>
+<p>You can also directly open and search the HydroMT yaml library by downloading and opening the data_catalog.yml file in <a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts/releases/tag/v0.0.3">hydromt-artifacts</a> or look at the list of data sources in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_existing_cat.html">documentation</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the default data catalog of HydroMT</span>
+<span class="n">data_catalog</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">DataCatalog</span><span class="p">(</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check which landuse/lancover sources are available in the DataCatalog</span>
+<span class="n">data_table</span> <span class="o">=</span> <span class="n">data_catalog</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+<span class="n">data_table</span><span class="o">.</span><span class="n">source_url</span><span class="p">[</span><span class="n">data_table</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;landuse &amp; landcover&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+name
+corine            https://land.copernicus.eu/pan-european/corine...
+globcover_2009          http://due.esrin.esa.int/page_globcover.php
+modis_lai            https://lpdaac.usgs.gov/products/mcd15a3hv006/
+simard            https://webmap.ornl.gov/ogc/dataset.jsp?ds_id=...
+vito_2015             https://land.copernicus.eu/global/products/lc
+Name: source_url, dtype: object
+</pre></div></div>
+</div>
+<p>Here we can see that we have five data sources in HydroMT related to landuse &amp; landcover properties. Out of these, three are landuse classifications:</p>
+<ul class="simple">
+<li><p><strong>globcover_2009</strong> (already used in our current model)</p></li>
+<li><p><strong>corine</strong></p></li>
+<li><p><strong>vito_2015</strong></p></li>
+</ul>
+<p>The other datasets include a Leaf Area Index dataset (modis_lai) and a canopy height dataset (simard).</p>
+<p>Let’s now see how to update our current model in one command line to use the <strong>corine</strong> classification.</p>
+</section>
+<section id="HydroMT-CLI-update-interface">
+<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Link to this heading">#</a></h2>
+<p>Using the <strong>HydroMT build</strong> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the options available from the update command</span>
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
+
+  Update a specific component of a model.
+
+  Set an output directory to copy the edited model to a new folder, otherwise
+  maps are overwritten.
+
+  Example usage: --------------
+
+  Update (overwrite!) landuse-landcover based maps in a Wflow model: hydromt
+  update wflow /path/to/model_root -c setup_lulcmaps --opt lulc_fn=vito -d
+  /path/to/data_catalog.yml -v
+
+  Update Wflow model components outlined in an .yml configuration file and
+  write the model to a directory: hydromt update wflow /path/to/model_root  -o
+  /path/to/model_out  -i /path/to/wflow_config.yml  -d
+  /path/to/data_catalog.yml -v
+
+Options:
+  -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
+                             overwritten if left empty.
+  -i, --config PATH          Path to hydroMT configuration file, for the model
+                             specific implementation.
+  -c, --components TEXT      Model methods from configuration file to run
+  --opt TEXT                 Method specific keyword arguments, see the method
+                             documentation of the specific model for more
+                             information about the arguments.
+  -d, --data TEXT            Path to local yaml data catalog file OR name of
+                             predefined data catalog.
+  --dd, --deltares-data      Flag: Shortcut to add the &#34;deltares_data&#34; catalog
+  --fo, --force-overwrite    Flag: If provided overwrite existing model files
+  --cache                    Flag: If provided cache tiled rasterdatasets
+  -q, --quiet                Decrease verbosity.
+  -v, --verbose              Increase verbosity.
+  --help                     Show this message and exit.
+</pre></div></div>
+</div>
+</section>
+<section id="Model-setup-configuration">
+<h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Link to this heading">#</a></h2>
+<p>To let HydroMT know which setup method to call and the options, you can prepare and use a <strong>configuration file</strong> that includes every methods and settings that you want to do during your update.</p>
+<p>The HydroMT configuration file (YAML) contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_config_file&gt;</span></code>.</p>
+<p>Each header (without indent) (e.g. <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps:</span></code>) corresponds with a model method which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
+<p>Let’s open the example configuration file <strong>wflow_update_landuse.yml</strong> from the model repository [examples folder] and have a look at the settings.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_landuse.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+setup_lulcmaps:
+  lulc_fn : corine     # source for lulc maps: {globcover, vito, corine}
+  lulc_mapping_fn: corine_mapping_default  # default mapping for lulc classes
+  output_names_suffix: corine # add a suffix to the output map names in staticmaps rather than overwritting existing landuse maps
+
+</pre></div></div>
+</div>
+<p>Here we can see that to fully update wflow forcing, we will run one methods of <strong>Wflow</strong>:</p>
+<ul class="simple">
+<li><p><strong>setup_lulcmaps</strong>: prepares landuse map and parameters based on a landuse map <code class="docutils literal notranslate"><span class="pre">lulc_fn</span></code> and a mapping table <code class="docutils literal notranslate"><span class="pre">lulc_mapping_fn</span></code> to convert from specific landuse classes (urban, forest) to hydrological parameters (roughness, depth of the vegetation roots etc).</p></li>
+</ul>
+<p>Here, we can see that we will update the landuse with the classification from CORINE and using the HydroMT default mapping table for the parameter creation (HydroMT supports a few of these including “globcover”, “corine”, “vito” and “esa_worldcover”). If you want to use a different classification or update the default values (eg for calibration), you can create and catalog your own table.</p>
+<p>We will also here save the different maps with the suffix “corine” via the <code class="docutils literal notranslate"><span class="pre">output_names_suffix</span></code> options. If this option is not provided (or None), the new maps will overwrite previously existing ones. Here we will keep both the globcover maps and the new maps from CORINE in the updated model.</p>
+<p>You can find more information about the different options in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps">docs (setup lulcmaps)</a></p>
+</section>
+<section id="Update-Wflow-landuse-layers">
+<h2>Update Wflow landuse layers<a class="headerlink" href="#Update-Wflow-landuse-layers" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_corine<span class="w"> </span>-i<span class="w"> </span>wflow_update_landuse.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-08-14 00:54:49,217 - update - log - INFO - HydroMT version: 0.10.1
+2025-08-14 00:54:49,217 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-08-14 00:54:49,217 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2025-08-14 00:54:49,218 - update - main - INFO - User settings:
+2025-08-14 00:54:49,253 - update - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-08-14 00:54:49,253 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2025-08-14 00:54:49,808 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v1.0.0.dev0).
+2025-08-14 00:54:49,808 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-08-14 00:54:49,820 - update - wflow - INFO - Supported Wflow.jl version v1+
+2025-08-14 00:54:49,970 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2025-08-14 00:54:50,565 - update - wflow - INFO - Reading model staticgeom files.
+2025-08-14 00:54:50,606 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2025-08-14 00:54:50,625 - update - wflow - INFO - Reading model table files.
+2025-08-14 00:54:50,625 - update - wflow - INFO - Model read
+2025-08-14 00:54:50,630 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2025-08-14 00:54:50,630 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: corine_mapping_default
+2025-08-14 00:54:50,630 - update - model_api - INFO - setup_lulcmaps.lulc_vars: {&#39;landuse&#39;: None, &#39;vegetation_kext&#39;: &#39;vegetation_canopy__light-extinction_coefficient&#39;, &#39;land_manning_n&#39;: &#39;land_surface_water_flow__manning_n_parameter&#39;, &#39;soil_compacted_fraction&#39;: &#39;soil~compacted__area_fraction&#39;, &#39;vegetation_root_depth&#39;: &#39;vegetation_root__depth&#39;, &#39;vegetation_leaf_storage&#39;: &#39;vegetation__specific-leaf_storage&#39;, &#39;vegetation_wood_storage&#39;: &#39;vegetation_wood_water__storage_capacity&#39;, &#39;land_water_fraction&#39;: &#39;land~water-covered__area_fraction&#39;, &#39;vegetation_crop_factor&#39;: &#39;vegetation__crop_factor&#39;, &#39;vegetation_feddes_alpha_h1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&#39;, &#39;vegetation_feddes_h1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1&#39;, &#39;vegetation_feddes_h2&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~2&#39;, &#39;vegetation_feddes_h3_high&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~high&#39;, &#39;vegetation_feddes_h3_low&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~low&#39;, &#39;vegetation_feddes_h4&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~4&#39;}
+2025-08-14 00:54:50,630 - update - model_api - INFO - setup_lulcmaps.output_names_suffix: corine
+2025-08-14 00:54:50,630 - update - wflow - INFO - Preparing LULC parameter maps.
+2025-08-14 00:54:50,633 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/corine.tif
+2025-08-14 00:54:50,748 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
+2025-08-14 00:54:50,765 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2025-08-14 00:54:50,930 - update - landuse - INFO - Deriving vegetation_kext using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,037 - update - landuse - INFO - Deriving land_manning_n using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,140 - update - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,241 - update - landuse - INFO - Deriving vegetation_root_depth using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,345 - update - landuse - INFO - Deriving vegetation_leaf_storage using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,448 - update - landuse - INFO - Deriving vegetation_wood_storage using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,552 - update - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,654 - update - landuse - INFO - Deriving vegetation_crop_factor using average resampling (nodata=-999.0).
+2025-08-14 00:54:51,756 - update - landuse - INFO - Deriving vegetation_feddes_alpha_h1 using mode resampling (nodata=-999).
+2025-08-14 00:54:51,881 - update - landuse - INFO - Deriving vegetation_feddes_h1 using average resampling (nodata=-999).
+2025-08-14 00:54:51,993 - update - landuse - INFO - Deriving vegetation_feddes_h2 using average resampling (nodata=-999).
+2025-08-14 00:54:52,111 - update - landuse - INFO - Deriving vegetation_feddes_h3_high using average resampling (nodata=-999).
+2025-08-14 00:54:52,227 - update - landuse - INFO - Deriving vegetation_feddes_h3_low using average resampling (nodata=-999).
+2025-08-14 00:54:52,343 - update - landuse - INFO - Deriving vegetation_feddes_h4 using average resampling (nodata=-999).
+2025-08-14 00:54:52,494 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2025-08-14 00:54:52,543 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2025-08-14 00:54:52,610 - update - wflow - INFO - Writing model staticgeom to file.
+2025-08-14 00:54:52,696 - update - wflow - INFO - Write forcing file
+2025-08-14 00:54:52,706 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 100.61 ms
+2025-08-14 00:54:52,817 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+</pre></div></div>
+</div>
+<p>The example above means the following: run <strong>hydromt</strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">wflow</span></code>: i.e. update a wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_subbasin</span></code>: original model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">./wflow_piave_corine</span></code>: output updated model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_update_landuse.yml</span></code>: setup configuration file containing the components to update and their different options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">artifact_data</span></code>: specify to use the artifact_data catalog</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-v</span></code>: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
+</ul>
+</section>
+<section id="Model-comparison">
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Link to this heading">#</a></h2>
+<p>From the information above, you can see that not only was the landuse map updated but also all wflow landuse-related parameters with it: Kext, N, PathFrac, RootingDepth, Sl, Swood and WaterFrac.</p>
+<p>Let’s now have a look at the different landuse maps of our two models and check that they were indeed updated.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load both models with hydromt</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_corine&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./legends/GLOBCOVER_2009_QGIS.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># plot  globcover map</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">ticklabs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">from_levels_and_colors</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>
+<span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+<span class="c1"># create new figure</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+<span class="c1"># plot globcover landuse</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;subcatchment&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;meta_landuse&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cbar_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;GlobCover LULC&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ticklabs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_landuse_22_0.png" src="../_images/_examples_update_model_landuse_22_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot  corine map</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;./legends/CLC2018_CLC2018_V2018_20_QGIS.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="c1"># plot  corine map</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">ticklabs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">from_levels_and_colors</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>
+<span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">levels</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+<span class="c1"># create new figure</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+<span class="c1"># plot corine landuse</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;meta_landuse_corine&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cbar_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Corine LULC&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ticklabs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_landuse_23_0.png" src="../_images/_examples_update_model_landuse_23_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../user_guide/wflow_update.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Updating a model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="update_model_forcing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Update a Wflow model: forcing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Import-packages">Import packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Searching-the-data-catalog-for-landuse">Searching the data catalog for landuse</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#HydroMT-CLI-update-interface">HydroMT CLI update interface</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-setup-configuration">Model setup configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Update-Wflow-landuse-layers">Update Wflow landuse layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-comparison">Model comparison</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/update_model_landuse.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/update_model_landuse.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
