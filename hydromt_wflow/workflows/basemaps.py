@@ -269,6 +269,11 @@ parametrization of distributed hydrological models.
 
     # clip to basin extent
     ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
+    # also mask idx_out coords if present
+    if "idx_out" in ds_out:
+        ds_out["idx_out"] = ds_out["idx_out"].where(
+            ds_out[basins_name], ds_out["idx_out"].raster.nodata
+        )
 
     ds_out.raster.set_crs(ds.raster.crs)
     logger.debug(

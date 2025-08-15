@@ -5,7 +5,6 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Callable
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
@@ -67,22 +66,6 @@ def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
                     else f"nodata {map1.raster.nodata} instead of \
 {map0.raster.nodata}; {err}"
                 )
-
-                vmin = min(map0.min().item(), map1.min().item())
-                vmax = max(map0.max().item(), map1.max().item())
-
-                plt.figure()
-                map0.plot(vmin=vmin, vmax=vmax, cmap="viridis")
-
-                plt.figure()
-                map1.plot(vmin=vmin, vmax=vmax, cmap="viridis")
-
-                plt.figure()
-                masked = mod0.staticmaps.data[name].where(mod1.staticmaps.data[name])
-                masked.plot(vmin=vmin, vmax=vmax, cmap="viridis")
-
-                plt.show()
-
                 notclose = ~np.equal(map0, map1)
                 ncells = int(np.sum(notclose))
                 if ncells > 0:

@@ -184,7 +184,7 @@ class WflowStaticmapsComponent(GridComponent):
                 # Use `_data` as `data` cannot be set
                 self.drop_vars(vars_to_drop + ["layer"])
 
-        # Check if noth is really up and south therefore is down
+        # Check if north is really up and south therefore is down
         if data.raster.res[1] > 0:
             data = data.raster.flipud()
 
