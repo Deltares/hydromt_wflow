@@ -31,7 +31,7 @@ class WflowStaticmapsComponent(GridComponent):
         model: Model,
         *,
         filename: str = "staticmaps.nc",
-        region_filename: str = "staticgeoms/staticmaps_region.geojson",
+        region_filename: str = "staticgeoms/region.geojson",
     ):
         """Initialize a WflowStaticmapsComponent.
 
@@ -44,7 +44,7 @@ class WflowStaticmapsComponent(GridComponent):
             By default "staticmaps.nc".
         region_filename : str
             The path to use for reading and writing of the region data by default.
-            By default "staticgeoms/staticmaps_region.geojson".
+            By default "staticgeoms/region.geojson".
         """
         super().__init__(
             model,
@@ -97,7 +97,7 @@ class WflowStaticmapsComponent(GridComponent):
         """
         # Supercharge with the base grid component write method
         super().write(
-            filename,
+            str(filename) if filename is not None else None,
             gdal_compliant=True,
             rename_dims=True,
             force_sn=False,
@@ -184,7 +184,7 @@ class WflowStaticmapsComponent(GridComponent):
                 # Use `_data` as `data` cannot be set
                 self.drop_vars(vars_to_drop + ["layer"])
 
-        # Check if noth is really up and south therefore is down
+        # Check if north is really up and south therefore is down
         if data.raster.res[1] > 0:
             data = data.raster.flipud()
 

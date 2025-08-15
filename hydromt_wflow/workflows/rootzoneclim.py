@@ -610,7 +610,6 @@ def rootzoneclim(
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
     missing_days_threshold: int | None = 330,
-    logger=logger,
 ):
     """
     Estimates the root zone storage parameter.

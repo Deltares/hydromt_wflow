@@ -93,7 +93,7 @@ class WflowForcingComponent(GridComponent):
         decimals: int = 2,
         overwrite: bool = False,
         **kwargs,
-    ) -> tuple[Path, datetime, datetime]:
+    ) -> tuple[Optional[Path], Optional[datetime], Optional[datetime]]:
         """Write forcing model data.
 
         Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
@@ -125,6 +125,23 @@ class WflowForcingComponent(GridComponent):
             Additional keyword arguments to be passed to the `write_nc` method.
         """
         self.root._assert_write_mode()
+
+        # Dont write if data is empty
+        if self._data_is_empty():
+            DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+            logger.warning(
+                "Write forcing skipped: dataset is empty (no variables or data). Ensure"
+                " that forcing data is loaded correctly before calling 'write'."
+            )
+            if starttime is not None:
+                starttime = datetime.strptime(starttime, DATETIME_FORMAT)
+            if endtime is not None:
+                endtime = datetime.strptime(endtime, DATETIME_FORMAT)
+            return (
+                None,
+                starttime,
+                endtime,
+            )
 
         # Logging the output
         logger.info("Write forcing file")
@@ -350,4 +367,22 @@ class WflowForcingComponent(GridComponent):
             )
         endtime = pd.Timestamp(endtime).to_pydatetime()
 
+        if self._data_is_empty():
+            DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+            logger.warning(
+                "Write forcing skipped: dataset is empty (no variables or data). Ensure"
+                " that forcing data is loaded before calling 'write'."
+            )
+            return (
+                None,
+                datetime.strptime(starttime, format=DATETIME_FORMAT),
+                datetime.strptime(endtime, format=DATETIME_FORMAT),
+            )
+
         return starttime, endtime
+
+    def _data_is_empty(self) -> bool:
+        """Check if the forcing data is empty."""
+        return len(self.data.data_vars) == 0 or all(
+            var.size == 0 for var in self.data.data_vars.values()
+        )
