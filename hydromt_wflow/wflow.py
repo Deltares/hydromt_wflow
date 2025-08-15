@@ -5530,12 +5530,11 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             or self.forcing._filename
         )
         # Check for input dir
-        input_dir = self.get_config("dir_input", abs_path=True) or self.root.path
-        filepath = Path(input_dir, filename).resolve()
+        p_input = join(self.config.get_value("dir_input", fallback=""), filename)
 
         # Call the component
         filepath, starttime, endtime = self.forcing.write(
-            filename=filepath.relative_to(self.root.path, walk_up=True),
+            filename=p_input,
             output_frequency=output_frequency,
             starttime=self.config.get_value("time.starttime"),
             endtime=self.config.get_value("time.endtime"),
