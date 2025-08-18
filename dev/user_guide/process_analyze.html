@@ -44,11 +44,21 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/process_analyze';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API reference" href="../api.html" />
+    <link rel="next" title="Prepare flow directions and related data from a DEM" href="../_examples/prepare_ldd.html" />
     <link rel="prev" title="Clipping a model" href="sediment_clip.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -225,6 +235,26 @@
         </li>
 </ul></div>
       
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
     </div>
     
   </div>
@@ -353,6 +383,26 @@
         </li>
 </ul></div>
         
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
       </div>
     
   </div>
@@ -366,19 +416,44 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="wflow_model_setup.html">Model methods and components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wflow_build.html">Building a model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wflow_update.html">Updating a model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="wflow_clip.html">Clipping a model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="wflow_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/build_model.html">Example: Build Wflow model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="wflow_update.html">Updating a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="wflow_clip.html">Clipping a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="sediment_model_setup.html">Model methods and components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sediment_build.html">Building a model</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sediment_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="sediment_update.html">Updating a model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sediment_clip.html">Clipping a model</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Pre and postprocessing and visualization</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Pre and postprocessing and visualization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -443,14 +518,16 @@
 <span id="process-visualize"></span><h1>Pre and postprocessing and visualization<a class="headerlink" href="#pre-and-postprocessing-and-visualization" title="Link to this heading">#</a></h1>
 <p>The Hydromt-Wflow plugin provides several possibilities to postprocess and visualize the model data and model results:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="../_examples/prepare_ldd.ipynb">Prepare flow directions and related maps from a DEM</a> using the <a class="reference external" href="https://deltares.github.io/hydromt/latest/api.html#flow-direction-methods">flw methods of HydroMT</a></p></li>
-<li><p><a class="reference external" href="../_examples/convert_staticmaps_to_mapstack.ipynb">Convert Wflow staticmaps netcdf to raster files</a> for further processing and analysis</p></li>
-<li><p>Plot <a class="reference external" href="../_examples/plot_wflow_staticmaps.ipynb">staticmaps</a>, <a class="reference external" href="../_examples/plot_wflow_forcing.ipynb">forcing data</a> and
-<a class="reference external" href="../_examples/plot_wflow_results.ipynb">model results</a> by means of additional python packages</p></li>
+<li><p><a class="reference internal" href="../_examples/prepare_ldd.html"><span class="doc">Prepare flow directions and related maps from a DEM</span></a> using the <a class="reference external" href="https://deltares.github.io/hydromt/latest/api.html#flow-direction-methods">flw methods of HydroMT</a></p></li>
+<li><p><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html"><span class="doc">Convert Wflow staticmaps netcdf to raster files</span></a> for further processing and analysis</p></li>
+<li><p>Plot <a class="reference internal" href="../_examples/plot_wflow_staticmaps.html"><span class="doc">staticmaps</span></a>, <a class="reference internal" href="../_examples/plot_wflow_forcing.html"><span class="doc">forcing data</span></a> and
+<a class="reference internal" href="../_examples/plot_wflow_results.html"><span class="doc">model results</span></a> by means of additional python packages</p></li>
 <li><p>Use the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/statistics.html">statistical methods of HydroMT</a>
 to statistically analyze the model results</p></li>
-<li><p>Upgrade your old Wflow model to the Wflow.jl version 1 format using the <a class="reference external" href="../_examples/upgrade_to_wflow_v1.ipynb">upgrade_to_wflow_v1</a> example.</p></li>
+<li><p>Upgrade your old Wflow model to the Wflow.jl version 1 format using the <a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html"><span class="doc">upgrade_to_wflow_v1</span></a> example.</p></li>
 </ul>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 
 
@@ -473,11 +550,11 @@ to statistically analyze the model results</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="../api.html"
+       href="../_examples/prepare_ldd.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API reference</p>
+        <p class="prev-next-title">Prepare flow directions and related data from a DEM</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

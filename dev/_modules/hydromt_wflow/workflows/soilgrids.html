@@ -43,7 +43,15 @@
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/soilgrids';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -222,6 +230,26 @@
         </li>
 </ul></div>
       
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
     </div>
     
   </div>
@@ -347,6 +375,26 @@
           <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
 </ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
         
       </div>
     
@@ -889,21 +937,22 @@
 
 <span class="sd">    - **theta_s** : average saturated soil water content [m3/m3]</span>
 <span class="sd">    - **theta_r** : average residual water content [m3/m3]</span>
-<span class="sd">    - **ksat_vertical** : vertical saturated hydraulic conductivity at soil \</span>
-<span class="sd">surface [mm/day]</span>
+<span class="sd">    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil</span>
+<span class="sd">    surface [mm/day]</span>
 <span class="sd">    - **soil_thickness** : soil thickness [mm]</span>
 <span class="sd">    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \</span>
 <span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
-<span class="sd">    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical [mm-1] \</span>
-<span class="sd">(fitted with numpy linalg regression), bounds are checked</span>
+<span class="sd">    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]</span>
+<span class="sd">      (fitted with numpy linalg regression), bounds are checked</span>
 <span class="sd">    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \</span>
-<span class="sd">distribution index for the wflow_sbm soil layers.</span>
+<span class="sd">    distribution index for the wflow_sbm soil layers.</span>
 <span class="sd">    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \</span>
 <span class="sd">[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
-<span class="sd">    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt, \</span>
-<span class="sd">sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, \</span>
-<span class="sd">5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, \</span>
-<span class="sd">12:Sandy Loam]</span>
+<span class="sd">    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,</span>
+<span class="sd">    sand mapping: \</span>
+<span class="sd">[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \</span>
+<span class="sd">6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</span>
+
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
