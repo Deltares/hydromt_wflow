@@ -364,6 +364,7 @@ def lai_from_lulc_mapping(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
+    logger: logging.Logger = logger,
 ) -> xr.Dataset:
     """
     Derive LAI values from a landuse map and a mapping table.
@@ -391,6 +392,7 @@ def lai_from_lulc_mapping(
         ds_like=ds_like,
         df=df,
         params=months,
+        logger=logger,
     )
     # Re-organise the dataset to have a time dimension
     da_lai = ds_lai.to_array(dim="time", name="LAI")

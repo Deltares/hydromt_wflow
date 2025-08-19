@@ -131,11 +131,7 @@ class WflowForcingComponent(GridComponent):
             logger.warning(
                 "Write forcing skipped: dataset is empty (no variables or data)."
             )
-            return (
-                None,
-                None,
-                None,
-            )
+            return None, None, None
 
         # Logging the output
         logger.info("Write forcing file")

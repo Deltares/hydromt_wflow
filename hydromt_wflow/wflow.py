@@ -6,7 +6,7 @@ import os
 import tomllib
 from os.path import isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import geopandas as gpd
 import hydromt
@@ -109,7 +109,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self._results: Optional[dict] = None
+        self._results: dict | None = None
         self.data_catalog.from_yml(self._CATALOGS)
 
         # Supported Wflow.jl version
@@ -1508,6 +1508,7 @@ and will soon be removed. '
             da=da,
             ds_like=self.staticmaps.data,
             df=df_lai_mapping,
+            logger=logger,
         )
         # Add to grid
         self.set_grid(da_lai, name=self._MAPS["LAI"])
@@ -4545,7 +4546,7 @@ Run setup_soilmaps first"
         # Get population data
         popu = self.data_catalog.get_rasterdataset(
             population_fn,
-            bbox=self.region.bounds.values[0],
+            bbox=self.staticmaps.data.raster.bounds,
             buffer=1000,
         )
 
@@ -5704,8 +5705,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
     def set_results(
         self,
         data: xr.DataArray | xr.Dataset,
-        name: Optional[str] = None,
-        split_dataset: Optional[bool] = False,
+        name: str | None = None,
+        split_dataset: bool | None = False,
     ):
         """Add data to results attribute.
 
@@ -5725,7 +5726,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
 
         def _check_data(
             _data: xr.DataArray | xr.Dataset,
-            _name: Optional[str] = None,
+            _name: str | None = None,
             split_dataset: bool = True,
         ) -> dict:
             if isinstance(_data, xr.DataArray):
@@ -6146,7 +6147,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         """
         if len(self.states.data) > 0:
             logger.info("Clipping NetCDF states..")
-            ds_states = xr.merge(self.states.data.values()).raster.clip_bbox(
+            ds_states = self.states.data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
             # Check for reservoirs presence in the clipped model

@@ -321,11 +321,11 @@ def river_bathymetry(
 
 
 def river_floodplain_volume(
-    ds,
-    ds_model,
-    river_upa=30,
-    flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5],
-    dtype=np.float64,
+    ds: xr.Dataset,
+    ds_model: xr.Dataset,
+    river_upa: float = 30,
+    flood_depths: list[float] = [0.5, 1.0, 1.5, 2.0, 2.5],
+    dtype: np.dtype = np.float64,
 ):
     """Calculate floodplain volume at given flood depths based on (subgrid) HAND map.
 
