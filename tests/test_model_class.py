@@ -115,10 +115,9 @@ def test_model_build(tmpdir, model, example_models, example_inis):
 
     # get ini file
     opt = example_inis[model]
-    _list_opts = [{k: v} for k, v in opt.items()]
 
     # Build model
-    mod1.build(steps=_list_opts)
+    mod1.build(steps=opt["steps"])
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)

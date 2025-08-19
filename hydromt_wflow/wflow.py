@@ -359,9 +359,8 @@ class WflowModel(Model):
             hydrography_fn=hydrography_fn,
             resolution=res,
             basin_index_fn=basin_index_fn,
+            logger=logger,
         )
-        for name, _geom in geometries.items():
-            self.set_geoms(_geom, name=name)
 
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
@@ -369,6 +368,7 @@ class WflowModel(Model):
             res=res,
             xy=xy,
             upscale_method=upscale_method,
+            logger=logger,
         )
 
         # Rename and add to grid
@@ -377,6 +377,11 @@ class WflowModel(Model):
             ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
+
+        # Add basin geometries after grid is set to avoid warning
+        logger.info("Adding basin shape to staticgeoms.")
+        for name, _geom in geometries.items():
+            self.set_geoms(_geom, name=name)
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -388,7 +393,10 @@ class WflowModel(Model):
 
         # setup topography maps
         ds_topo = workflows.topography(
-            ds=ds_org, ds_like=self.staticmaps.data, method="average"
+            ds=ds_org,
+            ds_like=self.staticmaps.data,
+            method="average",
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
@@ -579,6 +587,7 @@ Select from {routing_options}.'
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
+            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -611,6 +620,7 @@ Select from {routing_options}.'
             da=strord,
             ds_like=self.staticmaps.data,
             df=df,
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
         self.set_grid(ds_nriver.rename(rmdict))
@@ -635,19 +645,20 @@ Select from {routing_options}.'
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
+                logger=logger,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
             # update config
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
-        logger.debug("Adding rivers vector to geoms.")
+        logger.info("Adding rivers vector to geoms.")
         if "rivers" in self.geoms.data:
             self.geoms.pop("rivers")  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
-        logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
+        logger.info(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
             postfix = {
@@ -876,11 +887,11 @@ setting new flood_depth dimensions"
             )
 
         # Update config
-        logger.debug(
+        logger.info(
             f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
         )
         self.set_config("model.floodplain_1d__flag", floodplain_1d)
-        logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
+        logger.info(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
@@ -1175,6 +1186,7 @@ and will soon be removed. '
             ds_like=self.staticmaps.data,
             df=df_map,
             params=list(lulc_vars.keys()),
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -1335,6 +1347,7 @@ and will soon be removed. '
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -2578,6 +2591,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
             wflow_layers=wflow_thicknesslayers,
+            logger=logger,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
@@ -4437,7 +4451,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 domestic_raw["time"] = domestic_raw.time.astype("int32")
             else:
-                logger.error(
+                raise ValueError(
                     "The provided domestic demand data is cyclic but the time "
                     "dimension does not match the expected length of 12, 365 or 366."
                 )
@@ -4631,7 +4645,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 demand_raw["time"] = demand_raw.time.astype("int32")
             else:
-                logger.error(
+                raise ValueError(
                     "The provided demand data is cyclic but the time dimension does "
                     "not match the expected length of 12, 365 or 366."
                 )
@@ -5384,11 +5398,10 @@ Run setup_soilmaps first"
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
-        input_dir = join(
-            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_filename,
-        )
-        pattern = Path(input_dir, "{name}.geojson").resolve()
+        # Check for input dir
+        p_input = Path(self.config.get_value("dir_input", fallback=""), geoms_filename)
+        pattern = Path(p_input, "{name}.geojson")
+
         self.geoms.read(filename=str(pattern))
 
     @hydromt_step

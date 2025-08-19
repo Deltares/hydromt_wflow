@@ -34,6 +34,7 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
+    logger: logging.Logger = logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -127,7 +128,7 @@ parametrization of distributed hydrological models.
             "upstream area or stream order to snap the outlet."
         )
     else:
-        logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
+        logger.info(f"(Sub)basin at original resolution has {ncells} cells.")
 
     if scale_ratio > 1:  # upscale flwdir
         if flwdir is None:
@@ -262,7 +263,7 @@ parametrization of distributed hydrological models.
     xy_pit_str = ", ".join([f"({x:.5f},{y:.5f})" for x, y in zip(*xy_pit)])
     # stream order
     if strord_name not in ds_out.data_vars:
-        logger.debug("Derive stream order.")
+        logger.info("Derive stream order.")
         strord = flwdir_out.stream_order()
         ds_out[strord_name] = xr.Variable(dims, strord)
         ds_out[strord_name].raster.set_nodata(255)
@@ -276,10 +277,8 @@ parametrization of distributed hydrological models.
         )
 
     ds_out.raster.set_crs(ds.raster.crs)
-    logger.debug(
-        f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
-    )
-    logger.debug(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
+    logger.info(f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}.")
+    logger.info(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
     if np.any(np.asarray(ds_out.raster.shape) == 1):
         raise ValueError(
             "The output extent at model resolution should at least consist of two "
@@ -313,6 +312,7 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
+    logger: logging.Logger = logger,
 ):
     """Return topography maps (see list below) at model resolution.
 
@@ -345,8 +345,9 @@ def topography(
     --------
     pyflwdir.dem.slope
     """
+    logger.info("Derive elevation and slope.")
     if lndslp_name not in ds.data_vars:
-        logger.debug(f"Slope map {lndslp_name} not found: derive from elevation map.")
+        logger.info(f"Slope map {lndslp_name} not found: derive from elevation map.")
         crs = ds[elevtn_name].raster.crs
         nodata = ds[elevtn_name].raster.nodata
         ds[lndslp_name] = xr.Variable(
@@ -374,6 +375,7 @@ def parse_region(
     hydrography_fn: str | xr.Dataset,
     resolution: float | int = 1 / 120.0,
     basin_index_fn: str | xr.Dataset | None = None,
+    logger: logging.Logger = logger,
 ) -> tuple[dict[str, gpd.GeoDataFrame], Optional[np.ndarray], xr.Dataset]:
     """Parse the region dictionary to get basin geometry and coordinates."""
     ds_org = data_catalog.get_rasterdataset(hydrography_fn)

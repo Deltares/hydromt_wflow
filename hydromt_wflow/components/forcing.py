@@ -128,19 +128,13 @@ class WflowForcingComponent(GridComponent):
 
         # Dont write if data is empty
         if self._data_is_empty():
-            DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
             logger.warning(
-                "Write forcing skipped: dataset is empty (no variables or data). Ensure"
-                " that forcing data is loaded correctly before calling 'write'."
+                "Write forcing skipped: dataset is empty (no variables or data)."
             )
-            if starttime is not None:
-                starttime = datetime.strptime(starttime, DATETIME_FORMAT)
-            if endtime is not None:
-                endtime = datetime.strptime(endtime, DATETIME_FORMAT)
             return (
                 None,
-                starttime,
-                endtime,
+                None,
+                None,
             )
 
         # Logging the output
@@ -159,10 +153,11 @@ class WflowForcingComponent(GridComponent):
                 filepath.unlink()
             else:
                 logger.warning(
-                    f"""Netcdf forcing file `{filepath}` already exists and overwriting
-                    is not enabled. To enable overwriting, provide the `overwrite` flag.
-                    Be careful, overwriting models partially can lead to
-                    inconsistencies."""
+                    f"Netcdf forcing file `{filepath}` already exists and overwriting "
+                    "is not enabled. To overwrite netcdf forcing file: change name "
+                    "`input.path_forcing` in setup_config section of the build "
+                    "inifile or allow overwriting with `overwrite` flag. A default "
+                    "name will be generated."
                 )
                 filepath = self._create_new_filename(
                     filepath=filepath,
@@ -171,7 +166,7 @@ class WflowForcingComponent(GridComponent):
                     frequency=output_frequency,
                 )
                 if filepath is None:  # should skip writing
-                    return None, start_time, end_time
+                    return None, None, None
 
         # Clean-up forcing and write
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -329,10 +324,8 @@ class WflowForcingComponent(GridComponent):
             return filepath
 
         logger.warning(
-            f"""Netcdf generated forcing file `{filepath}` already exists,
-            skipping write_forcing. To overwrite netcdf forcing file: change
-            name `input.path_forcing` in setup_config section of the build
-            inifile."""
+            f"Netcdf generated forcing file name `{filepath}` already exists, "
+            "skipping write_forcing. "
         )
         return None
 

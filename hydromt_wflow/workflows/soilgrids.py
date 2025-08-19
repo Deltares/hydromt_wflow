@@ -451,6 +451,7 @@ def soilgrids(
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
     wflow_layers: List[int] = [100, 300, 800],
+    logger: logging.Logger = logger,
 ):
     """
     Return soil parameter maps at model resolution.

@@ -39,6 +39,7 @@ def landuse(
     ds_like: xr.Dataset,
     df: pd.DataFrame,
     params: Optional[List] = None,
+    logger: logging.Logger = logger,
 ):
     """Return landuse map and related parameter maps.
 
@@ -98,6 +99,7 @@ def landuse_from_vector(
     all_touched: bool = False,
     buffer: int = 1000,
     lulc_out: Optional[str] = None,
+    logger: logging.Logger = logger,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -174,7 +176,7 @@ def landuse_from_vector(
         da.raster.to_raster(lulc_out)
 
     # derive the landuse maps
-    ds_out = landuse(da, ds_like, df, params=params)
+    ds_out = landuse(da, ds_like, df, params=params, logger=logger)
 
     return ds_out
 

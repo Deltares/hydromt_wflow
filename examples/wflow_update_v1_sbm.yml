@@ -1,7 +1,8 @@
 global:
   config_fn: wflow_sbm_v0x.toml
 
-upgrade_to_v1_wflow:
+steps:
+  - upgrade_to_v1_wflow:
 
-write_config:
-  config_name: wflow_sbm_v1.toml
+  - write_config:
+      config_name: wflow_sbm_v1.toml

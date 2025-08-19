@@ -29,12 +29,13 @@ def power_law(x, a, b):
 
 
 def river(
-    ds,
-    ds_model=None,
-    river_upa=30.0,
-    slope_len=2e3,
-    min_rivlen_ratio=0.0,
-    channel_dir="up",
+    ds: xr.Dataset,
+    ds_model: xr.Dataset | None = None,
+    river_upa: float = 30.0,
+    slope_len: float = 2e3,
+    min_rivlen_ratio: float = 0.0,
+    channel_dir: str = "up",
+    logger: logging.Logger = logger,
 ):
     """Return river maps.
 
@@ -86,7 +87,7 @@ def river(
         logger.info("River length and slope are calculated at model resolution.")
 
     ## river mask and flow directions at model grid
-    logger.debug(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
+    logger.info(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
     riv_mask = ds_model["uparea"] > river_upa  # initial mask
     mod_mask = ds_model["uparea"] != ds_model["uparea"].raster.nodata
 
@@ -108,7 +109,7 @@ def river(
 
     ## river length
     # get river length based on on-between distance between two outlet pixels
-    logger.debug("Derive river length.")
+    logger.info("Derive river length.")
     rivlen = flwdir.subgrid_rivlen(
         idxs_out=idxs_out,
         mask=riv_mask_org,
@@ -132,7 +133,7 @@ def river(
         rivlen2 = flwdir_model.smooth_rivlen(rivlen, min_len, nodata=-9999)
         min_len2 = rivlen2[riv_mask].min()
         pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
-        logger.debug(
+        logger.info(
             f"River length smoothed (min length: {min_len2:.0f} m; \
 cells modified: {pmod:.1f})%."
         )
@@ -143,7 +144,7 @@ cells modified: {pmod:.1f})%."
         )
 
     ## river slope as derivative of elevation around outlet pixels
-    logger.debug("Derive river slope.")
+    logger.info("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
         idxs_out=idxs_out,
         elevtn=ds["elevtn"].values,
@@ -181,6 +182,7 @@ def river_bathymetry(
     smooth_len: float = 5e3,
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
+    logger: logging.Logger = logger,
 ) -> xr.Dataset:
     """Get river width and bankfull discharge.
 
@@ -232,7 +234,7 @@ def river_bathymetry(
         vars = [c for c in vars0 if c in gdf_riv.columns]
         if len(vars) == 0:
             raise ValueError(f" columns {vars0} not found in gdf_riv")
-        logger.debug(f"Derive {vars} from shapefile.")
+        logger.info(f"Derive {vars} from shapefile.")
         if "x_out" in ds_model and "y_out" in ds_model:
             # get subgrid outlet pixel index and coordinates
             xs_out = ds_model["x_out"].values[riv_mask]
@@ -253,7 +255,7 @@ def river_bathymetry(
             xres, yres = _gis_utils._cellres(lat_avg, xres, yres)
         max_dist = np.mean(np.abs([xres, yres])) / 2.0
         nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
-        logger.debug(
+        logger.info(
             f"Valid for {nsnap}/{nriv} river cells (max dist: {max_dist:.0f} m)."
         )
         for name in vars:

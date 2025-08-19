@@ -72,7 +72,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
-    # "nbsphinx", # TODO reenable me when examples run again
+    "nbsphinx",
 ]
 
 autosummary_generate = True
@@ -286,5 +286,5 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-# nbsphinx_execute = "always"
+nbsphinx_execute = "always"
 nbsphinx_timeout = 300
