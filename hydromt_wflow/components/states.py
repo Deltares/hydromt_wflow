@@ -77,6 +77,7 @@ class WflowStatesComponent(GridComponent):
         if not isinstance(data, (xr.Dataset, xr.DataArray)):
             raise TypeError("Data must be an xarray Dataset or DataArray")
 
+        if self._region_component is not None:
             # Ensure the data is aligned with the region component (staticmaps)
             region_grid = self._get_grid_data()
             if not data.raster.identical_grid(region_grid):
