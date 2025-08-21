@@ -6084,8 +6084,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 for key in keys_to_remove:
                     del self.tables._tables[key]
 
-    def clip_forcing(self, crs=4326, **kwargs):
-        """Return clippped forcing for subbasin.
+    @hydromt_step
+    def clip_forcing(self):
+        """Return clipped forcing for subbasin.
 
         Returns
         -------

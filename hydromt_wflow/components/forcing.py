@@ -276,6 +276,23 @@ class WflowForcingComponent(GridComponent):
             # Ensure the data is aligned with the region component (staticmaps)
             region_grid = self._get_grid_data()
             if not data.raster.identical_grid(region_grid):
+                y_dim = region_grid.raster.y_dim
+                x_dim = region_grid.raster.x_dim
+                # First try to rename dimensions
+                data = data.rename(
+                    {
+                        data.raster.x_dim: x_dim,
+                        data.raster.y_dim: y_dim,
+                    }
+                )
+                # Flip latitude if needed
+                if (
+                    np.diff(data[y_dim].values)[0] > 0
+                    and np.diff(region_grid[y_dim].values)[0] < 0
+                ):
+                    data = data.reindex({y_dim: data[y_dim][::-1]})
+            # Check again, this time the grid is really different if not True
+            if not data.raster.identical_grid(region_grid):
                 raise ValueError(
                     f"Data grid must be identical to {self._region_component} component"
                 )

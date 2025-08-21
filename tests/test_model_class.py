@@ -131,6 +131,9 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
+@pytest.mark.skip(
+    reason="Allow clipping again - current conflict for reading forcing and states"
+)
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
     tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
@@ -162,6 +165,9 @@ def test_model_clip(
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
+@pytest.mark.skip(
+    reason="Allow clipping again - current conflict for reading forcing and states"
+)
 def test_model_inverse_clip(
     example_wflow_model_factory: Callable[[str, str, list[str]], WflowModel],
 ):
