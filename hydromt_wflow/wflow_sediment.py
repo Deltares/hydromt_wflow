@@ -7,7 +7,6 @@ from typing import Dict, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import tomlkit
 import xarray as xr
 from hydromt.nodata import NoDataStrategy
 
@@ -988,11 +987,7 @@ river cells."
 
         config_v0 = self.config.copy()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
-
-        self._config = tomlkit.parse(default_header_str)
+        self._config = dict()
 
         for option in config_out:
             self.set_config(option, config_out[option])

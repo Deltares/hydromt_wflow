@@ -1,5 +1,6 @@
 """add global fixtures."""
 
+
 import logging
 import platform
 from os.path import abspath, dirname, join
