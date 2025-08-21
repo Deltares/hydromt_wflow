@@ -74,38 +74,49 @@ class WflowConfigComponent(ConfigComponent):
         self,
         path: Path | str | None = None,
     ):
-        """Read the wflow configuration file at <root>/{path}."""
+        """
+        Read the wflow configuration file.
+
+        If path is not provided, will default to <root>/{self._filename} or default
+        template configuration file if the model is in write only mode (ie build).
+
+        If path is provided, it will check if the path is absolute and else will
+        assume the given path is relative to the model root.
+
+        """
         self._initialize(skip_read=True)
 
         # Check if user-defined path or template should be used
-        p = path or self._filename
-        read_path = Path(self.root.path, p)
-
-        # Switch to default if available and supplied config is not found
-        if (
-            not read_path.is_file()
-            and self._default_template_filename is not None
-            and not self.root.is_reading_mode()
-        ):
-            _new_path = Path(self.root.path, self._default_template_filename)
-            logger.warning(
-                f"No config file found at {read_path.as_posix()} \
-defaulting to {_new_path.as_posix()}"
-            )
-            read_path = _new_path
+        if not path:
+            # Write only mode > read default config
+            if (
+                not self.root.is_reading_mode()
+                and self._default_template_filename is not None
+            ):
+                prefix = "default"
+                read_path = Path(self._default_template_filename)
+            else:
+                prefix = "model"
+                read_path = Path(self.root.path, self._filename)
+        else:
+            prefix = "user defined"
+            # Check if user-defined file is absolute (ie file exists)
+            if Path(path).is_file():
+                read_path = Path(path)
+            else:
+                read_path = Path(self.root.path, path)
 
         # Check if the file exists
         if read_path.is_file():
-            logger.info(f"Reading model config file from {read_path.as_posix()}.")
+            logger.info(f"Reading {prefix} config file from {read_path.as_posix()}.")
         else:
             logger.warning(
-                f"No default model config was found at {read_path.as_posix()}. "
+                f"No config was found at {read_path.as_posix()}. "
                 "It wil be initialized as empty dict"
             )
             return
 
         # Read the data and set it in the document
-
         self._data = _read_toml(read_path)
 
     def write(

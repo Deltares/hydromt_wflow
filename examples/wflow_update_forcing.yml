@@ -1,9 +1,10 @@
 steps:
   - setup_config:                  # options parsed to wflow toml file <section>.<option>
-      time.starttime: 2010-02-01T00:00:00
-      time.endtime: 2010-02-10T00:00:00
-      time.timestepsecs: 86400
-      input.path_forcing: inmaps-chirps.nc
+      data:
+        time.starttime: 2010-02-01T00:00:00
+        time.endtime: 2010-02-10T00:00:00
+        time.timestepsecs: 86400
+        input.path_forcing: inmaps-chirps.nc
 
   - setup_precip_forcing:
       precip_fn: chirps_global # source for precipitation.
@@ -17,7 +18,7 @@ steps:
       skip_pet: False         # if True, only temperature is prepared.
 
   - write_forcing:                # Write forcing and re-write config if forcing filename or times are updated
-      freq_out: M             # Set frequency at which forcing files are written, following pandas offset aliases
+      output_frequency: M             # Set frequency at which forcing files are written, following pandas offset aliases
 
   - write_grid:             # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
 

@@ -1,5 +1,7 @@
 import logging
+from pathlib import Path
 from typing import Callable
+from unittest.mock import MagicMock
 
 import geopandas as gpd
 import pytest
@@ -112,16 +114,18 @@ def test_wflow_geoms_component_set(
 
     # Add geometry and write it to disk
     comp.set(mock_geometry, name="test_geom")
-    comp.write(dir_out=model.root.path)
+    comp.write(dir_out=Path(model.root.path, "staticgeoms"))
 
     # Confirm file was written
-    out_file = model.root.path / "test_geom.geojson"
+    out_file = Path(model.root.path, "staticgeoms", "test_geom.geojson")
     assert out_file.exists()
 
     # Create new instance and read
     model: WflowModel = mock_model_factory(path=model.root.path, mode="r")
     new_comp = WflowGeomsComponent(model=model)
-    new_comp.read(filename=str(out_file.with_name("{name}.geojson")))
+    # mock for dir_input check
+    type(new_comp.model.config).get_value = MagicMock(return_value="")
+    new_comp.read()
 
     # Check that the geometry matches
     gdf_read = new_comp.get("test_geom")
@@ -140,17 +144,21 @@ def test_wflow_geoms_component_read_with_pattern(
     comp = WflowGeomsComponent(model=model)
     comp.set(mock_geometry, name="geom1")
     comp.set(mock_geometry, name="geom2")
-    comp.write(dir_out=model.root.path)
+    comp.write(dir_out=Path(model.root.path, "staticgeoms"))
 
     # Confirm files were written
-    outfiles = [model.root.path / f"{name}.geojson" for name in ["geom1", "geom2"]]
+    outfiles = [
+        model.root.path / "staticgeoms" / f"{name}.geojson"
+        for name in ["geom1", "geom2"]
+    ]
     for out_file in outfiles:
         assert out_file.exists(), f"File {out_file} was not created."
 
     # Read using a pattern
     model: WflowModel = mock_model_factory(model.root.path, mode="r")
     new_comp = WflowGeomsComponent(model=model)
-    new_comp.read(filename=str(model.root.path / "{name}.geojson"))
+    type(new_comp.model.config).get_value = MagicMock(return_value="")
+    new_comp.read()
 
     # Check that both geometries are read
     assert new_comp.get("geom1") is not None

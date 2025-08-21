@@ -137,7 +137,7 @@ def test_wflow_staticmaps_component_set_warnings(
     cyclic_layer: xr.DataArray,
     cyclic_layer_large: xr.DataArray,
 ):
-    caplog.set_level(logging.WARNING)
+    caplog.set_level(logging.INFO)
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
 

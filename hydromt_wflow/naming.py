@@ -322,7 +322,7 @@ WFLOW_NAMES = {
         "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
     },
     # land surface water flow
-    "N": {
+    "land_manning_n": {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },

@@ -49,6 +49,30 @@ class WflowGeomsComponent(GeomsComponent):
             region_filename=region_filename,
         )
 
+    def read(
+        self,
+        filename: str = "staticgeoms",
+    ):
+        """
+        Read static geometries and adds to ``geoms``.
+
+        If ``dir_input`` is set in the config, the path where all static geometries are
+        read, will be constructed as ``<model_root>/<dir_input>/<geoms_fn>``.
+        Where <dir_input> is relative to the model root. Depending on the config value
+        ``dir_input``, the path will be constructed differently.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Folder name/path where the static geometries are stored relative to the
+            model root and ``dir_input`` if any. By default "staticgeoms".
+        """
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), filename)
+        pattern = Path(p_input, "{name}.geojson")
+
+        super().read(filename=str(pattern))
+
     def write(
         self,
         dir_out: Path,

@@ -71,6 +71,7 @@ class WflowModel(Model):
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
     _DATADIR = utils.DATADIR
+    _DEFAULT_TEMPLATE_FILENAME = join(_DATADIR, "wflow", "wflow_sbm.toml")
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
@@ -87,9 +88,7 @@ class WflowModel(Model):
             "config": WflowConfigComponent(
                 self,
                 filename=str(config_filename),
-                default_template_filename=join(
-                    self._DATADIR, "wflow", "wflow_sbm.toml"
-                ),
+                default_template_filename=self._DEFAULT_TEMPLATE_FILENAME,
             ),
             "forcing": WflowForcingComponent(self, region_component="staticmaps"),
             "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
@@ -118,9 +117,6 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
-        # Read model from disk when in read mode
-        if self.root.is_reading_mode():
-            self.read(config_filename=config_filename)
 
     ## Properties
     # Components
@@ -1164,9 +1160,14 @@ and will soon be removed. '
         }
         self._update_naming(output_names)
 
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        # As landuse is not a wflow variable, we update the name manually
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1188,7 +1189,6 @@ and will soon be removed. '
             params=list(lulc_vars.keys()),
             logger=logger,
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
@@ -1313,9 +1313,15 @@ and will soon be removed. '
             for k, v in lulc_vars.items()
         }
         self._update_naming(output_names)
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+
+        # As landuse is not a wflow variable, we update the name manually
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -1349,7 +1355,6 @@ and will soon be removed. '
             lulc_out=lulc_out,
             logger=logger,
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
         # update config variable names
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
@@ -2914,9 +2919,15 @@ using 'variable' argument."
             output_names = {v: k for k, v in lulc_vars.items()}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
+
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.staticmaps.data.data_vars:
@@ -2975,7 +2986,6 @@ using 'variable' argument."
             df=df_mapping,
             params=list(lulc_vars.keys()),
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
         self.set_grid(landuse_maps.rename(rmdict))
         # update config
         self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
@@ -5116,8 +5126,6 @@ Run setup_soilmaps first"
 
         This function should be followed by write_config() to write the upgraded file.
         """
-        self.read()
-
         config_v0 = self.config.data.copy()
         config_out = convert_to_wflow_v1_sbm(self.config.data, logger=logger)
         # Update the config
@@ -5199,7 +5207,7 @@ Run setup_soilmaps first"
         self,
         config_filename: str | None = None,
         staticmaps_filename: str | None = None,
-        geoms_filename: str | None = None,
+        geoms_filename: str = "staticgeoms",
     ):
         """Read components from disk.
 
@@ -5212,19 +5220,10 @@ Run setup_soilmaps first"
         geoms_filename : str | None, optional
             geoms file name, by default None
         """
-        if not config_filename:
-            self.read_config()
-        else:
-            self.read_config(config_filename)
-        if not staticmaps_filename:
-            self.read_grid()
-        else:
-            self.read_grid(staticmaps_filename)
-        if not geoms_filename:
-            self.read_geoms()
-        else:
-            self.read_geoms(geoms_filename)
-
+        self.read_config(config_filename)
+        self.read_grid(staticmaps_filename)
+        self.read_geoms(geoms_filename)
+        self.read_forcing()
         self.read_states()
         self.read_tables()
 
@@ -5292,18 +5291,8 @@ Run setup_soilmaps first"
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("input.path_static")
-            or self.staticmaps._filename
-        )
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
-
         # Call the component method
-        self.staticmaps.read(filename=p_input, **kwargs)
+        self.staticmaps.read(filename=filename, **kwargs)
 
     @hydromt_step
     def write_grid(
@@ -5399,11 +5388,7 @@ Run setup_soilmaps first"
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), geoms_filename)
-        pattern = Path(p_input, "{name}.geojson")
-
-        self.geoms.read(filename=str(pattern))
+        self.geoms.read(filename=geoms_filename)
 
     @hydromt_step
     def write_geoms(
@@ -5470,7 +5455,7 @@ Run setup_soilmaps first"
 
         If several files are used using '*' in ``input.path_forcing``, all corresponding
         files are read and merged into one xarray dataset before being split to one
-        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
+        xarray DataArray per forcing variable in the hydromt ``forcing`` dictionary.
 
         Parameters
         ----------
@@ -5481,20 +5466,7 @@ Run setup_soilmaps first"
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default from component
-        rel_path = (
-            filename
-            or self.config.get_value("input.path_forcing")
-            or self.forcing._filename
-        )
-        dir_input = self.config.get_value("dir_input", abs_path=True) or self.root.path
-        # hydrom:: GridComponent.read() requires filename to be relative to model root.
-        # To allow us to include `dir_input`: filepath has to be relative to model root.
-        filepath = Path(dir_input, rel_path).resolve()
-        self.forcing.read(
-            filename=filepath.relative_to(self.root.path, walk_up=True), **kwargs
-        )
+        self.forcing.read(filename=filename, **kwargs)
 
     @hydromt_step
     def write_forcing(
@@ -5585,15 +5557,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         and ``dir_input``. If not found uses the default path ``instate/instates.nc``
         in the root folder.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.config.get_value("state.path_input") or self.states._filename
-        # Check for input dir
-        p_input = join(self.config.get_value("dir_input", fallback=""), p)
-
-        self.states.read(
-            filename=p_input,
-        )
+        self.states.read()
 
     @hydromt_step
     def write_states(self, filename: str | Path | None = None):

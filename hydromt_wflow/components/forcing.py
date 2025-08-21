@@ -64,19 +64,37 @@ class WflowForcingComponent(GridComponent):
         filename: Path | str | None = None,
         **kwargs,
     ):
-        """Read forcing model data at root/filename.
+        """Read forcing model data at root/dir_input/filename.
 
-        Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
+        Checks the path of the file in the config toml using both ``input.path_forcing``
+        and ``dir_input``. If not found uses the default path ``inmaps.nc`` in the
+        root folder.
+
+        If several files are used using '*' in ``input.path_forcing``, all corresponding
+        files are read and merged into one xarray dataset before being split to one
+        xarray DataArray per forcing variable in the hydromt ``forcing`` dictionary.
 
         Parameters
         ----------
         filename : str, optional
-            Filename relative to model root, by default None
+            Name or path to the forcing file(s) to be read.
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default from component
+        p = (
+            filename
+            or self.model.config.get_value("input.path_forcing")
+            or self._filename
+        )
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
+
         super().read(
-            filename=filename,
+            filename=p_input,
             mask_and_scale=False,
             **kwargs,
         )
@@ -338,22 +356,22 @@ class WflowForcingComponent(GridComponent):
             starttime < min(self.data.time.values)
             or starttime not in self.data.time.values
         ):
-            starttime = min(self.data.time.values)
             logger.warning(
-                f"Start time {starttime} does not match the beginning of the data."
-                f"Changing starttime to start of the data: {starttime}."
+                f"Start time {starttime} does not match the beginning of the data. "
+                f"Changing to start of the data: {min(self.data.time.values)}."
             )
+            starttime = min(self.data.time.values)
         starttime = pd.Timestamp(starttime).to_pydatetime()
 
         endtime = np.datetime64(
             endtime or np.datetime_as_string(max(self.data.time.values), unit="s")
         )
         if endtime > max(self.data.time.values) or endtime not in self.data.time.values:
-            endtime = max(self.data.time.values)
             logger.warning(
-                f"End time {endtime} does not match the end of the data."
-                f"Changing endtime to end of the data: {endtime}."
+                f"End time {endtime} does not match the end of the data. "
+                f"Changing to end of the data: {max(self.data.time.values)}."
             )
+            endtime = max(self.data.time.values)
         endtime = pd.Timestamp(endtime).to_pydatetime()
 
         if self._data_is_empty():

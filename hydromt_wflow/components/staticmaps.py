@@ -62,18 +62,32 @@ class WflowStaticmapsComponent(GridComponent):
     ):
         """Read staticmaps model data.
 
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
         Key-word arguments are passed to :py:meth:`~hydromt._io.readers._read_nc`
 
         Parameters
         ----------
         filename : str, optional
-            Filename relative to model root, by default None
+            Name or path to the staticmaps file to be read.
+            This is the path/name relative to the root folder and if present the
+            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.model.config.get_value("input.path_static")
+            or self._filename
+        )
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
         # Supercharge with parent method
         super().read(
-            filename=filename,
+            filename=p_input,
             mask_and_scale=False,
             **kwargs,
         )
@@ -194,7 +208,7 @@ class WflowStaticmapsComponent(GridComponent):
         # Set the data per layer
         for dvar in data.data_vars:
             if dvar in self._data:
-                logger.warning(f"Replacing grid map: {dvar}")
+                logger.info(f"Replacing grid map: {dvar}")
             if mask is not None:
                 if data[dvar].dtype != np.bool:
                     data[dvar] = data[dvar].where(mask, data[dvar].raster.nodata)

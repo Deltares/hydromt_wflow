@@ -90,9 +90,13 @@ class WflowStatesComponent(GridComponent):
         )
 
     # I/O methods
-    def read(self, filename: Path | str | None = None):
+    def read(self):
         """
-        Read the wflow states at root/filename.
+        Read states at <root/dir_input/state.path_input>.
+
+        Checks the path of the file in the config toml using both ``state.path_input``
+        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
+        in the root folder.
 
         Parameters
         ----------
@@ -104,8 +108,13 @@ class WflowStatesComponent(GridComponent):
         --------
         hydromt.model.components.GridComponent.read
         """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = self.model.config.get_value("state.path_input") or self._filename
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
         super().read(
-            filename=filename,
+            filename=p_input,
             mask_and_scale=False,
         )
 

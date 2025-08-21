@@ -2,6 +2,7 @@
 
 import logging
 import tomllib
+from os.path import join
 from pathlib import Path
 from typing import Dict, List
 
@@ -12,9 +13,9 @@ import xarray as xr
 from hydromt import hydromt_step
 from hydromt._typing import NoDataStrategy
 
+import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
-from hydromt_wflow.utils import DATADIR
 from hydromt_wflow.version_upgrade import (
     convert_reservoirs_to_wflow_v1_sediment,
     convert_to_wflow_v1_sediment,
@@ -31,10 +32,15 @@ class WflowSedimentModel(WflowModel):
 
     name: str = "wflow_sediment"
 
+    _DATADIR: Path = utils.DATADIR
+    _DEFAULT_TEMPLATE_FILENAME: Path = join(
+        _DATADIR, "wflow_sediment", "wflow_sediment.toml"
+    )
+
     def __init__(
         self,
         root: str | None = None,
-        config_filename: str | None = None,
+        config_filename: str = "wflow_sediment.toml",
         mode: str | None = "w",
         data_libs: List | str = [],
         **catalog_keys,
@@ -999,13 +1005,11 @@ capacity [-]
         strord_name : str, optional
             strord_name argument of setup_riverbedsed method.
         """
-        self.read()
-
         config_v0 = self.config.data.copy()
         config_out = convert_to_wflow_v1_sediment(self.config.data, logger=logger)
 
         # Update the config
-        with open(DATADIR / "default_config_headers.toml", "rb") as file:
+        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
             self.config._data = tomllib.load(file)
         for option in config_out:
             self.set_config(option, config_out[option])
