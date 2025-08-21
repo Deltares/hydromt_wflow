@@ -1,7 +1,6 @@
 """Workflow for water demand."""
 
 import logging
-import math
 from typing import List, Optional, Tuple
 
 import geopandas as gpd
@@ -41,10 +40,10 @@ def create_grid_from_bbox(
     xmin, ymin, xmax, ymax = bbox
     res = abs(res)
     if align:
-        xmin = math.floor(xmin / res) * res
-        ymin = math.floor(ymin / res) * res
-        xmax = math.ceil(xmax / res) * res
-        ymax = math.ceil(ymax / res) * res
+        xmin = round(xmin / res) * res
+        ymin = round(ymin / res) * res
+        xmax = round(xmax / res) * res
+        ymax = round(ymax / res) * res
     xcoords = np.linspace(
         xmin + res / 2,
         xmax - res / 2,
@@ -627,6 +626,7 @@ def irrigation(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
+    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy.
@@ -706,6 +706,7 @@ def irrigation_from_vector(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
+    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy from geodataframe.
@@ -768,6 +769,7 @@ def irrigation_from_vector(
         paddy_class=paddy_class,
         area_threshold=area_threshold,
         lai_threshold=lai_threshold,
+        logger=logger,
     )
 
     return ds_irrigation

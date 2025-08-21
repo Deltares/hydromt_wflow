@@ -228,8 +228,8 @@ def gdf_precip_stations():
 def da_pet(example_wflow_model: WflowModel):
     da = example_wflow_model.data_catalog.get_rasterdataset(
         "era5",
-        bbox=example_wflow_model.staticmaps.data.raster.bounds,
-        buffer=20_000,
+        geom=example_wflow_model.region,
+        buffer=2,
         variables=["temp"],
     )
     da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle

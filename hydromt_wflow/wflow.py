@@ -675,6 +675,7 @@ Select from {routing_options}.'
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
+                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
 
@@ -873,6 +874,7 @@ setting new flood_depth dimensions"
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
+                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
             # Update the bankfull elevation map
@@ -1055,6 +1057,7 @@ and will soon be removed. '
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
             fit=fit,
+            logger=logger,
             **kwargs,
         )
         self.set_grid(da_rivwth, name=output_name)
@@ -1366,7 +1369,7 @@ and will soon be removed. '
         lulc_fn: str | xr.DataArray | None = None,
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
-        buffer: int = 20_000,
+        buffer: int = 2,
         output_name: str = "vegetation_leaf_area_index",
     ):
         """
@@ -1424,7 +1427,7 @@ and will soon be removed. '
             maps, urban surfaces and bare areas can be included here as well.
             By default empty.
         buffer : int, optional
-            Buffer around the region to read the data in meters, by default 20_000.
+            Buffer in pixels around the region to read the data, by default 2.
         output_name : str
             Name of the output vegetation__leaf-area_index map.
             By default "vegetation_leaf_area_index".
@@ -1447,6 +1450,7 @@ and will soon be removed. '
                 da_lai=da.copy(),
                 sampling_method=lulc_sampling_method,
                 lulc_zero_classes=lulc_zero_classes,
+                logger=logger,
             )
             # Save to csv
             if isinstance(lulc_fn, str) and not isfile(lulc_fn):
@@ -1459,6 +1463,7 @@ and will soon be removed. '
         da_lai = workflows.lai(
             da=da,
             ds_like=self.staticmaps.data,
+            logger=logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
@@ -1809,9 +1814,17 @@ gauge locations [-] (if derive_subcatch)
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
+            # hydromt#1243
+            # try to get epsg number directly, important when writing back data_catalog
+            if hasattr(self.crs, "to_epsg"):
+                code = self.crs.to_epsg()
+            else:
+                code = self.crs
+            kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
+                # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -1820,6 +1833,7 @@ gauge locations [-] (if derive_subcatch)
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
+                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1827,6 +1841,7 @@ gauge locations [-] (if derive_subcatch)
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
+                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1890,6 +1905,7 @@ gauge locations [-] (if derive_subcatch)
                 rel_error=rel_error,
                 abs_error=abs_error,
                 fillna=fillna,
+                logger=logger,
             )
         else:
             # Derive gauge map
@@ -2587,9 +2603,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         logger.info("Preparing soil parameter maps.")
         self._update_naming(output_names)
         # TODO add variables list with required variable names
-        dsin = self.data_catalog.get_rasterdataset(
-            soil_fn, geom=self.region, buffer=20_000
-        )
+        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
 
         dsout = workflows.soilgrids(
             ds=dsin,
@@ -2985,6 +2999,7 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             df=df_mapping,
             params=list(lulc_vars.keys()),
+            logger=logger,
         )
         self.set_grid(landuse_maps.rename(rmdict))
         # update config
@@ -3026,6 +3041,7 @@ using 'variable' argument."
                 update_c=update_c,
                 wflow_layers=wflow_thicknesslayers,
                 target_conductivity=target_conductivity,
+                logger=logger,
             )
             self.set_grid(
                 soil_maps["soil_ksat_vertical_factor"],
@@ -3125,6 +3141,7 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
+            logger=logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
@@ -3486,6 +3503,7 @@ one variable and variables list is not provided."
             interp_type=interp_type,
             ds_like=self.staticmaps.data,
             mask_name=self._MAPS["basins"],
+            logger=logger,
             **kwargs,
         )
 
@@ -3666,6 +3684,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
             freq=None,  # resample time after pet workflow
+            # logger = logger,
         )
 
         if (
@@ -3677,6 +3696,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
+                # logger = logger,
             )
             temp_max_in.name = "temp_max"
 
@@ -3686,6 +3706,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
+                # logger = logger,
             )
             temp_min_in.name = "temp_min"
 
@@ -3703,6 +3724,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
+                # logger = logger,
             )
             # Update meta attributes with setup opt
             opt_attr = {
@@ -3725,6 +3747,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             label="right",
             closed="right",
             conserve_mass=False,
+            # logger = logger,
         )
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
@@ -3775,7 +3798,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
             geom=self.region,
-            buffer=20_000,
+            buffer=2,
             variables=["pet"],
             time_range=(starttime, endtime),
         )
@@ -3787,6 +3810,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
+            # logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -4009,6 +4033,7 @@ Run setup_soilmaps first"
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold,
+            logger=logger,
         )
 
         # set nodata value outside basin
@@ -4128,6 +4153,7 @@ Run setup_soilmaps first"
             area_max=area_max,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
+            logger=logger,
             **kwargs,
         )
 
@@ -4794,6 +4820,7 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
+            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -4973,6 +5000,7 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
+            logger=logger,
         )
 
         # Check if paddy and non paddy are present

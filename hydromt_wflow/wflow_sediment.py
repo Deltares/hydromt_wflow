@@ -165,6 +165,7 @@ class WflowSedimentModel(WflowModel):
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
+            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -194,6 +195,7 @@ class WflowSedimentModel(WflowModel):
                 gdf_riv=gdf_riv,
                 smooth_len=smooth_len,
                 min_rivwth=min_rivwth,
+                logger=logger,
             )
             # only add river width
             self.set_grid(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
@@ -616,6 +618,7 @@ cell [-]
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
+                logger=logger,
             )
 
             # Add to grid
@@ -959,14 +962,13 @@ capacity [-]
             return
 
         self._update_naming(output_names)
-        dsin = self.data_catalog.get_rasterdataset(
-            soil_fn, geom=self.region, buffer=20_000
-        )
+        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids_sediment(
             dsin,
             self.staticmaps.data,
             usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))

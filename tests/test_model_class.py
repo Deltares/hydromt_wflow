@@ -3,7 +3,6 @@
 import warnings
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Callable
 
 import numpy as np
 import pytest
@@ -99,6 +98,7 @@ def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
         assert mod0.config.data == mod1.config.data, "config mismatch"
 
 
+@pytest.mark.skip(reason="Issue with buffer in get_rasterdataset hydromt#1226")
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):
@@ -168,9 +168,7 @@ def test_model_clip(
 @pytest.mark.skip(
     reason="Allow clipping again - current conflict for reading forcing and states"
 )
-def test_model_inverse_clip(
-    example_wflow_model_factory: Callable[[str, str, list[str]], WflowModel],
-):
+def test_model_inverse_clip(example_wflow_model: WflowModel):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
@@ -178,20 +176,18 @@ def test_model_inverse_clip(
     }
 
     # Clip workflow, based on example model
-    inv_clip_model = example_wflow_model_factory()
-    inv_clip_model.read()
+    example_wflow_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = inv_clip_model.staticmaps.data["subcatchment"].sum()
-    inv_clip_model.clip_grid(region.copy(), inverse_clip=True)
+    n_pixels_full = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    example_wflow_model.clip_grid(region.copy(), inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = inv_clip_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_inverse_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
 
     # Do clipping again, but normally
-    normal_clip_model = example_wflow_model_factory()
-    normal_clip_model.read()
-    normal_clip_model.clip_grid(region.copy(), inverse_clip=False)
+    example_wflow_model.read()
+    example_wflow_model.clip_grid(region.copy(), inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = normal_clip_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped

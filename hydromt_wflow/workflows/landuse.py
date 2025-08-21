@@ -181,7 +181,7 @@ def landuse_from_vector(
     return ds_out
 
 
-def lai(da: xr.DataArray, ds_like: xr.Dataset):
+def lai(da: xr.DataArray, ds_like: xr.Dataset, logger: logging.Logger = logger):
     """Return climatology of Leaf Area Index (LAI).
 
     The following maps are calculated:
@@ -219,6 +219,7 @@ def create_lulc_lai_mapping_table(
     da_lai: xr.DataArray,
     sampling_method: str = "any",
     lulc_zero_classes: List[int] = [],
+    logger: logging.Logger = logger,
 ) -> pd.DataFrame:
     """
     Derive LAI values per landuse class.
@@ -468,6 +469,7 @@ def add_planted_forest_to_landuse(
     planted_forest_c: float = 0.0881,
     orchard_name: str = "Orchard",
     orchard_c: float = 0.2188,
+    logger: logging.Logger = logger,
 ) -> xr.DataArray:
     """
     Update USLE C map with planted forest and orchard data.

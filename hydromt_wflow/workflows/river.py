@@ -6,6 +6,7 @@ from os.path import join
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import pyflwdir
 import xarray as xr
 from hydromt import stats
 from hydromt.gis import _gis_utils, flw
@@ -419,21 +420,21 @@ def river_floodplain_volume(
 
 
 def river_width(
-    ds_like,
-    flwdir,
-    data=dict(),
-    fit=False,
-    fill=True,
-    fill_outliers=True,
-    min_wth=1,
-    mask_names=[],
-    predictor="discharge",
-    rivwth_name="rivwth",
-    obs_postfix="_obs",
-    rivmsk_name="rivmsk",
-    a=None,
-    b=None,
-    **kwargs,
+    ds_like: xr.Dataset,
+    flwdir: pyflwdir.FlwdirRaster,
+    data: dict = {},
+    fit: bool = False,
+    fill: bool = True,
+    fill_outliers: bool = True,
+    min_wth: float = 1,
+    mask_names: list = [],
+    predictor: str = "discharge",
+    rivwth_name: str = "rivwth",
+    obs_postfix: str = "_obs",
+    rivmsk_name: str = "rivmsk",
+    a: float | None = None,
+    b: float | None = None,
+    logger: logging.Logger = logger,
 ):
     """Calculate river width."""
     nopars = a is None or b is None  # no manual a, b parameters
@@ -451,12 +452,12 @@ def river_width(
     # get predictor
     logger.debug(f'Deriving predictor "{predictor}" values')
     if predictor == "discharge":
-        values, pars = _discharge(ds_like, flwdir=flwdir, **data)
+        values, pars = _discharge(ds_like, flwdir=flwdir, logger=logger, **data)
         if fit == False:
             a, b = pars
     # TODO: check units
     elif predictor == "precip":
-        values = _precip(ds_like, flwdir=flwdir, **data)
+        values = _precip(ds_like, flwdir=flwdir, logger=logger, **data)
     else:
         if predictor not in ds_like:
             raise ValueError(f"required {predictor} variable missing in grid.")
@@ -483,7 +484,7 @@ def river_width(
         val = values[mask]
         if fit:
             logger.info(f"Fitting power-law a,b parameters based on {predictor}")
-            a, b = _width_fit(wth, val, mask)
+            a, b = _width_fit(wth, val, mask, logger=logger)
         wsim = power_law(val, a, b)
         res = np.abs(wsim - wth)
         outliers = np.logical_and(res > 200, (res / wsim) > 1.0)
@@ -522,6 +523,7 @@ def _width_fit(
     val,
     mask,
     p0=[0.15, 0.65],
+    logger: logging.Logger = logger,
 ):  # rhine uparea based
     outliers = np.full(np.sum(mask), False, dtype=bool)
     a, b = None, None
@@ -560,7 +562,7 @@ def _width_fit(
     return a, b
 
 
-def _precip(ds_like, flwdir, da_precip):
+def _precip(ds_like, flwdir, da_precip, logger: logging.Logger = logger):
     """Do simple precipication method."""
     precip = (
         da_precip.raster.reproject_like(ds_like, method=RESAMPLING["precip"]).values
@@ -574,7 +576,7 @@ def _precip(ds_like, flwdir, da_precip):
     return accu_precip
 
 
-def _discharge(ds_like, flwdir, da_precip, da_climate):
+def _discharge(ds_like, flwdir, da_precip, da_climate, logger: logging.Logger = logger):
     """Do discharge method."""
     # read clim classes and regression parameters from data dir
     precip_fn = da_precip.name
