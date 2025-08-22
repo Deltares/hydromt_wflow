@@ -46,10 +46,10 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup pixi env
-        uses: prefix-dev/setup-pixi@v0.8.14
+        uses: prefix-dev/setup-pixi@v0.9.0
         with:
           pixi-version: "v0.47.0"
           environments: test-full-py${{ matrix.python-version }}
