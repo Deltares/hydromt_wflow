@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.4.0,<4"]
+requires      = ["flit_core >=3.4.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.sdist]
@@ -7,86 +7,86 @@ include = ["hydromt_wflow"]
 exclude = ["docs", "examples", "tests", ".github"]
 
 [project]
-name = "hydromt_wflow"
+name    = "hydromt_wflow"
 dynamic = ['version', 'description']
 
 authors = [
-	{ name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
-	{ name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
-	{ name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
-	{ name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
-	{ name = "Tjalling de Jong", email = "tjalling.dejong@deltares.nl" },
-	{ name = "Sam Vente", email = "sam.vente@deltares.nl" },
-	{ name = "Marnix Kraus", email = "marnix.kraus@deltares.nl" },
-	{ name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
+  { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
+  { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
+  { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
+  { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
+  { name = "Tjalling de Jong", email = "tjalling.dejong@deltares.nl" },
+  { name = "Sam Vente", email = "sam.vente@deltares.nl" },
+  { name = "Marnix Kraus", email = "marnix.kraus@deltares.nl" },
+  { name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
 ]
 
 readme = "README.rst"
 classifiers = [
-	"Development Status :: 4 - Beta",
-	"Intended Audience :: Developers",
-	"Intended Audience :: Science/Research",
-	"Topic :: Scientific/Engineering :: Hydrology",
-	"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-	"Programming Language :: Python :: 3",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Hydrology",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3",
 ]
 
 # Core dependencies
 requires-python = ">=3.10"
 dependencies = [
-	"dask",
-	"geopandas>=0.10",
-	"hydromt>=0.10.1,<0.11",
-	"numpy",
-	"pandas",
-	"pyflwdir>=0.5.7",
-	"pyproj",
-	"scipy",
-	"shapely",
-	"toml",
-	"xarray",
+  "dask",
+  "geopandas>=0.10",
+  "hydromt>=0.10.1,<0.11",
+  "numpy",
+  "pandas",
+  "pyflwdir>=0.5.7",
+  "pyproj",
+  "scipy",
+  "shapely",
+  "toml",
+  "xarray",
 ]
 
 # Optional dependencies
 [project.optional-dependencies]
 dev = ["pre-commit", "ruff"]
 docs = [
-	"nbsphinx",
-	"pydata-sphinx-theme",
-	"sphinx",
-	"sphinx_design",
-	"sphinx_autosummary_accessors",
-	"sbom4python",
+  "nbsphinx",
+  "pydata-sphinx-theme",
+  "sphinx",
+  "sphinx_design",
+  "sphinx_autosummary_accessors",
+  "sbom4python",
 ]
 extra = ["gwwapi", "hydroengine", "pyet", "wradlib"]
 examples = ["cartopy", "jupyterlab", "nbconvert", "notebook"]
 test = [
-	"pytest>=2.7.3",
-	"pytest-cov",
-	"pytest-mock",
-	"pytest-timeout",
-	"pytest-benchmark",
+  "pytest>=2.7.3",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest-timeout",
+  "pytest-benchmark",
 ]
 
 [project.entry-points."hydromt.models"]
-wflow = "hydromt_wflow.wflow:WflowModel"
+wflow          = "hydromt_wflow.wflow:WflowModel"
 wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
-Source = "https://github.com/Deltares/hydromt_wflow"
+Source        = "https://github.com/Deltares/hydromt_wflow"
 
 ## Pytest and coverage
 [tool.pytest.ini_options]
 filterwarnings = [
-	# Error on below warning(s), since this can result in significant bugs
-	"error::pandas.errors.SettingWithCopyWarning",
-	# Ignore below warning(s) for now. Check and resolve when hydromt v1 PR is done
-	"ignore::Warning:hydromt.*",
-	"ignore::Warning:wradlib.*",
-	"ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
-	# Ignore below warning(s), they are not raised in/caused by hydromt_wflow
-	"ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
+  # Error on below warning(s), since this can result in significant bugs
+  "error::pandas.errors.SettingWithCopyWarning",
+  # Ignore below warning(s) for now. Check and resolve when hydromt v1 PR is done
+  "ignore::Warning:hydromt.*",
+  "ignore::Warning:wradlib.*",
+  "ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
+  # Ignore below warning(s), they are not raised in/caused by hydromt_wflow
+  "ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
 ]
 testpaths = ["tests"]
 # don't run benchmarks by default when testing
@@ -99,16 +99,16 @@ source = ["./hydromt_wflow"]
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_also = [
-	# Don't complain about missing debug-only code:
-	"def __repr__",
-	"if self\\.debug",
+  # Don't complain about missing debug-only code:
+  "def __repr__",
+  "if self\\.debug",
 
-	# Don't complain if tests don't hit defensive assertion code:
-	"raise AssertionError",
-	"raise NotImplementedError",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
+  "raise NotImplementedError",
 
-	# Don't complain about abstract methods, they aren't run:
-	"@(abc\\.)?abstractmethod",
+  # Don't complain about abstract methods, they aren't run:
+  "@(abc\\.)?abstractmethod",
 ]
 ignore_errors = true
 
@@ -117,7 +117,7 @@ directory = ".cov"
 
 [tool.ruff]
 line-length = 88
-exclude = ["docs", "examples"]
+exclude     = ["docs", "examples"]
 
 [tool.ruff.lint]
 # enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
@@ -125,29 +125,29 @@ select = ["E", "F", "I", "PT", "D"]
 ignore = ["D105", "D211", "D213", "E712", "E741"]
 
 [tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-docstring-code-format = true
+quote-style                = "double"
+indent-style               = "space"
+docstring-code-format      = true
 docstring-code-line-length = 20
 
 [tool.ruff.lint.per-file-ignores]
-"hydromt_wflow/__init__.py" = ["E402", "F401", "F403"]
+"hydromt_wflow/__init__.py"           = ["E402", "F401", "F403"]
 "hydromt_wflow/workflows/__init__.py" = ["F403"]
-"tests/**" = ["D103", "D100", "D104"]
-"tests/conftest.py" = ["E402"]
+"tests/**"                            = ["D103", "D100", "D104"]
+"tests/conftest.py"                   = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 ## Pixi related entries
 [tool.pixi.project]
-channels = ["conda-forge"]
+channels  = ["conda-forge"]
 platforms = ["linux-64", "win-64"]
 
 ## The different tasks of this project
 [tool.pixi.tasks]
 # Installation
-install = { depends-on = ["install-pre-commit"] }
+install            = { depends-on = ["install-pre-commit"] }
 install-pre-commit = "pre-commit install"
 
 # Repo related tasks
@@ -158,11 +158,11 @@ docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
 
 # Clean up (some of) the temporary files
 clean = { depends-on = [
-	"clean-bin",
-	"clean-dist",
-	"clean-docs-build",
-	"clean-docs-example",
-	"clean-docs-gen",
+  "clean-bin",
+  "clean-dist",
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
 ] }
 clean-bin = { cmd = ["rm", "-rf", "bin"] }
 clean-dist = { cmd = ["rm", "-rf", "dist"] }
@@ -170,57 +170,57 @@ clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
 clean-docs = { depends-on = [
-	"clean-docs-build",
-	"clean-docs-example",
-	"clean-docs-gen",
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
 ] }
 
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
 generate-sbom = { cmd = [
-	"sbom4python",
-	"--module",
-	"hydromt_wflow",
-	"--output-file",
-	"hydromt-wflow-sbom.json",
-	"--sbom",
-	"spdx",
-	"--format",
-	"json",
+  "sbom4python",
+  "--module",
+  "hydromt_wflow",
+  "--output-file",
+  "hydromt-wflow-sbom.json",
+  "--sbom",
+  "spdx",
+  "--format",
+  "json",
 ] }
 
 docs-dummy = { cmd = [
-	"sphinx-build",
-	"./docs",
-	"./docs/_build",
-	"-b",
-	"dummy",
-	"-W",
+  "sphinx-build",
+  "./docs",
+  "./docs/_build",
+  "-b",
+  "dummy",
+  "-W",
 ] }
 docs-html = { cmd = [
-	"sphinx-build",
-	"-M",
-	"html",
-	"docs",
-	"docs/_build",
-	"-W",
+  "sphinx-build",
+  "-M",
+  "html",
+  "docs",
+  "docs/_build",
+  "-W",
 ] }
 doc = { depends-on = ["docs-html"] }
 docs = { depends-on = ["docs-html"] }
 docs-html-rebuild = { depends-on = ["clean-docs", "docs-html"] }
 serve = { cmd = [
-	"python",
-	"-m",
-	"http.server",
-	"8000",
-	"-d",
-	"docs/_build/html",
+  "python",
+  "-m",
+  "http.server",
+  "8000",
+  "-d",
+  "docs/_build/html",
 ] }
 
 ## Dependencies
 [tool.pixi.dependencies]
-h5py = "*"
-pip = "*"
+h5py     = "*"
+pip      = "*"
 pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
 # (<2.2 required by numba)
 
@@ -242,10 +242,10 @@ python = "3.10.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default = { features = ["py310", "dev", "docs", "examples", "extra", "test"] }
-docs = { features = ["docs", "examples", "extra"] }
-full = { features = ["extra"] }
-slim = { features = [] }
+default         = { features = ["py310", "dev", "docs", "examples", "extra", "test"] }
+docs            = { features = ["docs", "examples", "extra"] }
+full            = { features = ["extra"] }
+slim            = { features = [] }
 test-slim-py311 = { features = ["py311", "test"] }
 test-slim-py310 = { features = ["py310", "test"] }
 test-full-py311 = { features = ["py311", "extra", "test"] }
@@ -253,44 +253,44 @@ test-full-py310 = { features = ["py310", "extra", "test"] }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_full",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"wflow_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_full",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "wflow_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "examples" }
 build-example-model-sediment = { cmd = [
-	"hydromt",
-	"build",
-	"wflow_sediment",
-	"./wflow_test_sediment",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"wflow_sediment_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt",
+  "build",
+  "wflow_sediment",
+  "./wflow_test_sediment",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "wflow_sediment_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "examples" }
 build-example-model-clipped = { cmd = [
-	"hydromt",
-	"clip",
-	"wflow",
-	"wflow_piave_subbasin",
-	"./wflow_test_clip",
-	"{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}",
-	"-vv",
+  "hydromt",
+  "clip",
+  "wflow",
+  "wflow_piave_subbasin",
+  "./wflow_test_clip",
+  "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}",
+  "-vv",
 ], cwd = "examples" }
 build-example-models = { depends-on = [
-	"build-example-model-full",
-	"build-example-model-sediment",
-	"build-example-model-clipped",
+  "build-example-model-full",
+  "build-example-model-sediment",
+  "build-example-model-clipped",
 ] }
 
 # Testing
@@ -298,75 +298,75 @@ build-example-models = { depends-on = [
 test = { cmd = ["pytest"] }
 test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
 test-cov = { cmd = [
-	"pytest",
-	"--verbose",
-	"--cov=hydromt_wflow",
-	"--cov-report",
-	"xml",
+  "pytest",
+  "--verbose",
+  "--cov=hydromt_wflow",
+  "--cov-report",
+  "xml",
 ] }
 test-cov-local = { cmd = [
-	"pytest",
-	"--verbose",
-	"--cov",
-	"--cov-report",
-	"html",
+  "pytest",
+  "--verbose",
+  "--cov",
+  "--cov-report",
+  "html",
 ] }
 build-test-model-simple = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_simple",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"../examples/wflow_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_simple",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "../examples/wflow_build.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
 build-test-model-full = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_full",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"./data/wflow_piave_build_subbasin.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt",
+  "build",
+  "wflow",
+  "./wflow_test_full",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "./data/wflow_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
 build-test-model-sediment = { cmd = [
-	"hydromt",
-	"build",
-	"wflow_sediment",
-	"./wflow_test_sediment",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"./data/wflow_sediment_piave_build_subbasin.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt",
+  "build",
+  "wflow_sediment",
+  "./wflow_test_sediment",
+  "-r",
+  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
+  "-i",
+  "./data/wflow_sediment_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-vv",
 ], cwd = "tests" }
 build-test-models = { depends-on = [
-	"build-test-model-simple",
-	"build-test-model-full",
-	"build-test-model-sediment",
+  "build-test-model-simple",
+  "build-test-model-full",
+  "build-test-model-sediment",
 ] }
 
 benchmark = { cmd = ["pytest", "--benchmark-only"] }
 
 benchmark-record = { cmd = [
-	"pytest",
-	"--benchmark-only",
-	"--benchmark-autosave",
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-autosave",
 ] }
 
 benchmark-compare = { cmd = [
-	"pytest",
-	"--benchmark-only",
-	"--benchmark-compare",
-	"--benchmark-compare-fail=min:25%",
+  "pytest",
+  "--benchmark-only",
+  "--benchmark-compare",
+  "--benchmark-compare-fail=min:25%",
 ] }

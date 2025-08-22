@@ -5783,7 +5783,6 @@ change name input.path_forcing "
         with codecs.open(fn, "w", encoding="utf-8") as f:
             toml.dump(self.config, f)
 
-
     def set_config(self, *args):
         """
         Update the config toml at key(s) with values.

@@ -126,7 +126,7 @@ of the config.
                     # Indices are created before ordering for compatibility with
                     # raster.idx_to_xy
                     full_index = maps[
-                        f"{config['input'].get('subcatchment_location__count')}"
+                        f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
@@ -160,7 +160,7 @@ of the config.
                     # Else all the rest should be for the whole subcatchment
                     else:
                         mask = maps[
-                            f"{config['input'].get('subcatchment_location__count')}"
+                            f"{config['input'].get('subbasin_location__count')}"
                         ].copy()
                     # Rearrange the mask
                     res_x, res_y = mask.raster.res
