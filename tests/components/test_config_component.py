@@ -180,8 +180,9 @@ def test_wflow_config_component_read_default_write_mode(
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
 ):
+    caplog.set_level(logging.INFO)
     # Reading the template only happens in w and w+ modes
-    # Set it to read mode
+    # Set it to write mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="w"),
     )
@@ -196,11 +197,7 @@ def test_wflow_config_component_read_default_write_mode(
     # Read at init
     assert len(component.data) == 7
     assert component.data["dir_output"] == "run_default"
-    assert (
-        f"No config file found at {Path(tmp_path, component._filename).as_posix()} \
-defaulting to"
-        in caplog.text
-    )
+    assert "Reading default config file from " in caplog.text
 
 
 def test_wflow_config_component_read_warnings(
@@ -221,7 +218,7 @@ def test_wflow_config_component_read_warnings(
     component.read()
 
     # Check for the warning
-    assert "No default model config was found at" in caplog.text
+    assert "No config was found at" in caplog.text
     assert len(component.data) == 0
 
 

@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
@@ -113,6 +114,7 @@ def test_wflow_states_component_read(
     assert component._data is None
 
     # Read the data
+    type(component.model.config).get_value = MagicMock(return_value="")
     component.read()
 
     # Assert the read data
@@ -130,6 +132,7 @@ def test_wflow_states_component_read_init(
 
     # Setup the component
     component = WflowStatesComponent(mock_model)
+    type(component.model.config).get_value = MagicMock(return_value="")
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
@@ -146,6 +149,7 @@ def test_wflow_states_component_write(
     component._data = grid_dummy_data.to_dataset(name="test_layer")
 
     # Write to a file
+    type(component.model.config).get_value = MagicMock(return_value="")  # dir_input
     component.write()
 
     # Check if the file was created and has the expected content

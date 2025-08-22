@@ -1,12 +1,10 @@
 """Implement Wflow model class."""
 
 # Implement model class following model API
-
-import glob
 import logging
 import os
 import tomllib
-from os.path import basename, isfile, join
+from os.path import isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -18,7 +16,7 @@ import pyflwdir
 import pyproj
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import NoDataStrategy
+from hydromt._typing import ModeLike, NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
 from hydromt.model.processes.basin_mask import get_basin_geometry
@@ -34,6 +32,7 @@ from hydromt_wflow.components import (
     WflowGeomsComponent,
     WflowStatesComponent,
     WflowStaticmapsComponent,
+    WflowTablesComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.version_upgrade import (
@@ -72,6 +71,7 @@ class WflowModel(Model):
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
     _DATADIR = utils.DATADIR
+    _DEFAULT_TEMPLATE_FILENAME = join(_DATADIR, "wflow", "wflow_sbm.toml")
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
@@ -88,14 +88,13 @@ class WflowModel(Model):
             "config": WflowConfigComponent(
                 self,
                 filename=str(config_filename),
-                default_template_filename=join(
-                    self._DATADIR, "wflow", "wflow_sbm.toml"
-                ),
+                default_template_filename=self._DEFAULT_TEMPLATE_FILENAME,
             ),
             "forcing": WflowForcingComponent(self, region_component="staticmaps"),
             "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
             "states": WflowStatesComponent(self, region_component="staticmaps"),
             "staticmaps": WflowStaticmapsComponent(self),
+            "tables": WflowTablesComponent(self),
         }
 
         super().__init__(
@@ -109,6 +108,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._flwdir = None
+        self._results: dict | None = None
         self.data_catalog.from_yml(self._CATALOGS)
 
         # Supported Wflow.jl version
@@ -117,9 +117,6 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
-        # Read model from disk when in read mode
-        if mode == "r" or mode == "r+":
-            self.read(config_filename=config_filename)
 
     ## Properties
     # Components
@@ -147,6 +144,11 @@ class WflowModel(Model):
     def staticmaps(self) -> WflowStaticmapsComponent:
         """Return the staticmaps component."""
         return self.components["staticmaps"]
+
+    @property
+    def tables(self) -> WflowTablesComponent:
+        """Return the WflowTablesComponent instance."""
+        return self.components["tables"]
 
     # Non model component properties
     @property
@@ -353,9 +355,8 @@ class WflowModel(Model):
             hydrography_fn=hydrography_fn,
             resolution=res,
             basin_index_fn=basin_index_fn,
+            logger=logger,
         )
-        for name, _geom in geometries.items():
-            self.set_geoms(_geom, name=name)
 
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
@@ -373,6 +374,11 @@ class WflowModel(Model):
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
 
+        # Add basin geometries after grid is set to avoid warning
+        logger.info("Adding basin shape to staticgeoms.")
+        for name, _geom in geometries.items():
+            self.set_geoms(_geom, name=name)
+
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
         rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
@@ -383,7 +389,10 @@ class WflowModel(Model):
 
         # setup topography maps
         ds_topo = workflows.topography(
-            ds=ds_org, ds_like=self.staticmaps.data, method="average", logger=logger
+            ds=ds_org,
+            ds_like=self.staticmaps.data,
+            method="average",
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
@@ -512,7 +521,7 @@ class WflowModel(Model):
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            Name of the elevation map in the current WflowModel.grid.
+            Name of the elevation map in the current WflowModel.staticmaps.
             By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
@@ -639,13 +648,13 @@ Select from {routing_options}.'
             # update config
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
-        logger.debug("Adding rivers vector to geoms.")
+        logger.info("Adding rivers vector to geoms.")
         if "rivers" in self.geoms.data:
             self.geoms.pop("rivers")  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
-        logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
+        logger.info(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
             postfix = {
@@ -666,7 +675,7 @@ Select from {routing_options}.'
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=logger,
+                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
 
@@ -817,7 +826,6 @@ the value found in the grid ({new_river_upa})"
                 ds_model=self.staticmaps.data.rename(inv_rename),
                 river_upa=new_river_upa,
                 flood_depths=flood_depths,
-                logger=logger,
             )
 
             # check if the layer already exists, since overwriting with different
@@ -866,7 +874,7 @@ setting new flood_depth dimensions"
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=logger,
+                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
             # Update the bankfull elevation map
@@ -877,11 +885,11 @@ setting new flood_depth dimensions"
             )
 
         # Update config
-        logger.debug(
+        logger.info(
             f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
         )
         self.set_config("model.floodplain_1d__flag", floodplain_1d)
-        logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
+        logger.info(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
@@ -1048,8 +1056,8 @@ and will soon be removed. '
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
-            logger=logger,
             fit=fit,
+            logger=logger,
             **kwargs,
         )
         self.set_grid(da_rivwth, name=output_name)
@@ -1155,9 +1163,14 @@ and will soon be removed. '
         }
         self._update_naming(output_names)
 
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        # As landuse is not a wflow variable, we update the name manually
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1179,7 +1192,6 @@ and will soon be removed. '
             params=list(lulc_vars.keys()),
             logger=logger,
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
@@ -1304,9 +1316,15 @@ and will soon be removed. '
             for k, v in lulc_vars.items()
         }
         self._update_naming(output_names)
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+
+        # As landuse is not a wflow variable, we update the name manually
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -1340,7 +1358,6 @@ and will soon be removed. '
             lulc_out=lulc_out,
             logger=logger,
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
         # update config variable names
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
@@ -1410,7 +1427,7 @@ and will soon be removed. '
             maps, urban surfaces and bare areas can be included here as well.
             By default empty.
         buffer : int, optional
-            Buffer around the region to read the data, by default 2.
+            Buffer in pixels around the region to read the data, by default 2.
         output_name : str
             Name of the output vegetation__leaf-area_index map.
             By default "vegetation_leaf_area_index".
@@ -1797,6 +1814,7 @@ gauge locations [-] (if derive_subcatch)
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
+            # hydromt#1243
             # try to get epsg number directly, important when writing back data_catalog
             if hasattr(self.crs, "to_epsg"):
                 code = self.crs.to_epsg()
@@ -1806,7 +1824,7 @@ gauge locations [-] (if derive_subcatch)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
-                assert_gtype="Point",
+                # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -1815,7 +1833,7 @@ gauge locations [-] (if derive_subcatch)
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
-                    assert_gtype="Point",
+                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1823,6 +1841,7 @@ gauge locations [-] (if derive_subcatch)
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
+                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -2178,7 +2197,7 @@ gauge locations [-] (if derive_subcatch)
                     i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                    if isfile(rating_fn) or rating_fn in self.data_catalog.sources:
                         logger.info(
                             f"Preparing reservoir rating curve data from {rating_fn}"
                         )
@@ -2708,7 +2727,7 @@ using 'variable' argument."
             v: k for k, v in self._MAPS.items() if v in self.staticmaps.data.data_vars
         }
         ksatver_vegetation = workflows.ksatver_vegetation(
-            ds_like=self.ksatver_vegetation.rename(inv_rename),
+            ds_like=self.staticmaps.data.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
             beta=beta,
@@ -2914,9 +2933,15 @@ using 'variable' argument."
             output_names = {v: k for k, v in lulc_vars.items()}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
+
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
+            # rename dict for the staticmaps (hydromt names are not used in that case)
+            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
+            if "landuse" in lulc_vars:
+                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.staticmaps.data.data_vars:
@@ -2976,7 +3001,6 @@ using 'variable' argument."
             params=list(lulc_vars.keys()),
             logger=logger,
         )
-        rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
         self.set_grid(landuse_maps.rename(rmdict))
         # update config
         self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
@@ -3155,7 +3179,7 @@ using 'variable' argument."
                     f"Please check the name."
                 )
             # check if param is already in toml and will be overwritten
-            if self.get_config(wflow_var, None) is not None:
+            if self.get_config(wflow_var) is not None:
                 logger.info(
                     f"Parameter {wflow_var} already in toml and will be overwritten."
                 )
@@ -3283,7 +3307,7 @@ one variable and variables list is not provided."
             large/small catchments. By default None.
         **kwargs : dict, optional
             Additional arguments passed to the forcing function.
-            See hydromt.workflows.forcing.precip for more details.
+            See hydromt.model.processes.meteo.precip for more details.
         """
         starttime = self.get_config("time.starttime")
         endtime = self.get_config("time.endtime")
@@ -3654,42 +3678,42 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             ).squeeze()
             dem_forcing = dem_forcing.astype("float32")
 
-        temp_in = hydromt.workflows.forcing.temp(
+        temp_in = hydromt.model.processes.meteo.temp(
             ds["temp"],
             dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
-            logger=logger,
             freq=None,  # resample time after pet workflow
+            # logger = logger,
         )
 
         if (
             "penman-monteith" in pet_method
         ):  # also downscaled temp_min and temp_max for Penman needed
-            temp_max_in = hydromt.workflows.forcing.temp(
+            temp_max_in = hydromt.model.processes.meteo.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=logger,
                 freq=None,  # resample time after pet workflow
+                # logger = logger,
             )
             temp_max_in.name = "temp_max"
 
-            temp_min_in = hydromt.workflows.forcing.temp(
+            temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=logger,
                 freq=None,  # resample time after pet workflow
+                # logger = logger,
             )
             temp_min_in.name = "temp_min"
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in])
 
         if not skip_pet:
-            pet_out = hydromt.workflows.forcing.pet(
+            pet_out = hydromt.model.processes.meteo.pet(
                 ds[variables[1:]],
                 temp=temp_in,
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
@@ -3700,7 +3724,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
-                logger=logger,
+                # logger = logger,
             )
             # Update meta attributes with setup opt
             opt_attr = {
@@ -3715,7 +3739,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         if "penman-monteith" in pet_method:
             temp_in = temp_in["temp"]
         # resample temp after pet workflow
-        temp_out = hydromt.workflows.forcing.resample_time(
+        temp_out = hydromt.model.processes.meteo.resample_time(
             temp_in,
             freq,
             upsampling="bfill",  # we assume right labeled original data
@@ -3723,7 +3747,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             label="right",
             closed="right",
             conserve_mass=False,
-            logger=logger,
+            # logger = logger,
         )
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
@@ -3776,7 +3800,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             geom=self.region,
             buffer=2,
             variables=["pet"],
-            time_tuple=(starttime, endtime),
+            time_range=(starttime, endtime),
         )
         pet = pet.astype("float32")
 
@@ -3786,7 +3810,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
-            logger=logger,
+            # logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -4464,7 +4488,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 domestic_raw["time"] = domestic_raw.time.astype("int32")
             else:
-                logger.error(
+                raise ValueError(
                     "The provided domestic demand data is cyclic but the time "
                     "dimension does not match the expected length of 12, 365 or 366."
                 )
@@ -4558,7 +4582,7 @@ Run setup_soilmaps first"
         # Get population data
         popu = self.data_catalog.get_rasterdataset(
             population_fn,
-            bbox=self.bounds,
+            bbox=self.staticmaps.data.raster.bounds,
             buffer=1000,
         )
 
@@ -4658,7 +4682,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 demand_raw["time"] = demand_raw.time.astype("int32")
             else:
-                logger.error(
+                raise ValueError(
                     "The provided demand data is cyclic but the time dimension does "
                     "not match the expected length of 12, 365 or 366."
                 )
@@ -5103,7 +5127,7 @@ Run setup_soilmaps first"
         """
         states, states_config = workflows.prepare_cold_states(
             self.staticmaps.data,
-            config=self.config,
+            config=self.config.data,
             timestamp=timestamp,
             mask_name_land=self._MAPS["basins"],
             mask_name_river=self._MAPS["rivmsk"],
@@ -5130,8 +5154,6 @@ Run setup_soilmaps first"
 
         This function should be followed by write_config() to write the upgraded file.
         """
-        self.read()
-
         config_v0 = self.config.data.copy()
         config_out = convert_to_wflow_v1_sbm(self.config.data, logger=logger)
         # Update the config
@@ -5157,143 +5179,132 @@ Run setup_soilmaps first"
     @hydromt_step
     def write(
         self,
-        config_fn: str | None = None,
-        grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path = Path("staticgeoms"),
-        forcing_fn: Path | str | None = None,
-        states_fn: Path | str | None = None,
+        config_filename: str | None = None,
+        grid_filename: str | None = None,
+        geoms_folder: str | None = "staticgeoms",
+        forcing_filename: str | None = None,
+        states_filename: str | None = None,
     ):
         """
         Write the complete model schematization and configuration to file.
 
         From this function, the output filenames/folder of the different components can
         be set. If not set, the default filenames/folder are used.
+
         To change more advanced settings, use the specific write methods directly.
 
         Parameters
         ----------
-        config_fn : str, optional
-            Name of the config file, relative to model root. By default None.
-        grid_fn : str, optional
-            Name of the grid file, relative to model root/dir_input. By default
-            'staticmaps.nc'.
-        geoms_fn : str, optional
-            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
-            default 'staticgeoms'.
-        forcing_fn : str, optional
+        config_filename : str, optional
+            Name of the config file, relative to model root. By default None to use the
+            default name.
+        grid_filename : str, optional
+            Name of the grid file, relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        geoms_folder : str, optional
+            Name of the geoms folder relative to grid_filename (ie model
+            root/dir_input). By default 'staticgeoms'.
+        forcing_filename : str, optional
             Name of the forcing file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
-        states_fn : str, optional
+        states_filename : str, optional
             Name of the states file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         """
         logger.info(f"Write model data to {self.root.path}")
         # if in r, r+ mode, only write updated components
-        if not self.root.path.is_writing_mode():
+        if not self.root.is_writing_mode():
             logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
         if "staticmaps" in self.components:
-            self.staticmaps.write(filename=grid_fn)
+            self.write_grid(filename=grid_filename)
         if "geoms" in self.components:
-            geoms_fn = (
-                Path(geoms_fn)
-                if geoms_fn is not isinstance(geoms_fn, Path)
-                else geoms_fn
-            )
-            self.geoms.write(dir_out=geoms_fn)
+            self.write_geoms(folder=geoms_folder)
         if "forcing" in self.components:
-            self.forcing.write(filename=forcing_fn)
+            self.write_forcing(filename=forcing_filename)
         if "tables" in self.components:
-            self.tabeles.write()
+            self.write_tables()
         if "states" in self.components:
-            self.states.write(filename=states_fn)
+            self.write_states(filename=states_filename)
 
         # Write the config last as variables can get set in other write methods
-        self.config.write(path=config_fn)
+        self.write_config(filename=config_filename)
 
     @hydromt_step
     def read(
         self,
         config_filename: str | None = None,
-        staticmaps_filename: str | None = None,
-        geoms_filename: str | None = None,
+        geoms_folder: str = "staticgeoms",
     ):
         """Read components from disk.
+
+        From this function, the input filenames/folder of the config and geoms
+        components can be set. For the others, the filenames/folder as defined in the
+        config file are used.
+
+        To change more advanced settings, use the specific read methods directly.
 
         Parameters
         ----------
         config_filename : str | None, optional
-            config file name, by default None
-        staticmaps_filename : str | None, optional
-            static maps file name, by default None
-        geoms_filename : str | None, optional
-            geoms file name, by default None
+            Name of the config file, relative to model root. By default None to use the
+            default name.
+        geoms_folder : str | None, optional
+            Name of the geoms folder relative to grid_filename (ie model
+            root/dir_input). By default 'staticgeoms'.
         """
-        if not config_filename:
-            self.read_config()
-        else:
-            self.read_config(config_filename)
-        if not staticmaps_filename:
-            self.read_staticmaps()
-        else:
-            self.read_staticmaps(staticmaps_filename)
-        if not geoms_filename:
-            self.read_geoms()
-        else:
-            self.read_geoms(geoms_filename)
+        self.read_config(filename=config_filename)
+        self.read_grid()
+        self.read_geoms(folder=geoms_folder)
+        self.read_forcing()
         self.read_states()
+        self.read_tables()
 
     @hydromt_step
     def read_config(
         self,
-        config_filename: str | None = None,
+        filename: str | None = None,
     ):
         """
-        Read config from <root/config_filename>.
+        Read config from <root/filename>.
 
         Parameters
         ----------
-        config_filename : str, optional
+        filename : str, optional
             Name of the config file. By default None to use the default name
             wflow_sbm.toml.
         """
         # Call the component
-        self.config.read(config_filename)
+        self.config.read(filename)
 
     @hydromt_step
     def write_config(
         self,
-        config_filename: str | None = None,
+        filename: str | None = None,
         config_root: Path | str | None = None,
     ):
         """
-        Write config to <root/config_fn>.
+        Write config to <(config_)root/config_fn>.
 
         Parameters
         ----------
-        config_name : str, optional
+        filename : str, optional
             Name of the config file. By default None to use the default name
             wflow_sbm.toml.
         config_root : str, optional
             Root folder to write the config file if different from model root (default).
             Can be absolute or relative to model root.
         """
-        # TODO is a compat method, remove in future
-        # Bridge the diff in api
-        p = config_filename or self.config._filename
-        if config_root is not None:
-            p = Path(config_root, p)
         # Call the component
-        self.config.write(p)
+        self.config.write(filename, config_root)
 
-    def read_staticmaps(
+    def read_grid(
         self,
-        filename: Path | str | None = None,
         **kwargs,
     ):
-        """Read staticmaps model data.
+        """Read grid model data.
 
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
@@ -5302,30 +5313,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        filename : str, optional
-            Name or path to the staticmaps file to be read.
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("input.path_static")
-            or self.staticmaps._filename
-        )
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
-
         # Call the component method
-        self.staticmaps.read(filename=p_input, **kwargs)
+        self.staticmaps.read(**kwargs)
 
     @hydromt_step
-    def write_staticmaps(
+    def write_grid(
         self,
-        filename: Path | str | None = None,
+        filename: str | None = None,
         **kwargs,
     ):
         """
@@ -5334,6 +5331,8 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
+
+        If filename is supplied, the config will be updated.
 
         Parameters
         ----------
@@ -5344,24 +5343,8 @@ Run setup_soilmaps first"
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
-        # Solve pathing same as read
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("input.path_static")
-            or self.staticmaps._filename
-        )
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
-
         # Call the component write method
-        self.staticmaps.write(filename=p_input, **kwargs)
-
-        # Set the config entry to the correct path
-        self.config.set(
-            "input.path_static",
-            Path(self.root.path, p_input).as_posix(),
-        )
+        self.staticmaps.write(filename=filename, **kwargs)
 
     def set_grid(
         self,
@@ -5400,7 +5383,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_geoms(
         self,
-        geoms_filename: str = "staticgeoms",
+        folder: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -5412,21 +5395,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_filename : str, optional
+        folder : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
-        input_dir = join(
-            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_filename,
-        )
-        pattern = join(input_dir, "*.geojson")
-        self.geoms.read(filename=pattern)
+        self.geoms.read(folder=folder)
 
     @hydromt_step
     def write_geoms(
         self,
-        geoms_fn: str = "staticgeoms",
+        folder: str = "staticgeoms",
         precision: int | None = None,
         to_wgs84: bool = False,
         **kwargs: dict,
@@ -5440,7 +5418,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_fn : str, optional
+        folder : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         precision : int, optional
@@ -5450,16 +5428,12 @@ Run setup_soilmaps first"
             If True, geometries are transformed to WGS84 before writing. By default
             False, which means geometries are written in their original CRS.
         """
-        input_dir = join(
-            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_fn,
-        )
-
+        # Call the component write method
         self.geoms.write(
-            dir_out=Path(input_dir).resolve(),
+            folder=folder,
             to_wgs84=to_wgs84,
             precision=precision,
-            kwargs=kwargs,
+            **kwargs,
         )
 
     def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
@@ -5476,7 +5450,6 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_forcing(
         self,
-        filename: str = None,
         **kwargs,
     ):
         """
@@ -5488,31 +5461,14 @@ Run setup_soilmaps first"
 
         If several files are used using '*' in ``input.path_forcing``, all corresponding
         files are read and merged into one xarray dataset before being split to one
-        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
+        xarray DataArray per forcing variable in the hydromt ``forcing`` dictionary.
 
         Parameters
         ----------
-        filename : str, optional
-            Name or path to the forcing file(s) to be read.
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default from component
-        rel_path = (
-            filename
-            or self.config.get_value("input.path_forcing")
-            or self.forcing._filename
-        )
-        dir_input = self.config.get_value("dir_input", abs_path=True) or self.root.path
-        # hydrom:: GridComponent.read() requires filename to be relative to model root.
-        # To allow us to include `dir_input`: filepath has to be relative to model root.
-        filepath = Path(dir_input, rel_path).resolve()
-        self.forcing.read(
-            filename=filepath.relative_to(self.root.path, walk_up=True), **kwargs
-        )
+        self.forcing.read(**kwargs)
 
     @hydromt_step
     def write_forcing(
@@ -5525,24 +5481,24 @@ Run setup_soilmaps first"
         overwrite: bool = False,
         **kwargs,
     ):
-        """Write forcing at ``fn_out`` in model ready format.
+        """Write forcing at <root/dir_input/filename> in model ready format.
 
-        If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,
+        If no ``filename` path is provided and path_forcing from the wflow toml exists,
         the following default filenames are used:
 
-            * Default name format (with downscaling): \
-inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-            * Default name format (no downscaling): \
-inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+            * Default name format (with downscaling):
+              inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling):
+              inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
-        fn_out : Path | str, optional
+        filename : Path | str, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
         output_frequency : str (Offset), optional
-            Write several files for the forcing according to fn_freq. For example 'Y'
-            for one file per year or 'M' for one file per month.
+            Write several files for the forcing according to output_frequency. For
+            example 'Y' for one file per year or 'M' for one file per month.
             By default writes the one file.
             For more options, \
 see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
@@ -5551,36 +5507,24 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
+        decimals : int, optional
+            Number of decimals to use when writing the forcing data.
+            By default 2.
+        overwrite : bool, optional
+            Whether to overwrite existing files. By default False.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
-        # Solve pathing same as read
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        filename = (
-            filename
-            or self.config.get_value("input.path_forcing")
-            or self.forcing._filename
-        )
-        # Check for input dir
-        input_dir = self.get_config("dir_input", abs_path=True) or self.root.path
-        filepath = Path(input_dir, filename).resolve()
-
         # Call the component
-        filepath, starttime, endtime = self.forcing.write(
-            filename=filepath.relative_to(self.root.path, walk_up=True),
+        self.forcing.write(
+            filename=filename,
             output_frequency=output_frequency,
-            starttime=self.config.get_value("time.starttime"),
-            endtime=self.config.get_value("time.endtime"),
             time_chunk=time_chunk,
             time_units=time_units,
             decimals=decimals,
             overwrite=overwrite,
             **kwargs,
         )
-        # Set back to the config
-        self.config.set("input.path_forcing", filepath.as_posix())
-        self.config.set("time.starttime", starttime.strftime("%Y-%m-%dT%H:%M:%S"))
-        self.config.set("time.endtime", endtime.strftime("%Y-%m-%dT%H:%M:%S"))
 
     def set_forcing(
         self,
@@ -5599,18 +5543,10 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         and ``dir_input``. If not found uses the default path ``instate/instates.nc``
         in the root folder.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = self.config.get_value("state.path_input") or self.states._filename
-        # Check for input dir
-        p_input = join(self.config.get_value("dir_input", fallback=""), p)
-
-        self.states.read(
-            filename=p_input,
-        )
+        self.states.read()
 
     @hydromt_step
-    def write_states(self, filename: str | Path | None = None):
+    def write_states(self, filename: str | None = None):
         """
         Write states at <root/dir_input/state.path_input> in model ready format.
 
@@ -5626,21 +5562,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             Name of the states file, relative to model root and ``dir_input`` if any.
             By default None to use the name as defined in the model config file.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("state.path_input")
-            or self.states._filename
-        )
-        # Check for output dir
-        p_output = join(self.config.get_value("dir_input", fallback=""), p)
-
-        # Update the config
-        self.config.set("state.path_input", p)
-
         # Write
-        self.states.write(filename=p_output)
+        self.states.write(filename=filename)
 
     def set_states(
         self,
@@ -5668,16 +5591,21 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         # fall back on default set_states behaviour
         self.states.set(data, name=name)
 
+    @property
+    def results(self) -> Dict[str, xr.Dataset | xr.DataArray]:
+        """Model results. Returns dict of xarray.DataArray or xarray.Dataset."""
+        if self._results is None:
+            self._initialize_results()
+        return self._results
+
     @hydromt_step
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
-        if not self._write:
+        if self.root.is_reading_mode():
             # start fresh in read-only mode
             self._results = dict()
 
-        output_dir = ""
-        if self.get_config("dir_output") is not None:
-            output_dir = self.get_config("dir_output")
+        output_dir = self.get_config("dir_output", fallback="")
 
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.netcdf_grid.path", abs_path=True)
@@ -5705,53 +5633,116 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.staticmaps.data
+                csv_fn, config=self.config.data, maps=self.staticmaps.data
             )
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
 
+    def set_results(
+        self,
+        data: xr.DataArray | xr.Dataset,
+        name: str | None = None,
+        split_dataset: bool | None = False,
+    ):
+        """Add data to results attribute.
+
+        Dataset can either be added as is (default) or split into several
+        DataArrays using the split_dataset argument.
+
+        Arguments
+        ---------
+        data: xarray.Dataset or xarray.DataArray
+            New forcing data to add
+        name: str, optional
+            Results name, required if data is xarray.Dataset and split_dataset=False.
+        split_dataset: bool, optional
+            If True (False by default), split a Dataset to store each variable
+            as a DataArray.
+        """
+
+        def _check_data(
+            _data: xr.DataArray | xr.Dataset,
+            _name: str | None = None,
+            split_dataset: bool = True,
+        ) -> dict:
+            if isinstance(_data, xr.DataArray):
+                # NOTE _name can be different from _data.name !
+                if _data.name is None and _name is not None:
+                    _data.name = _name
+                elif _name is None and _data.name is not None:
+                    _name = _data.name
+                elif _data.name is None and _name is None:
+                    raise ValueError("Name required for DataArray.")
+                _data = {_name: _data}
+            elif isinstance(_data, xr.Dataset):  # return dict for consistency
+                if split_dataset:
+                    _data = {_name: _data[_name] for _name in _data.data_vars}
+                elif _name is None:
+                    raise ValueError("Name required for Dataset.")
+                else:
+                    _data = {_name: _data}
+            else:
+                raise ValueError(f'Data type "{type(_data).__name__}" not recognized')
+            return _data
+
+        self._initialize_results()
+        data_dict = _check_data(data, name, split_dataset)
+        for name in data_dict:
+            if name in self._results:
+                logger.warning(f"Replacing result: {name}")
+            self._results[name] = data_dict[name]
+
+    def _initialize_results(self, skip_read=False) -> None:
+        """Initialize results."""
+        if self._results is None:
+            self._results = dict()
+            if self.root.is_reading_mode() and not skip_read:
+                self.read_results()
+
     @hydromt_step
     def write_results(self):
         """Write results at <root/?/> in model ready format."""
-        if not self._write:
+        if not self.root.is_writing_mode():
             raise IOError("Model opened in read-only mode")
 
     @hydromt_step
     def read_tables(self, **kwargs):
-        """Read table files at <root> and parse to dict of dataframes."""
-        if not self._write:
-            self._tables = dict()  # start fresh in read-only mode
+        """Read table files at <root> and parse to dict of dataframes.
 
-        logger.info("Reading model table files.")
-        fns = glob.glob(join(self.root.path, "*.csv"))
-        if len(fns) > 0:
-            for fn in fns:
-                name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn, float_precision="round_trip")
-                self.set_tables(tbl, name=name)
+        Parameters
+        ----------
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `pd.read_csv` method
+
+        Returns
+        -------
+        None
+            The tables are read and stored in the `self.tables.data` attribute.
+        """
+        self.tables.read(float_precision="round_trip", **kwargs)
 
     @hydromt_step
     def write_tables(self):
         """Write tables at <root>."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.tables:
-            logger.info("Writing table files.")
-            for name in self.tables:
-                fn_out = join(self.root.path, f"{name}.csv")
-                self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
+        self.tables.write()
 
-    def set_tables(self, df, name):
+    def set_tables(self, df: pd.DataFrame, name: str):
         """Add table <pandas.DataFrame> to model."""
-        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-            raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self._tables:
-            if not self._write:
-                raise IOError(f"Cannot overwrite table {name} in read-only mode")
-            elif self._read:
-                logger.warning(f"Overwriting table: {name}")
-        self._tables[name] = df
+        self.tables.set(tables=df, name=name)
+
+    def set_root(self, root: Path | str, mode: ModeLike = "w"):
+        """Set the model root folder.
+
+        Parameters
+        ----------
+        root : Path, str
+            Path to the model root folder.
+        mode : str, optional
+            Mode to open the model root folder, by default 'w'.
+            Can be 'r' for read-only or 'r+' for read-write.
+        """
+        self.root.set(root, mode=mode)
 
     def get_config(
         self,
@@ -5914,15 +5905,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
 
     ## WFLOW specific data and method
     @property
-    # Move to core Model API ?
-    def tables(self):
-        """Return a dictionary of pandas.DataFrames representing wflow csv files."""
-        if not self._tables:
-            self.read_tables()
-        return self._tables
-
-    @property
-    def flwdir(self):
+    def flwdir(self) -> pyflwdir.FlwdirRaster:
         """Return the pyflwdir.FlwdirRaster object parsed from wflow ldd."""
         if self._flwdir is None:
             self.set_flwdir()
@@ -5941,10 +5924,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
     ## WFLOW specific modification (clip for now) methods
 
     @hydromt_step
-    def clip_staticmaps(
-        self, region, buffer=0, align=None, crs=4326, inverse_clip=False
-    ):
-        """Clip staticmaps to subbasin.
+    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
+        """Clip grid to subbasin.
 
         Parameters
         ----------
@@ -5984,7 +5965,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 kind=kind,
                 basins_name=basins_name,
                 flwdir_name=flwdir_name,
-                **region,
+                **region_kwargs,
             )
         elif kind == "bbox":
             logger.warning(
@@ -6023,7 +6004,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         if self.crs is None and crs is not None:
             self.set_crs(crs)
 
-        self._grid = xr.Dataset()
+        self.staticmaps._data = xr.Dataset()
         self.set_grid(ds_grid)
 
         # add pits at edges after clipping
@@ -6031,7 +6012,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         self.staticmaps.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
         # Reinitiliase geoms and re-create basins/rivers
-        self._geoms = dict()
+        self.geoms.clear()
         self.basins
         self.rivers
 
@@ -6071,14 +6052,14 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
 
             # Update tables
             ids = np.unique(reservoir)
-            self._tables = {
-                k: v
-                for k, v in self.tables.items()
-                if not any([str(x) in k for x in ids])
-            }
+            for res_id in ids:
+                keys_to_remove = [k for k in self.tables.data if str(res_id) in k]
+                for key in keys_to_remove:
+                    del self.tables._tables[key]
 
-    def clip_forcing(self, crs=4326, **kwargs):
-        """Return clippped forcing for subbasin.
+    @hydromt_step
+    def clip_forcing(self):
+        """Return clipped forcing for subbasin.
 
         Returns
         -------
@@ -6102,9 +6083,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         xarray.DataSet
             Clipped states.
         """
-        if len(self.states) > 0:
+        if len(self.states.data) > 0:
             logger.info("Clipping NetCDF states..")
-            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+            ds_states = self.states.data.raster.clip_bbox(
                 self.staticmaps.data.raster.bounds
             )
             # Check for reservoirs presence in the clipped model
@@ -6118,4 +6099,6 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     remove_maps.extend([state_name])
 
             ds_states = ds_states.drop_vars(remove_maps)
+
+            self.states._data = xr.Dataset()  # Clear existing states
             self.set_states(ds_states)

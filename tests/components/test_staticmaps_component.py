@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
@@ -8,6 +9,7 @@ import xarray as xr
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowStaticmapsComponent
+from hydromt_wflow.wflow import WflowModel
 
 
 @pytest.fixture
@@ -137,7 +139,7 @@ def test_wflow_staticmaps_component_set_warnings(
     cyclic_layer: xr.DataArray,
     cyclic_layer_large: xr.DataArray,
 ):
-    caplog.set_level(logging.WARNING)
+    caplog.set_level(logging.INFO)
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
 
@@ -200,12 +202,11 @@ def test_wflow_staticmaps_component_update_names_warming(
 
 
 def test_wflow_staticmaps_component_read(
-    tmp_path: Path,
-    mock_model: MagicMock,
-    static_file: Path,
+    mock_model_factory: Callable[[Path, str], WflowModel],
+    model_subbasin_cached: Path,
 ):
     # Set the root to model dir in read mode
-    mock_model.root = ModelRoot(tmp_path, mode="r+")
+    mock_model = mock_model_factory(path=model_subbasin_cached, mode="r")
 
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
@@ -213,12 +214,13 @@ def test_wflow_staticmaps_component_read(
     assert component._data is None
 
     # Read the data
-    component.read(filename=static_file)
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.read()
 
     # Assert the data
     assert isinstance(component.data, xr.Dataset)
-    assert "layer1" in component.data.data_vars
-    assert len(component.data) == 2  # 2 layers
+    assert "meta_landuse" in component.data.data_vars
+    assert len(component.data) == 69  # 69 layers
 
 
 def test_wflow_staticmaps_component_read_empty(
@@ -236,6 +238,7 @@ def test_wflow_staticmaps_component_read_empty(
     assert component._data is None
 
     # Read the data
+    type(component.model.config).get_value = MagicMock(return_value="")
     component.read()
     # Assert that its an emptry Dataset
     assert isinstance(component.data, xr.Dataset)
@@ -253,6 +256,7 @@ def test_wflow_staticmaps_component_write(
     component._data = static_layer.to_dataset(name="layer1")
 
     # Write the data
+    type(component.model.config).get_value = MagicMock(return_value="")  # dir_input
     component.write()
 
     # Assert the output (and config)

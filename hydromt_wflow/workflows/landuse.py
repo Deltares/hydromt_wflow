@@ -39,7 +39,7 @@ def landuse(
     ds_like: xr.Dataset,
     df: pd.DataFrame,
     params: Optional[List] = None,
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """Return landuse map and related parameter maps.
 
@@ -99,7 +99,7 @@ def landuse_from_vector(
     all_touched: bool = False,
     buffer: int = 1000,
     lulc_out: Optional[str] = None,
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -131,8 +131,6 @@ def landuse_from_vector(
         1000.
     lulc_out : str, optional
         Path to save the rasterised original landuse map to file, by default None.
-    logger : logging.Logger, optional
-        Logger object.
 
     Returns
     -------
@@ -183,7 +181,7 @@ def landuse_from_vector(
     return ds_out
 
 
-def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
+def lai(da: xr.DataArray, ds_like: xr.Dataset, logger: logging.Logger = logger):
     """Return climatology of Leaf Area Index (LAI).
 
     The following maps are calculated:
@@ -221,7 +219,7 @@ def create_lulc_lai_mapping_table(
     da_lai: xr.DataArray,
     sampling_method: str = "any",
     lulc_zero_classes: List[int] = [],
-    logger=logger,
+    logger: logging.Logger = logger,
 ) -> pd.DataFrame:
     """
     Derive LAI values per landuse class.
@@ -367,7 +365,7 @@ def lai_from_lulc_mapping(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    logger=logger,
+    logger: logging.Logger = logger,
 ) -> xr.Dataset:
     """
     Derive LAI values from a landuse map and a mapping table.
@@ -381,8 +379,6 @@ def lai_from_lulc_mapping(
     df : pd.DataFrame
         Mapping table with LAI values per landuse class. One column for each month and
         one line per landuse class.
-    logger : logging.Logger, optional
-        Logger object.
 
     Returns
     -------
@@ -473,7 +469,7 @@ def add_planted_forest_to_landuse(
     planted_forest_c: float = 0.0881,
     orchard_name: str = "Orchard",
     orchard_c: float = 0.2188,
-    logger=logger,
+    logger: logging.Logger = logger,
 ) -> xr.DataArray:
     """
     Update USLE C map with planted forest and orchard data.

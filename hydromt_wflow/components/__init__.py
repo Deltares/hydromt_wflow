@@ -1,10 +1,11 @@
 """Wflow model components submodule."""
 
-from .config import WflowConfigComponent
-from .forcing import WflowForcingComponent
-from .geoms import WflowGeomsComponent
-from .states import WflowStatesComponent
-from .staticmaps import WflowStaticmapsComponent
+from hydromt_wflow.components.config import WflowConfigComponent
+from hydromt_wflow.components.forcing import WflowForcingComponent
+from hydromt_wflow.components.geoms import WflowGeomsComponent
+from hydromt_wflow.components.states import WflowStatesComponent
+from hydromt_wflow.components.staticmaps import WflowStaticmapsComponent
+from hydromt_wflow.components.tables import WflowTablesComponent
 
 __all__ = [
     "WflowConfigComponent",
@@ -12,4 +13,5 @@ __all__ = [
     "WflowGeomsComponent",
     "WflowStatesComponent",
     "WflowStaticmapsComponent",
+    "WflowTablesComponent",
 ]

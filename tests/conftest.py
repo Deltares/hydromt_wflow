@@ -3,6 +3,7 @@
 import platform
 from os.path import abspath, dirname, join
 from pathlib import Path
+from typing import Callable
 
 import geopandas as gpd
 import numpy as np
@@ -10,7 +11,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt._io import _config_read
+from hydromt.cli._utils import parse_config
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
@@ -24,6 +25,11 @@ if platform.system().lower() != "windows":
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
+
+# This is the recommended by pandas and will become default behaviour in pandas 3.0.
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+pd.options.mode.copy_on_write = True
 
 
 ## Cached data and models
@@ -57,6 +63,21 @@ def example_wflow_model():
 
 
 @pytest.fixture
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]:
+    def factory(
+        root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
+        mode: str = "r",
+        data_libs: list[str] = [
+            "artifact_data",
+            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
+        ],
+    ) -> WflowModel:
+        return WflowModel(root=root, mode=mode, data_libs=data_libs)
+
+    return factory
+
+
+@pytest.fixture
 def example_sediment_model():
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
@@ -68,7 +89,7 @@ def example_sediment_model():
 
 
 @pytest.fixture
-def example_models(example_wflow_model, example_sediment_model):
+def example_models(example_wflow_model: WflowModel, example_sediment_model):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
@@ -80,24 +101,21 @@ def example_models(example_wflow_model, example_sediment_model):
 @pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
-    opt = _config_read(config)
-    # opt = parse_config(config)
+    opt = parse_config(config)
     return opt
 
 
 @pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
-    opt = _config_read(config)
-    # opt = parse_config(config)
+    opt = parse_config(config)
     return opt
 
 
 @pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
-    opt = _config_read(config)
-    # opt = parse_config(config)
+    opt = parse_config(config)
     return opt
 
 
@@ -115,7 +133,7 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 def example_wflow_results():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn)
+    mod = WflowModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 
@@ -207,9 +225,12 @@ def gdf_precip_stations():
 
 
 @pytest.fixture
-def da_pet(example_wflow_model):
+def da_pet(example_wflow_model: WflowModel):
     da = example_wflow_model.data_catalog.get_rasterdataset(
-        "era5", geom=example_wflow_model.region, buffer=2, variables=["temp"]
+        "era5",
+        geom=example_wflow_model.region,
+        buffer=2,
+        variables=["temp"],
     )
     da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle
     da.name = "pet"

@@ -23,7 +23,7 @@ def gauge_map_uparea(
     rel_error: float = 0.05,
     abs_error: float = 50,
     fillna: bool = False,
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Snap point locations to grid cell.
@@ -138,7 +138,7 @@ def gauge_map_uparea(
         ids=ids_out,
         stream=None,
         flwdir=None,
-        logger=logger,
+        # logger=logger,
     )
 
     # Final message

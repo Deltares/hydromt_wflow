@@ -34,7 +34,7 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -128,7 +128,7 @@ parametrization of distributed hydrological models.
             "upstream area or stream order to snap the outlet."
         )
     else:
-        logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
+        logger.info(f"(Sub)basin at original resolution has {ncells} cells.")
 
     if scale_ratio > 1:  # upscale flwdir
         if flwdir is None:
@@ -263,19 +263,22 @@ parametrization of distributed hydrological models.
     xy_pit_str = ", ".join([f"({x:.5f},{y:.5f})" for x, y in zip(*xy_pit)])
     # stream order
     if strord_name not in ds_out.data_vars:
-        logger.debug("Derive stream order.")
+        logger.info("Derive stream order.")
         strord = flwdir_out.stream_order()
         ds_out[strord_name] = xr.Variable(dims, strord)
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
     ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
+    # also mask idx_out coords if present
+    if "idx_out" in ds_out:
+        ds_out["idx_out"] = ds_out["idx_out"].where(
+            ds_out[basins_name], ds_out["idx_out"].raster.nodata
+        )
 
     ds_out.raster.set_crs(ds.raster.crs)
-    logger.debug(
-        f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
-    )
-    logger.debug(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
+    logger.info(f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}.")
+    logger.info(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
     if np.any(np.asarray(ds_out.raster.shape) == 1):
         raise ValueError(
             "The output extent at model resolution should at least consist of two "
@@ -309,7 +312,7 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """Return topography maps (see list below) at model resolution.
 
@@ -342,8 +345,9 @@ def topography(
     --------
     pyflwdir.dem.slope
     """
+    logger.info("Derive elevation and slope.")
     if lndslp_name not in ds.data_vars:
-        logger.debug(f"Slope map {lndslp_name} not found: derive from elevation map.")
+        logger.info(f"Slope map {lndslp_name} not found: derive from elevation map.")
         crs = ds[elevtn_name].raster.crs
         nodata = ds[elevtn_name].raster.nodata
         ds[lndslp_name] = xr.Variable(
@@ -371,6 +375,7 @@ def parse_region(
     hydrography_fn: str | xr.Dataset,
     resolution: float | int = 1 / 120.0,
     basin_index_fn: str | xr.Dataset | None = None,
+    logger: logging.Logger = logger,
 ) -> tuple[dict[str, gpd.GeoDataFrame], Optional[np.ndarray], xr.Dataset]:
     """Parse the region dictionary to get basin geometry and coordinates."""
     ds_org = data_catalog.get_rasterdataset(hydrography_fn)
@@ -424,7 +429,7 @@ def parse_region(
             ds=ds_org,
             kind=kind,
             basin_index=bas_index,
-            **region,
+            **region_kwargs,
         )
     elif kind == "bbox":
         logger.warning(
@@ -448,7 +453,6 @@ def parse_region(
         raise ValueError("wflow region geometry has no CRS")
 
     # Set the basins geometry
-    logger.debug("Adding basins vector to geoms.")
     ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
     ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 

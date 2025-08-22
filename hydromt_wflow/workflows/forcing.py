@@ -18,7 +18,7 @@ def pet(
     freq: str = "D",
     mask_name: Optional[str] = None,
     chunksize: Optional[int] = None,
-    logger: Optional[logging.Logger] = logger,
+    # logger: logging.Logger = logger,
 ) -> xr.DataArray:
     """
     Resample and reproject PET to the grid of ds_like.
@@ -58,7 +58,7 @@ def pet(
     # resample time
     resample_kwargs = dict(label="right", closed="right")
     if freq is not None:
-        resample_kwargs.update(upsampling="bfill", downsampling="sum", logger=logger)
+        resample_kwargs.update(upsampling="bfill", downsampling="sum")  # logger=logger
         pet_out = resample_time(pet_out, freq, conserve_mass=True, **resample_kwargs)
         # nodata is lost in resampling, set it back
         pet_out.raster.set_nodata(np.nan)
@@ -86,7 +86,7 @@ def spatial_interpolation(
     src_drift: Optional[np.ndarray] = None,
     trg_drift: Optional[np.ndarray] = None,
     mask_name: Optional[str] = None,
-    logger: Optional[logging.Logger] = logger,
+    logger: logging.Logger = logger,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.

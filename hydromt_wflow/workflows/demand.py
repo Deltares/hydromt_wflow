@@ -626,7 +626,7 @@ def irrigation(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy.
@@ -706,7 +706,7 @@ def irrigation_from_vector(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy from geodataframe.

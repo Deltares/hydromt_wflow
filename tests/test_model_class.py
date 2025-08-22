@@ -21,26 +21,28 @@ _supported_models: dict[str, type[WflowModel]] = {
 }
 
 
-def _compare_wflow_models(mod0, mod1):
+def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}
-    if mod0._grid is not None:
-        maps = mod0.grid.raster.vars
+    if mod0.staticmaps._data:
+        maps = mod0.staticmaps.data.raster.vars
         assert np.all(mod0.crs == mod1.crs), "map crs grid"
         # check on dims names and values
-        for dim in mod1._grid.dims:
+        for dim in mod1.staticmaps.data.dims:
             try:
-                xr.testing.assert_identical(mod1._grid[dim], mod0._grid[dim])
+                xr.testing.assert_identical(
+                    mod1.staticmaps.data[dim], mod0.staticmaps.data[dim]
+                )
             except AssertionError:
                 raise AssertionError(f"dim {dim} in map not identical")
 
         for name in maps:
-            map0 = mod0.grid[name].fillna(0)
-            if name not in mod1.grid:
+            map0 = mod0.staticmaps.data[name].fillna(0)
+            if name not in mod1.staticmaps.data:
                 invalid_maps[name] = "KeyError"
                 continue
-            map1 = mod1.grid[name].fillna(0)
+            map1 = mod1.staticmaps.data[name].fillna(0)
             if (
                 not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
                 or map0.dtype != map1.dtype
@@ -77,10 +79,10 @@ def _compare_wflow_models(mod0, mod1):
     # ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
-    if mod0._geoms:
-        for name in mod0.geoms:
-            geom0 = mod0.geoms[name]
-            geom1 = mod1.geoms[name]
+    if mod0.geoms._data:
+        for name in mod0.geoms.data:
+            geom0 = mod0.geoms.get(name)
+            geom1 = mod1.geoms.get(name)
             assert geom0.index.size == geom1.index.size
             assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
             assert geom0.columns.size == geom1.columns.size
@@ -91,19 +93,14 @@ def _compare_wflow_models(mod0, mod1):
             if not np.all(geom0.geometry == geom1.geometry):
                 warnings.warn(f"New geom {name} different than the example one.")
     # check config
-    if mod0._config:
+    if mod0.config._data:
         # flatten
-        assert mod0._config == mod1._config, "config mismatch"
+        assert mod0.config.data == mod1.config.data, "config mismatch"
 
 
-@pytest.mark.parametrize("model", list(_supported_models.keys()))
-def test_model_class(model, example_models):
-    mod = example_models[model]
-    if mod is not None:
-        mod.read()
-
-
-@pytest.mark.skip(reason="forcing component")
+@pytest.mark.skip(
+    reason="unskip when merged: https://github.com/Deltares/hydromt/pull/1245"
+)
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):
@@ -117,12 +114,12 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     mod1 = model_type(
         root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
     )
+
     # get ini file
     opt = example_inis[model]
-    _list_opts = [{k: v} for k, v in opt.items()]
 
     # Build model
-    mod1.build(steps=_list_opts)
+    mod1.build(steps=opt["steps"])
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
@@ -136,9 +133,13 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-@pytest.mark.skip(reason="forcing component")
+@pytest.mark.skip(
+    reason="Allow clipping again - current conflict for reading forcing and states"
+)
 @pytest.mark.timeout(60)  # max 1 min
-def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
+def test_model_clip(
+    tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+):
     model = "wflow"
 
     # Clip method options
@@ -153,10 +154,8 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     example_wflow_model.set_root(destination, mode="w")
     example_wflow_model.clip_grid(region)
     example_wflow_model.clip_forcing()
+    example_wflow_model.clip_states()
     example_wflow_model.write()
-    # Check if model is api compliant
-    non_compliant_list = example_wflow_model._test_model_api()
-    assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
@@ -168,9 +167,10 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
-@pytest.mark.skip(reason="forcing component")
-def test_model_inverse_clip(example_wflow_model):
+@pytest.mark.skip(
+    reason="Allow clipping again - current conflict for reading forcing and states"
+)
+def test_model_inverse_clip(example_wflow_model: WflowModel):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
@@ -180,22 +180,21 @@ def test_model_inverse_clip(example_wflow_model):
     # Clip workflow, based on example model
     example_wflow_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.grid["subcatchment"].sum()
-    example_wflow_model.clip_grid(region, inverse_clip=True)
+    n_pixels_full = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    example_wflow_model.clip_grid(region.copy(), inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.grid["subcatchment"].sum()
+    n_pixels_inverse_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
 
     # Do clipping again, but normally
     example_wflow_model.read()
-    example_wflow_model.clip_grid(region, inverse_clip=False)
+    example_wflow_model.clip_grid(region.copy(), inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.grid["subcatchment"].sum()
+    n_pixels_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-@pytest.mark.skip(reason="unskip in `fix/re-enable-all-tests-again`")
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column

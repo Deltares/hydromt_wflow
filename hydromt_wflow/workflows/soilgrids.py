@@ -9,7 +9,7 @@ import pandas as pd
 import xarray as xr
 from scipy.optimize import curve_fit
 
-from . import ptf, soilparams
+from hydromt_wflow.workflows import ptf, soilparams
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +451,7 @@ def soilgrids(
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
     wflow_layers: List[int] = [100, 300, 800],
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Return soil parameter maps at model resolution.
@@ -683,7 +683,7 @@ def soilgrids_brooks_corey(
     ds_like: xr.Dataset,
     soil_fn: str = "soilgrids",
     wflow_layers: List[int] = [100, 300, 800],
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Determine Brooks Corey coefficient per wflow soil layer depth.
@@ -753,7 +753,7 @@ def soilgrids_sediment(
     ds_like: xr.Dataset,
     usle_k_method: str = "renard",
     add_aggregates: bool = True,
-    logger=logger,
+    logger: logging.Logger = logger,
 ) -> xr.Dataset:
     """
     Return soil parameter maps for sediment modelling at model resolution.
@@ -915,7 +915,7 @@ def update_soil_with_paddy(
     update_c: bool = True,
     wflow_layers: List[int] = [50, 100, 50, 200, 800],
     target_conductivity: List[None | int | float] = [None, None, 5, None, None],
-    logger=logger,
+    logger: logging.Logger = logger,
 ):
     """
     Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.

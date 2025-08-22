@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
@@ -80,6 +81,23 @@ class WflowStatesComponent(GridComponent):
             # Ensure the data is aligned with the region component (staticmaps)
             region_grid = self._get_grid_data()
             if not data.raster.identical_grid(region_grid):
+                y_dim = region_grid.raster.y_dim
+                x_dim = region_grid.raster.x_dim
+                # First try to rename dimensions
+                data = data.rename(
+                    {
+                        data.raster.x_dim: x_dim,
+                        data.raster.y_dim: y_dim,
+                    }
+                )
+                # Flip latitude if needed
+                if (
+                    np.diff(data[y_dim].values)[0] > 0
+                    and np.diff(region_grid[y_dim].values)[0] < 0
+                ):
+                    data = data.reindex({y_dim: data[y_dim][::-1]})
+            # Check again, this time the grid is really different if not True
+            if not data.raster.identical_grid(region_grid):
                 raise ValueError(
                     f"Data grid must be identical to {self._region_component} component"
                 )
@@ -90,9 +108,13 @@ class WflowStatesComponent(GridComponent):
         )
 
     # I/O methods
-    def read(self, filename: Path | str | None = None):
+    def read(self):
         """
-        Read the wflow states at root/filename.
+        Read states at <root/dir_input/state.path_input>.
+
+        Checks the path of the file in the config toml using both ``state.path_input``
+        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
+        in the root folder.
 
         Parameters
         ----------
@@ -104,32 +126,56 @@ class WflowStatesComponent(GridComponent):
         --------
         hydromt.model.components.GridComponent.read
         """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = self.model.config.get_value("state.path_input") or self._filename
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
         super().read(
-            filename=filename,
+            filename=p_input,
             mask_and_scale=False,
         )
 
-    def write(self, filename: Path | str | None = None):
+    def write(self, filename: str | None = None):
         """
-        Write the wflow states to root/filename.
+        Write states at <root/dir_input/state.path_input> in model ready format.
+
+        Checks the path of the file in the config toml using both ``state.path_input``
+        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
+        in the root folder.
+        If filename is provided, it will be used and config ``state.path_input``
+        will be updated accordingly.
 
         Parameters
         ----------
         filename : str or Path, optional
-            A path relative to the root where the states file will be written to.
-            By default 'instate/instates.nc'.
+            Name of the states file, relative to model root and ``dir_input`` if any.
+            By default None to use the name as defined in the model config file.
 
         See Also
         --------
         hydromt.model.components.GridComponent.write
         """
+        # Sort which path/ filename is actually the one used
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = (
+            filename
+            or self.model.config.get_value("state.path_input")
+            or self._filename
+        )
+        # Check for output dir
+        p_output = Path(self.model.config.get_value("dir_input", fallback=""), p)
+
         # make sure no _FillValue is written to the time dimension
         if "time" in self.data:
             self._data["time"].attrs.pop("_FillValue", None)
 
         super().write(
-            filename=filename,
+            filename=p_output,
             gdal_compliant=True,
             rename_dims=True,
             force_sn=False,
         )
+
+        # Update the config
+        self.model.config.set("state.path_input", p)

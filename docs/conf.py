@@ -52,6 +52,13 @@ if os.path.isdir("_examples"):
 os.makedirs("_examples", exist_ok=True)
 copy_tree("../examples", "_examples")
 
+# delete exclude_notebooks from _examples - temporary
+exclude_notebooks = ["clip_model.ipynb", "update_model_gauges.ipynb"]
+for notebook in exclude_notebooks:
+    notebook_path = os.path.join("_examples", notebook)
+    if os.path.exists(notebook_path):
+        os.remove(notebook_path)
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -72,7 +79,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
-    # "nbsphinx", # TODO reenable me when examples run again
+    "nbsphinx",
 ]
 
 autosummary_generate = True
@@ -286,5 +293,5 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-# nbsphinx_execute = "always"
+nbsphinx_execute = "always"
 nbsphinx_timeout = 300
