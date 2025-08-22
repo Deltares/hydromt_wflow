@@ -49,6 +49,13 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_examples/build_sediment';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -227,6 +234,26 @@
         </li>
 </ul></div>
       
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
     </div>
     
   </div>
@@ -356,6 +383,26 @@
           <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
 </ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
         
       </div>
     
@@ -602,137 +649,137 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-08-22 15:10:33,491 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
-2025-08-22 15:10:33,492 - hydromt.cli.main - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
-2025-08-22 15:10:33,492 - hydromt.cli.main - main - INFO - User settings:
-2025-08-22 15:10:33,618 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-08-22 15:10:33,618 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2025-08-22 15:10:34,263 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
-2025-08-22 15:10:34,264 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
-2025-08-22 15:10:34,264 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-08-22 15:10:34,277 - hydromt.hydromt_wflow.wflow - wflow - INFO - Supported Wflow.jl version v1+
-2025-08-22 15:10:34,277 - hydromt.hydromt_wflow.components.config - config - INFO - Reading default config file from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml.
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - build: setup_config
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_config of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.data: {&#39;time.starttime&#39;: &#39;2010-02-02T00:00:00&#39;, &#39;time.endtime&#39;: &#39;2010-02-10T00:00:00&#39;, &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration&#39;: &#39;suspended_solids&#39;}
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - build: setup_basemaps
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.basin_index_fn: merit_hydro_index
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.res: 0.00833
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.upscale_method: ihu
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;basin__local_drain_direction&#39;: &#39;local_drain_direction&#39;, &#39;subbasin_location__count&#39;: &#39;subcatchment&#39;, &#39;land_surface__slope&#39;: &#39;land_slope&#39;}
-2025-08-22 15:10:34,278 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.hydrography_fn: merit_hydro
-2025-08-22 15:10:34,279 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2025-08-22 15:10:34,279 - hydromt.hydromt_wflow.wflow - wflow - INFO - Preparing base hydrography basemaps.
-2025-08-22 15:10:34,389 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
-2025-08-22 15:10:37,598 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
-2025-08-22 15:10:37,659 - hydromt.hydromt_wflow.wflow - basemaps - INFO - (Sub)basin at original resolution has 664756 cells.
-2025-08-22 15:10:37,793 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
-2025-08-22 15:10:51,637 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Derive stream order.
-2025-08-22 15:10:51,813 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Map shape: (106, 116); active cells: 6637.
-2025-08-22 15:10:51,813 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Outlet coordinates (1/1): (12.20750,45.83583).
-2025-08-22 15:10:51,831 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding basin shape to staticgeoms.
-2025-08-22 15:10:51,844 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Derive elevation and slope.
-2025-08-22 15:10:52,012 - hydromt.model.model - model - INFO - build: setup_rivers
-2025-08-22 15:10:52,012 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.river_geom_fn: hydro_rivers_lin
-2025-08-22 15:10:52,012 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.river_upa: 30
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.slope_len: 2000
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.min_rivlen_ratio: 0.0
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.min_rivwth: 30
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.smooth_len: 5000
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;river_location__mask&#39;: &#39;river_mask&#39;, &#39;river__length&#39;: &#39;river_length&#39;, &#39;river__width&#39;: &#39;river_width&#39;, &#39;river__slope&#39;: &#39;river_slope&#39;}
-2025-08-22 15:10:52,013 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.hydrography_fn: merit_hydro
-2025-08-22 15:10:59,595 - hydromt.model.model - model - INFO - build: setup_reservoirs
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.overwrite_existing: False
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.duplicate_id: error
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.min_area: 1.0
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.trapping_default: 1.0
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.geom_name: meta_reservoirs
-2025-08-22 15:10:59,596 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.reservoirs_fn: hydro_reservoirs
-2025-08-22 15:10:59,603 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - build: setup_natural_reservoirs
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.overwrite_existing: False
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.duplicate_id: error
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.min_area: 1.0
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.geom_name: meta_natural_reservoirs
-2025-08-22 15:10:59,613 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.reservoirs_fn: hydro_lakes
-2025-08-22 15:10:59,619 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
-2025-08-22 15:10:59,769 - hydromt.model.model - model - INFO - build: setup_riverbedsed
-2025-08-22 15:10:59,769 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.bedsed_mapping_fn: None
-2025-08-22 15:10:59,769 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.strord_name: meta_streamorder
-2025-08-22 15:10:59,769 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;river_bottom-and-bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom-and-bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom-and-bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom-and-bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom-and-bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a-coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b-coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c-coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d-coefficient&#39;: &#39;river_kodatie_d&#39;}
-2025-08-22 15:10:59,770 - hydromt.data_catalog.drivers.dataframe.pandas_driver - pandas_driver - INFO - Reading using pandas driver from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - build: setup_lulcmaps
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.lulc_mapping_fn: globcover_mapping_default
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.planted_forest_fn: None
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.lulc_vars: {&#39;landuse&#39;: None, &#39;soil_compacted_fraction&#39;: &#39;soil~compacted__area_fraction&#39;, &#39;erosion_usle_c&#39;: &#39;soil_erosion__usle_c_factor&#39;, &#39;land_water_fraction&#39;: &#39;land~water-covered__area_fraction&#39;}
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.planted_forest_c: 0.0881
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.orchard_name: Orchard
-2025-08-22 15:10:59,839 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.orchard_c: 0.2188
-2025-08-22 15:10:59,840 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names_suffix: None
-2025-08-22 15:10:59,840 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.lulc_fn: globcover_2009
-2025-08-22 15:10:59,840 - hydromt.hydromt_wflow.wflow - wflow - INFO - Preparing LULC parameter maps.
-2025-08-22 15:10:59,853 - hydromt.data_catalog.drivers.dataframe.pandas_driver - pandas_driver - INFO - Reading using pandas driver from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
-2025-08-22 15:10:59,861 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
-2025-08-22 15:10:59,882 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
-2025-08-22 15:10:59,901 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
-2025-08-22 15:10:59,921 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
-2025-08-22 15:10:59,949 - hydromt.model.model - model - INFO - build: setup_canopymaps
-2025-08-22 15:10:59,949 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_canopymaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_name: vegetation_height
-2025-08-22 15:10:59,949 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_canopymaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.canopy_fn: simard
-2025-08-22 15:10:59,994 - hydromt.model.model - model - INFO - build: setup_soilmaps
-2025-08-22 15:10:59,994 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.soil_fn: soilgrids
-2025-08-22 15:10:59,994 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.usle_k_method: renard
-2025-08-22 15:10:59,994 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.add_aggregates: True
-2025-08-22 15:10:59,994 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.output_names: {&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_aggregates~small__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_aggregates~large__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
-2025-08-22 15:11:01,121 - hydromt.gis.raster - raster - WARNING - No numerical nodata value found, skipping set_nodata
-2025-08-22 15:11:01,144 - hydromt.model.model - model - INFO - build: setup_outlets
-2025-08-22 15:11:01,144 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.river_only: True
-2025-08-22 15:11:01,144 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.toml_output: csv
-2025-08-22 15:11:01,145 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gauge_toml_header: [&#39;suspended_solids&#39;]
-2025-08-22 15:11:01,145 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gauge_toml_param: [&#39;river_water_sediment~suspended__mass_concentration&#39;]
-2025-08-22 15:11:01,145 - hydromt.hydromt_wflow.wflow - wflow - INFO - Gauges locations set based on river outlets.
-2025-08-22 15:11:01,157 - hydromt.hydromt_wflow.wflow - wflow - INFO - Gauges map based on catchment river outlets added.
-2025-08-22 15:11:01,158 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding [&#39;river_water_sediment~suspended__mass_concentration&#39;] to csv section of toml.
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - build: setup_gauges
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.index_col: None
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.snap_to_river: True
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.mask: None
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.snap_uparea: False
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.max_dist: 10000.0
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.wdw: 3
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.rel_error: 0.05
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.abs_error: 50.0
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.fillna: False
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.derive_subcatch: False
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.basename: None
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.toml_output: csv
-2025-08-22 15:11:01,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gauge_toml_header: [&#39;river_q&#39;, &#39;suspended_solids&#39;]
-2025-08-22 15:11:01,159 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gauge_toml_param: [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment~suspended__mass_concentration&#39;]
-2025-08-22 15:11:01,159 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gauges_fn: grdc
-2025-08-22 15:11:01,162 - hydromt._utils.unused_kwargs - unused_kwargs - WARNING - object: GeoDataFrameTableDriver does not use kwarg mask with value                                                 geometry
+2025-08-22 15:11:49,873 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
+2025-08-22 15:11:49,873 - hydromt.cli.main - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
+2025-08-22 15:11:49,873 - hydromt.cli.main - main - INFO - User settings:
+2025-08-22 15:11:50,009 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-08-22 15:11:50,009 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2025-08-22 15:11:50,655 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
+2025-08-22 15:11:50,655 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
+2025-08-22 15:11:50,655 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-08-22 15:11:50,668 - hydromt.hydromt_wflow.wflow - wflow - INFO - Supported Wflow.jl version v1+
+2025-08-22 15:11:50,668 - hydromt.hydromt_wflow.components.config - config - INFO - Reading default config file from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml.
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - build: setup_config
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_config of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.data: {&#39;time.starttime&#39;: &#39;2010-02-02T00:00:00&#39;, &#39;time.endtime&#39;: &#39;2010-02-10T00:00:00&#39;, &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration&#39;: &#39;suspended_solids&#39;}
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - build: setup_basemaps
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.basin_index_fn: merit_hydro_index
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.res: 0.00833
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.upscale_method: ihu
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;basin__local_drain_direction&#39;: &#39;local_drain_direction&#39;, &#39;subbasin_location__count&#39;: &#39;subcatchment&#39;, &#39;land_surface__slope&#39;: &#39;land_slope&#39;}
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.hydrography_fn: merit_hydro
+2025-08-22 15:11:50,669 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_basemaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2025-08-22 15:11:50,670 - hydromt.hydromt_wflow.wflow - wflow - INFO - Preparing base hydrography basemaps.
+2025-08-22 15:11:50,771 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
+2025-08-22 15:11:53,878 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2025-08-22 15:11:53,939 - hydromt.hydromt_wflow.wflow - basemaps - INFO - (Sub)basin at original resolution has 664756 cells.
+2025-08-22 15:11:54,072 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2025-08-22 15:12:07,644 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Derive stream order.
+2025-08-22 15:12:07,809 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Map shape: (106, 116); active cells: 6637.
+2025-08-22 15:12:07,809 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Outlet coordinates (1/1): (12.20750,45.83583).
+2025-08-22 15:12:07,825 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding basin shape to staticgeoms.
+2025-08-22 15:12:07,837 - hydromt.hydromt_wflow.wflow - basemaps - INFO - Derive elevation and slope.
+2025-08-22 15:12:08,004 - hydromt.model.model - model - INFO - build: setup_rivers
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.river_geom_fn: hydro_rivers_lin
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.river_upa: 30
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.slope_len: 2000
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.min_rivlen_ratio: 0.0
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.min_rivwth: 30
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.smooth_len: 5000
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;river_location__mask&#39;: &#39;river_mask&#39;, &#39;river__length&#39;: &#39;river_length&#39;, &#39;river__width&#39;: &#39;river_width&#39;, &#39;river__slope&#39;: &#39;river_slope&#39;}
+2025-08-22 15:12:08,005 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_rivers of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.hydrography_fn: merit_hydro
+2025-08-22 15:12:15,763 - hydromt.model.model - model - INFO - build: setup_reservoirs
+2025-08-22 15:12:15,763 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.overwrite_existing: False
+2025-08-22 15:12:15,763 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.duplicate_id: error
+2025-08-22 15:12:15,764 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.min_area: 1.0
+2025-08-22 15:12:15,764 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.trapping_default: 1.0
+2025-08-22 15:12:15,764 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2025-08-22 15:12:15,764 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.geom_name: meta_reservoirs
+2025-08-22 15:12:15,764 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.reservoirs_fn: hydro_reservoirs
+2025-08-22 15:12:15,770 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
+2025-08-22 15:12:15,780 - hydromt.model.model - model - INFO - build: setup_natural_reservoirs
+2025-08-22 15:12:15,780 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.overwrite_existing: False
+2025-08-22 15:12:15,780 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.duplicate_id: error
+2025-08-22 15:12:15,780 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.min_area: 1.0
+2025-08-22 15:12:15,780 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment~bedload__trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2025-08-22 15:12:15,781 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.geom_name: meta_natural_reservoirs
+2025-08-22 15:12:15,781 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_natural_reservoirs of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.reservoirs_fn: hydro_lakes
+2025-08-22 15:12:15,786 - hydromt.data_catalog.drivers.geodataframe.pyogrio_driver - pyogrio_driver - WARNING - Overwriting crs of GeoDataFrame to EPSG:4326
+2025-08-22 15:12:15,935 - hydromt.model.model - model - INFO - build: setup_riverbedsed
+2025-08-22 15:12:15,936 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.bedsed_mapping_fn: None
+2025-08-22 15:12:15,936 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.strord_name: meta_streamorder
+2025-08-22 15:12:15,936 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_riverbedsed of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;river_bottom-and-bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom-and-bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom-and-bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom-and-bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom-and-bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a-coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b-coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c-coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d-coefficient&#39;: &#39;river_kodatie_d&#39;}
+2025-08-22 15:12:15,936 - hydromt.data_catalog.drivers.dataframe.pandas_driver - pandas_driver - INFO - Reading using pandas driver from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - build: setup_lulcmaps
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.lulc_mapping_fn: globcover_mapping_default
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.planted_forest_fn: None
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.lulc_vars: {&#39;landuse&#39;: None, &#39;soil_compacted_fraction&#39;: &#39;soil~compacted__area_fraction&#39;, &#39;erosion_usle_c&#39;: &#39;soil_erosion__usle_c_factor&#39;, &#39;land_water_fraction&#39;: &#39;land~water-covered__area_fraction&#39;}
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.planted_forest_c: 0.0881
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.orchard_name: Orchard
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.orchard_c: 0.2188
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names_suffix: None
+2025-08-22 15:12:16,000 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_lulcmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.lulc_fn: globcover_2009
+2025-08-22 15:12:16,000 - hydromt.hydromt_wflow.wflow - wflow - INFO - Preparing LULC parameter maps.
+2025-08-22 15:12:16,013 - hydromt.data_catalog.drivers.dataframe.pandas_driver - pandas_driver - INFO - Reading using pandas driver from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2025-08-22 15:12:16,022 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2025-08-22 15:12:16,042 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
+2025-08-22 15:12:16,061 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
+2025-08-22 15:12:16,079 - hydromt.hydromt_wflow.wflow - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
+2025-08-22 15:12:16,106 - hydromt.model.model - model - INFO - build: setup_canopymaps
+2025-08-22 15:12:16,106 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_canopymaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_name: vegetation_height
+2025-08-22 15:12:16,107 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_canopymaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.canopy_fn: simard
+2025-08-22 15:12:16,158 - hydromt.model.model - model - INFO - build: setup_soilmaps
+2025-08-22 15:12:16,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.soil_fn: soilgrids
+2025-08-22 15:12:16,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.usle_k_method: renard
+2025-08-22 15:12:16,158 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.add_aggregates: True
+2025-08-22 15:12:16,159 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_soilmaps of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.output_names: {&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_aggregates~small__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_aggregates~large__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
+2025-08-22 15:12:17,286 - hydromt.gis.raster - raster - WARNING - No numerical nodata value found, skipping set_nodata
+2025-08-22 15:12:17,310 - hydromt.model.model - model - INFO - build: setup_outlets
+2025-08-22 15:12:17,310 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.river_only: True
+2025-08-22 15:12:17,310 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.toml_output: csv
+2025-08-22 15:12:17,310 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gauge_toml_header: [&#39;suspended_solids&#39;]
+2025-08-22 15:12:17,310 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_outlets of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gauge_toml_param: [&#39;river_water_sediment~suspended__mass_concentration&#39;]
+2025-08-22 15:12:17,310 - hydromt.hydromt_wflow.wflow - wflow - INFO - Gauges locations set based on river outlets.
+2025-08-22 15:12:17,322 - hydromt.hydromt_wflow.wflow - wflow - INFO - Gauges map based on catchment river outlets added.
+2025-08-22 15:12:17,323 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding [&#39;river_water_sediment~suspended__mass_concentration&#39;] to csv section of toml.
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - build: setup_gauges
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.index_col: None
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.snap_to_river: True
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.mask: None
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.snap_uparea: False
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.max_dist: 10000.0
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.wdw: 3
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.rel_error: 0.05
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.abs_error: 50.0
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.fillna: False
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.derive_subcatch: False
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.basename: None
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.toml_output: csv
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gauge_toml_header: [&#39;river_q&#39;, &#39;suspended_solids&#39;]
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gauge_toml_param: [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment~suspended__mass_concentration&#39;]
+2025-08-22 15:12:17,323 - hydromt.model.model - model - INFO - &lt;bound method WflowSedimentModel.setup_gauges of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gauges_fn: grdc
+2025-08-22 15:12:17,327 - hydromt._utils.unused_kwargs - unused_kwargs - WARNING - object: GeoDataFrameTableDriver does not use kwarg mask with value                                                 geometry
 value
 1.0    POLYGON ((12.43667 46.69, 12.43667 46.67333, 1....
-2025-08-22 15:11:01,162 - hydromt._utils.unused_kwargs - unused_kwargs - WARNING - object: GeoDataFrameTableDriver does not use kwarg predicate with value intersects.
-2025-08-22 15:11:01,166 - hydromt.hydromt_wflow.wflow - wflow - INFO - 3 grdc gauge locations found within domain
-2025-08-22 15:11:01,524 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment~suspended__mass_concentration&#39;] to csv section of toml.
-2025-08-22 15:11:01,524 - hydromt.model.model - model - INFO - build: setup_constant_pars
-2025-08-22 15:11:01,524 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.river_water_sediment__bagnold_transport_capacity_coefficient: 1.75e-05
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.river_water_sediment__bagnold_transport_capacity_exponent: 1.4
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.soil_erosion__answers_overland_flow_factor: 0.9
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.soil_erosion__eurosem_exponent: 2.0
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.sediment__particle_density: 2650
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.clay__mean_diameter: 2
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.silt__mean_diameter: 10
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.sediment_aggregates~small__mean_diameter: 30
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.sand__mean_diameter: 200
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.sediment_aggregates~large__mean_diameter: 500
-2025-08-22 15:11:01,525 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f865cc81940&gt;&gt;.gravel__mean_diameter: 2000
-2025-08-22 15:11:01,525 - hydromt.hydromt_wflow.wflow - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
-2025-08-22 15:11:01,538 - hydromt._io.writers - writers - INFO - writing region data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/region.geojson
-2025-08-22 15:11:01,659 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Write forcing skipped: dataset is empty (no variables or data).
-2025-08-22 15:11:01,660 - hydromt._typing.error - error - WARNING - No grid data found, skip writing.
-2025-08-22 15:11:01,660 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml.
+2025-08-22 15:12:17,327 - hydromt._utils.unused_kwargs - unused_kwargs - WARNING - object: GeoDataFrameTableDriver does not use kwarg predicate with value intersects.
+2025-08-22 15:12:17,330 - hydromt.hydromt_wflow.wflow - wflow - INFO - 3 grdc gauge locations found within domain
+2025-08-22 15:12:17,692 - hydromt.hydromt_wflow.wflow - wflow - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment~suspended__mass_concentration&#39;] to csv section of toml.
+2025-08-22 15:12:17,692 - hydromt.model.model - model - INFO - build: setup_constant_pars
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.river_water_sediment__bagnold_transport_capacity_coefficient: 1.75e-05
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.river_water_sediment__bagnold_transport_capacity_exponent: 1.4
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.soil_erosion__answers_overland_flow_factor: 0.9
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.soil_erosion__eurosem_exponent: 2.0
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.sediment__particle_density: 2650
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.clay__mean_diameter: 2
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.silt__mean_diameter: 10
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.sediment_aggregates~small__mean_diameter: 30
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.sand__mean_diameter: 200
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.sediment_aggregates~large__mean_diameter: 500
+2025-08-22 15:12:17,693 - hydromt.model.model - model - INFO - &lt;bound method WflowModel.setup_constant_pars of &lt;hydromt_wflow.wflow_sediment.WflowSedimentModel object at 0x7f1db1d31940&gt;&gt;.gravel__mean_diameter: 2000
+2025-08-22 15:12:17,693 - hydromt.hydromt_wflow.wflow - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
+2025-08-22 15:12:17,705 - hydromt._io.writers - writers - INFO - writing region data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/region.geojson
+2025-08-22 15:12:17,833 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Write forcing skipped: dataset is empty (no variables or data).
+2025-08-22 15:12:17,833 - hydromt._typing.error - error - WARNING - No grid data found, skip writing.
+2025-08-22 15:12:17,833 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt build</strong> with:</p>
@@ -889,18 +936,18 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-08-22 15:11:05,717 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
-2025-08-22 15:11:05,717 - hydromt.cli.main - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2025-08-22 15:11:05,717 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
-2025-08-22 15:11:05,717 - hydromt.cli.main - main - INFO - User settings:
-2025-08-22 15:11:05,846 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-08-22 15:11:05,847 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2025-08-22 15:11:06,490 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
-2025-08-22 15:11:06,490 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
-2025-08-22 15:11:06,490 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-08-22 15:11:06,503 - hydromt.hydromt_wflow.wflow - wflow - INFO - Supported Wflow.jl version v1+
-2025-08-22 15:11:06,503 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
-2025-08-22 15:11:06,504 - hydromt.cli.main - main - ERROR - got an unexpected keyword argument &#39;config_filename&#39;
+2025-08-22 15:12:21,786 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
+2025-08-22 15:12:21,786 - hydromt.cli.main - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-08-22 15:12:21,786 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2025-08-22 15:12:21,786 - hydromt.cli.main - main - INFO - User settings:
+2025-08-22 15:12:21,927 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-08-22 15:12:21,927 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2025-08-22 15:12:22,574 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
+2025-08-22 15:12:22,574 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
+2025-08-22 15:12:22,574 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-08-22 15:12:22,587 - hydromt.hydromt_wflow.wflow - wflow - INFO - Supported Wflow.jl version v1+
+2025-08-22 15:12:22,588 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
+2025-08-22 15:12:22,588 - hydromt.cli.main - main - ERROR - got an unexpected keyword argument &#39;config_filename&#39;
 Traceback (most recent call last):
   File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/cli/main.py&#34;, line 345, in update
     mod.update(model_out=model_out, steps=opt[&#34;steps&#34;], forceful_overwrite=fo)
