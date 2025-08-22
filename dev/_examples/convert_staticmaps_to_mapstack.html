@@ -49,18 +49,9 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_examples/convert_staticmaps_to_mapstack';</script>
-    <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.0';
-        DOCUMENTATION_OPTIONS.show_version_warning_banner =
-            false;
-        </script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Plot Wflow static maps" href="plot_wflow_staticmaps.html" />
-    <link rel="prev" title="Prepare flow directions and related data from a DEM" href="prepare_ldd.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -152,7 +143,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/intro.html">
     User guide
   </a>
@@ -236,26 +227,6 @@
         </li>
 </ul></div>
       
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-      
     </div>
     
   </div>
@@ -286,8 +257,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -309,7 +282,7 @@
 </li>
 
 
-<li class="nav-item current active">
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../user_guide/intro.html">
     User guide
   </a>
@@ -384,81 +357,9 @@
         </li>
 </ul></div>
         
-          <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-        
       </div>
     
   </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="build_model.html">Example: Build Wflow model</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_update.html">Updating a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_clip.html">Clipping a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="clip_model.html">Example: Clip Wflow model</a></li>
-</ul>
-</details></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_model_setup.html">Model methods and components</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/sediment_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="build_sediment.html">Example: Build Wflow Sediment model</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_update.html">Updating a model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_clip.html">Clipping a model</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/process_analyze.html">Pre and postprocessing and visualization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
-
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Example: Convert wflow staticmaps netcdf to raster files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
-</ul>
-</details></li>
-</ul>
-</div>
-</nav></div>
-    </div>
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
@@ -495,12 +396,6 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="../user_guide/intro.html" class="nav-link">User guide</a></li>
-    
-    
-    <li class="breadcrumb-item"><a href="../user_guide/process_analyze.html" class="nav-link">Pre and postprocessing and visualization</a></li>
-    
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Convert Wflow staticmaps netcdf to raster files</span></li>
   </ul>
 </nav>
@@ -551,7 +446,7 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">root</span> <span class="o">=</span> <span class="s2">&quot;wflow_piave_subbasin&quot;</span>
 <span class="n">wflow</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">grid</span>  <span class="c1"># here the staticmaps netcdf is loaded</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># here the staticmaps netcdf is loaded</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -565,11 +460,11 @@
 Dimensions:                               (latitude: 53, longitude: 58,
                                            time: 12, layer: 4)
 Coordinates:
+    spatial_ref                           int64 8B 0
+  * latitude                              (latitude) float64 424B 46.68 ... 4...
+  * longitude                             (longitude) float64 464B 11.78 ... ...
   * time                                  (time) int32 48B 1 2 3 4 ... 10 11 12
   * layer                                 (layer) int64 32B 0 1 2 3
-    spatial_ref                           int64 8B 0
-  * longitude                             (longitude) float64 464B 11.78 ... ...
-  * latitude                              (latitude) float64 424B 46.68 ... 4...
 Data variables: (12/69)
     meta_subgrid_outlet_x                 (latitude, longitude) float64 25kB ...
     meta_subgrid_outlet_y                 (latitude, longitude) float64 25kB ...
@@ -730,7 +625,8 @@ argument.</p>
 
 <span class="c1"># `KsatVer` corresponds to the `soil_surface_water__vertical_saturated_hydraulic_conductivity` variable</span>
 <span class="n">wflow_variable</span> <span class="o">=</span> <span class="s2">&quot;soil_surface_water__vertical_saturated_hydraulic_conductivity&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Before setup_grid_from_raster: </span><span class="si">{</span><span class="n">wflow</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;static&#39;</span><span class="p">][</span><span class="n">wflow_variable</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Before setup_grid_from_raster: </span><span class="si">{</span><span class="n">config_opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Path to the (updated) `soil_ksat_vertical_updated.tif`</span>
 <span class="n">updated_map</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">updated_staticmaps</span><span class="p">,</span> <span class="s2">&quot;soil_ksat_vertical_updated.tif&quot;</span><span class="p">)</span>
@@ -743,11 +639,12 @@ argument.</p>
     <span class="n">wflow_variables</span><span class="o">=</span><span class="p">[</span><span class="n">wflow_variable</span><span class="p">],</span>
 
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After setup_grid_from_raster: </span><span class="si">{</span><span class="n">wflow</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;static&#39;</span><span class="p">][</span><span class="n">wflow_variable</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After setup_grid_from_raster: </span><span class="si">{</span><span class="n">config_opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Write the updated grid and config files to new files</span>
-<span class="n">wflow</span><span class="o">.</span><span class="n">write_grid</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="s2">&quot;staticmaps_updated.nc&quot;</span><span class="p">)</span>
-<span class="n">wflow</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;wflow_sbm_updated.toml&quot;</span><span class="p">)</span>
+<span class="n">wflow</span><span class="o">.</span><span class="n">write_grid</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;staticmaps_updated.nc&quot;</span><span class="p">)</span>
+<span class="n">wflow</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;wflow_sbm_updated.toml&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -773,24 +670,6 @@ After setup_grid_from_raster: soil_ksat_vertical_updated
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="prepare_ldd.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Prepare flow directions and related data from a DEM</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="plot_wflow_staticmaps.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Plot Wflow static maps</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
