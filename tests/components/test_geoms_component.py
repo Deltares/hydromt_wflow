@@ -114,7 +114,9 @@ def test_wflow_geoms_component_set(
 
     # Add geometry and write it to disk
     comp.set(mock_geometry, name="test_geom")
-    comp.write(dir_out=Path(model.root.path, "staticgeoms"))
+    # mock for dir_input check
+    type(comp.model.config).get_value = MagicMock(return_value="")
+    comp.write(folder="staticgeoms")
 
     # Confirm file was written
     out_file = Path(model.root.path, "staticgeoms", "test_geom.geojson")
@@ -144,7 +146,8 @@ def test_wflow_geoms_component_read_with_pattern(
     comp = WflowGeomsComponent(model=model)
     comp.set(mock_geometry, name="geom1")
     comp.set(mock_geometry, name="geom2")
-    comp.write(dir_out=Path(model.root.path, "staticgeoms"))
+    type(comp.model.config).get_value = MagicMock(return_value="")
+    comp.write(folder="staticgeoms")
 
     # Confirm files were written
     outfiles = [
@@ -176,7 +179,8 @@ def test_wflow_geoms_component_write_to_wgs84(
 
     # Add geometry and write it to disk in WGS84
     comp.set(geom, name="test_geom")
-    comp.write(dir_out=model.root.path, to_wgs84=True)
+    type(comp.model.config).get_value = MagicMock(return_value="")
+    comp.write(folder="", to_wgs84=True)
 
     # Confirm file was written
     out_file = model.root.path / "test_geom.geojson"
@@ -217,7 +221,8 @@ def test_wflow_geoms_component_write_precision_defaults(
     model: WflowModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
     comp.set(geometry, name="test_geom")
-    comp.write(dir_out=model.root.path)
+    type(comp.model.config).get_value = MagicMock(return_value="")
+    comp.write(folder="")
     out_file = model.root.path / "test_geom.geojson"
     assert out_file.exists()
     gdf_read = gpd.read_file(out_file)
@@ -248,7 +253,8 @@ def test_wflow_geoms_component_write_precision_manual(
     model: WflowModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
     comp.set(mock_geometry, name="test_geom")
-    comp.write(dir_out=model.root.path, precision=precision)
+    type(comp.model.config).get_value = MagicMock(return_value="")
+    comp.write(folder="", precision=precision)
     out_file = model.root.path / "test_geom.geojson"
     assert out_file.exists()
     gdf_read = gpd.read_file(out_file)

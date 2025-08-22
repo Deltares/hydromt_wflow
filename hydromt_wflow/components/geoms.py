@@ -51,7 +51,7 @@ class WflowGeomsComponent(GeomsComponent):
 
     def read(
         self,
-        filename: str = "staticgeoms",
+        folder: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -63,30 +63,35 @@ class WflowGeomsComponent(GeomsComponent):
 
         Parameters
         ----------
-        filename : str, optional
+        folder : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
         # Check for input dir
-        p_input = Path(self.model.config.get_value("dir_input", fallback=""), filename)
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), folder)
         pattern = Path(p_input, "{name}.geojson")
 
         super().read(filename=str(pattern))
 
     def write(
         self,
-        dir_out: Path,
+        folder: str = "staticgeoms",
         to_wgs84: bool = False,
         precision: Optional[int] = None,
         **kwargs,
     ) -> None:
-        r"""Write model geometries to a vector file (by default GeoJSON) at <dir_out>/\*.geojson.
+        r"""
+        Write model geometries to vector file(s) (by default GeoJSON) at <dir_out>/\*.geojson.
+
+        Checks the path of ``geoms_fn`` using both model root and
+        ``dir_input``. If not found uses the default path ``staticgeoms`` in the root
+        folder.
 
         Key-word arguments are passed to :py:meth:`geopandas.GeoDataFrame.to_file`
 
         Parameters
         ----------
-        dir_out : Path, optional
+        folder : Path, optional
             The directory to write the geometry files to. If it does not exist, it will
             be created.
         to_wgs84 : bool, optional
@@ -99,6 +104,11 @@ class WflowGeomsComponent(GeomsComponent):
             Additional keyword arguments that are passed to the
             `geopandas.to_file` function.
         """  # noqa: E501
+        # Check for dir_input
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), folder)
+        pattern = Path(p_input, "{name}.geojson")
+
+        # Set precision
         if precision is None:
             if self.crs.is_projected:
                 _precision = 1
@@ -112,8 +122,9 @@ class WflowGeomsComponent(GeomsComponent):
             gdf.geometry.set_precision(
                 grid_size=grid_size,
             )
+
         super().write(
-            filename=str(dir_out / "{name}.geojson"),
+            filename=str(pattern),
             to_wgs84=to_wgs84,
             **kwargs,
         )

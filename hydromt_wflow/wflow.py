@@ -5179,33 +5179,35 @@ Run setup_soilmaps first"
     @hydromt_step
     def write(
         self,
-        config_fn: str | None = None,
-        grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path = Path("staticgeoms"),
-        forcing_fn: Path | str | None = None,
-        states_fn: Path | str | None = None,
+        config_filename: str | None = None,
+        grid_filename: str | None = None,
+        geoms_folder: str | None = "staticgeoms",
+        forcing_filename: str | None = None,
+        states_filename: str | None = None,
     ):
         """
         Write the complete model schematization and configuration to file.
 
         From this function, the output filenames/folder of the different components can
         be set. If not set, the default filenames/folder are used.
+
         To change more advanced settings, use the specific write methods directly.
 
         Parameters
         ----------
-        config_fn : str, optional
-            Name of the config file, relative to model root. By default None.
-        grid_fn : str, optional
-            Name of the grid file, relative to model root/dir_input. By default
-            'staticmaps.nc'.
-        geoms_fn : str, optional
-            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
-            default 'staticgeoms'.
-        forcing_fn : str, optional
+        config_filename : str, optional
+            Name of the config file, relative to model root. By default None to use the
+            default name.
+        grid_filename : str, optional
+            Name of the grid file, relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        geoms_folder : str, optional
+            Name of the geoms folder relative to grid_filename (ie model
+            root/dir_input). By default 'staticgeoms'.
+        forcing_filename : str, optional
             Name of the forcing file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
-        states_fn : str, optional
+        states_filename : str, optional
             Name of the states file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         """
@@ -5217,40 +5219,45 @@ Run setup_soilmaps first"
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
         if "staticmaps" in self.components:
-            self.write_grid(filename=grid_fn)
+            self.write_grid(filename=grid_filename)
         if "geoms" in self.components:
-            self.write_geoms(geoms_fn=geoms_fn)
+            self.write_geoms(folder=geoms_folder)
         if "forcing" in self.components:
-            self.write_forcing(filename=forcing_fn)
+            self.write_forcing(filename=forcing_filename)
         if "tables" in self.components:
             self.write_tables()
         if "states" in self.components:
-            self.write_states(filename=states_fn)
+            self.write_states(filename=states_filename)
 
         # Write the config last as variables can get set in other write methods
-        self.write_config(config_filename=config_fn)
+        self.write_config(filename=config_filename)
 
     @hydromt_step
     def read(
         self,
         config_filename: str | None = None,
-        staticmaps_filename: str | None = None,
-        geoms_filename: str = "staticgeoms",
+        geoms_folder: str = "staticgeoms",
     ):
         """Read components from disk.
+
+        From this function, the input filenames/folder of the config and geoms
+        components can be set. For the others, the filenames/folder as defined in the
+        config file are used.
+
+        To change more advanced settings, use the specific read methods directly.
 
         Parameters
         ----------
         config_filename : str | None, optional
-            config file name, by default None
-        staticmaps_filename : str | None, optional
-            static maps file name, by default None
-        geoms_filename : str | None, optional
-            geoms file name, by default None
+            Name of the config file, relative to model root. By default None to use the
+            default name.
+        geoms_folder : str | None, optional
+            Name of the geoms folder relative to grid_filename (ie model
+            root/dir_input). By default 'staticgeoms'.
         """
-        self.read_config(config_filename)
-        self.read_grid(staticmaps_filename)
-        self.read_geoms(geoms_filename)
+        self.read_config(filename=config_filename)
+        self.read_grid()
+        self.read_geoms(folder=geoms_folder)
         self.read_forcing()
         self.read_states()
         self.read_tables()
@@ -5258,49 +5265,43 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_config(
         self,
-        config_filename: str | None = None,
+        filename: str | None = None,
     ):
         """
-        Read config from <root/config_filename>.
+        Read config from <root/filename>.
 
         Parameters
         ----------
-        config_filename : str, optional
+        filename : str, optional
             Name of the config file. By default None to use the default name
             wflow_sbm.toml.
         """
         # Call the component
-        self.config.read(config_filename)
+        self.config.read(filename)
 
     @hydromt_step
     def write_config(
         self,
-        config_filename: str | None = None,
+        filename: str | None = None,
         config_root: Path | str | None = None,
     ):
         """
-        Write config to <root/config_fn>.
+        Write config to <(config_)root/config_fn>.
 
         Parameters
         ----------
-        config_name : str, optional
+        filename : str, optional
             Name of the config file. By default None to use the default name
             wflow_sbm.toml.
         config_root : str, optional
             Root folder to write the config file if different from model root (default).
             Can be absolute or relative to model root.
         """
-        # TODO is a compat method, remove in future
-        # Bridge the diff in api
-        p = config_filename or self.config._filename
-        if config_root is not None:
-            p = Path(config_root, p)
         # Call the component
-        self.config.write(p)
+        self.config.write(filename, config_root)
 
     def read_grid(
         self,
-        filename: Path | str | None = None,
         **kwargs,
     ):
         """Read grid model data.
@@ -5312,20 +5313,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        filename : str, optional
-            Name or path to the staticmaps file to be read.
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
         # Call the component method
-        self.staticmaps.read(filename=filename, **kwargs)
+        self.staticmaps.read(**kwargs)
 
     @hydromt_step
     def write_grid(
         self,
-        filename: Path | str | None = None,
+        filename: str | None = None,
         **kwargs,
     ):
         """
@@ -5334,6 +5331,8 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
+
+        If filename is supplied, the config will be updated.
 
         Parameters
         ----------
@@ -5344,24 +5343,8 @@ Run setup_soilmaps first"
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
-        # Solve pathing same as read
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("input.path_static")
-            or self.staticmaps._filename
-        )
-        # Check for input dir
-        p_input = Path(self.config.get_value("dir_input", fallback=""), p)
-
         # Call the component write method
-        self.staticmaps.write(filename=p_input, **kwargs)
-
-        # Set the config entry to the correct path
-        self.config.set(
-            "input.path_static",
-            Path(self.root.path, p_input).as_posix(),
-        )
+        self.staticmaps.write(filename=filename, **kwargs)
 
     def set_grid(
         self,
@@ -5400,7 +5383,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_geoms(
         self,
-        geoms_filename: str = "staticgeoms",
+        folder: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
@@ -5412,16 +5395,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_filename : str, optional
+        folder : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         """
-        self.geoms.read(filename=geoms_filename)
+        self.geoms.read(folder=folder)
 
     @hydromt_step
     def write_geoms(
         self,
-        geoms_fn: str = "staticgeoms",
+        folder: str = "staticgeoms",
         precision: int | None = None,
         to_wgs84: bool = False,
         **kwargs: dict,
@@ -5435,7 +5418,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        geoms_fn : str, optional
+        folder : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
         precision : int, optional
@@ -5445,13 +5428,9 @@ Run setup_soilmaps first"
             If True, geometries are transformed to WGS84 before writing. By default
             False, which means geometries are written in their original CRS.
         """
-        input_dir = join(
-            self.get_config("dir_input", abs_path=True, fallback=self.root.path),
-            geoms_fn,
-        )
-
+        # Call the component write method
         self.geoms.write(
-            dir_out=Path(input_dir).resolve(),
+            folder=folder,
             to_wgs84=to_wgs84,
             precision=precision,
             **kwargs,
@@ -5471,7 +5450,6 @@ Run setup_soilmaps first"
     @hydromt_step
     def read_forcing(
         self,
-        filename: str = None,
         **kwargs,
     ):
         """
@@ -5487,14 +5465,10 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        filename : str, optional
-            Name or path to the forcing file(s) to be read.
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `read_nc` method.
         """
-        self.forcing.read(filename=filename, **kwargs)
+        self.forcing.read(**kwargs)
 
     @hydromt_step
     def write_forcing(
@@ -5507,24 +5481,24 @@ Run setup_soilmaps first"
         overwrite: bool = False,
         **kwargs,
     ):
-        """Write forcing at ``fn_out`` in model ready format.
+        """Write forcing at <root/dir_input/filename> in model ready format.
 
-        If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,
+        If no ``filename` path is provided and path_forcing from the wflow toml exists,
         the following default filenames are used:
 
-            * Default name format (with downscaling): \
-inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-            * Default name format (no downscaling): \
-inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+            * Default name format (with downscaling):
+              inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling):
+              inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
-        fn_out : Path | str, optional
+        filename : Path | str, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
         output_frequency : str (Offset), optional
-            Write several files for the forcing according to fn_freq. For example 'Y'
-            for one file per year or 'M' for one file per month.
+            Write several files for the forcing according to output_frequency. For
+            example 'Y' for one file per year or 'M' for one file per month.
             By default writes the one file.
             For more options, \
 see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
@@ -5533,40 +5507,24 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
+        decimals : int, optional
+            Number of decimals to use when writing the forcing data.
+            By default 2.
+        overwrite : bool, optional
+            Whether to overwrite existing files. By default False.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
-        # Solve pathing same as read
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        filename = (
-            filename
-            or self.config.get_value("input.path_forcing")
-            or self.forcing._filename
-        )
-        # Check for input dir
-        p_input = join(self.config.get_value("dir_input", fallback=""), filename)
-
         # Call the component
-        filepath, starttime, endtime = self.forcing.write(
-            filename=p_input,
+        self.forcing.write(
+            filename=filename,
             output_frequency=output_frequency,
-            starttime=self.config.get_value("time.starttime"),
-            endtime=self.config.get_value("time.endtime"),
             time_chunk=time_chunk,
             time_units=time_units,
             decimals=decimals,
             overwrite=overwrite,
             **kwargs,
         )
-
-        # Set back to the config
-        # If write was skipped (filepath/starttime/endtime are None): keep previous config  # noqa: E501
-        if filepath is not None:
-            self.config.set("input.path_forcing", filepath.as_posix())
-        if starttime is not None:
-            self.config.set("time.starttime", starttime.strftime("%Y-%m-%dT%H:%M:%S"))
-        if endtime is not None:
-            self.config.set("time.endtime", endtime.strftime("%Y-%m-%dT%H:%M:%S"))
 
     def set_forcing(
         self,
@@ -5588,7 +5546,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         self.states.read()
 
     @hydromt_step
-    def write_states(self, filename: str | Path | None = None):
+    def write_states(self, filename: str | None = None):
         """
         Write states at <root/dir_input/state.path_input> in model ready format.
 
@@ -5604,21 +5562,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             Name of the states file, relative to model root and ``dir_input`` if any.
             By default None to use the name as defined in the model config file.
         """
-        # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default
-        p = (
-            filename
-            or self.config.get_value("state.path_input")
-            or self.states._filename
-        )
-        # Check for output dir
-        p_output = join(self.config.get_value("dir_input", fallback=""), p)
-
-        # Update the config
-        self.config.set("state.path_input", p)
-
         # Write
-        self.states.write(filename=p_output)
+        self.states.write(filename=filename)
 
     def set_states(
         self,

@@ -61,7 +61,6 @@ class WflowForcingComponent(GridComponent):
     ## I/O methods
     def read(
         self,
-        filename: Path | str | None = None,
         **kwargs,
     ):
         """Read forcing model data at root/dir_input/filename.
@@ -76,20 +75,12 @@ class WflowForcingComponent(GridComponent):
 
         Parameters
         ----------
-        filename : str, optional
-            Name or path to the forcing file(s) to be read.
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
         # Sort which path/ filename is actually the one used
-        # Hierarchy is: 1: signature, 2: config, 3: default from component
-        p = (
-            filename
-            or self.model.config.get_value("input.path_forcing")
-            or self._filename
-        )
+        # Hierarchy is: 1: config, 2: default from component
+        p = self.model.config.get_value("input.path_forcing") or self._filename
         # Check for input dir
         p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
 
@@ -102,17 +93,23 @@ class WflowForcingComponent(GridComponent):
     def write(
         self,
         *,
-        filename: Path | str | None = None,
+        filename: str | None = None,
         output_frequency: str | None = None,
-        starttime: str | None = None,
-        endtime: str | None = None,
         time_chunk: int = 1,
         time_units="days since 1900-01-01T00:00:00",
         decimals: int = 2,
         overwrite: bool = False,
         **kwargs,
-    ) -> tuple[Optional[Path], Optional[datetime], Optional[datetime]]:
+    ):
         """Write forcing model data.
+
+        If no ``filename` path is provided and path_forcing from the wflow toml exists,
+        the following default filenames are used:
+
+            * Default name format (with downscaling):
+              inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling):
+              inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
 
@@ -125,12 +122,9 @@ class WflowForcingComponent(GridComponent):
             The frequency of the files being written. If e.g. '3M' (3 months) is
             specified then files are written with a maximum of 3 months worth of data.
             By default None
-        starttime : str, optional
-            The start time for the output files. If None or not within the data,
-            the first index of the data will be used.
-        endtime : str, optional
-            The end time for the output files. If None or not within the data,
-            the last index of the data will be used.
+        time_chunk: int, optional
+            The chunk size for the time dimension when writing the forcing data.
+            By default 1.
         time_units : str, optional
             Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
@@ -149,17 +143,30 @@ class WflowForcingComponent(GridComponent):
             logger.warning(
                 "Write forcing skipped: dataset is empty (no variables or data)."
             )
-            return None, None, None
+            return
+
+        # Sort out the path
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        filename = (
+            filename
+            or self.model.config.get_value("input.path_forcing")
+            or self._filename
+        )
+        # Check for input dir
+        p_input = Path(self.model.config.get_value("dir_input", fallback=""), filename)
+
+        # Get the start and endtime
+        starttime = self.model.config.get_value("time.starttime", fallback=None)
+        endtime = self.model.config.get_value("time.endtime", fallback=None)
 
         # Logging the output
         logger.info("Write forcing file")
         start_time, end_time = self._validate_timespan(starttime, endtime)
 
-        filename = filename or self._filename
-        if Path(filename).is_absolute():
-            filepath = Path(filename)
+        if Path(p_input).is_absolute():
+            filepath = Path(p_input)
         else:
-            filepath = (self.root.path / filename).resolve()
+            filepath = (self.root.path / p_input).resolve()
 
         if filepath.exists():
             if overwrite:
@@ -180,7 +187,7 @@ class WflowForcingComponent(GridComponent):
                     frequency=output_frequency,
                 )
                 if filepath is None:  # should skip writing
-                    return None, None, None
+                    return
 
         # Clean-up forcing and write
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -247,7 +254,14 @@ class WflowForcingComponent(GridComponent):
                 )
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
-        return filepath, start_time, end_time
+        # Set back to the config
+        self.model.config.set("input.path_forcing", filepath.as_posix())
+        self.model.config.set(
+            "time.starttime", start_time.strftime("%Y-%m-%dT%H:%M:%S")
+        )
+        self.model.config.set("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
+
+        return
 
     ## Mutating methods
     def set(

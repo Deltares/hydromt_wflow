@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pandas as pd
 import pytest
 import xarray as xr
 
@@ -74,10 +73,10 @@ def test_wflow_forcing_component_set_errors(
 
 def test_wflow_forcing_component_read(
     mock_model_staticmaps_factory: MagicMock,
-    forcing_layer_path: xr.DataArray,
+    model_subbasin_cached: Path,
 ):
     # Setup the component
-    mock_model = mock_model_staticmaps_factory(mode="r")
+    mock_model = mock_model_staticmaps_factory(path=model_subbasin_cached, mode="r")
     component = WflowForcingComponent(
         mock_model,
     )
@@ -86,10 +85,11 @@ def test_wflow_forcing_component_read(
     assert "foo" not in component.data.data_vars
 
     # Read some data
-    component.read(filename=forcing_layer_path)
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.read()
 
     # Assert our favourate variable is now in the data
-    assert "foo" in component.data.data_vars
+    assert "precip" in component.data.data_vars
 
 
 def test_wflow_forcing_component_write(
@@ -104,18 +104,16 @@ def test_wflow_forcing_component_write(
     out_path = mock_model.root.path / filename_in
 
     # Write once -> out_path
-    filepath, starttime, endtime = component.write(filename=filename_in)
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(filename=filename_in)
 
     # Assert the output
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     assert out_path.is_file()
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
-    assert filepath == out_path
-    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
-    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
 
     # Write twice -> out_path exists, so warn and create new name
-    filepath, starttime, endtime = component.write(filename=filename_in)
+    component.write(filename=filename_in)
+    new_filepath = mock_model.root.path / "inmaps_None_2000_2000.nc"
 
     # Assert the output
     EXISTS_WARNING = "Netcdf forcing file"
@@ -123,13 +121,10 @@ def test_wflow_forcing_component_write(
     exists_warnings = [EXISTS_WARNING in message for message in caplog.messages]
     assert exists_warnings.count(True) == 1
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 2
-    assert filepath != out_path
-    assert filepath.exists()
-    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
-    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
+    assert new_filepath.exists()
 
     # Write 3rd time -> warn, skip writing, return none
-    should_be_none, starttime, endtime = component.write(filename=filename_in)
+    component.write(filename=filename_in)
 
     SKIP_WARNING = "Netcdf generated forcing file name"
     exists_warnings = [
@@ -138,12 +133,9 @@ def test_wflow_forcing_component_write(
     skip_warnings = [
         SKIP_WARNING in " ".join(message.split()) for message in caplog.messages
     ]
-    assert should_be_none is None
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 2
     assert exists_warnings.count(True) == 2
     assert skip_warnings.count(True) == 1
-    assert starttime is None
-    assert endtime is None
 
 
 def test_wflow_forcing_component_write_with_overwrite(
@@ -160,11 +152,11 @@ def test_wflow_forcing_component_write_with_overwrite(
     last_modification_time = out_path.stat().st_mtime
 
     # Write once -> out_path
-    filepath, starttime, endtime = component.write(filename=filename_in, overwrite=True)
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(filename=filename_in, overwrite=True)
 
     # Assert the output
-    DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
-    DELETE_WARNING = f"Deleting existing forcing file {filepath.as_posix()}"
+    DELETE_WARNING = f"Deleting existing forcing file {out_path.as_posix()}"
     deletion_warnings = [
         DELETE_WARNING in " ".join(message.split()) for message in caplog.messages
     ]
@@ -172,10 +164,7 @@ def test_wflow_forcing_component_write_with_overwrite(
     assert deletion_warnings.count(True) == 1
     assert out_path.is_file()
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
-    assert filepath == out_path
     assert last_modification_time < out_path.stat().st_mtime
-    assert starttime.strftime(DATETIME_FORMAT) == "2000-01-01T00:00:00"
-    assert endtime.strftime(DATETIME_FORMAT) == "2000-01-20T00:00:00"
 
 
 def test_wflow_forcing_component_write_freq(
@@ -190,39 +179,12 @@ def test_wflow_forcing_component_write_freq(
     out_path = mock_model.root.path / "inmaps.nc"
 
     # Write to the drive
-    filename, _, _ = component.write(filename=out_path, output_frequency="5D")
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(filename=out_path, output_frequency="5D")
     # I.e. 5 day output freq
 
     # Assert the output
-    assert filename == out_path.parent / "inmaps_*.nc"
     assert len(list(out_path.parent.glob("*.nc"))) == 4
-
-
-def test_wflow_forcing_component_write_time(
-    mock_model: MagicMock,
-    forcing_layer: xr.DataArray,
-):
-    # Setup the component
-    component = WflowForcingComponent(
-        mock_model,
-    )
-    out_path = mock_model.root.path / "inmaps.nc"
-    component._data = forcing_layer.to_dataset(promote_attrs=True)
-    expected_start = pd.Timestamp(min(forcing_layer.time).values).to_pydatetime()
-    expected_end = pd.Timestamp(max(forcing_layer.time).values).to_pydatetime()
-
-    # Write to the drive
-    file_path, starttime, endtime = component.write(
-        filename=out_path,
-        starttime=expected_start - pd.Timedelta(weeks=2),
-        endtime=expected_end + pd.Timedelta(weeks=2),
-    )  # Both exceeding their respective end
-
-    # Assert the output
-    assert out_path.is_file()
-    assert file_path == out_path
-    assert starttime == expected_start
-    assert endtime == expected_end
 
 
 def test_wflow_forcing_component_write_no_filename(
@@ -236,13 +198,13 @@ def test_wflow_forcing_component_write_no_filename(
     component._data = forcing_layer.to_dataset(promote_attrs=True)
 
     # Write to the drive
-    file_path, _, _ = component.write(
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(
         filename=None,
     )
 
     # Assert the output
-    assert file_path.is_file()
-    assert file_path == mock_model.root.path / component._filename
+    assert (mock_model.root.path / component._filename).is_file()
 
 
 @pytest.mark.parametrize("rel_path", ["forcing/inmaps.nc", "../forcing/inmaps.nc"])
@@ -258,13 +220,13 @@ def test_wflow_forcing_component_write_relative_filename(
     component._data = forcing_layer.to_dataset(promote_attrs=True)
 
     # Write to the drive
-    file_path, _, _ = component.write(
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(
         filename=rel_path,
     )
 
     # Assert the output
-    assert file_path.is_file()
-    assert file_path == (mock_model.root.path / rel_path).resolve()
+    assert (mock_model.root.path / rel_path).resolve().is_file()
 
 
 def test_wflow_forcing_component_write_abs_file(
@@ -280,10 +242,10 @@ def test_wflow_forcing_component_write_abs_file(
     abs_path = tmp_path / "abs/forcing/inmaps.nc"
 
     # Write to the drive
-    file_path, _, _ = component.write(
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(
         filename=abs_path,
     )
 
     # Assert the output
-    assert file_path.is_file()
-    assert file_path == abs_path
+    assert (mock_model.root.path / abs_path).is_file()
