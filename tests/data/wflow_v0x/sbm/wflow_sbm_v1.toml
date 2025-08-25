@@ -80,7 +80,6 @@ vegetation_wood_water__storage_capacity = "Swood"
 soil_layer_water__brooks-corey_exponent = "c"
 soil_surface_water__infiltration_reduction_parameter = "cf_soil"
 soil_surface_water__vertical_saturated_hydraulic_conductivity = "KsatVer"
-subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio = "KsatHorFrac"
 soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "f"
 "soil~compacted_surface_water__infiltration_capacity" = "InfiltCapPath"
 soil_water__residual_volume_fraction = "thetaR"
@@ -110,8 +109,8 @@ reservoir_water__rating_curve_coefficient = "reservoir_b"
 reservoir_water__rating_curve_exponent = "reservoir_e"
 reservoir_water_flow_threshold-level__elevation = "reservoir_outflow_threshold"
 
-[input.static.floodplain_water_flow__manning_n_parameter]
-value = 0.144
+[input.static.subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio]
+value = 100
 
 [output.netcdf_grid]
 path = "output.nc"

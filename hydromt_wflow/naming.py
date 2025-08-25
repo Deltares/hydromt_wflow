@@ -342,7 +342,7 @@ WFLOW_NAMES = {
         "wflow_v1": "floodplain_water__sum_of_volume-per-depth",
         "hydromt_name": "floodplain_volume",
     },
-    "floodplain_roughness": {
+    "floodplain_manning_n": {
         "wflow_v0": "lateral.river.floodplain.n",
         "wflow_v1": "floodplain_water_flow__manning_n_parameter",
     },
