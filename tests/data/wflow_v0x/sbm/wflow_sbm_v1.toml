@@ -18,7 +18,7 @@ river_routing = "kinematic-wave"
 kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
-soil_layer__thickness = [ 100, 300, 800,]
+soil_layer__thickness = [100, 300, 800]
 reservoir__flag = true
 
 [state]
@@ -128,6 +128,11 @@ map = "gauges"
 parameter = "river_water__instantaneous_volume_flow_rate"
 
 [[output.netcdf_scalar.variable]]
+name = "lake-volume"
+map = "reservoir_location__count"
+parameter = "lake_water__instantaneous_volume"
+
+[[output.netcdf_scalar.variable]]
 name = "temp_coord"
 location = "temp_bycoord"
 parameter = "atmosphere_air__temperature"
@@ -166,6 +171,11 @@ y = 6
 header = "Q"
 map = "gauges_grdc"
 parameter = "river_water__volume_flow_rate"
+
+[[output.csv.column]]
+header = "lake-volume"
+map = "reservoir_location__count"
+parameter = "lake_water__instantaneous_volume"
 
 [[output.csv.column]]
 header = "P"

@@ -254,10 +254,16 @@ def _convert_to_wflow_v1(
         config_out["output"]["netcdf_scalar"]["variable"] = []
         nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
         for nc_scalar in nc_scalar_vars:
-            if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
+            if nc_scalar["parameter"] in WFLOW_CONVERSION:
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
-                if "map" in nc_scalar and nc_scalar["map"] in input_options.keys():
-                    nc_scalar["map"] = input_options[nc_scalar["map"]]
+                if map_var := nc_scalar.get("map"):
+                    if map_var in input_options:
+                        nc_scalar["map"] = input_options[map_var]
+                    elif map_var in [
+                        "lateral.river.lake.locs",
+                        "lateral.river.reservoir.locs",
+                    ]:
+                        nc_scalar["map"] = "reservoir_location__count"
                 config_out["output"]["netcdf_scalar"]["variable"].append(nc_scalar)
             else:
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
@@ -274,10 +280,16 @@ def _convert_to_wflow_v1(
         config_out["output"]["csv"]["column"] = []
         csv_vars = get_config("csv.column", config=config, fallback=[])
         for csv_var in csv_vars:
-            if csv_var["parameter"] in WFLOW_CONVERSION.keys():
+            if csv_var["parameter"] in WFLOW_CONVERSION:
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
-                if csv_var.get("map", None) in input_options.keys():
-                    csv_var["map"] = input_options[csv_var["map"]]
+                if map_var := csv_var.get("map"):
+                    if map_var in input_options:
+                        csv_var["map"] = input_options[map_var]
+                    elif map_var in [
+                        "lateral.river.lake.locs",
+                        "lateral.river.reservoir.locs",
+                    ]:
+                        csv_var["map"] = "reservoir_location__count"
                 config_out["output"]["csv"]["column"].append(csv_var)
             else:
                 _warn_str(csv_var["parameter"], "csv")
