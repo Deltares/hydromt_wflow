@@ -28,8 +28,6 @@ __all__ = [
     "get_config",
     "set_config",
     "get_grid_from_config",
-    "convert_to_wflow_v1_sbm",
-    "convert_to_wflow_v1_sediment",
 ]
 
 
@@ -128,7 +126,7 @@ of the config.
                     full_index = maps[
                         f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
-                    res_x, res_y = full_index.raster.res
+                    _, res_y = full_index.raster.res
                     if res_y < 0:
                         full_index = full_index.reindex(
                             {
@@ -148,10 +146,6 @@ of the config.
                     if "reservoir" in col["parameter"]:
                         mask = maps[
                             f"{config['input'].get('reservoir_location__count')}"
-                        ].copy()
-                    elif "lake" in col["parameter"]:
-                        mask = maps[
-                            f"{config['input'].get('lake_location__count')}"
                         ].copy()
                     elif "river" in col["parameter"]:
                         mask = maps[
@@ -390,6 +384,10 @@ def mask_raster_from_layer(
     -------
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
+    # Reproject data to match mask's grid if shapes differ
+    if data.sizes != mask.sizes:
+        data = data.raster.reproject_like(mask)
+
     mask = mask != mask.raster.nodata
     # Need to duplicate or else data should have a name ie we duplicate functionality
     # of GridModel.set_grid
