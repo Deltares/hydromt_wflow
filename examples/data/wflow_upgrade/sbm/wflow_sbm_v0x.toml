@@ -18,8 +18,12 @@ gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
-forcing = [ "vertical.precipitation", "vertical.temperature", "vertical.potential_evaporation",]
-cyclic = [ "vertical.leaf_area_index",]
+forcing = [
+    "vertical.precipitation",
+    "vertical.temperature",
+    "vertical.potential_evaporation",
+]
+cyclic = ["vertical.leaf_area_index"]
 gauges_grdc = "wflow_gauges_grdc"
 
 [model]
@@ -35,7 +39,7 @@ river_routing = "kinematic-wave"
 kin_wave_iteration = true
 kw_river_tstep = 900
 kw_land_tstep = 3600
-thicknesslayers = [ 100, 300, 800,]
+thicknesslayers = [100, 300, 800]
 
 [state.vertical]
 satwaterdepth = "satwaterdepth"
@@ -190,7 +194,7 @@ parameter = "vertical.temperature"
 
 [[csv.column]]
 header = "Q"
-map = "gauges_grdc"
+map = "lateral.river.lake.locs"
 parameter = "lateral.river.q_av"
 
 [[csv.column]]
