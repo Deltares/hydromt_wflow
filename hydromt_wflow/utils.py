@@ -229,7 +229,7 @@ def get_config(
     for key in keys[:-1]:
         branch = branch.get(key, {})
         if not isinstance(branch, dict):
-            branch = dict()
+            branch = {}
             break
 
     value = branch.get(keys[-1], fallback)

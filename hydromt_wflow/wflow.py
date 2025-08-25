@@ -4976,7 +4976,7 @@ Run setup_soilmaps first"
 
         config_v0 = self.config.copy()
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        self._config = dict()
+        self._config = {}
 
         for option in config_out:
             self.set_config(option, config_out[option])

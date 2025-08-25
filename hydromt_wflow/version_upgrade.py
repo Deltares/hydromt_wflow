@@ -118,7 +118,7 @@ def _convert_to_wflow_v1(
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
     logger.info("Converting config general, time and model sections")
-    config_out = dict()
+    config_out = {}
 
     # Start with the general section - split into general, time and logging in v1
     input_section = {
