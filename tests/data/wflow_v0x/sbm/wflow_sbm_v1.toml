@@ -18,7 +18,7 @@ river_routing = "kinematic-wave"
 kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
-soil_layer__thickness = [ 100, 300, 800,]
+soil_layer__thickness = [100, 300, 800]
 reservoir__flag = true
 
 [state]
@@ -162,7 +162,7 @@ x = 11
 y = 6
 [[output.csv.column]]
 header = "Q"
-map = "gauges_grdc"
+map = "reservoir_location__count"
 parameter = "river_water__volume_flow_rate"
 
 [[output.csv.column]]
