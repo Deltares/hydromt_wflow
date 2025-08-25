@@ -5783,6 +5783,39 @@ change name input.path_forcing "
         with codecs.open(fn, "w", encoding="utf-8") as f:
             toml.dump(self.config, f)
 
+    def get_config(self, *args, fallback=None, abs_path: bool = False):
+        """
+        Get a config value at key(s).
+
+        See Also
+        --------
+        hydromt.Model.get_config
+
+        Parameters
+        ----------
+        args : tuple or string
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+
+        Returns
+        -------
+        value : any type
+            dictionary value
+        """
+        self._initialize_config()
+        return utils.get_config(
+            *args,
+            config=self._config,  # we already initialized with _initalize_config
+            fallback=fallback,
+            root=Path(self.root),
+            abs_path=abs_path,
+        )
+
     def set_config(self, *args):
         """
         Update the config toml at key(s) with values.
@@ -5839,7 +5872,7 @@ change name input.path_forcing "
         """
         self._initialize_config()
         utils.set_config(
-            self.config,  # read config at first call
+            self._config,  # we already initialized with _initalize_config
             *args,
         )
 
