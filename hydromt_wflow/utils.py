@@ -3,26 +3,24 @@
 import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, Union, cast
 
 import geopandas as gpd
 import numpy as np
-import tomlkit
 import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
-from tomlkit.items import Key
 
 logger = logging.getLogger(__name__)
 
-DATADIR = Path(join(dirname(abspath(__file__)), "data"))
+DATADIR = join(dirname(abspath(__file__)), "data")
 
 __all__ = [
-    "get_config",
-    "get_grid_from_config",
     "read_csv_results",
+    "get_config",
     "set_config",
+    "get_grid_from_config",
 ]
 
 
@@ -190,193 +188,60 @@ of the config.
 
 
 def get_config(
-    config: tomlkit.TOMLDocument,
     *args,
+    config: Dict = {},
+    fallback=None,
     root: Path | None = None,
-    fallback: Any | None = None,
     abs_path: bool = False,
 ):
     """
-    Get a config value at key.
+    Get a config value at key(s).
+
+    Copy of hydromt.Model.get_config method to parse config outside of Model functions.
+
+    See Also
+    --------
+    hydromt.Model.get_config
 
     Parameters
     ----------
-    args : tuple, str
+    args : tuple or string
         keys can given by multiple args: ('key1', 'key2')
         or a string with '.' indicating a new level: ('key1.key2')
-    fallback: Any, optional
+    config : dict, optional
+        config dict to get the values from.
+    fallback: any, optional
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
         If True return the absolute path relative to the model root,
         by default False.
-        NOTE: this assumes the config is located in model root!
 
     Returns
     -------
-    value : Any
+    value : any type
         dictionary value
-
-    Examples
-    --------
-    >> config = {'a': 1, 'b': {'c': {'d': 2}}
-
-    >> get_config(config, 'a')
-    >> 1
-
-    >> get_config(config, 'b', 'c', 'd') # identical to get_config(config, 'b.c.d')
-    >> 2
-
-    >> get_config(config, 'b.c') # # identical to get_config(config, 'b','c')
-    >> {'d': 2}
     """
-    args = list(args)
-    if len(args) == 1 and "." in args[0]:
-        args = args[0].split(".") + args[1:]
-    branch = config  # reads config at first call
-    for key in args[:-1]:
+    keys = list(args)
+
+    if len(keys) == 1 and "." in keys[0]:
+        keys = keys[0].split(".") + keys[1:]
+    branch = config.copy()  # reads config at first call
+    for key in keys[:-1]:
         branch = branch.get(key, {})
         if not isinstance(branch, dict):
-            branch = dict()
+            branch = {}
             break
-    value = branch.get(args[-1], fallback)
+
+    value = branch.get(keys[-1], fallback)
     if abs_path and isinstance(value, str):
         value = Path(value)
         if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
             value = Path(abspath(join(root, value)))
-
-    if isinstance(value, tomlkit.items.Item):
-        return value.unwrap()
-    elif value is None:
-        return fallback
-    else:
-        return value
-
-
-def set_config(config: tomlkit.TOMLDocument, *args):
-    """
-    Update the config toml at key(s) with values.
-
-    This function is made to maintain the structure of your toml file.
-    When adding keys it will look for the most specific header present in
-    the toml file and add it under that.
-
-    meaning that if you have a config toml that is empty and you run
-    ``set_config("input.forcing.scale", 1)``
-
-    it will result in the following file:
-
-    .. code-block:: toml
-
-        input.forcing.scale = 1
-
-
-    however if your toml file looks like this before:
-
-    .. code-block:: toml
-
-        [input.forcing]
-
-    (i.e. you have a header in there that has no keys)
-
-    then after the insertion it will look like this:
-
-    .. code-block:: toml
-
-        [input.forcing]
-        scale = 1
-
-
-    .. warning::
-
-        Due to limitations of the underlying library it is currently not possible to
-        create new headers (i.e. groups like ``input.forcing`` in the example above)
-        programmatically, and they will need to be added to the default config
-        toml document
-
-
-    .. warning::
-
-        Even though the underlying config object behaves like a dictionary, it is
-        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-        error scan easily be introduced if this structure is modified by hand.
-        Therefore we strongly discourage users from manually modying it, and
-        instead ask them to use this ``set_config`` function to avoid problems.
-
-    Parameters
-    ----------
-    config : tomlkit.TOMLDocument
-        The config settings in TOMLDocument object.
-    args : str, tuple, list
-        if tuple or list, minimal length of two
-        keys can given by multiple args: ('key1', 'key2', 'value')
-        or a string with '.' indicating a new level: ('key1.key2', 'value')
-
-    Examples
-    --------
-    .. code-block:: ipython
-
-        >> config
-        >> {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> set_config(config, 'a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
-
-        >> set_config(config, 'b', 'c', 'd', 99) # identical to \
-set_config(config, 'b.d.e', 99)
-        >> {'a': 1, 'b': {'c': {'d': 99}}}
-    """
-    if len(args) < 2:
-        raise TypeError("set_config() requires a least one key and one value.")
-    if not all([isinstance(part, str) for part in args[:-1]]):
-        raise TypeError("All but last argument for set_config must be str")
-
-    args = list(args)
-    value = args.pop(-1)
-    keys = [part for arg in args for part in arg.split(".")]
-
-    # if we try to set dictionaries as values directly tomlkit will mess up the
-    # key bookkeeping, resulting in invalid toml, so instead
-    # if we see a mapping, we go over it recursively
-    # and manually add all of its keys, because of cloning issues.
-    if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-        for key, inner_value in value.items():
-            set_config(config, *keys, key, inner_value)
-
-    # if the first key is not present
-    # we can just set the entire thing straight
-    if keys[0] not in config:
-        config.append(_tomlkit_key(keys), value)
-        return
-
-    # If there is only one key we also just set that directly as
-    # a string key instead of the dotted variant
-    if len(keys) == 1:
-        config.update({keys[0]: value})
-        return
-
-    current = config
-    for idx in range(len(keys)):
-        if idx != len(keys) - 1:
-            remaining_key = _tomlkit_key(keys[idx:])
-        else:
-            remaining_key = keys[idx]
-
-        if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-            break
-
-        current = current[keys[idx]]
-
-    # tomlkit's update function doesn't work properly
-    # so instead of updating we take the key out if it is in there
-    # and readd it afterwards
-    if remaining_key in current:
-        _ = current.pop(remaining_key)
-
-    current[remaining_key] = value
-
-
-def _tomlkit_key(keys: list) -> Key:
-    return tomlkit.key(keys[0] if len(keys) == 1 else keys)
+    return value
 
 
 def get_grid_from_config(
@@ -425,8 +290,8 @@ def get_grid_from_config(
     # get config value
     # try with input only
     var = get_config(
-        config,
         f"input.{var_name}",
+        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
@@ -434,8 +299,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.static
         var = get_config(
-            config,
             f"input.static.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -446,8 +311,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.cyclic
         var = get_config(
-            config,
             f"input.cyclic.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -476,7 +341,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config(var, "netcdf.variable.name")
+            var_name = get_config("netcdf.variable.name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset
@@ -596,3 +461,39 @@ def planar_operation_in_utm(
         return result.to_crs(original_crs)
     else:
         raise TypeError("Operation must return a GeoSeries or GeoDataFrame.")
+
+
+def set_config(config, key: str, value: Any):
+    """Update the config dictionary at key(s) with values.
+
+    Parameters
+    ----------
+    key : str
+        a string with '.' indicating a new level: 'key1.key2' will translate
+        to {"key1":{"key2": value}}
+    value: Any
+        the value to set the config to
+
+    Examples
+    --------
+    ::
+
+        >> self.set({'a': 1, 'b': {'c': {'d': 2}}})
+        >> self.data
+            {'a': 1, 'b': {'c': {'d': 2}}}
+        >> self.set_value('a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+        >> self.set_value('b.d.e', 24)
+        >> {'a': 99, 'b': {'c': {'d': 24}}}
+    """
+    parts = key.split(".")
+    num_parts = len(parts)
+    current = cast(Dict[str, Any], config)
+    for i, part in enumerate(parts):
+        if part not in current or not isinstance(current[part], dict):
+            current[part] = {}
+        if i < num_parts - 1:
+            current = current[part]
+        else:
+            current[part] = value
