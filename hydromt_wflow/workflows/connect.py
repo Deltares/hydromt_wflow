@@ -11,7 +11,7 @@ from shapely.geometry import LineString, MultiLineString, Point
 
 from hydromt_wflow.utils import planar_operation_in_utm
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = ["wflow_1dmodel_connection"]
@@ -24,7 +24,6 @@ def wflow_1dmodel_connection(
     area_max: float = 30.0,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
-    logger: logging.Logger = logger,
     **kwargs,
 ) -> xr.Dataset:
     """
@@ -172,7 +171,6 @@ def wflow_1dmodel_connection(
             xy=(riv1d_edges.geometry.x, riv1d_edges.geometry.y),
             stream=ds_model["rivmsk"].values,
             flwdir=flwdir,
-            # logger = logger,
             **kwargs,
         )
         points = gpd.points_from_xy(*ds_model.raster.idx_to_xy(idxs))
@@ -348,7 +346,6 @@ def wflow_1dmodel_connection(
             xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
             stream=ds_model["rivmsk"].values,
             flwdir=flwdir,
-            # logger=logger,
             **kwargs,
         )
         # Derive subbasins

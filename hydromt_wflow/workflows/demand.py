@@ -9,7 +9,7 @@ import xarray as xr
 from hydromt import raster
 from hydromt.model.processes.grid import grid_from_constant, grid_from_geodataframe
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 __all__ = [
     "allocation_areas",
@@ -626,7 +626,6 @@ def irrigation(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
-    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy.
@@ -706,7 +705,6 @@ def irrigation_from_vector(
     paddy_class: List[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
-    logger: logging.Logger = logger,
 ):
     """
     Prepare irrigation maps for paddy and non paddy from geodataframe.
@@ -769,7 +767,6 @@ def irrigation_from_vector(
         paddy_class=paddy_class,
         area_threshold=area_threshold,
         lai_threshold=lai_threshold,
-        logger=logger,
     )
 
     return ds_irrigation

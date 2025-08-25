@@ -20,7 +20,6 @@ def glaciermaps(
     ds_like: "xr.Dataset",
     id_column: str = "simple_id",
     elevtn_name: str = "elevtn",
-    logger: logging.Logger = logger,
 ):
     """Return glacier maps (see list below) at model resolution.
 
