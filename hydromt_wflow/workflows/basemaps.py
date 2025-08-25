@@ -19,7 +19,7 @@ from hydromt.model.processes.region import (
 )
 from pyflwdir import core_conversion, core_d8, core_ldd
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 __all__ = ["hydrography", "topography", "parse_region"]
 
@@ -34,7 +34,6 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
-    logger: logging.Logger = logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -312,7 +311,6 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
-    logger: logging.Logger = logger,
 ):
     """Return topography maps (see list below) at model resolution.
 
@@ -375,7 +373,6 @@ def parse_region(
     hydrography_fn: str | xr.Dataset,
     resolution: float | int = 1 / 120.0,
     basin_index_fn: str | xr.Dataset | None = None,
-    logger: logging.Logger = logger,
 ) -> tuple[dict[str, gpd.GeoDataFrame], Optional[np.ndarray], xr.Dataset]:
     """Parse the region dictionary to get basin geometry and coordinates."""
     ds_org = data_catalog.get_rasterdataset(hydrography_fn)
