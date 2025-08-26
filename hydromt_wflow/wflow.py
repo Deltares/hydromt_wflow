@@ -2374,6 +2374,7 @@ gauge locations [-] (if derive_subcatch)
             "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
             "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
+            "soil_water__air_entry_pressure_head": "hb",
         },
     ):
         """
@@ -2429,6 +2430,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
+        * **hb** map: air entry pressure of soil (Brooks-Corey)	[cm]
 
 
         Parameters
