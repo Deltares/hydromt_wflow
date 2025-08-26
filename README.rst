@@ -137,7 +137,6 @@ HydroMT Wflow relies on these excellent packages:
 - six
 - tomli
 - tomli-w
-- tomlkit
 - toolz
 - typing-extensions
 - typing-inspection

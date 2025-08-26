@@ -17,7 +17,7 @@ import pandas as pd
 import pyflwdir
 import pyproj
 import shapely
-import tomlkit
+import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
@@ -4976,11 +4976,7 @@ Run setup_soilmaps first"
 
         config_v0 = self.config.copy()
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
-
-        self._config = tomlkit.parse(default_header_str)
+        self._config = {}
 
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -5779,58 +5775,45 @@ change name input.path_forcing "
 
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = tomlkit.load(f)
+            fdict = toml.load(f)
 
         return fdict
 
     def _configwrite(self, fn):
         with codecs.open(fn, "w", encoding="utf-8") as f:
-            tomlkit.dump(self.config, f)
+            toml.dump(self.config, f)
 
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
+    def get_config(self, *args, fallback=None, abs_path: bool = False):
+        """
+        Get a config value at key(s).
+
+        See Also
+        --------
+        hydromt.Model.get_config
 
         Parameters
         ----------
-        args : tuple, str
+        args : tuple or string
             keys can given by multiple args: ('key1', 'key2')
             or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
+        fallback: any, optional
             fallback value if key(s) not found in config, by default None.
         abs_path: bool, optional
             If True return the absolute path relative to the model root,
             by default False.
-            NOTE: this assumes the config is located in model root!
 
         Returns
         -------
-        value : Any
+        value : any type
             dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
         """
+        self._initialize_config()
         return utils.get_config(
-            self.config,
             *args,
+            config=self._config,  # we already initialized with _initalize_config
             fallback=fallback,
+            root=Path(self.root),
             abs_path=abs_path,
-            root=self.root,
         )
 
     def set_config(self, *args):
@@ -5867,23 +5850,6 @@ change name input.path_forcing "
             scale = 1
 
 
-        .. warning::
-
-            Due to limitations of the underlying library it is currently not possible to
-            create new headers (i.e. groups like ``input.forcing`` in the example above)
-            programmatically, and they will need to be added to the default config
-            toml document
-
-
-        .. warning::
-
-            Even though the underlying config object behaves like a dictionary, it is
-            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-            errors can easily be introduced if this structure is modified by hand.
-            Therefore we strongly discourage users from manually modyfing it, and
-            instead ask them to use this ``set_config`` and ``remove_config``
-            functions to avoid problems.
-
         Parameters
         ----------
         args : str, tuple, list
@@ -5906,7 +5872,7 @@ change name input.path_forcing "
         """
         self._initialize_config()
         utils.set_config(
-            self.config,  # read config at first call
+            self._config,  # we already initialized with _initalize_config
             *args,
         )
 
