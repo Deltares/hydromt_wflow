@@ -1925,7 +1925,7 @@ gauge locations [-] (if derive_subcatch)
         This function adds (uncontrolled) reservoirs such as natural lakes or weirs to
         the model. It prepares rating and storage curves parameters for the reservoirs
         modelled with the following rating curve types (see
-        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html>`__ ):
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/kinwave/>`__ ):
 
         * 1 for Q = f(H) from reservoir data and interpolation
         * 2 for Q = b(H - H0)^e (general power law)
@@ -2177,7 +2177,7 @@ gauge locations [-] (if derive_subcatch)
         This function adds reservoirs with simple control operations to the model. It
         prepares rating and storage curves parameters for the reservoirs modelled with
         the following rating curve types (see
-        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html>`__
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/waterbodies/>`__
         ):
 
         * 4 simple reservoir operational parameters
@@ -2383,76 +2383,81 @@ gauge locations [-] (if derive_subcatch)
         (pedo)transfer functions (PTFs) from literature with upscaling rules to
         ensure flux matching across scales.
 
-        Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
-        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
-        "brakensiek" and "cosby". "soilgrids" provides data at 7 specific depths,
-        while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        Currently supported values for `soil_fn` are `"soilgrids"` and
+        `"soilgrids_2020"`.
+        Options for `ptf_ksatver` (PTF for the vertical hydraulic conductivity) are
+        `"brakensiek"` and `"cosby"`.
+
+        - `"soilgrids"` provides data at 7 specific depths.
+        - `"soilgrids_2020"` provides data averaged over 6 depth intervals.
+
         This leads to small changes in the workflow:
-        (1) M parameter uses midpoint depths in soilgrids_2020 versus \
-specific depths in soilgrids,
-        (2) weighted average of soil properties over soil thickness is done with \
-the trapezoidal rule in soilgrids versus simple block weighted average in \
-soilgrids_2020,
-        (3) the soil_brooks_corey_c parameter is computed as weighted average over \
-wflow_sbm soil layers defined in ``wflow_thicknesslayers``.
+        1. M parameter uses midpoint depths in `"soilgrids_2020"` versus specific
+            depths in `"soilgrids"`.
+        2. Weighted average of soil properties over soil thickness is done with the
+            trapezoidal rule in `"soilgrids"` versus simple block weighted average
+            in `"soilgrids_2020"`.
+        3. The `soil_brooks_corey_c` parameter is computed as a weighted average over
+            `wflow_sbm` soil layers defined
+            in `wflow_thicknesslayers`.
 
-        The required data from soilgrids are soil bulk density 'bd_sl*' [g/cm3], \
-clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon content \
-'oc_sl*' [%], pH 'ph_sl*' [-], sand content 'sndppt_sl*' [%] and soil thickness \
-'soilthickness' [cm].
+        Required data from `"soilgrids"`:
+        - Soil bulk density: `bd_sl*` [g/cm³]
+        - Clay content: `clyppt_sl*` [%]
+        - Silt content: `sltppt_sl*` [%]
+        - Organic carbon content: `oc_sl*` [%]
+        - pH: `ph_sl*` [-]
+        - Sand content: `sndppt_sl*` [%]
+        - Soil thickness: `soilthickness` [cm]
 
-        A ``soil_mapping_fn`` can optionnally be provided to derive parameters based
-        on soil texture classes. A default table *soil_mapping_default* is available
+        A `soil_mapping_fn` can optionally be provided to derive parameters based
+        on soil texture classes. A default table `soil_mapping_default` is available
         to derive the infiltration capacity of the soil.
 
-        The following maps are added to grid:
+        The following maps are added to the grid:
 
-        * **soil_theta_s** map:
-            average saturated soil water content [m3/m3]
-        * **soil_theta_r** map:
-            average residual water content [m3/m3]
-        * **soil_ksat_vertical ** map:
-            vertical saturated hydraulic conductivity at soil surface [mm/day]
-        * **soil_thickness** map:
-            soil thickness [mm]
-        * **soil_f** map: scaling parameter controlling the decline of ksat_vertical \
-[mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **soil_f_** map:
-            scaling parameter controlling the decline of soil_ksat_vertical \
-[mm-1] (fitted with numpy linalg regression), bounds are checked
-        * **soil_brooks_corey_c_n** map:
-            Brooks Corey coefficients [-] based on pore size distribution, \
-a map for each of the wflow_sbm soil layers (n in total)
-        * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
-            [mm/day] at soil depths [z] of ``soil_fn`` data
-            [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
-(mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
-6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
-
+        - **soil_theta_s**: average saturated soil water content [m³/m³]
+        - **soil_theta_r**: average residual water content [m³/m³]
+        - **soil_ksat_vertical**: vertical saturated hydraulic conductivity at soil
+            surface [mm/day]
+        - **soil_thickness**: soil thickness [mm]
+        - **soil_f**: scaling parameter controlling the decline of `ksat_vertical`
+            [mm⁻¹] (fitted with `curve_fit` from `scipy.optimize`)
+        - **soil_f_**: scaling parameter controlling the decline of
+            `soil_ksat_vertical` [mm⁻¹] (fitted with NumPy linear regression)
+        - **soil_brooks_corey_c_n**: Brooks-Corey coefficients [-] based on pore size
+            distribution, one map per `wflow_sbm` soil layer
+        - **meta_{soil_fn}_ksat_vertical_[z]cm**: vertical hydraulic conductivity
+            [mm/day] at soil depths `[z]` of
+            `soil_fn` data: [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        - **meta_soil_texture**: soil texture based on USDA soil texture triangle
+            (mapping: 1=Clay, 2=Silty Clay, ..., 12=Sandy Loam)
 
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of RasterDataset source for soil parameter maps, see
-            data/data_sources.yml.
-            Should contain info for the 7 soil depths of soilgrids
-            (or 6 depths intervals for soilgrids_2020).
-            * Required variables: \
-'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
-'sndppt_sl*' [%], 'soilthickness' [cm]
+            Name of RasterDataset source for soil parameter maps,
+            see `data/data_sources.yml`.
+            Should contain info for the 7 soil depths of `"soilgrids"` or 6
+            depth intervals for `"soilgrids_2020"`.
+            Required variables: `bd_sl*`, `clyppt_sl*`, `sltppt_sl*`, `oc_sl*`,
+            `ph_sl*`, `sndppt_sl*`, `soilthickness`
+
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation of ksat vertical
-            (vertical saturated hydraulic conductivity [mm/day]).
-            By default 'brakensiek'.
+            Pedotransfer function (PTF) to use for calculation of vertical saturated
+            hydraulic conductivity [mm/day].
+            Default is `'brakensiek'`.
+
         wflow_thicknesslayers : list of int, optional
-            Thickness of soil layers [mm] for wflow_sbm soil model.
-            By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
-            Used only for Brooks Corey coefficients.
+            Thickness of soil layers [mm] for the `wflow_sbm` soil model.
+            Default is `[100, 300, 800]` for layers at depths 100, 400, 1200,
+            and >1200 mm.
+            Used only for Brooks-Corey coefficients.
+
         output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+            Dictionary with output names used in the model NetCDF input files.
+            Users should provide the Wflow.jl variable name followed by the name in
+            the NetCDF file.
         """
         self.logger.info("Preparing soil parameter maps.")
         self._update_naming(output_names)
@@ -2663,7 +2668,7 @@ using 'variable' argument."
             Landuse class [-]
         * **vegetation_kext** map:
             Extinction coefficient in the canopy gap fraction
-          equation [-]
+            equation [-]
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
@@ -2765,7 +2770,7 @@ using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameter
-           soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
+            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         output_names = {
