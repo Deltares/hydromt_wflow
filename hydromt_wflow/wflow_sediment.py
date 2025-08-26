@@ -24,7 +24,7 @@ from hydromt_wflow.wflow import WflowModel
 
 __all__ = ["WflowSedimentModel"]
 __hydromt_eps__ = ["WflowSedimentModel"]
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowSedimentModel(WflowModel):
@@ -165,7 +165,6 @@ class WflowSedimentModel(WflowModel):
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -195,7 +194,6 @@ class WflowSedimentModel(WflowModel):
                 gdf_riv=gdf_riv,
                 smooth_len=smooth_len,
                 min_rivwth=min_rivwth,
-                logger=logger,
             )
             # only add river width
             self.set_grid(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
@@ -333,7 +331,6 @@ class WflowSedimentModel(WflowModel):
             ds_like=self.staticmaps.data,
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
-            logger=logger,
         )
         if ds_res is None:
             # No reservoir of sufficient size found
@@ -372,7 +369,6 @@ class WflowSedimentModel(WflowModel):
                 ds_res,
                 self.staticmaps.data.rename(inv_rename),
                 duplicate_id=duplicate_id,
-                logger=logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_res is None:
@@ -618,7 +614,6 @@ cell [-]
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
-                logger=logger,
             )
 
             # Add to grid
@@ -968,7 +963,6 @@ capacity [-]
             self.staticmaps.data,
             usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
@@ -1008,7 +1002,7 @@ capacity [-]
             strord_name argument of setup_riverbedsed method.
         """
         config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sediment(self.config.data, logger=logger)
+        config_out = convert_to_wflow_v1_sediment(self.config.data)
 
         # Update the config
         with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
@@ -1028,7 +1022,7 @@ capacity [-]
 
         # Merge lakes and reservoirs layers
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
-            self.staticmaps.data, config_v0, logger=logger
+            self.staticmaps.data, config_v0
         )
         if ds_res is not None:
             # Remove older maps from grid

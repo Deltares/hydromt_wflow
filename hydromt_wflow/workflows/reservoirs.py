@@ -13,7 +13,7 @@ import xarray as xr
 
 from hydromt_wflow import utils
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = [
@@ -71,7 +71,6 @@ def reservoir_id_maps(
     ds_like: xr.Dataset,
     min_area: float = 0.0,
     uparea_name: str = "uparea",
-    logger=logger,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below).
 
@@ -209,7 +208,6 @@ def reservoir_simple_control_parameters(
     ds_reservoirs: xr.Dataset,
     timeseries_fn: str = None,
     output_folder: str | Path | None = None,
-    logger=logger,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -269,7 +267,6 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
             gdf=gdf,
             timeseries_fn=timeseries_fn,
             output_folder=output_folder,
-            logger=logger,
         )
 
     # create a geodf with id of reservoir and geometry at outflow location
@@ -297,7 +294,6 @@ def compute_reservoir_simple_control_parameters(
     perc_norm: int = 50,
     perc_min: int = 20,
     output_folder: str | Path | None = None,
-    logger=logger,
 ) -> pd.DataFrame:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -714,7 +710,6 @@ def reservoir_parameters(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
     rating_dict: dict = {},
-    logger=logger,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame, dict]:
     """
     Return (uncontrolled) reservoir attributes (see list below) needed for modelling.
@@ -858,7 +853,6 @@ def reservoir_parameters(
 def _check_duplicated_ids_in_merge(
     ds: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Check if reservoir IDs in ds are not duplicated in ds_like.
@@ -911,7 +905,6 @@ def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like.
@@ -951,16 +944,13 @@ def merge_reservoirs(
             )
         # else we just keep ds[layer] as it is
 
-    return _check_duplicated_ids_in_merge(
-        ds_out, duplicate_id=duplicate_id, logger=logger
-    )
+    return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
 
 def merge_reservoirs_sediment(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like for wflow sediment.
@@ -1002,9 +992,7 @@ def merge_reservoirs_sediment(
             )
             return None
 
-    return _check_duplicated_ids_in_merge(
-        ds_out, duplicate_id=duplicate_id, logger=logger
-    )
+    return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
 
 def create_reservoirs_geoms_sediment(
