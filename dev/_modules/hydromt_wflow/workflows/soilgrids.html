@@ -467,7 +467,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">curve_fit</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">ptf</span><span class="p">,</span> <span class="n">soilparams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">ptf</span><span class="p">,</span> <span class="n">soilparams</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -911,7 +911,7 @@
     <span class="n">ptfKsatVer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">,</span>
     <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
     <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return soil parameter maps at model resolution.</span>
@@ -937,21 +937,22 @@
 
 <span class="sd">    - **theta_s** : average saturated soil water content [m3/m3]</span>
 <span class="sd">    - **theta_r** : average residual water content [m3/m3]</span>
-<span class="sd">    - **ksat_vertical** : vertical saturated hydraulic conductivity at soil \</span>
-<span class="sd">surface [mm/day]</span>
+<span class="sd">    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil</span>
+<span class="sd">    surface [mm/day]</span>
 <span class="sd">    - **soil_thickness** : soil thickness [mm]</span>
 <span class="sd">    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \</span>
 <span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
-<span class="sd">    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical [mm-1] \</span>
-<span class="sd">(fitted with numpy linalg regression), bounds are checked</span>
+<span class="sd">    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]</span>
+<span class="sd">      (fitted with numpy linalg regression), bounds are checked</span>
 <span class="sd">    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \</span>
-<span class="sd">distribution index for the wflow_sbm soil layers.</span>
+<span class="sd">    distribution index for the wflow_sbm soil layers.</span>
 <span class="sd">    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \</span>
 <span class="sd">[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
-<span class="sd">    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt, \</span>
-<span class="sd">sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, \</span>
-<span class="sd">5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, \</span>
-<span class="sd">12:Sandy Loam]</span>
+<span class="sd">    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,</span>
+<span class="sd">    sand mapping: \</span>
+<span class="sd">[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \</span>
+<span class="sd">6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</span>
+
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1146,7 +1147,7 @@
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
     <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine Brooks Corey coefficient per wflow soil layer depth.</span>
@@ -1219,7 +1220,7 @@
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">usle_k_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
     <span class="n">add_aggregates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return soil parameter maps for sediment modelling at model resolution.</span>
@@ -1384,7 +1385,7 @@
     <span class="n">update_c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
     <span class="n">target_conductivity</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
-    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.</span>
