@@ -158,6 +158,21 @@ class WflowModel(Model):
         """Return the WflowTablesComponent instance."""
         return self.components["tables"]
 
+    @property
+    def output_grid(self) -> WflowOutputGridComponent:
+        """Return the WflowOutputGridComponent instance."""
+        return self.components["output_grid"]
+
+    @property
+    def output_scalar(self) -> WflowOutputScalarComponent:
+        """Return the WflowOutputScalarComponent instance."""
+        return self.components["output_scalar"]
+
+    @property
+    def output_csv(self) -> WflowOutputCsvComponent:
+        """Return the WflowOutputCsvComponent instance."""
+        return self.components["output_csv"]
+
     # Non model component properties
     @property
     def basins(self) -> gpd.GeoDataFrame | None:

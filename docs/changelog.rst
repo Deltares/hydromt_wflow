@@ -17,7 +17,7 @@ Added
 - forcing component ``WflowForcingComponent``: represents Wflow input forcing data.
 - states component ``WflowStatesComponent``: represents Wflow input states data.
 - geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data.
-- output_grid ``WflowOutputGridComponent``, output_scalar ``WflowOutputScalarComponent`` and output_csv ``WflowOutputCSVComponent`` components: reprensents Wflow outputs (used to be results).
+- output_grid ``WflowOutputGridComponent``, output_scalar ``WflowOutputScalarComponent`` and output_csv ``WflowOutputCsvComponent`` components: reprensents Wflow outputs (used to be results).
 - **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
 
 Changed

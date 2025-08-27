@@ -81,6 +81,11 @@ class WflowOutputCsvComponent(DatasetsComponent):
         # Read
         staticmaps = self._get_locations_data()
 
+        # Check if staticmaps data is not empty
+        if len(staticmaps) == 0:
+            logger.warning("Staticmaps data is empty, skip reading.")
+            return
+
         csv_dict = utils.read_csv_output(
             csv_filename, config=self.model.config.data, maps=staticmaps
         )

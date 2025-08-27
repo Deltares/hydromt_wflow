@@ -139,15 +139,21 @@ of the config.
     """
     # Count items by csv.column
     count = 1
-    csv_dict = dict()
+    csv_dict = {}
     # Loop over csv.column
     for col in config["output"]["csv"].get("column"):
         header = col["header"]
+        logger.debug(f"Reading csv column '{header}'")
         # Column based on map
         if "map" in col.keys():
             # Read the corresponding map and derive the different locations
             # The centroid of the geometry is used as coordinates for the timeseries
             map_name = config["input"].get(f"{col['map']}")
+            if map_name not in maps:
+                logger.warning(
+                    f"Map '{map_name}' not found in staticmaps. Skip reading."
+                )
+                return {}
             da = maps[map_name]
             gdf = da.raster.vectorize()
             gdf.geometry = gdf.geometry.representative_point()

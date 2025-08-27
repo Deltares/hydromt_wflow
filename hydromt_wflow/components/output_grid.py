@@ -53,10 +53,7 @@ class WflowOutputGridComponent(GridComponent):
         )
 
     ## I/O methods
-    def read(
-        self,
-        **kwargs,
-    ):
+    def read(self):
         """Read netcdf_grid model output at root/dir_output/filename.
 
         Checks the path of the file in the config toml using both
@@ -113,6 +110,10 @@ class WflowOutputGridComponent(GridComponent):
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
         """
+        # Check the type
+        if not isinstance(data, (xr.DataArray, xr.Dataset)):
+            raise TypeError("Data must be an xarray Dataset or DataArray")
+
         # Rename the temporal dimension to time
         if "time" not in data.dims:
             raise ValueError("'time' dimension not found in data")

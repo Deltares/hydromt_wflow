@@ -335,15 +335,15 @@ WflowOutputScalarComponent
    components.WflowOutputScalarComponent.data
    components.WflowOutputScalarComponent.read
 
-WflowOutputCSVComponent
+WflowOutputCsvComponent
 ------------------------
 
 .. autosummary::
    :toctree: _generated
 
-   components.WflowOutputCSVComponent
-   components.WflowOutputCSVComponent.data
-   components.WflowOutputCSVComponent.read
+   components.WflowOutputCsvComponent
+   components.WflowOutputCsvComponent.data
+   components.WflowOutputCsvComponent.read
 
 .. _workflows:
 

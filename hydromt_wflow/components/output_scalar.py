@@ -47,10 +47,7 @@ class WflowOutputScalarComponent(ModelComponent):
         )
 
     ## I/O methods
-    def read(
-        self,
-        **kwargs,
-    ):
+    def read(self):
         """Read netcdf_scalar model output at root/dir_output/filename.
 
         Checks the path of the file in the config toml using both
@@ -116,7 +113,7 @@ class WflowOutputScalarComponent(ModelComponent):
 
         if isinstance(data, xr.DataArray):
             # NOTE _name can be different from _data.name !
-            if data.name is None and name is not None:
+            if name is not None:
                 data.name = name
             elif name is None and data.name is not None:
                 name = data.name
@@ -125,7 +122,7 @@ class WflowOutputScalarComponent(ModelComponent):
             data = data.to_dataset()
 
         if not isinstance(data, xr.Dataset):
-            raise ValueError(f"cannot set data of type {type(data).__name__}")
+            raise TypeError(f"cannot set data of type {type(data).__name__}")
 
         if len(self._data) == 0:  # empty grid
             self._data = data

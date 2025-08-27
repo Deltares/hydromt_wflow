@@ -12,7 +12,7 @@ from pyproj.crs import CRS
 from pytest_mock import MockerFixture
 
 from hydromt_wflow import WflowModel
-from hydromt_wflow.components.staticmaps import WflowStaticmapsComponent
+from hydromt_wflow.components import WflowConfigComponent, WflowStaticmapsComponent
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -94,6 +94,32 @@ def mock_model_staticmaps_factory(
             side_effect=lambda: {"staticmaps": staticmaps}
         )
         type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+        mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
+        return mock_model
+
+    return factory
+
+
+@pytest.fixture
+def mock_model_staticmaps_config_factory(
+    mock_model_factory: Callable[[Path, str], WflowModel],
+    tmp_path: Path,
+) -> WflowModel:
+    def factory(
+        path: Path = tmp_path, mode: str = "w", config_filename: str = "wflow_sbm.toml"
+    ):
+        mock_model = mock_model_factory(path, mode)
+        staticmaps = WflowStaticmapsComponent(mock_model)
+        staticmaps._data = None
+        config = WflowConfigComponent(mock_model, filename=config_filename)
+        config._data = None
+
+        mock_model.components = {"staticmaps": staticmaps, "config": config}
+        type(mock_model).components = PropertyMock(
+            side_effect=lambda: {"staticmaps": staticmaps, "config": config}
+        )
+        type(mock_model).staticmaps = PropertyMock(side_effect=lambda: staticmaps)
+        type(mock_model).config = PropertyMock(side_effect=lambda: config)
         mock_model.get_component = MagicMock(name="staticmaps", return_value=staticmaps)
         return mock_model
 
