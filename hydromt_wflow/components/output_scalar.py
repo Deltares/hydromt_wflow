@@ -86,7 +86,7 @@ class WflowOutputScalarComponent(ModelComponent):
 
         Output files are model results and are therefore not written by HydroMT.
         """
-        logger.warning("netcdf_grid is an output of Wflow and will not be written.")
+        logger.warning("netcdf_scalar is an output of Wflow and will not be written.")
 
     ## Set methods
     def _initialize(self, skip_read: bool = False) -> None:

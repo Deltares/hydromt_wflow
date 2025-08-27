@@ -195,9 +195,9 @@ def test_model_inverse_clip(example_wflow_model: WflowModel):
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-def test_model_results(example_wflow_results):
-    # Tests on results
-    wflow = example_wflow_results
+def test_model_outputs(example_wflow_outputs):
+    # Tests on outputs
+    wflow = example_wflow_outputs
 
     # Check the gridded output
     assert isinstance(wflow.output_grid.data, xr.Dataset)

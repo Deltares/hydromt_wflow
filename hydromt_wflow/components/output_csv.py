@@ -81,11 +81,11 @@ class WflowOutputCsvComponent(DatasetsComponent):
         # Read
         staticmaps = self._get_locations_data()
 
-        csv_dict = utils.read_csv_results(
+        csv_dict = utils.read_csv_output(
             csv_filename, config=self.model.config.data, maps=staticmaps
         )
         for key in csv_dict:
-            # Add to results
+            # Add to data
             self.set(csv_dict[f"{key}"])
 
     def write(self):
@@ -94,7 +94,7 @@ class WflowOutputCsvComponent(DatasetsComponent):
 
         Output files are model results and are therefore not written by HydroMT.
         """
-        logger.warning("netcdf_grid is an output of Wflow and will not be written.")
+        logger.warning("output_csv is an output of Wflow and will not be written.")
 
     ## Set methods
 

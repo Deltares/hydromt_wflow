@@ -112,21 +112,21 @@ Model components
 ================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowModel`
-component contains which Wflow in- and output files. The files are read and written with the associated
+components contains which Wflow in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. :py:func:`~WflowModel.read_config`
 and :py:func:`~WflowModel.write_config` for the
 :py:attr:`~WflowModel.config` component.
 
 
-.. list-table::
+.. list-table:: Wflow model data
    :widths: 30 70
    :header-rows: 1
 
-   * - :py:class:`~hydromt_wflow.WflowModel` component
+   * - :py:class:`~hydromt_wflow.WflowModel` model
      - Wflow files
    * - :py:attr:`~hydromt_wflow.WflowModel.config`
      - wflow_sbm.toml
-   * - :py:attr:`~hydromt_wflow.WflowModel.grid`
+   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps`
      - staticmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
@@ -136,9 +136,9 @@ and :py:func:`~WflowModel.write_config` for the
      - instates.nc
    * - :py:attr:`~hydromt_wflow.WflowModel.tables`
      - tabular data (csv format, e.g. lake_hq.csv, lake_sh.csv)
-   * - :py:attr:`~hydromt_wflow.WflowModel.results`
-     - output.nc, output_scalar.nc, output.csv
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
-     - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
-     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
+   * - :py:attr:`~hydromt_wflow.WflowModel.output_grid`
+     - output.nc (defined in [output.netcdf_grid] TOML section)
+   * - :py:attr:`~hydromt_wflow.WflowModel.output_scalar`
+     - output_scalar.nc (defined in [output.netcdf_scalar] TOML section)
+   * - :py:attr:`~hydromt_wflow.WflowModel.output_csv`
+     - output.csv (defined in [output.csv] TOML section)
