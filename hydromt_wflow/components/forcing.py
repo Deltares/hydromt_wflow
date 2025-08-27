@@ -76,7 +76,7 @@ class WflowForcingComponent(GridComponent):
         Parameters
         ----------
         **kwargs : dict
-            Additional keyword arguments to be passed to the `write_nc` method.
+            Additional keyword arguments to be passed to the `read_nc` method.
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: config, 2: default from component
@@ -277,7 +277,7 @@ class WflowForcingComponent(GridComponent):
         Parameters
         ----------
         data: xarray.DataArray or xarray.Dataset
-            new map layer to add to grid
+            new map layer to add to forcing
         name: str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
