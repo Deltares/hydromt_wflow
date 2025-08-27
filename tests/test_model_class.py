@@ -98,9 +98,6 @@ def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
         assert mod0.config.data == mod1.config.data, "config mismatch"
 
 
-@pytest.mark.skip(
-    reason="unskip when merged: https://github.com/Deltares/hydromt/pull/1245"
-)
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_build(tmpdir, model, example_models, example_inis):
