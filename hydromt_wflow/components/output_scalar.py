@@ -103,7 +103,7 @@ class WflowOutputScalarComponent(ModelComponent):
         Parameters
         ----------
         data: xarray.DataArray or xarray.Dataset
-            new map layer to add to netcdf_grid output
+            new map layer to add to netcdf_scalar output
         name: str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
@@ -129,7 +129,7 @@ class WflowOutputScalarComponent(ModelComponent):
         else:
             for dvar in data.data_vars:
                 if dvar in self._data:
-                    logger.warning(f"Replacing netcdf_sclar output: {dvar}")
+                    logger.warning(f"Replacing netcdf_scalar output: {dvar}")
                 self._data[dvar] = data[dvar]
 
     ## Properties

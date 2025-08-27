@@ -40,7 +40,7 @@ class WflowOutputCsvComponent(DatasetsComponent):
         model : Model
             HydroMT model instance.
         filename : str, optional
-            Default path relative to the root where the netcdf_grid output file will be
+            Default path relative to the root where the csv output file will be
             read and written. By default 'output.csv'.
         locations_component : str, optional
             Name of the locations component to use for reading the output and mapping
