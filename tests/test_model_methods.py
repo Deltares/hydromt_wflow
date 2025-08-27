@@ -399,9 +399,6 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-@pytest.mark.skip(
-    reason="unskip when merged: https://github.com/Deltares/hydromt/pull/1245"
-)
 def test_setup_lai(example_wflow_model: WflowModel):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
@@ -1020,9 +1017,6 @@ def test_setup_precip_from_point_timeseries(
     assert int(mean_uniform * 1000) == 274
 
 
-@pytest.mark.skip(
-    reason="unskip when merged: https://github.com/Deltares/hydromt/pull/1245"
-)
 def test_setup_pet_forcing(example_wflow_model: WflowModel, da_pet: xr.DataArray):
     example_wflow_model.setup_pet_forcing(
         pet_fn=da_pet,
@@ -1292,9 +1286,6 @@ def test_setup_allocation_surfacewaterfrac(
     )
 
 
-@pytest.mark.skip(
-    reason="unskip when merged: https://github.com/Deltares/hydromt/pull/1245"
-)
 def test_setup_non_irrigation(example_wflow_model: WflowModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()

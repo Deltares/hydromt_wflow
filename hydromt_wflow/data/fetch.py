@@ -8,7 +8,7 @@ import pooch
 
 __all__ = ["fetch_data"]
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 PROCESSORS = {
     "tar.gz": pooch.Untar,

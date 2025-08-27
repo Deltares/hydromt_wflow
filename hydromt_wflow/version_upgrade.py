@@ -22,7 +22,7 @@ from hydromt_wflow.workflows.reservoirs import (
     merge_reservoirs_sediment,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 DATADIR = Path(join(dirname(abspath(__file__)), "data"))
 
@@ -64,7 +64,6 @@ def _convert_to_wflow_v1(
     input_options: dict = {},
     input_variables: list = [],
     additional_variables: dict = {},
-    logger: logging.Logger = logger,
 ) -> dict:
     """Convert the config to Wflow v1 format.
 
@@ -84,8 +83,6 @@ def _convert_to_wflow_v1(
         Options in the [input] section of the TOML that were updated in Wflow v1.
     input_variables: list, optional
         Variables that were moved to input rather than input.static.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -278,18 +275,13 @@ def _convert_to_wflow_v1(
     return config_out
 
 
-def convert_to_wflow_v1_sbm(
-    config: dict,
-    logger: logging.Logger = logger,
-) -> dict:
+def convert_to_wflow_v1_sbm(config: dict) -> dict:
     """Convert the config to Wflow v1 format for SBM.
 
     Parameters
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -396,24 +388,18 @@ def convert_to_wflow_v1_sbm(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out
 
 
-def convert_to_wflow_v1_sediment(
-    config: dict,
-    logger: logging.Logger = logger,
-) -> dict:
+def convert_to_wflow_v1_sediment(config: dict) -> dict:
     """Convert the config to Wflow v1 format for sediment.
 
     Parameters
     ----------
     config: dict
         The config to convert.
-    logger: logging.Logger, optional
-        The logger to use, by default logger.
 
     Returns
     -------
@@ -467,7 +453,6 @@ def convert_to_wflow_v1_sediment(
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
-        logger=logger,
     )
 
     return config_out
@@ -476,7 +461,6 @@ def convert_to_wflow_v1_sediment(
 def convert_reservoirs_to_wflow_v1_sbm(
     grid: xr.Dataset,
     config: dict,
-    logger: logging.Logger = logger,
 ) -> tuple[xr.Dataset | None, list[str], dict[str, str]]:
     """
     Merge reservoirs and lakes layers from a v0.x model config.
@@ -611,7 +595,6 @@ def convert_reservoirs_to_wflow_v1_sbm(
                 ds_lakes,
                 ds_res,
                 duplicate_id="skip",
-                logger=logger,
             )
             if ds_merge is None:
                 logger.warning(
@@ -637,7 +620,6 @@ def convert_reservoirs_to_wflow_v1_sbm(
 def convert_reservoirs_to_wflow_v1_sediment(
     grid: xr.Dataset,
     config: dict,
-    logger: logging.Logger = logger,
 ) -> tuple[xr.Dataset | None, list[str], dict[str, str]]:
     """
     Merge reservoirs and lakes layers from a v0.x model config.
@@ -739,7 +721,6 @@ def convert_reservoirs_to_wflow_v1_sediment(
                 ds_lakes,
                 ds_res,
                 duplicate_id="skip",
-                logger=logger,
             )
             if ds_merge is None:
                 logger.warning(

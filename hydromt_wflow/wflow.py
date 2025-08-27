@@ -378,7 +378,6 @@ class WflowModel(Model):
             hydrography_fn=hydrography_fn,
             resolution=res,
             basin_index_fn=basin_index_fn,
-            logger=logger,
         )
 
         # setup hydrography maps and set staticmap attribute with renamed maps
@@ -387,7 +386,6 @@ class WflowModel(Model):
             res=res,
             xy=xy,
             upscale_method=upscale_method,
-            logger=logger,
         )
 
         # Rename and add to grid
@@ -415,7 +413,6 @@ class WflowModel(Model):
             ds=ds_org,
             ds_like=self.staticmaps.data,
             method="average",
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
@@ -606,7 +603,6 @@ Select from {routing_options}.'
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -639,7 +635,6 @@ Select from {routing_options}.'
             da=strord,
             ds_like=self.staticmaps.data,
             df=df,
-            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
         self.set_grid(ds_nriver.rename(rmdict))
@@ -664,7 +659,6 @@ Select from {routing_options}.'
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
-                logger=logger,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
@@ -698,7 +692,6 @@ Select from {routing_options}.'
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
 
@@ -897,7 +890,6 @@ setting new flood_depth dimensions"
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                # logger = logger,
             ).rename(name)
             self.set_grid(ds_out)
             # Update the bankfull elevation map
@@ -1080,7 +1072,6 @@ and will soon be removed. '
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
             fit=fit,
-            logger=logger,
             **kwargs,
         )
         self.set_grid(da_rivwth, name=output_name)
@@ -1213,7 +1204,6 @@ and will soon be removed. '
             ds_like=self.staticmaps.data,
             df=df_map,
             params=list(lulc_vars.keys()),
-            logger=logger,
         )
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
@@ -1379,7 +1369,6 @@ and will soon be removed. '
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
-            logger=logger,
         )
         self.set_grid(ds_lulc_maps.rename(rmdict))
         # update config variable names
@@ -1473,7 +1462,6 @@ and will soon be removed. '
                 da_lai=da.copy(),
                 sampling_method=lulc_sampling_method,
                 lulc_zero_classes=lulc_zero_classes,
-                logger=logger,
             )
             # Save to csv
             if isinstance(lulc_fn, str) and not isfile(lulc_fn):
@@ -1486,7 +1474,6 @@ and will soon be removed. '
         da_lai = workflows.lai(
             da=da,
             ds_like=self.staticmaps.data,
-            logger=logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
@@ -1541,7 +1528,6 @@ and will soon be removed. '
             da=da,
             ds_like=self.staticmaps.data,
             df=df_lai_mapping,
-            logger=logger,
         )
         # Add to grid
         self.set_grid(da_lai, name=self._MAPS["LAI"])
@@ -1928,7 +1914,6 @@ gauge locations [-] (if derive_subcatch)
                 rel_error=rel_error,
                 abs_error=abs_error,
                 fillna=fillna,
-                logger=logger,
             )
         else:
             # Derive gauge map
@@ -2188,7 +2173,6 @@ gauge locations [-] (if derive_subcatch)
             ds_like=self.staticmaps.data,
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
-            logger=logger,
         )
         if ds_reservoirs is None:
             # No reservoirs of sufficient size found
@@ -2261,7 +2245,6 @@ gauge locations [-] (if derive_subcatch)
                 ds_reservoirs,
                 self.staticmaps.data.rename(inv_rename),
                 duplicate_id=duplicate_id,
-                logger=logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_reservoirs is None:
@@ -2460,7 +2443,6 @@ gauge locations [-] (if derive_subcatch)
             ds_like=self.staticmaps.data,
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
-            logger=logger,
         )
         if ds_res is None:
             # No reservoir of sufficient size found
@@ -2473,7 +2455,6 @@ gauge locations [-] (if derive_subcatch)
             ds_reservoirs=ds_res,
             timeseries_fn=timeseries_fn,
             output_folder=self.root.path,
-            logger=logger,
         )
 
         # merge with existing reservoirs
@@ -2490,7 +2471,6 @@ gauge locations [-] (if derive_subcatch)
                 ds_res,
                 self.staticmaps.data.rename(inv_rename),
                 duplicate_id=duplicate_id,
-                logger=logger,
             )
             # Check if ds_res is None ie duplicate IDs
             if ds_res is None:
@@ -2634,7 +2614,6 @@ a map for each of the wflow_sbm soil layers (n in total)
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
             wflow_layers=wflow_thicknesslayers,
-            logger=logger,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout.rename(rmdict))
@@ -3022,7 +3001,6 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             df=df_mapping,
             params=list(lulc_vars.keys()),
-            logger=logger,
         )
         self.set_grid(landuse_maps.rename(rmdict))
         # update config
@@ -3064,7 +3042,6 @@ using 'variable' argument."
                 update_c=update_c,
                 wflow_layers=wflow_thicknesslayers,
                 target_conductivity=target_conductivity,
-                logger=logger,
             )
             self.set_grid(
                 soil_maps["soil_ksat_vertical_factor"],
@@ -3164,7 +3141,6 @@ using 'variable' argument."
             ds_like=self.staticmaps.data,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
-            logger=logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
@@ -3526,7 +3502,6 @@ one variable and variables list is not provided."
             interp_type=interp_type,
             ds_like=self.staticmaps.data,
             mask_name=self._MAPS["basins"],
-            logger=logger,
             **kwargs,
         )
 
@@ -3707,7 +3682,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
             freq=None,  # resample time after pet workflow
-            # logger = logger,
         )
 
         if (
@@ -3719,7 +3693,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
-                # logger = logger,
             )
             temp_max_in.name = "temp_max"
 
@@ -3729,7 +3702,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
-                # logger = logger,
             )
             temp_min_in.name = "temp_min"
 
@@ -3747,7 +3719,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
-                # logger = logger,
             )
             # Update meta attributes with setup opt
             opt_attr = {
@@ -3770,7 +3741,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             label="right",
             closed="right",
             conserve_mass=False,
-            # logger = logger,
         )
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
@@ -3833,7 +3803,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
-            # logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -4056,7 +4025,6 @@ Run setup_soilmaps first"
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold,
-            logger=logger,
         )
 
         # set nodata value outside basin
@@ -4176,7 +4144,6 @@ Run setup_soilmaps first"
             area_max=area_max,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
-            logger=logger,
             **kwargs,
         )
 
@@ -4843,7 +4810,6 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -5023,7 +4989,6 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -5178,7 +5143,7 @@ Run setup_soilmaps first"
         This function should be followed by write_config() to write the upgraded file.
         """
         config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sbm(self.config.data, logger=logger)
+        config_out = convert_to_wflow_v1_sbm(self.config.data)
         # Update the config
         with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
             self.config._data = tomllib.load(file)
@@ -5187,7 +5152,7 @@ Run setup_soilmaps first"
 
         # Merge lakes and reservoirs layers
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
-            self.staticmaps.data, config_v0, logger=logger
+            self.staticmaps.data, config_v0
         )
         if ds_res is not None:
             # Remove older maps from grid
