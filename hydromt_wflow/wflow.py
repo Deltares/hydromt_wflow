@@ -1806,7 +1806,18 @@ gauge locations [-] (if derive_subcatch)
                 code = self.crs.to_epsg()
             else:
                 code = self.crs
-            kwargs.update(crs=code)
+            # Add crs to metadata for DataSource construction
+            if "metadata" in kwargs:
+                kwargs["metadata"].update(crs=code)
+            else:
+                kwargs.update(metadata={"crs": code})
+
+            # Add driver argument when file is a table
+            ext = Path(gauges_fn).suffix
+            if ext in [".csv", ".parquet", ".xls", ".xlsx"]:
+                driver_dict = {"driver": {"name": "geodataframe_table"}}
+                kwargs.update(driver_dict)
+
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
