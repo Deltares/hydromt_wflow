@@ -90,7 +90,7 @@ def test_wflow_output_grid_component_set_errors(
     different_grid = forcing_layer.copy()
     different_grid["lon"] = different_grid.lon + 1  # Shift x coordinates
     with pytest.raises(
-        ValueError, match="Output grid must be identical to staticmaps component"
+        ValueError, match="Data grid must be identical to staticmaps component"
     ):
         component.set(different_grid)
 
