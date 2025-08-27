@@ -1821,7 +1821,6 @@ gauge locations [-] (if derive_subcatch)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
-                # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -1830,7 +1829,6 @@ gauge locations [-] (if derive_subcatch)
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
-                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1838,7 +1836,6 @@ gauge locations [-] (if derive_subcatch)
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
-                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
