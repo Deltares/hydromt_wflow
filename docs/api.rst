@@ -27,7 +27,6 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
@@ -218,7 +217,6 @@ General methods
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.setup_config
    WflowSedimentModel.get_config
    WflowSedimentModel.set_config
    WflowSedimentModel.read_config

@@ -900,8 +900,8 @@ setting new flood_depth dimensions"
             The name of the output river__width map.
         """
         self.logger.warning(
-            'The "setup_riverwidth" method has been deprecated \
-and will soon be removed. '
+            'The "setup_riverwidth" method has been deprecated '
+            "and will soon be removed. "
             'You can now use the "setup_river" method for all river parameters.'
         )
         if self._MAPS["rivmsk"] not in self.grid:
@@ -1955,7 +1955,8 @@ gauge locations [-] (if derive_subcatch)
         * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_initial_depth** map: reservoir average water level [m]
-        * **reservoir_outflow_threshold** map: reservoir outflow threshold water level [m]
+        * **reservoir_outflow_threshold** map: reservoir outflow threshold water
+            level [m]
         * **meta_reservoir_mean_outflow** map: reservoir average discharge [m3/s]
         * **reservoir_b** map: reservoir rating curve coefficient [-]
         * **reservoir_e** map: reservoir rating curve exponent [-]
@@ -1971,12 +1972,23 @@ gauge locations [-] (if derive_subcatch)
         reservoirs_fn : str, Path, gpd.GeoDataFrame
             Name of GeoDataFrame source for uncontrolled reservoir parameters.
 
-            * Required variables for direct use: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'reservoir_b' [-], \
-'reservoir_e' [-], 'reservoir_rating_curve' [-], 'reservoir_storage_curve' [-], \
-'reservoir_outflow_threshold' [m], 'reservoir_lower_id' [-]
-            * Required variables for parameter estimation: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
+                * Required variables for direct use:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg' [m3/s],
+                    - 'reservoir_b' [-],
+                    - 'reservoir_e' [-],
+                    - 'reservoir_rating_curve' [-],
+                    - 'reservoir_storage_curve' [-],
+                    - 'reservoir_outflow_threshold' [m],
+                    - 'reservoir_lower_id' [-]
+                * Required variables for parameter estimation:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Vol_avg' [m3],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg'[m3/s]
 
         rating_curve_fns: str, Path, pandas.DataFrame, List, optional
             Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
@@ -1987,8 +1999,12 @@ gauge locations [-] (if derive_subcatch)
             placeholder). The ID should be placed at the end separated by an underscore
             (eg 'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
-            * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
+                * Required variables for storage curve:
+                    - 'elevtn' [m+REF],
+                    - 'volume' [m3]
+                * Required variables for rating curve:
+                    - 'elevtn' [m+REF],
+                    - 'discharge' [m3/s]
 
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
@@ -2219,19 +2235,20 @@ gauge locations [-] (if derive_subcatch)
 
         Adds model layers:
 
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_initial_depth** map: reservoir initial water level [m]
-        * **reservoir_rating_curve** map: option to compute rating curve [-]
-        * **reservoir_storage_curve** map: option to compute storage curve [-]
-        * **reservoir_max_volume** map: reservoir max volume [m3]
-        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
-        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
-        * **reservoir_demand** map: reservoir demand flow [m3/s]
-        * **reservoir_max_release** map: reservoir max release flow [m3/s]
-        * **meta_reservoirs_simple_control** geom: polygon with reservoirs and parameters
-        * **reservoirs** geom: polygon with all reservoirs as in the model
+            * **reservoir_area_id** map: reservoir IDs [-]
+            * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+            * **reservoir_area** map: reservoir area [m2]
+            * **reservoir_initial_depth** map: reservoir initial water level [m]
+            * **reservoir_rating_curve** map: option to compute rating curve [-]
+            * **reservoir_storage_curve** map: option to compute storage curve [-]
+            * **reservoir_max_volume** map: reservoir max volume [m3]
+            * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
+            * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
+            * **reservoir_demand** map: reservoir demand flow [m3/s]
+            * **reservoir_max_release** map: reservoir max release flow [m3/s]
+            * **meta_reservoirs_simple_control** geom: polygon with
+                reservoirs and parameters
+            * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
@@ -2377,7 +2394,7 @@ gauge locations [-] (if derive_subcatch)
         },
     ):
         """
-        Derive several (layered) soil parameters.
+                Derive several (layered) soil parameters.
 
         Based on a database with physical soil properties using available point-scale
         (pedo)transfer functions (PTFs) from literature with upscaling rules to
@@ -2388,50 +2405,50 @@ gauge locations [-] (if derive_subcatch)
         Options for `ptf_ksatver` (PTF for the vertical hydraulic conductivity) are
         `"brakensiek"` and `"cosby"`.
 
-        - `"soilgrids"` provides data at 7 specific depths.
-        - `"soilgrids_2020"` provides data averaged over 6 depth intervals.
+          - `"soilgrids"` provides data at 7 specific depths.
+          - `"soilgrids_2020"` provides data averaged over 6 depth intervals.
 
         This leads to small changes in the workflow:
-        1. M parameter uses midpoint depths in `"soilgrids_2020"` versus specific
-            depths in `"soilgrids"`.
-        2. Weighted average of soil properties over soil thickness is done with the
-            trapezoidal rule in `"soilgrids"` versus simple block weighted average
-            in `"soilgrids_2020"`.
-        3. The `soil_brooks_corey_c` parameter is computed as a weighted average over
-            `wflow_sbm` soil layers defined
-            in `wflow_thicknesslayers`.
+          1. M parameter uses midpoint depths in `"soilgrids_2020"`
+             versus specific depths in `"soilgrids"`.
+          2. Weighted average of soil properties over soil thickness is done with the
+             trapezoidal rule in `"soilgrids"` versus simple block weighted average
+             in `"soilgrids_2020"`.
+          3. The `soil_brooks_corey_c` parameter is computed as a weighted average over
+             `wflow_sbm` soil layers defined
+             in `wflow_thicknesslayers`.
 
         Required data from `"soilgrids"`:
-        - Soil bulk density: `bd_sl*` [g/cm³]
-        - Clay content: `clyppt_sl*` [%]
-        - Silt content: `sltppt_sl*` [%]
-        - Organic carbon content: `oc_sl*` [%]
-        - pH: `ph_sl*` [-]
-        - Sand content: `sndppt_sl*` [%]
-        - Soil thickness: `soilthickness` [cm]
+          - Soil bulk density: `bd_sl*` [g/cm³]
+          - Clay content: `clyppt_sl*` [%]
+          - Silt content: `sltppt_sl*` [%]
+          - Organic carbon content: `oc_sl*` [%]
+          - pH: `ph_sl*` [-]
+          - Sand content: `sndppt_sl*` [%]
+          - Soil thickness: `soilthickness` [cm]
 
         A `soil_mapping_fn` can optionally be provided to derive parameters based
         on soil texture classes. A default table `soil_mapping_default` is available
         to derive the infiltration capacity of the soil.
 
         The following maps are added to the grid:
-
-        - **soil_theta_s**: average saturated soil water content [m³/m³]
-        - **soil_theta_r**: average residual water content [m³/m³]
-        - **soil_ksat_vertical**: vertical saturated hydraulic conductivity at soil
+          - **soil_theta_s**: average saturated soil water content [m³/m³]
+          - **soil_theta_r**: average residual water content [m³/m³]
+          - **soil_ksat_vertical**: vertical saturated hydraulic conductivity at soil
             surface [mm/day]
-        - **soil_thickness**: soil thickness [mm]
-        - **soil_f**: scaling parameter controlling the decline of `ksat_vertical`
+          - **soil_thickness**: soil thickness [mm]
+          - **soil_f**: scaling parameter controlling the decline of `ksat_vertical`
             [mm⁻¹] (fitted with `curve_fit` from `scipy.optimize`)
-        - **soil_f_**: scaling parameter controlling the decline of
+          - **soil_f_**: scaling parameter controlling the decline of
             `soil_ksat_vertical` [mm⁻¹] (fitted with NumPy linear regression)
-        - **soil_brooks_corey_c_n**: Brooks-Corey coefficients [-] based on pore size
+          - **soil_brooks_corey_c_n**: Brooks-Corey coefficients [-] based on pore size
             distribution, one map per `wflow_sbm` soil layer
-        - **meta_{soil_fn}_ksat_vertical_[z]cm**: vertical hydraulic conductivity
+          - **meta_{soil_fn}_ksat_vertical_[z]cm**: vertical hydraulic conductivity
             [mm/day] at soil depths `[z]` of
             `soil_fn` data: [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        - **meta_soil_texture**: soil texture based on USDA soil texture triangle
+          - **meta_soil_texture**: soil texture based on USDA soil texture triangle
             (mapping: 1=Clay, 2=Silty Clay, ..., 12=Sandy Loam)
+
 
         Parameters
         ----------
@@ -2488,9 +2505,9 @@ gauge locations [-] (if derive_subcatch)
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
 
-        This predetermined map contains (preferably) 'calibrated' values of \
-the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
-or created by a third party/ individual.
+        This predetermined map contains (preferably) 'calibrated' values of
+        the KsatHorFrac parameter. This map is either selected from the wflow Deltares
+        data or created by a third party/ individual.
 
         Parameters
         ----------
@@ -2519,9 +2536,9 @@ or created by a third party/ individual.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                "The ksat_fn data contains several variables. \
-Select the variable to use for subsurface_ksat_horizontal_ratio \
-using 'variable' argument."
+                "The ksat_fn data contains several variables."
+                "Select the variable to use for subsurface_ksat_horizontal_ratio"
+                "using 'variable' argument."
             )
 
         # Create scaled subsurface_ksat_horizontal_ratio map
@@ -2546,16 +2563,16 @@ using 'variable' argument."
     ):
         """Correct vertical saturated hydraulic conductivity with vegetation properties.
 
-        This allows to account for biologically-promoted soil structure and \
-        heterogeneities in natural landscapes based on the work of \
+        This allows to account for biologically-promoted soil structure and
+        heterogeneities in natural landscapes based on the work of
         Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
         This method requires to have run setup_soilgrids and setup_lai first.
 
         The following map is added to grid:
 
-        * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \
-        vegetation characteristics [mm/d]
+            * **KsatVer_vegetation** map: saturated hydraulic conductivity considering
+                vegetation characteristics [mm/d]
 
         Parameters
         ----------
@@ -2563,7 +2580,7 @@ using 'variable' argument."
             Name of RasterDataset source for soil parameter maps, see
             data/data_sources.yml.
             Should contain info for the sand percentage of the upper layer
-            * Required variable: 'sndppt_sl1' [%]
+            Required variable: ``'sndppt_sl1' [%]``
         alfa : float, optional
             Shape parameter. The default is 4.5 when using LAI.
         beta : float, optional
@@ -2926,16 +2943,16 @@ using 'variable' argument."
 
         Adds model layers:
 
-        * **meta_glacier_area_id** map: glacier IDs [-]
-        * **glacier_fraction** map: area fraction of glacier per cell [-]
-        * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
+            * **meta_glacier_area_id** map: glacier IDs [-]
+            * **glacier_fraction** map: area fraction of glacier per cell [-]
+            * **glacier_initial_leq_depth** map: storage (volume) of glacier
+                per cell [mm]
 
         Parameters
         ----------
         glaciers_fn :
             Name of data source for glaciers, see data/data_sources.yml.
-
-            * Required variables: ['simple_id']
+            Required variables: ['simple_id']
         min_area : float, optional
             Minimum glacier area threshold [km2], by default 0 (all included)
         output_names : dict, optional
@@ -2995,7 +3012,7 @@ using 'variable' argument."
 
         Adds model layer:
 
-        * **param_name** map: constant parameter map.
+            * **param_name** map: constant parameter map.
 
         Parameters
         ----------
@@ -3042,7 +3059,7 @@ using 'variable' argument."
 
         Adds model layers:
 
-        * **raster.name** or **variables** grid: data from raster_fn
+            * **raster.name** or **variables** grid: data from raster_fn
 
         Parameters
         ----------
@@ -3050,9 +3067,9 @@ using 'variable' argument."
             Source name of RasterDataset in data_catalog.
         reproject_method: str
             Reprojection method from rasterio.enums.Resampling.
-            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
-'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
-'sum', 'rms']
+            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline',
+            'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3',
+            'sum', 'rms']
         variables: list, optional
             List of variables to add to grid from raster_fn. By default all.
         wflow_variables: list, optional
@@ -3096,8 +3113,8 @@ using 'variable' argument."
                     variables = list(ds_out.data_vars.keys())
                 else:
                     raise ValueError(
-                        "Cannot update the toml if raster_fn has more than \
-one variable and variables list is not provided."
+                        "Cannot update the toml if raster_fn has more than"
+                        "one variable and variables list is not provided."
                     )
 
             # Check on len
@@ -3207,50 +3224,56 @@ one variable and variables list is not provided."
         * **precip**: precipitation [mm]
 
         Supported interpolation methods:
-        * uniform: Applies spatially uniform precipitation to the model. \
-        Only works when `precip_fn` contains a single timeseries.
-        * nearest: Nearest-neighbour interpolation, also works with a single station.
-        * idw: Inverse-distance weighting using 1 / distance ** p.
-        * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator, \
-        may result in missing values when station coverage is limited.
-        * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib \
-        documentation for a full explanation: `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
-        * externaldriftkriging: Kriging interpolation including an external drift, \
-        see wradlib documentation for a full explanation: \
-        `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
+            * uniform: Applies spatially uniform precipitation to the model.
+                Only works when `precip_fn` contains a single timeseries.
+            * nearest: Nearest-neighbour interpolation, also works with a single
+                station.
+            * idw: Inverse-distance weighting using 1 / distance ** p.
+            * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator,
+                may result in missing values when station coverage is limited.
+            * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib
+                documentation for a full explanation:
+                `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
+            * externaldriftkriging: Kriging interpolation including an external drift,
+                see wradlib documentation for a full explanation:
+                `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
 
 
         Parameters
         ----------
         precip_fn : str, pd.DataFrame, xr.Dataset
-            Precipitation source as DataFrame or GeoDataset. \
-            - DataFrame: the index column should contain time and the other \
-            columns should correspond to the name or ID values of the stations \
-            in `precip_stations_fn`.
-            - GeoDataset: the dataset should contain the variable 'precip' and \
-            the dimensions 'time' and 'index'.
+            Precipitation source as DataFrame or GeoDataset.
+                - DataFrame: the index column should contain time and the other
+                    columns should correspond to the name or ID values of the
+                    stations in `precip_stations_fn`.
+                - GeoDataset: the dataset should contain the variable 'precip' and
+                    the dimensions 'time' and 'index'.
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str
-            Interpolation method. Options: "nearest", "idw", "linear", \
-            "ordinarykriging", "externaldriftkriging".
+            Interpolation method. Options:
+                - "nearest",
+                - "idw",
+                - "linear",
+                - "ordinarykriging",
+                - "externaldriftkriging".
         precip_stations_fn : str, gpd.GeoDataFrame, optional
-            Source for the locations of the stations as points: (x, y) or (lat, lon). \
-            Only required if precip_fn is of type DataFrame.
+            Source for the locations of the stations as points: (x, y) or (lat, lon).
+            Only required if ``precip_fn`` is of type DataFrame.
         index_col : str, optional
             Column in precip_stations_fn to use for station ID values, by default None.
         buffer: float, optional
             Buffer around the basins in metres to determine which
             stations to include. Set to 100 km (1e5 metres) by default.
         **kwargs
-            Additional keyword arguments passed to the interpolation function. \
-            Supported arguments depend on the interpolation type:
-            - nnearest: Maximum number of neighbors for interpolation (default: 4).
-            - p: Power parameter for IDW interpolation (default: 2).
-            - remove_missing: Mask NaN values in the input data (default: False).
-            - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
-            - src_drift: External drift values at source points (stations).
-            - trg_drift: External drift values at target points (grid).
+            Additional keyword arguments passed to the interpolation function.
+                Supported arguments depend on the interpolation type:
+                - nnearest: Maximum number of neighbors for interpolation (default: 4).
+                - p: Power parameter for IDW interpolation (default: 2).
+                - remove_missing: Mask NaN values in the input data (default: False).
+                - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
+                - src_drift: External drift values at source points (stations).
+                - trg_drift: External drift values at target points (grid).
 
         See Also
         --------
@@ -4916,32 +4939,32 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **soil_saturated_depth**: saturated store [mm]
-        * **snow_leq_depth**: snow storage [mm]
-        * **soil_temp**: top soil temperature [°C]
-        * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
-          layer [mm]
-        * **snow_water_depth**: liquid water content in the snow pack [mm]
-        * **vegetation_water_depth**: canopy storage [mm]
-        * **river_instantaneous_q**: river discharge [m3/s]
-        * **river_instantaneous_h**: river water level [m]
-        * **subsurface_q**: subsurface flow [m3/d]
-        * **land_instantaneous_h**: land water level [m]
-        * **land_instantaneous_q** or **land_instantaneous_qx**+
-          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
-          overland flow in x/y directions for local-inertial [m3/s]
+            * **soil_saturated_depth**: saturated store [mm]
+            * **snow_leq_depth**: snow storage [mm]
+            * **soil_temp**: top soil temperature [°C]
+            * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
+              layer [mm]
+            * **snow_water_depth**: liquid water content in the snow pack [mm]
+            * **vegetation_water_depth**: canopy storage [mm]
+            * **river_instantaneous_q**: river discharge [m3/s]
+            * **river_instantaneous_h**: river water level [m]
+            * **subsurface_q**: subsurface flow [m3/d]
+            * **land_instantaneous_h**: land water level [m]
+            * **land_instantaneous_q** or **land_instantaneous_qx**+
+              **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
+              overland flow in x/y directions for local-inertial [m3/s]
 
         If reservoirs, also adds:
 
-        * **reservoir_instantaneous_water_level**: reservoir water level [m]
+            * **reservoir_instantaneous_water_level**: reservoir water level [m]
 
         If glaciers, also adds:
 
-        * **glacier_leq_depth**: water within the glacier [mm]
+            * **glacier_leq_depth**: water within the glacier [mm]
 
         If paddy, also adds:
 
-        * **demand_paddy_h**: water on the paddy fields [mm]
+            * **demand_paddy_h**: water on the paddy fields [mm]
 
         Parameters
         ----------
