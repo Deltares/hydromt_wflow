@@ -204,6 +204,8 @@ docs-dummy = { cmd = [
 	"-b",
 	"dummy",
 	"-W",
+], depends-on = [
+	"check-links",
 ] }
 docs-html = { cmd = [
 	"sphinx-build",
