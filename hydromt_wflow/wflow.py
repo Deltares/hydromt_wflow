@@ -1797,26 +1797,20 @@ gauge locations [-] (if derive_subcatch)
         # Read data
         if isinstance(gauges_fn, gpd.GeoDataFrame):
             gdf_gauges = gauges_fn
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
-            # hydromt#1243
-            # try to get epsg number directly, important when writing back data_catalog
-            if hasattr(self.crs, "to_epsg"):
-                code = self.crs.to_epsg()
-            else:
-                code = self.crs
-            # Add crs to metadata for DataSource construction
-            if "metadata" in kwargs:
-                kwargs["metadata"].update(crs=code)
-            else:
-                kwargs.update(metadata={"crs": code})
-
-            # Add driver argument when file is a table
             ext = Path(gauges_fn).suffix
             if ext in [".csv", ".parquet", ".xls", ".xlsx"]:
-                driver_dict = {"driver": {"name": "geodataframe_table"}}
-                kwargs.update(driver_dict)
+                # try to get epsg number directly, important when writing
+                # back data_catalog
+                if hasattr(self.crs, "to_epsg"):
+                    code = self.crs.to_epsg()
+                else:
+                    code = self.crs
+                # Add crs to metadata for DataSource construction
+                if "metadata" in kwargs:
+                    kwargs["metadata"].update(crs=code)
+                else:
+                    kwargs.update(metadata={"crs": code})
 
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
@@ -1840,17 +1834,17 @@ gauge locations [-] (if derive_subcatch)
                     **kwargs,
                 )
                 gdf_gauges = da.vector.to_gdf()
-                # Check for point geometry
-                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                    raise ValueError(
-                        f"{gauges_fn} contains other geometries than Point"
-                    )
+
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or incorrect data_type "
                 f"({self.data_catalog.get_source(gauges_fn).data_type} instead of "
                 "GeoDataFrame or GeoDataset)."
             )
+
+        # Check for point geometry
+        if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+            raise ValueError(f"{gauges_fn} contains other geometries than Point")
 
         # Create basename
         if basename is None:
