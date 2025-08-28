@@ -125,7 +125,7 @@ Each component in the system should follow these principles:
 
 
 Workflows
---------
+---------
 Workflows are functions that combine primitive data and model operations into higher-level processes.
 They are defined in the ``workflows`` module and can be called from ``WflowModel`` methods.
 Workflows should follow these principles:

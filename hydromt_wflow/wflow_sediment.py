@@ -92,11 +92,11 @@ class WflowSedimentModel(WflowModel):
 
         Adds model layers:
 
-        * **river_mask** map: river mask [-]
-        * **river_length** map: river length [m]
-        * **river_width** map: river width [m]
-        * **river_slope** map: river slope [m/m]
-        * **rivers** geom: river vector based on wflow_river mask
+            * **river_mask** map: river mask [-]
+            * **river_length** map: river length [m]
+            * **river_width** map: river width [m]
+            * **river_slope** map: river slope [m/m]
+            * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
         ----------
@@ -104,13 +104,13 @@ class WflowSedimentModel(WflowModel):
             Name of RasterDataset source for hydrography data.
             Must be same as setup_basemaps for consistent results.
 
-            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-              'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m]
+                * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+                      'elevtn'[m+REF]
+                * Optional variables: 'rivwth' [m]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
-            * Required variables: 'rivwth' [m]
+                * Required variables: 'rivwth' [m]
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
@@ -142,9 +142,9 @@ class WflowSedimentModel(WflowModel):
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
             raise ValueError(
-                f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
-river cells."
+                f"river_upa threshold {river_upa} should be larger than the maximum "
+                f"uparea in the grid {float(self.grid[self._MAPS['uparea']].max())}"
+                "in order to create river cells."
             )
 
         # read data
@@ -266,22 +266,23 @@ river cells."
 
         Adds model layers:
 
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_trapping_efficiency** map: reservoir bedload trapping efficiency
-         coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
-        * **meta_reservoirs** geom: polygon with reservoirs and parameters
-        * **reservoirs** geom: polygon with all reservoirs as in the model
+            * **reservoir_area_id** map: reservoir IDs [-]
+            * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+            * **reservoir_area** map: reservoir area [m2]
+            * **reservoir_trapping_efficiency** map: reservoir bedload trapping
+                efficiency coefficient [-] (0 for natural lakes, 0-1 depending
+                on the type of dam)
+            * **meta_reservoirs** geom: polygon with reservoirs and parameters
+            * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
         reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables: ['waterbody_id', 'Area_avg']
+                * Required variables: ['waterbody_id', 'Area_avg']
 
-            * Optional variables: ['reservoir_trapping_efficiency']
+                * Optional variables: ['reservoir_trapping_efficiency']
         overwrite_existing : bool, optional
             If True, overwrite existing reservoirs in the model grid, by default False.
         duplicate_id: str, optional {"error", "skip"}
@@ -407,8 +408,8 @@ river cells."
 
         Adds model layers:
 
-        * **outlets** map: IDs map from catchment outlets [-]
-        * **outlets** geom: polygon of catchment outlets
+            * **outlets** map: IDs map from catchment outlets [-]
+            * **outlets** geom: polygon of catchment outlets
 
         Parameters
         ----------
@@ -466,9 +467,9 @@ river cells."
 
         The only differences are the default values for the arguments:
 
-        - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
-        - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
-            "river_water_sediment~suspended__mass_concentration"]
+            - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
+            - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
+                "river_water_sediment~suspended__mass_concentration"]
 
         See Also
         --------
@@ -510,7 +511,8 @@ river cells."
         orchard_c: float = 0.2188,
         output_names_suffix: str | None = None,
     ):
-        """Derive several wflow maps based on landuse-landcover (LULC) data.
+        """
+        Derive several wflow maps based on landuse-landcover (LULC) data.
 
         Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
         parameters based on literature. The data is remapped at its original resolution
@@ -529,13 +531,13 @@ river cells."
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-        cell [-]
+            * **landuse** map: Landuse class [-] Original source dependent LULC class,
+                resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per
+                grid cell [-]
 
         Parameters
         ----------
@@ -646,13 +648,13 @@ river cells."
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-          cell [-]
+            * **landuse** map: Landuse class [-]
+                Original source dependent LULC class, resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per grid
+              cell [-]
 
         Parameters
         ----------
@@ -763,15 +765,20 @@ river cells."
 
         Adds model layers:
 
-        * **river_bed_sediment_d50** map: median sediment diameter of the river bed [mm]
-        * **river_bed_clay_fraction** map: fraction of clay material in the river bed [-]
-        * **river_bed_silt_fraction** map: fraction of silt material in the river bed [-]
-        * **river_bed_sand_fraction** map: fraction of sand material in the river bed [-]
-        * **river_bed_gravel_fraction** map: fraction of gravel material in the river bed [-]
-        * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]
-        * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]
-        * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]
-        * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]
+            * **river_bed_sediment_d50** map: median sediment diameter of the river
+                bed [mm]
+            * **river_bed_clay_fraction** map: fraction of clay material in the river
+                bed [-]
+            * **river_bed_silt_fraction** map: fraction of silt material in the river
+                bed [-]
+            * **river_bed_sand_fraction** map: fraction of sand material in the river
+                bed [-]
+            * **river_bed_gravel_fraction** map: fraction of gravel material in the
+                river bed [-]
+            * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]
+            * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]
+            * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]
+            * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]
 
         Parameters
         ----------
@@ -779,11 +786,11 @@ river cells."
             Path to a mapping csv file from streamorder to river bed particles
             characteristics. If None reverts to default values.
 
-            * Required variable: ['strord','river_bed_sediment_d50',
-              'river_bed_clay_fraction', 'river_bed_silt_fraction',
-                'river_bed_sand_fraction', 'river_bed_gravel_fraction']
-            * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
-              'river_kodatie_c', 'river_kodatie_d']
+                * Required variable: ['strord','river_bed_sediment_d50',
+                  'river_bed_clay_fraction', 'river_bed_silt_fraction',
+                  'river_bed_sand_fraction', 'river_bed_gravel_fraction']
+                * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
+                  'river_kodatie_c', 'river_kodatie_d']
         strord_name : str, optional
             Name of the stream order map in the grid, by default 'meta_streamorder'.
         output_names : dict, optional
@@ -844,7 +851,7 @@ river cells."
 
         Adds model layers:
 
-        * **vegetation_height** map: height of the vegetation canopy [m]
+            * **vegetation_height** map: height of the vegetation canopy [m]
 
         Parameters
         ----------
@@ -900,26 +907,27 @@ river cells."
 
         Adds model layers:
 
-        * **soil_clay_fraction**: clay content of the topsoil [g/g]
-        * **soil_silt_fraction**: silt content of the topsoil [g/g]
-        * **soil_sand_fraction**: sand content of the topsoil [g/g]
-        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
-        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
-        * **erosion_soil_detachability** map: mean detachability of the soil
-        (Morgan et al., 1998) [g/J]
-        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
-        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
-        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
-        * **land_govers_n** map: Govers exponent for overland flow transport
-        capacity [-]
+            * **soil_clay_fraction**: clay content of the topsoil [g/g]
+            * **soil_silt_fraction**: silt content of the topsoil [g/g]
+            * **soil_sand_fraction**: sand content of the topsoil [g/g]
+            * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
+            * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
+            * **erosion_soil_detachability** map: mean detachability of the soil
+                (Morgan et al., 1998) [g/J]
+            * **erosion_usle_k** map: soil erodibility factor from the USLE equation
+                [-]
+            * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
+            * **land_govers_c** map: Govers factor for overland flow transport
+                capacity [-]
+            * **land_govers_n** map: Govers exponent for overland flow transport
+                capacity [-]
 
 
         Parameters
         ----------
         soil_fn : {"soilgrids"}
             Name of soil data source in data_sources.yml file.
-
-            * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
+                * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
         usle_k_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         add_aggregates: bool, optional
