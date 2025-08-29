@@ -1,7 +1,5 @@
 """Mapping dictionaries from hydromt to hydromt_wflow to Wflow.jl names."""
 
-from typing import Tuple
-
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
@@ -937,7 +935,7 @@ def _create_hydromt_wflow_mapping(
     hydromt_dict: dict,
     model_dict: dict,
     config_dict: dict,
-) -> Tuple[dict, dict]:
+) -> tuple[dict, dict]:
     """
     Create dictionaries to convert from hydromt/Wflow names to staticmaps names.
 
@@ -1029,7 +1027,7 @@ def _create_hydromt_wflow_mapping(
     return mapping_hydromt, mapping_wflow
 
 
-def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
+def _create_hydromt_wflow_mapping_sbm(config: dict) -> tuple[dict, dict]:
     """
     Create a dictionary to convert from hydromt names to wflow sbm input names.
 
@@ -1039,7 +1037,7 @@ def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
     return _create_hydromt_wflow_mapping(HYDROMT_NAMES_DEFAULT, WFLOW_NAMES, config)
 
 
-def _create_hydromt_wflow_mapping_sediment(config: dict) -> Tuple[dict, dict]:
+def _create_hydromt_wflow_mapping_sediment(config: dict) -> tuple[dict, dict]:
     """
     Create a dictionary to convert from hydromt names to wflow sediment input names.
 

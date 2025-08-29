@@ -259,7 +259,7 @@ class WflowStaticmapsComponent(GridComponent):
 
         This method however does not change the new names in the config file.
         To update config file entries, you can use it together
-        with the `WflowModel.setup_config` method.
+        with the `WflowBaseModel.setup_config` method.
 
         Parameters
         ----------

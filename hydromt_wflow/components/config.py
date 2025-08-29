@@ -125,7 +125,10 @@ class WflowConfigComponent(ConfigComponent):
         config_root: Path | str | None = None,
     ):
         """
-        Write config to <(config_)root/config_fn>.
+        Write the configuration to a file.
+
+        The file is written to ``<root>/<filename>`` by default, or to
+        ``<config_root>/<filename>`` if a ``config_root`` is provided.
 
         Parameters
         ----------

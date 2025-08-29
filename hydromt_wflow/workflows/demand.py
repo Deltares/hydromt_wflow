@@ -1,7 +1,7 @@
 """Workflow for water demand."""
 
 import logging
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import geopandas as gpd
 import numpy as np
@@ -29,7 +29,7 @@ map_vars = {
 
 
 def create_grid_from_bbox(
-    bbox: List[float],
+    bbox: list[float],
     res: float,
     crs: int,
     align: True,
@@ -169,8 +169,8 @@ def domestic(
 def domestic_from_population(
     popu: xr.Dataset,
     ds_like: xr.Dataset,
-    gross_per_capita: float | List[float],
-    net_per_capita: float | List[float],
+    gross_per_capita: float | list[float],
+    net_per_capita: float | list[float],
 ) -> tuple:
     """Create domestic water demand maps from statitics per capita.
 
@@ -180,9 +180,9 @@ def domestic_from_population(
         Population dataset (number of people per gridcell).
     ds_like : xr.Dataset
         Dataset at wflow model domain and resolution.
-    gross_per_capita : float, List[float]
+    gross_per_capita : float, list[float]
         Gross domestic water demand per capita in m3/day.
-    net_per_capita : float, List[float], optional
+    net_per_capita : float, list[float], optional
         Net domestic water demand per capita in m3/day.
 
     Returns
@@ -280,7 +280,7 @@ def allocation_areas(
     basins: gpd.GeoDataFrame,
     priority_basins: bool = True,
     minimum_area: float = 50.0,
-) -> Tuple[xr.DataArray, gpd.GeoDataFrame]:
+) -> tuple[xr.DataArray, gpd.GeoDataFrame]:
     """Create water allocation area.
 
     Based on current wflow model domain and resolution and making use of
@@ -621,9 +621,9 @@ def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
 def irrigation(
     da_irrigation: xr.DataArray,
     ds_like: xr.Dataset,
-    irrigation_value: List[int],
-    cropland_class: List[int],
-    paddy_class: List[int] = [],
+    irrigation_value: list[int],
+    cropland_class: list[int],
+    paddy_class: list[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
 ):
@@ -638,11 +638,11 @@ def irrigation(
         Dataset at wflow model domain and resolution.
 
         * Required variables: ['landuse', 'LAI']
-    irrigation_value: List[int]
+    irrigation_value: list[int]
         Values that indicate irrigation in da_irrigation.
-    cropland_class: List[int]
+    cropland_class: list[int]
         Values that indicate cropland in landuse map.
-    paddy_class: List[int]
+    paddy_class: list[int]
         Values that indicate paddy fields in landuse map.
     area_threshold: float
         Threshold for the area of a pixel to be classified as irrigated (fraction of
@@ -701,8 +701,8 @@ def irrigation(
 def irrigation_from_vector(
     gdf_irrigation: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
-    cropland_class: List[int],
-    paddy_class: List[int] = [],
+    cropland_class: list[int],
+    paddy_class: list[int] = [],
     area_threshold: float = 0.6,
     lai_threshold: float = 0.2,
 ):
@@ -717,11 +717,11 @@ def irrigation_from_vector(
         Dataset at wflow model domain and resolution.
 
         * Required variables: ['landuse', 'LAI']
-    irrigation_value: List[int]
+    irrigation_value: list[int]
         Values that indicate irrigation in gdf_irrigation.
-    cropland_class: List[int]
+    cropland_class: list[int]
         Values that indicate cropland in landuse map.
-    paddy_class: List[int]
+    paddy_class: list[int]
         Values that indicate paddy fields in landuse map.
     area_threshold: float
         Threshold for the area of a pixel to be classified as irrigated (fraction of

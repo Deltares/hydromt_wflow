@@ -1,7 +1,6 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List
 
 import hydromt
 import numpy as np
@@ -40,7 +39,7 @@ c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
 def concat_layers(
     ds: xr.Dataset,
     soil_fn: str = "soilgrids",
-    variables: List[str] = ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"],
+    variables: list[str] = ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"],
 ):
     """
     Preprocess functions to concat soilgrids along a layer dimension.
@@ -217,7 +216,7 @@ def brooks_corey_layers(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
     soildepth_cm: np.array = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]),
 ):
     """
@@ -450,7 +449,7 @@ def soilgrids(
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
 ):
     """
     Return soil parameter maps at model resolution.
@@ -681,7 +680,7 @@ def soilgrids_brooks_corey(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
 ):
     """
     Determine Brooks Corey coefficient per wflow soil layer depth.
@@ -910,8 +909,8 @@ def update_soil_with_paddy(
     paddy_mask: xr.DataArray,
     soil_fn: str = "soilgrids",
     update_c: bool = True,
-    wflow_layers: List[int] = [50, 100, 50, 200, 800],
-    target_conductivity: List[None | int | float] = [None, None, 5, None, None],
+    wflow_layers: list[int] = [50, 100, 50, 200, 800],
+    target_conductivity: list[None | int | float] = [None, None, 5, None, None],
 ):
     """
     Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.

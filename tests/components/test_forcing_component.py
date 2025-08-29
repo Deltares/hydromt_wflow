@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 
 from hydromt_wflow.components import WflowForcingComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def test_wflow_forcing_component_set(
 
 
 def test_wflow_forcing_component_set_errors(
-    mock_model: WflowModel,
+    mock_model: WflowSbmModel,
     forcing_layer: xr.DataArray,
 ):
     # Setup

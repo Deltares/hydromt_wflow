@@ -23,8 +23,8 @@ for a proper implementation of the clipped model are:
 
 See the following model API:
 
-* :py:func:`~WflowModel.clip_staticmaps`
-* :py:func:`~WflowModel.clip_forcing`
+* :py:func:`~WflowBaseModel.clip_staticmaps`
+* :py:func:`~WflowBaseModel.clip_forcing`
 
 
 .. .. toctree::
