@@ -57,11 +57,34 @@ def test_wflow_output_scalar_component_set(
     assert len(component.data) == 1
 
 
+def test_wflow_output_scalar_component_set_alt(
+    mock_model: WflowModel, forcing_layer: xr.DataArray
+):
+    # Setup the component
+    component = WflowOutputScalarComponent(mock_model)
+
+    # Assert that the internal data is None, initializing will happen in set
+    assert component._data is None
+
+    # Set an entry
+    # Copy else the name gets altered for the next test?
+    forcing_layer.name = "precip"
+    component.set(forcing_layer.copy())
+
+    # Assert the content
+    assert "precip" in component.data
+
+
 def test_wflow_output_scalar_component_set_errors(
     mock_model: WflowModel, forcing_layer: xr.DataArray
 ):
     # Setup the component
     component = WflowOutputScalarComponent(mock_model)
+
+    # Missing name
+    forcing_layer.name = None
+    with pytest.raises(ValueError, match="Name required for DataArray."):
+        component.set(forcing_layer)
 
     # Try with np.ndarray
     array = forcing_layer.values

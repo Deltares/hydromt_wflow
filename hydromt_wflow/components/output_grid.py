@@ -115,7 +115,7 @@ class WflowOutputGridComponent(GridComponent):
         if not isinstance(data, (xr.DataArray, xr.Dataset)):
             raise TypeError("Data must be an xarray Dataset or DataArray")
 
-        # Rename the temporal dimension to time
+        # Check that time dimension is present
         if "time" not in data.dims:
             raise ValueError("'time' dimension not found in data")
 
