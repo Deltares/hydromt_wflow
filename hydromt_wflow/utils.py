@@ -4,7 +4,7 @@ import logging
 from functools import reduce
 from os.path import abspath, isabs, join
 from pathlib import Path
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Union
 
 import geopandas as gpd
 import numpy as np
@@ -112,8 +112,8 @@ def set_config(config: dict, key: str, value: Any):
 
 
 def read_csv_output(
-    fn: Path | str, config: Dict, maps: xr.Dataset
-) -> Dict[str, GeoDataArray]:
+    fn: Path | str, config: dict, maps: xr.Dataset
+) -> dict[str, GeoDataArray]:
     """Read wflow output csv timeseries and parse to dictionary.
 
     Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per
@@ -282,7 +282,7 @@ of the config.
 
 def get_grid_from_config(
     var_name: str,
-    config: Dict = {},
+    config: dict = {},
     grid: xr.Dataset | None = None,
     root: Path | None = None,
     abs_path: bool = False,

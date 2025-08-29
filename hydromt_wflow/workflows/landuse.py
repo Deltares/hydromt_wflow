@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import geopandas as gpd
 import numpy as np
@@ -38,7 +38,7 @@ def landuse(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[List] = None,
+    params: Optional[list] = None,
 ):
     """Return landuse map and related parameter maps.
 
@@ -93,7 +93,7 @@ def landuse_from_vector(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[List] = None,
+    params: Optional[list] = None,
     lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
@@ -216,7 +216,7 @@ def create_lulc_lai_mapping_table(
     da_lulc: xr.DataArray,
     da_lai: xr.DataArray,
     sampling_method: str = "any",
-    lulc_zero_classes: List[int] = [],
+    lulc_zero_classes: list[int] = [],
 ) -> pd.DataFrame:
     """
     Derive LAI values per landuse class.
@@ -403,7 +403,7 @@ def add_paddy_to_landuse(
     df_mapping: pd.DataFrame,
     df_paddy_mapping: pd.DataFrame,
     output_paddy_class: Optional[int] = None,
-) -> Tuple[xr.DataArray, pd.DataFrame]:
+) -> tuple[xr.DataArray, pd.DataFrame]:
     """
     Burn paddy fields into landuse map and update mapping table.
 
