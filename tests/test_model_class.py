@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")

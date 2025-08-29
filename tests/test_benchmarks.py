@@ -2,7 +2,7 @@
 
 from uuid import uuid4
 
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 
 def inner_benchmark_loop(tmpdir, wflow_ini):

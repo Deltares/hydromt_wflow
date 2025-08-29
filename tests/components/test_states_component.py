@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 
 from hydromt_wflow.components import WflowStatesComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 
 @pytest.fixture

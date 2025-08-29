@@ -9,7 +9,7 @@ import xarray as xr
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowStaticmapsComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 
 @pytest.fixture

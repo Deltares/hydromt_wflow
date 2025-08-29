@@ -14,7 +14,7 @@ from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 
 from hydromt_wflow import workflows
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")

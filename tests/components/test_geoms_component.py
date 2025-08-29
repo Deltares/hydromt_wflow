@@ -8,7 +8,7 @@ import pytest
 from shapely.geometry import box, mapping
 
 from hydromt_wflow.components import WflowGeomsComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 
 @pytest.fixture

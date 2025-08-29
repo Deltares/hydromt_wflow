@@ -20,7 +20,7 @@ from hydromt_wflow.version_upgrade import (
     convert_reservoirs_to_wflow_v1_sediment,
     convert_to_wflow_v1_sediment,
 )
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowModel
 
 __all__ = ["WflowSedimentModel"]
 __hydromt_eps__ = ["WflowSedimentModel"]
