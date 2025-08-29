@@ -8,20 +8,20 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from hydromt_wflow.wflow_sbm import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_supported_models: dict[str, type[WflowModel]] = {
-    "wflow": WflowModel,
+_supported_models: dict[str, type[WflowSbmModel]] = {
+    "wflow": WflowSbmModel,
     "wflow_sediment": WflowSedimentModel,
-    "wflow_simple": WflowModel,
+    "wflow_simple": WflowSbmModel,
 }
 
 
-def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
+def _compare_wflow_models(mod0: WflowSbmModel, mod1: WflowSbmModel):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}
@@ -135,7 +135,9 @@ def test_model_build(tmpdir, model, example_models, example_inis):
 )
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
-    tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+    tmpdir: Path,
+    example_wflow_model: WflowSbmModel,
+    clipped_wflow_model: WflowSbmModel,
 ):
     model = "wflow"
 
@@ -156,7 +158,7 @@ def test_model_clip(
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
-    mod1 = WflowModel(root=destination, mode="r")
+    mod1 = WflowSbmModel(root=destination, mode="r")
     mod1.read()
     # Read reference clipped model
     clipped_wflow_model.read()
@@ -167,7 +169,7 @@ def test_model_clip(
 @pytest.mark.skip(
     reason="Allow clipping again - current conflict for reading forcing and states"
 )
-def test_model_inverse_clip(example_wflow_model: WflowModel):
+def test_model_inverse_clip(example_wflow_model: WflowSbmModel):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
@@ -192,31 +194,36 @@ def test_model_inverse_clip(example_wflow_model: WflowModel):
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
-def test_model_results(example_wflow_results):
-    # Tests on results
-    # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column
-    assert len(example_wflow_results.results) == (
-        2 + len(example_wflow_results.get_config("output.csv.column"))
-    )
+def test_model_outputs(example_wflow_outputs):
+    # Tests on outputs
+    wflow = example_wflow_outputs
 
-    # Check that the output and netcdf xr.Dataset are present
-    assert "netcdf_grid" in example_wflow_results.results
-    assert isinstance(example_wflow_results.results["netcdf_scalar"], xr.Dataset)
+    # Check the gridded output
+    assert isinstance(wflow.output_grid.data, xr.Dataset)
+    assert "q_river" in wflow.output_grid.data
+    assert wflow.output_grid.data.raster.x_dim == wflow.staticmaps.data.raster.x_dim
+
+    # Check the netcdf scalar output
+    assert isinstance(wflow.output_scalar.data, xr.Dataset)
+    assert "Q" in wflow.output_scalar.data
+
+    # Check the csv output
+    assert len(wflow.output_csv.data) == len(wflow.get_config("output.csv.column"))
 
     # Checks for the csv columns
     # Q for gauges_grdc
-    assert len(example_wflow_results.results["river_q_gauges_grdc"].index) == 3
-    assert np.isin(6349410, example_wflow_results.results["river_q_gauges_grdc"].index)
+    assert len(wflow.output_csv.data["river_q_gauges_grdc"].index) == 3
+    assert np.isin(6349410, wflow.output_csv.data["river_q_gauges_grdc"].index)
 
     # Coordinates and values for coordinate.x and index.x for temp
     assert np.isclose(
-        example_wflow_results.results["temp_bycoord"]["x"].values,
-        example_wflow_results.results["temp_byindex"]["x"].values,
+        wflow.output_csv.data["temp_bycoord"]["x"].values,
+        wflow.output_csv.data["temp_byindex"]["x"].values,
     )
     assert np.allclose(
-        example_wflow_results.results["temp_bycoord"].values,
-        example_wflow_results.results["temp_byindex"].values,
+        wflow.output_csv.data["temp_bycoord"].values,
+        wflow.output_csv.data["temp_byindex"].values,
     )
 
     # Coordinates of the reservoir
-    assert np.isclose(example_wflow_results.results["reservoir_volume"]["y"], 46.16656)
+    assert np.isclose(wflow.output_csv.data["reservoir_volume"]["y"], 46.16656)

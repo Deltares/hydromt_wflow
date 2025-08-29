@@ -17,7 +17,7 @@ Initialize
 .. autosummary::
    :toctree: _generated
 
-   WflowModel
+   WflowSbmModel
 
 .. _components:
 
@@ -27,42 +27,42 @@ Setup methods
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.setup_config
-   WflowModel.setup_basemaps
-   WflowModel.setup_rivers
-   WflowModel.setup_floodplains
-   WflowModel.setup_reservoirs_no_control
-   WflowModel.setup_reservoirs_simple_control
-   WflowModel.setup_glaciers
-   WflowModel.setup_lulcmaps
-   WflowModel.setup_lulcmaps_from_vector
-   WflowModel.setup_lulcmaps_with_paddy
-   WflowModel.setup_laimaps
-   WflowModel.setup_laimaps_from_lulc_mapping
-   WflowModel.setup_allocation_areas
-   WflowModel.setup_allocation_surfacewaterfrac
-   WflowModel.setup_domestic_demand
-   WflowModel.setup_domestic_demand_from_population
-   WflowModel.setup_other_demand
-   WflowModel.setup_irrigation
-   WflowModel.setup_irrigation_from_vector
-   WflowModel.setup_ksathorfrac
-   WflowModel.setup_ksatver_vegetation
-   WflowModel.setup_rootzoneclim
-   WflowModel.setup_soilmaps
-   WflowModel.setup_outlets
-   WflowModel.setup_gauges
-   WflowModel.setup_areamap
-   WflowModel.setup_config_output_timeseries
-   WflowModel.setup_precip_forcing
-   WflowModel.setup_precip_from_point_timeseries
-   WflowModel.setup_temp_pet_forcing
-   WflowModel.setup_pet_forcing
-   WflowModel.setup_constant_pars
-   WflowModel.setup_1dmodel_connection
-   WflowModel.setup_grid_from_raster
-   WflowModel.setup_cold_states
-   WflowModel.upgrade_to_v1_wflow
+   WflowSbmModel.setup_config
+   WflowSbmModel.setup_basemaps
+   WflowSbmModel.setup_rivers
+   WflowSbmModel.setup_floodplains
+   WflowSbmModel.setup_reservoirs_no_control
+   WflowSbmModel.setup_reservoirs_simple_control
+   WflowSbmModel.setup_glaciers
+   WflowSbmModel.setup_lulcmaps
+   WflowSbmModel.setup_lulcmaps_from_vector
+   WflowSbmModel.setup_lulcmaps_with_paddy
+   WflowSbmModel.setup_laimaps
+   WflowSbmModel.setup_laimaps_from_lulc_mapping
+   WflowSbmModel.setup_allocation_areas
+   WflowSbmModel.setup_allocation_surfacewaterfrac
+   WflowSbmModel.setup_domestic_demand
+   WflowSbmModel.setup_domestic_demand_from_population
+   WflowSbmModel.setup_other_demand
+   WflowSbmModel.setup_irrigation
+   WflowSbmModel.setup_irrigation_from_vector
+   WflowSbmModel.setup_ksathorfrac
+   WflowSbmModel.setup_ksatver_vegetation
+   WflowSbmModel.setup_rootzoneclim
+   WflowSbmModel.setup_soilmaps
+   WflowSbmModel.setup_outlets
+   WflowSbmModel.setup_gauges
+   WflowSbmModel.setup_areamap
+   WflowSbmModel.setup_config_output_timeseries
+   WflowSbmModel.setup_precip_forcing
+   WflowSbmModel.setup_precip_from_point_timeseries
+   WflowSbmModel.setup_temp_pet_forcing
+   WflowSbmModel.setup_pet_forcing
+   WflowSbmModel.setup_constant_pars
+   WflowSbmModel.setup_1dmodel_connection
+   WflowSbmModel.setup_grid_from_raster
+   WflowSbmModel.setup_cold_states
+   WflowSbmModel.upgrade_to_v1_wflow
 
 High level and I/O methods
 --------------------------
@@ -70,34 +70,34 @@ High level and I/O methods
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.build
-   WflowModel.update
+   WflowSbmModel.build
+   WflowSbmModel.update
 
-   WflowModel.read
-   WflowModel.write
+   WflowSbmModel.read
+   WflowSbmModel.write
 
-   WflowModel.read_config
-   WflowModel.write_config
+   WflowSbmModel.read_config
+   WflowSbmModel.write_config
 
-   WflowModel.read_grid
-   WflowModel.write_grid
-   WflowModel.clip_grid
+   WflowSbmModel.read_grid
+   WflowSbmModel.write_grid
+   WflowSbmModel.clip_grid
 
-   WflowModel.read_geoms
-   WflowModel.write_geoms
+   WflowSbmModel.read_geoms
+   WflowSbmModel.write_geoms
 
-   WflowModel.read_forcing
-   WflowModel.write_forcing
-   WflowModel.clip_forcing
+   WflowSbmModel.read_forcing
+   WflowSbmModel.write_forcing
+   WflowSbmModel.clip_forcing
 
-   WflowModel.read_states
-   WflowModel.write_states
-   WflowModel.clip_states
+   WflowSbmModel.read_states
+   WflowSbmModel.write_states
+   WflowSbmModel.clip_states
 
-   WflowModel.read_results
+   WflowSbmModel.read_outputs
 
-   WflowModel.read_tables
-   WflowModel.write_tables
+   WflowSbmModel.read_tables
+   WflowSbmModel.write_tables
 
 Components
 ----------
@@ -105,12 +105,15 @@ Components
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.config
-   WflowModel.forcing
-   WflowModel.staticmaps
-   WflowModel.states
-   WflowModel.geoms
-
+   WflowSbmModel.config
+   WflowSbmModel.staticmaps
+   WflowSbmModel.forcing
+   WflowSbmModel.states
+   WflowSbmModel.tables
+   WflowSbmModel.geoms
+   WflowSbmModel.output_grid
+   WflowSbmModel.output_scalar
+   WflowSbmModel.output_csv
 
 Attributes
 ----------
@@ -118,11 +121,11 @@ Attributes
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.crs
-   WflowModel.root
-   WflowModel.flwdir
-   WflowModel.basins
-   WflowModel.rivers
+   WflowSbmModel.crs
+   WflowSbmModel.root
+   WflowSbmModel.flwdir
+   WflowSbmModel.basins
+   WflowSbmModel.rivers
 
 Other general methods
 ---------------------
@@ -130,12 +133,12 @@ Other general methods
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.set_config
-   WflowModel.get_config
-   WflowModel.set_forcing
-   WflowModel.set_grid
-   WflowModel.set_tables
-   WflowModel.set_states
+   WflowSbmModel.set_config
+   WflowSbmModel.get_config
+   WflowSbmModel.set_forcing
+   WflowSbmModel.set_grid
+   WflowSbmModel.set_tables
+   WflowSbmModel.set_states
 
 .. _api_model_sediment:
 
@@ -208,7 +211,7 @@ High level and I/O methods
    WflowSedimentModel.read_states
    WflowSedimentModel.write_states
 
-   WflowSedimentModel.read_results
+   WflowSedimentModel.read_outputs
 
 Components
 ----------
@@ -217,8 +220,14 @@ Components
    :toctree: _generated
 
    WflowSedimentModel.config
-   WflowSedimentModel.forcing
    WflowSedimentModel.staticmaps
+   WflowSedimentModel.forcing
+   WflowSedimentModel.states
+   WflowSedimentModel.tables
+   WflowSedimentModel.geoms
+   WflowSedimentModel.output_grid
+   WflowSedimentModel.output_scalar
+   WflowSedimentModel.output_csv
 
 Attributes
 ----------
@@ -246,7 +255,7 @@ Other general methods
 
 .. _data_containers:
 
-WflowModel components
+WflowSbmModel components
 =====================
 
 WflowConfigComponent
@@ -259,6 +268,16 @@ WflowConfigComponent
    components.WflowConfigComponent.data
    components.WflowConfigComponent.get_value
    components.WflowConfigComponent.remove
+
+WflowStaticmapsComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowStaticmapsComponent
+   components.WflowStaticmapsComponent.data
+   components.WflowStaticmapsComponent.drop_vars
 
 WflowForcingComponent
 ------------------------
@@ -287,15 +306,44 @@ WflowStatesComponent
    components.WflowStatesComponent
    components.WflowStatesComponent.data
 
-WflowStaticmapsComponent
+WflowTablesComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowTablesComponent
+   components.WflowTablesComponent.data
+
+WflowOutputGridComponent
 ------------------------
 
 .. autosummary::
    :toctree: _generated
 
-   components.WflowStaticmapsComponent
-   components.WflowStaticmapsComponent.data
-   components.WflowStaticmapsComponent.drop_vars
+   components.WflowOutputGridComponent
+   components.WflowOutputGridComponent.data
+   components.WflowOutputGridComponent.read
+
+WflowOutputScalarComponent
+---------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowOutputScalarComponent
+   components.WflowOutputScalarComponent.data
+   components.WflowOutputScalarComponent.read
+
+WflowOutputCsvComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowOutputCsvComponent
+   components.WflowOutputCsvComponent.data
+   components.WflowOutputCsvComponent.read
 
 .. _workflows:
 
@@ -355,7 +403,7 @@ Input/Output methods
 .. autosummary::
    :toctree: _generated
 
-   utils.read_csv_results
+   utils.read_csv_output
 
 Utility methods
 ---------------

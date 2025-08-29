@@ -7,16 +7,16 @@ import pytest
 import xarray as xr
 
 from hydromt_wflow.components import WflowStatesComponent
-from hydromt_wflow.wflow_sbm import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 
 @pytest.fixture
-def mock_model(mock_model_factory) -> WflowModel:
-    """Fixture to create a mock WflowModel."""
+def mock_model(mock_model_factory) -> WflowSbmModel:
+    """Fixture to create a mock WflowSbmModel."""
     return mock_model_factory(mode="w")
 
 
-def test_wflow_states_component_init(mock_model: WflowModel):
+def test_wflow_states_component_init(mock_model: WflowSbmModel):
     # Setup the component
     component = WflowStatesComponent(mock_model)
 
@@ -29,7 +29,7 @@ def test_wflow_states_component_init(mock_model: WflowModel):
     assert len(component.data) == 0
 
 
-def test_wflow_states_component_init_with_region(mock_model_staticmaps: WflowModel):
+def test_wflow_states_component_init_with_region(mock_model_staticmaps: WflowSbmModel):
     # Setup the component with a region component
     component = WflowStatesComponent(
         mock_model_staticmaps, region_component="staticmaps"
@@ -41,7 +41,7 @@ def test_wflow_states_component_init_with_region(mock_model_staticmaps: WflowMod
 
 
 def test_wflow_states_component_set(
-    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowSbmModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -62,7 +62,7 @@ def test_wflow_states_component_set(
 
 
 def test_wflow_states_component_set_alt(
-    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowSbmModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -78,7 +78,7 @@ def test_wflow_states_component_set_alt(
 
 
 def test_wflow_states_component_set_errors(
-    mock_model_staticmaps: WflowModel, grid_dummy_data: xr.DataArray
+    mock_model_staticmaps: WflowSbmModel, grid_dummy_data: xr.DataArray
 ):
     # Setup the component
     component = WflowStatesComponent(
@@ -101,7 +101,7 @@ def test_wflow_states_component_set_errors(
 
 
 def test_wflow_states_component_read(
-    mock_model_factory: Callable[[Path, str], WflowModel],
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
@@ -124,7 +124,7 @@ def test_wflow_states_component_read(
 
 
 def test_wflow_states_component_read_init(
-    mock_model_factory: Callable[[Path, str], WflowModel],
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
@@ -141,7 +141,7 @@ def test_wflow_states_component_read_init(
 
 
 def test_wflow_states_component_write(
-    mock_model: WflowModel,
+    mock_model: WflowSbmModel,
     grid_dummy_data: xr.DataArray,
 ):
     # Setup the component
@@ -164,7 +164,7 @@ def test_wflow_states_component_write(
 
 
 def test_wflow_states_component_equal(
-    mock_model: WflowModel,
+    mock_model: WflowSbmModel,
     grid_dummy_data: xr.DataArray,
 ):
     # Setup the components

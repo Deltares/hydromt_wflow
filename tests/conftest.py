@@ -15,7 +15,7 @@ from hydromt.cli._utils import parse_config
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
@@ -51,7 +51,7 @@ def build_data_catalog(build_data) -> Path:
 @pytest.fixture
 def example_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
         data_libs=[
@@ -63,7 +63,7 @@ def example_wflow_model():
 
 
 @pytest.fixture
-def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]:
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowSbmModel]:
     def factory(
         root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
         mode: str = "r",
@@ -71,8 +71,8 @@ def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]
             "artifact_data",
             join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
         ],
-    ) -> WflowModel:
-        return WflowModel(root=root, mode=mode, data_libs=data_libs)
+    ) -> WflowSbmModel:
+        return WflowSbmModel(root=root, mode=mode, data_libs=data_libs)
 
     return factory
 
@@ -89,7 +89,7 @@ def example_sediment_model():
 
 
 @pytest.fixture
-def example_models(example_wflow_model: WflowModel, example_sediment_model):
+def example_models(example_wflow_model: WflowSbmModel, example_sediment_model):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
@@ -130,17 +130,17 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_results():
+def example_wflow_outputs():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_filename=config_fn)
+    mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 
 @pytest.fixture
 def clipped_wflow_model(build_data_catalog):
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
         data_libs=[build_data_catalog],
@@ -225,7 +225,7 @@ def gdf_precip_stations():
 
 
 @pytest.fixture
-def da_pet(example_wflow_model: WflowModel):
+def da_pet(example_wflow_model: WflowSbmModel):
     da = example_wflow_model.data_catalog.get_rasterdataset(
         "era5",
         geom=example_wflow_model.region,

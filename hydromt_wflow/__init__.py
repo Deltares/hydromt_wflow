@@ -1,7 +1,7 @@
 """HydroMT plugin for wflow models."""
 
-from .version import __version__
-from .wflow_sbm import WflowModel
-from .wflow_sediment import WflowSedimentModel
+from hydromt_wflow.version import __version__
+from hydromt_wflow.wflow_sbm import WflowSbmModel
+from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
-__all__ = ["WflowModel", "WflowSedimentModel"]
+__all__ = ["WflowSbmModel", "WflowSedimentModel"]

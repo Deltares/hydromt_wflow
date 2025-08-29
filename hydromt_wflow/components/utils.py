@@ -5,6 +5,7 @@ from os.path import relpath
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import xarray as xr
 
 MOUNT_PATTERN = re.compile(r"(^\/(\w+)\/|^(\w+):\/).*$")
@@ -94,3 +95,56 @@ def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | Non
         if mask in ds:
             return ds[mask] != ds[mask].raster.nodata
     return None  # Nothin found
+
+
+def align_grid_with_region(
+    data: xr.DataArray,
+    region_grid: xr.DataArray,
+    region_component_name: str,
+) -> xr.DataArray:
+    """Align the data grid with the region grid.
+
+    Aligns the name of the x and y dimensions and flips the y dimension if needed.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The data array to align.
+    region_grid : xr.DataArray
+        The region grid to align with.
+    region_component_name : str
+        The name of the region component.
+
+    Returns
+    -------
+    xr.DataArray
+        The aligned data array.
+
+    Raises
+    ------
+    ValueError
+        If the data grid is not identical to the region grid.
+    """
+    if not data.raster.identical_grid(region_grid):
+        y_dim = region_grid.raster.y_dim
+        x_dim = region_grid.raster.x_dim
+        # First try to rename dimensions
+        data = data.rename(
+            {
+                data.raster.x_dim: x_dim,
+                data.raster.y_dim: y_dim,
+            }
+        )
+        # Flip latitude if needed
+        if (
+            np.diff(data[y_dim].values)[0] > 0
+            and np.diff(region_grid[y_dim].values)[0] < 0
+        ):
+            data = data.reindex({y_dim: data[y_dim][::-1]})
+
+    if not data.raster.identical_grid(region_grid):
+        raise ValueError(
+            f"Data grid must be identical to {region_component_name} component"
+        )
+
+    return data

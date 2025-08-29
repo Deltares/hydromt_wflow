@@ -42,7 +42,7 @@ a specific method see its documentation.
       - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
-    * - :py:func:`~WflowModel.setup_lulcmaps_from_vector`
+    * - :py:func:`~WflowBaseModel.setup_lulcmaps_from_vector`
       - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
     * - :py:func:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
@@ -74,25 +74,25 @@ a specific method see its documentation.
 
 .. _model_components_sed:
 
-model components
+Model components
 ================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`
-component contains which Wflow Sediment in- and output files. The files are read and written with the associated
+components contains which Wflow Sediment in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. :py:func:`~hydromt_wflow.WflowSedimentModel.read_config`
 and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
 :py:attr:`~hydromt_wflow.WflowSedimentModel.config`  component.
 
 
-.. list-table:: Wflow Sediment mdel data
+.. list-table:: Wflow Sediment model data
    :widths: 30 70
    :header-rows: 1
 
-   * - :py:class:`~hydromt_wflow.WflowSedimentModel` component
+   * - :py:class:`~hydromt_wflow.WflowSedimentModel` model
      - Wflow sediment files
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
      - wflow_sediment.toml
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.grid`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps`
      - staticmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
@@ -100,9 +100,9 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - inmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.states`
      - instates.nc
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.results`
-     - output.nc, output_scalar.nc, output.csv
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
-     - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
-     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.output_grid`
+     - output.nc (defined in [output.netcdf_grid] TOML section)
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.output_scalar`
+     - output_scalar.nc (defined in [output.netcdf_scalar] TOML section)
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.output_csv`
+     - output.csv (defined in [output.csv] TOML section)
