@@ -23,7 +23,7 @@ Components and workflows cannot be used directly as ``hydromt_step`` callables.
 
 
 WflowBaseModel as Orchestrator
---------------------------
+------------------------------
 
 The ``WflowBaseModel`` class is designed to serve as an orchestrator or manager for the other parts of the codebase.
 
@@ -38,7 +38,7 @@ For instance, the forcing component may need configuration settings from the con
 This design choice is intentional: **any logic that requires coordination between multiple components should be placed in ``WflowBaseModel``.**
 
 Typical Method Structure in WflowBaseModel
---------------------------------------
+------------------------------------------
 
 Every method in the ``WflowBaseModel`` class should generally follow these steps:
 

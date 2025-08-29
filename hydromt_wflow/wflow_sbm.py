@@ -28,8 +28,8 @@ from hydromt_wflow.version_upgrade import (
 )
 from hydromt_wflow.wflow_base import WflowBaseModel
 
-__all__ = ["WflowBaseModel"]
-__hydromt_eps__ = ["WflowBaseModel"]  # core entrypoints
+__all__ = ["WflowSbmModel"]
+__hydromt_eps__ = ["WflowSbmModel"]  # core entrypoints
 logger = logging.getLogger(f"hydromt.{__name__}")
 
 
