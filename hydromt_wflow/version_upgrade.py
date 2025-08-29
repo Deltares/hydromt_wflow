@@ -243,6 +243,11 @@ def _convert_to_wflow_v1(
                 _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
+    map_variable_conversions = {
+        "lateral.river.lake.locs": "reservoir_location__count",
+        "lateral.river.reservoir.locs": "reservoir_location__count",
+    }
+
     if get_config("netcdf", config=config, fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
@@ -259,11 +264,8 @@ def _convert_to_wflow_v1(
                 if map_var := nc_scalar.get("map"):
                     if map_var in input_options:
                         nc_scalar["map"] = input_options[map_var]
-                    elif map_var in [
-                        "lateral.river.lake.locs",
-                        "lateral.river.reservoir.locs",
-                    ]:
-                        nc_scalar["map"] = "reservoir_location__count"
+                    elif map_var in map_variable_conversions:
+                        nc_scalar["map"] = map_variable_conversions[map_var]
                 config_out["output"]["netcdf_scalar"]["variable"].append(nc_scalar)
             else:
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
@@ -285,11 +287,8 @@ def _convert_to_wflow_v1(
                 if map_var := csv_var.get("map"):
                     if map_var in input_options:
                         csv_var["map"] = input_options[map_var]
-                    elif map_var in [
-                        "lateral.river.lake.locs",
-                        "lateral.river.reservoir.locs",
-                    ]:
-                        csv_var["map"] = "reservoir_location__count"
+                    elif map_var in map_variable_conversions:
+                        csv_var["map"] = map_variable_conversions[map_var]
                 config_out["output"]["csv"]["column"].append(csv_var)
             else:
                 _warn_str(csv_var["parameter"], "csv")
