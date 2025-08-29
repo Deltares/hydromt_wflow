@@ -20,7 +20,7 @@ DATADIR = Path(Path(__file__).parent, "data")
 __all__ = [
     "get_config",
     "get_grid_from_config",
-    "read_csv_results",
+    "read_csv_output",
     "set_config",
 ]
 
@@ -111,12 +111,12 @@ def set_config(config: dict, key: str, value: Any):
     reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
 
 
-def read_csv_results(
+def read_csv_output(
     fn: Path | str, config: Dict, maps: xr.Dataset
 ) -> Dict[str, GeoDataArray]:
-    """Read wflow results csv timeseries and parse to dictionary.
+    """Read wflow output csv timeseries and parse to dictionary.
 
-    Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
+    Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
     coordinates of the station or of the representative point of the subcatch/area. The
     variable name in the ``GeoDataArray`` corresponds to the csv header attribute or
@@ -125,7 +125,7 @@ def read_csv_results(
     Parameters
     ----------
     fn: str
-        Path to the wflow csv results file.
+        Path to the wflow csv output file.
     config: dict
         wflow.toml configuration.
     maps: xr.Dataset
@@ -139,15 +139,21 @@ of the config.
     """
     # Count items by csv.column
     count = 1
-    csv_dict = dict()
+    csv_dict = {}
     # Loop over csv.column
     for col in config["output"]["csv"].get("column"):
         header = col["header"]
+        logger.debug(f"Reading csv column '{header}'")
         # Column based on map
         if "map" in col.keys():
             # Read the corresponding map and derive the different locations
             # The centroid of the geometry is used as coordinates for the timeseries
             map_name = config["input"].get(f"{col['map']}")
+            if map_name not in maps:
+                logger.warning(
+                    f"Map '{map_name}' not found in staticmaps. Skip reading."
+                )
+                return {}
             da = maps[map_name]
             gdf = da.raster.vectorize()
             gdf.geometry = gdf.geometry.representative_point()
