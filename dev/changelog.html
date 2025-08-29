@@ -491,8 +491,10 @@
 <ul class="simple">
 <li><p>config component <code class="docutils literal notranslate"><span class="pre">WflowConfigComponent</span></code>: represents the Wflow configuration TOML file.</p></li>
 <li><p>staticmaps component <code class="docutils literal notranslate"><span class="pre">WflowStaticMapsComponent</span></code>: represents Wflow static and cyclic data (used to be grid).</p></li>
+<li><p>forcing component <code class="docutils literal notranslate"><span class="pre">WflowForcingComponent</span></code>: represents Wflow input forcing data.</p></li>
 <li><p>states component <code class="docutils literal notranslate"><span class="pre">WflowStatesComponent</span></code>: represents Wflow input states data.</p></li>
 <li><p>geoms component <code class="docutils literal notranslate"><span class="pre">WflowGeomsComponent</span></code>: represents Wflow staticgeoms data.</p></li>
+<li><p>output_grid <code class="docutils literal notranslate"><span class="pre">WflowOutputGridComponent</span></code>, output_scalar <code class="docutils literal notranslate"><span class="pre">WflowOutputScalarComponent</span></code> and output_csv <code class="docutils literal notranslate"><span class="pre">WflowOutputCsvComponent</span></code> components: represent Wflow outputs (used to be results).</p></li>
 <li><p><strong>write_geoms</strong>: added function arguments <code class="docutils literal notranslate"><span class="pre">to_wgs84</span></code>  to convert the geometry to WGS84 before writing it to file. PR #432</p></li>
 </ul>
 </section>
@@ -506,6 +508,7 @@ To access the inherent data objects (dictionary, xarray.Dataset etc.) of the com
 Eg wflow.config.data, wflow.staticmaps.data</p></li>
 <li><p>The names of some of the model components have changed: <code class="docutils literal notranslate"><span class="pre">grid</span></code> to <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code>.</p></li>
 <li><p><strong>setup_config</strong>: the method now explicitly uses a dictionary with the options to add/update.</p></li>
+<li><p><strong>utils.read_csv_results</strong> has been renamed to <strong>utils.read_csv_output</strong>.</p></li>
 <li><p>Reverted the use of TOMLkit dependency</p></li>
 </ul>
 </section>

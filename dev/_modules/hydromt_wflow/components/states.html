@@ -461,10 +461,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridComponent</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowStatesComponent&quot;</span><span class="p">]</span>
 
@@ -542,28 +543,11 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_region_component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Ensure the data is aligned with the region component (staticmaps)</span>
-            <span class="n">region_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grid_data</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">identical_grid</span><span class="p">(</span><span class="n">region_grid</span><span class="p">):</span>
-                <span class="n">y_dim</span> <span class="o">=</span> <span class="n">region_grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span>
-                <span class="n">x_dim</span> <span class="o">=</span> <span class="n">region_grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span>
-                <span class="c1"># First try to rename dimensions</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">:</span> <span class="n">x_dim</span><span class="p">,</span>
-                        <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">y_dim</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="c1"># Flip latitude if needed</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">y_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
-                    <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">region_grid</span><span class="p">[</span><span class="n">y_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
-                <span class="p">):</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reindex</span><span class="p">({</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="n">y_dim</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span>
-            <span class="c1"># Check again, this time the grid is really different if not True</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">identical_grid</span><span class="p">(</span><span class="n">region_grid</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Data grid must be identical to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_region_component</span><span class="si">}</span><span class="s2"> component&quot;</span>
-                <span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">align_grid_with_region</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">region_grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_grid_data</span><span class="p">(),</span>
+                <span class="n">region_component_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_region_component</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>

@@ -478,7 +478,7 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;get_config&quot;</span><span class="p">,</span>
     <span class="s2">&quot;get_grid_from_config&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;read_csv_results&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;read_csv_output&quot;</span><span class="p">,</span>
     <span class="s2">&quot;set_config&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -569,14 +569,14 @@
     <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">keys</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">config</span><span class="p">)[</span><span class="n">keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
 
 
-<div class="viewcode-block" id="read_csv_results">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.read_csv_results.html#hydromt_wflow.utils.read_csv_results">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_csv_results</span><span class="p">(</span>
+<div class="viewcode-block" id="read_csv_output">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.read_csv_output.html#hydromt_wflow.utils.read_csv_output">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_csv_output</span><span class="p">(</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">GeoDataArray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read wflow results csv timeseries and parse to dictionary.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read wflow output csv timeseries and parse to dictionary.</span>
 
-<span class="sd">    Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per</span>
+<span class="sd">    Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per</span>
 <span class="sd">    column (csv section and csv.column sections of the TOML). The xy coordinates are the</span>
 <span class="sd">    coordinates of the station or of the representative point of the subcatch/area. The</span>
 <span class="sd">    variable name in the ``GeoDataArray`` corresponds to the csv header attribute or</span>
@@ -585,7 +585,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    fn: str</span>
-<span class="sd">        Path to the wflow csv results file.</span>
+<span class="sd">        Path to the wflow csv output file.</span>
 <span class="sd">    config: dict</span>
 <span class="sd">        wflow.toml configuration.</span>
 <span class="sd">    maps: xr.Dataset</span>
@@ -599,15 +599,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Count items by csv.column</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">csv_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">csv_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="c1"># Loop over csv.column</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;csv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;column&quot;</span><span class="p">):</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading csv column &#39;</span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="c1"># Column based on map</span>
         <span class="k">if</span> <span class="s2">&quot;map&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c1"># Read the corresponding map and derive the different locations</span>
             <span class="c1"># The centroid of the geometry is used as coordinates for the timeseries</span>
             <span class="n">map_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">map_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Map &#39;</span><span class="si">{</span><span class="n">map_name</span><span class="si">}</span><span class="s2">&#39; not found in staticmaps. Skip reading.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="p">{}</span>
             <span class="n">da</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span><span class="n">map_name</span><span class="p">]</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
             <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>

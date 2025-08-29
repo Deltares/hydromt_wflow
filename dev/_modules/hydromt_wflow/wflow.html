@@ -488,6 +488,9 @@
     <span class="n">WflowConfigComponent</span><span class="p">,</span>
     <span class="n">WflowForcingComponent</span><span class="p">,</span>
     <span class="n">WflowGeomsComponent</span><span class="p">,</span>
+    <span class="n">WflowOutputCsvComponent</span><span class="p">,</span>
+    <span class="n">WflowOutputGridComponent</span><span class="p">,</span>
+    <span class="n">WflowOutputScalarComponent</span><span class="p">,</span>
     <span class="n">WflowStatesComponent</span><span class="p">,</span>
     <span class="n">WflowStaticmapsComponent</span><span class="p">,</span>
     <span class="n">WflowTablesComponent</span><span class="p">,</span>
@@ -545,7 +548,6 @@
         <span class="o">**</span><span class="n">catalog_keys</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="c1"># Define components when they are implemented</span>
-        <span class="c1"># This is when config_fn should be able to be passed to ConfigComponent later</span>
         <span class="n">components</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">WflowConfigComponent</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span>
@@ -557,6 +559,13 @@
             <span class="s2">&quot;states&quot;</span><span class="p">:</span> <span class="n">WflowStatesComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">region_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span><span class="p">),</span>
             <span class="s2">&quot;staticmaps&quot;</span><span class="p">:</span> <span class="n">WflowStaticmapsComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
             <span class="s2">&quot;tables&quot;</span><span class="p">:</span> <span class="n">WflowTablesComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">&quot;output_grid&quot;</span><span class="p">:</span> <span class="n">WflowOutputGridComponent</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">region_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;output_scalar&quot;</span><span class="p">:</span> <span class="n">WflowOutputScalarComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s2">&quot;output_csv&quot;</span><span class="p">:</span> <span class="n">WflowOutputCsvComponent</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">locations_component</span><span class="o">=</span><span class="s2">&quot;staticmaps&quot;</span>
+            <span class="p">),</span>
         <span class="p">}</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -570,7 +579,6 @@
 
         <span class="c1"># wflow specific</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">from_yml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_CATALOGS</span><span class="p">)</span>
 
         <span class="c1"># Supported Wflow.jl version</span>
@@ -612,6 +620,21 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WflowTablesComponent</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the WflowTablesComponent instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;tables&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WflowOutputGridComponent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the WflowOutputGridComponent instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;output_grid&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WflowOutputScalarComponent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the WflowOutputScalarComponent instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;output_scalar&quot;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WflowOutputCsvComponent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the WflowOutputCsvComponent instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;output_csv&quot;</span><span class="p">]</span>
 
     <span class="c1"># Non model component properties</span>
     <span class="nd">@property</span>
@@ -6172,123 +6195,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Model results. Returns dict of xarray.DataArray or xarray.Dataset.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_results</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span>
-
-<div class="viewcode-block" id="WflowModel.read_results">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_results.html#hydromt_wflow.WflowModel.read_results">[docs]</a>
+<div class="viewcode-block" id="WflowModel.read_outputs">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_outputs.html#hydromt_wflow.WflowModel.read_outputs">[docs]</a>
     <span class="nd">@hydromt_step</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read results at &lt;root/?/&gt; and parse to dict of xr.DataArray/xr.Dataset.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_reading_mode</span><span class="p">():</span>
-            <span class="c1"># start fresh in read-only mode</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read outputs at &lt;root/dir_output&gt;.</span>
 
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_output&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="sd">        Reads netcdf_grid at ``output.netcdf_grid.path``, netcdf_scalar at</span>
+<span class="sd">        ``output.netcdf_scalar.path`` and csv outputs at ``output.csv.path``.</span>
 
-        <span class="c1"># Read gridded netcdf (output section)</span>
-        <span class="n">nc_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output.netcdf_grid.path&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">nc_fn</span> <span class="o">=</span> <span class="n">nc_fn</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">nc_fn</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">nc_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nc_fn</span>
-        <span class="k">if</span> <span class="n">nc_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">nc_fn</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read results from </span><span class="si">{</span><span class="n">nc_fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">nc_fn</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span> <span class="n">decode_coords</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="c1"># TODO ? align coords names and values of results nc with grid</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_results</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;netcdf_grid&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Read scalar netcdf (netcdf section)</span>
-        <span class="n">ncs_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output.netcdf_scalar.path&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ncs_fn</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">ncs_fn</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ncs_fn</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">ncs_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ncs_fn</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ncs_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">ncs_fn</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read results from </span><span class="si">{</span><span class="n">ncs_fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">ncs_fn</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">})</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_results</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Read csv timeseries (csv section)</span>
-        <span class="n">csv_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;output.csv.path&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">csv_fn</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">csv_fn</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">csv_fn</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">csv_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">csv_fn</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">csv_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">csv_fn</span><span class="p">):</span>
-            <span class="n">csv_dict</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">read_csv_results</span><span class="p">(</span>
-                <span class="n">csv_fn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">csv_dict</span><span class="p">:</span>
-                <span class="c1"># Add to results</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_results</span><span class="p">(</span><span class="n">csv_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_results</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">split_dataset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data to results attribute.</span>
-
-<span class="sd">        Dataset can either be added as is (default) or split into several</span>
-<span class="sd">        DataArrays using the split_dataset argument.</span>
-
-<span class="sd">        Arguments</span>
-<span class="sd">        ---------</span>
-<span class="sd">        data: xarray.Dataset or xarray.DataArray</span>
-<span class="sd">            New forcing data to add</span>
-<span class="sd">        name: str, optional</span>
-<span class="sd">            Results name, required if data is xarray.Dataset and split_dataset=False.</span>
-<span class="sd">        split_dataset: bool, optional</span>
-<span class="sd">            If True (False by default), split a Dataset to store each variable</span>
-<span class="sd">            as a DataArray.</span>
+<span class="sd">        Checks if ``dir_output`` is present.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_grid</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_scalar</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_csv</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">_check_data</span><span class="p">(</span>
-            <span class="n">_data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-            <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">split_dataset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-                <span class="c1"># NOTE _name can be different from _data.name !</span>
-                <span class="k">if</span> <span class="n">_data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">_data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">_name</span>
-                <span class="k">elif</span> <span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">_name</span> <span class="o">=</span> <span class="n">_data</span><span class="o">.</span><span class="n">name</span>
-                <span class="k">elif</span> <span class="n">_data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Name required for DataArray.&quot;</span><span class="p">)</span>
-                <span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">_name</span><span class="p">:</span> <span class="n">_data</span><span class="p">}</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>  <span class="c1"># return dict for consistency</span>
-                <span class="k">if</span> <span class="n">split_dataset</span><span class="p">:</span>
-                    <span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">_name</span><span class="p">:</span> <span class="n">_data</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="n">_data</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-                <span class="k">elif</span> <span class="n">_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Name required for Dataset.&quot;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">_name</span><span class="p">:</span> <span class="n">_data</span><span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data type &quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">_data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&quot; not recognized&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">_data</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_results</span><span class="p">()</span>
-        <span class="n">data_dict</span> <span class="o">=</span> <span class="n">_check_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">split_dataset</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Replacing result: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_read</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize results.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_reading_mode</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">skip_read</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">read_results</span><span class="p">()</span>
-
-    <span class="nd">@hydromt_step</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write results at &lt;root/?/&gt; in model ready format.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">is_writing_mode</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.read_tables">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_tables.html#hydromt_wflow.WflowModel.read_tables">[docs]</a>
