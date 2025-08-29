@@ -610,7 +610,6 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-@pytest.mark.skip(reason="Issue with get_(geo)dataframe from file hydromt#1243")
 def test_setup_gauges(example_wflow_model: WflowModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version

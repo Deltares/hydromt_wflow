@@ -1713,6 +1713,7 @@ skipping adding gauge specific outputs to the toml."
             "river_water__volume_flow_rate",
             "atmosphere_water__precipitation_volume_flux",
         ],
+        driver: str | None = None,
         **kwargs,
     ):
         """Set a gauge map based on ``gauges_fn`` data.
@@ -1820,20 +1821,27 @@ gauge locations [-] (if derive_subcatch)
         # Read data
         if isinstance(gauges_fn, gpd.GeoDataFrame):
             gdf_gauges = gauges_fn
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
-            # hydromt#1243
-            # try to get epsg number directly, important when writing back data_catalog
-            if hasattr(self.crs, "to_epsg"):
-                code = self.crs.to_epsg()
-            else:
-                code = self.crs
-            kwargs.update(crs=code)
+            ext = Path(gauges_fn).suffix
+            if ext in [".csv", ".parquet", ".xls", ".xlsx"]:
+                # try to get epsg number directly, important when writing
+                # back data_catalog
+                if hasattr(self.crs, "to_epsg"):
+                    code = self.crs.to_epsg()
+                else:
+                    code = self.crs
+                # Add crs to metadata for DataSource construction
+                if "metadata" in kwargs:
+                    kwargs["metadata"].update(crs=code)
+                else:
+                    kwargs.update(metadata={"crs": code})
+                if not driver:
+                    driver = "geodataframe_table"
+                kwargs.update({"driver": {"name": driver}})
+
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
-                # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -1842,7 +1850,6 @@ gauge locations [-] (if derive_subcatch)
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
-                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1850,22 +1857,21 @@ gauge locations [-] (if derive_subcatch)
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
                     geom=self.basins,
-                    # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
                 gdf_gauges = da.vector.to_gdf()
-                # Check for point geometry
-                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                    raise ValueError(
-                        f"{gauges_fn} contains other geometries than Point"
-                    )
+
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or incorrect data_type "
                 f"({self.data_catalog.get_source(gauges_fn).data_type} instead of "
                 "GeoDataFrame or GeoDataset)."
             )
+
+        # Check for point geometry
+        if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+            raise ValueError(f"{gauges_fn} contains other geometries than Point")
 
         # Create basename
         if basename is None:
