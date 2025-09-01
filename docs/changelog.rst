@@ -213,9 +213,9 @@ Added
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
 - New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
-- Better support for WflowBaseModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
+- Better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
 - **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
-- New function **setup_cold_states** to prepare cold states for WflowBaseModel. PR #252
+- New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
 - New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
@@ -272,7 +272,7 @@ Deprecated
 
 Documentation
 -------------
-- Extra information for most of the setup methods of **WflowBaseModel** and **WflowSedimentModel**
+- Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
 v0.4.1 (22 November 2023)
 =========================
@@ -288,8 +288,8 @@ Small overhaul of internal methods and stability fixes. This version works with 
 
 Changed
 -------
-- **WflowBaseModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
-- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowBaseModel** class
+- **WflowModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
+- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowModel** class
 - **read_staticgeoms**, **write_staticgeoms** and **staticgeoms** are now deprecated
 - Staticgeoms methods are superseded by **read_geoms**, **write_geoms** and **geoms**
 - **read_staticmaps**, **write_staticmaps** and **staticmaps** are now deprecated
@@ -322,7 +322,7 @@ Added
 - In **setup_lakes**: Option to prepare controlled lake parameter maxstorage (new in Wflow.jl 0.7.0).
 - New workflow **waterbodies.lakeattrs** to prepare lake parameters from lake_fn attribute and rating curve data.
 - New **tables** model property including read/write: dictionnary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
-- Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowBaseModel. `PR #168 <https://github.com/Deltares/hydromt_wflow/pull/168>`_
+- Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowModel. `PR #168 <https://github.com/Deltares/hydromt_wflow/pull/168>`_
 
 Changed
 -------
