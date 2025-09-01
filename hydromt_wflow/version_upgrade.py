@@ -339,8 +339,8 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
         "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa : E501
-        "lateral.river.lake.storage": "lake_water__instantaneous_volume",
-        "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
+        "lateral.river.lake.storage": "reservoir_water__instantaneous_volume",
+        "lateral.river.lake.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",
     }
 
     # Options in model section that were renamed
