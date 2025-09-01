@@ -42,7 +42,7 @@ a specific method see its documentation.
       - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
-    * - :py:func:`~WflowBaseModel.setup_lulcmaps_from_vector`
+    * - :py:func:`~WflowSedimentModel.setup_lulcmaps_from_vector`
       - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
     * - :py:func:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.

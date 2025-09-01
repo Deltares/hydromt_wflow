@@ -8,8 +8,112 @@ API reference
 
 .. _api_model:
 
-Wflow model class
+Wflow model classes
 =================
+
+Initialize
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel
+
+.. _components:
+
+
+High level and I/O methods
+--------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel.build
+   WflowBaseModel.update
+
+   WflowBaseModel.read
+   WflowBaseModel.write
+
+   WflowBaseModel.read_config
+   WflowBaseModel.write_config
+
+   WflowBaseModel.read_grid
+   WflowBaseModel.write_grid
+   WflowBaseModel.clip_grid
+
+   WflowBaseModel.read_geoms
+   WflowBaseModel.write_geoms
+
+   WflowBaseModel.read_forcing
+   WflowBaseModel.write_forcing
+   WflowBaseModel.clip_forcing
+
+   WflowBaseModel.read_states
+   WflowBaseModel.write_states
+
+   WflowBaseModel.read_outputs
+
+
+Components
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel.config
+   WflowBaseModel.staticmaps
+   WflowBaseModel.forcing
+   WflowBaseModel.states
+   WflowBaseModel.tables
+   WflowBaseModel.geoms
+   WflowBaseModel.output_grid
+   WflowBaseModel.output_scalar
+   WflowBaseModel.output_csv
+
+Attributes
+----------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel.crs
+   WflowBaseModel.root
+   WflowBaseModel.flwdir
+   WflowBaseModel.basins
+   WflowBaseModel.rivers
+
+Other general methods
+---------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel.set_config
+   WflowBaseModel.get_config
+   WflowBaseModel.set_forcing
+   WflowBaseModel.set_grid
+   WflowBaseModel.set_geoms
+   WflowBaseModel.set_states
+
+Setup methods
+-------------
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowBaseModel.setup_config
+   WflowBaseModel.setup_config_output_timeseries
+   WflowBaseModel.setup_basemaps
+   WflowBaseModel.setup_rivers
+   WflowBaseModel.setup_riverwidth
+   WflowBaseModel.setup_lulcmaps
+   WflowBaseModel.setup_lulcmaps_from_vector
+   WflowBaseModel.setup_outlets
+   WflowBaseModel.setup_gauges
+   WflowBaseModel.setup_constant_pars
+   WflowBaseModel.setup_grid_from_raster
+   WflowBaseModel.setup_areamap
+
 
 Initialize
 ----------
@@ -64,82 +168,6 @@ Setup methods
    WflowSbmModel.setup_cold_states
    WflowSbmModel.upgrade_to_v1_wflow
 
-High level and I/O methods
---------------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSbmModel.build
-   WflowSbmModel.update
-
-   WflowSbmModel.read
-   WflowSbmModel.write
-
-   WflowSbmModel.read_config
-   WflowSbmModel.write_config
-
-   WflowSbmModel.read_grid
-   WflowSbmModel.write_grid
-   WflowSbmModel.clip_grid
-
-   WflowSbmModel.read_geoms
-   WflowSbmModel.write_geoms
-
-   WflowSbmModel.read_forcing
-   WflowSbmModel.write_forcing
-   WflowSbmModel.clip_forcing
-
-   WflowSbmModel.read_states
-   WflowSbmModel.write_states
-   WflowSbmModel.clip_states
-
-   WflowSbmModel.read_outputs
-
-   WflowSbmModel.read_tables
-   WflowSbmModel.write_tables
-
-Components
-----------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSbmModel.config
-   WflowSbmModel.staticmaps
-   WflowSbmModel.forcing
-   WflowSbmModel.states
-   WflowSbmModel.tables
-   WflowSbmModel.geoms
-   WflowSbmModel.output_grid
-   WflowSbmModel.output_scalar
-   WflowSbmModel.output_csv
-
-Attributes
-----------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSbmModel.crs
-   WflowSbmModel.root
-   WflowSbmModel.flwdir
-   WflowSbmModel.basins
-   WflowSbmModel.rivers
-
-Other general methods
----------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSbmModel.set_config
-   WflowSbmModel.get_config
-   WflowSbmModel.set_forcing
-   WflowSbmModel.set_grid
-   WflowSbmModel.set_tables
-   WflowSbmModel.set_states
-
 .. _api_model_sediment:
 
 WflowSediment model class
@@ -180,80 +208,9 @@ Setup components
    WflowSedimentModel.setup_grid_from_raster
    WflowSedimentModel.upgrade_to_v1_wflow
 
-High level and I/O methods
---------------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.build
-   WflowSedimentModel.update
-
-   WflowSedimentModel.read
-   WflowSedimentModel.write
-
-   WflowSedimentModel.read_config
-   WflowSedimentModel.write_config
-
-   WflowSedimentModel.read_grid
-   WflowSedimentModel.write_grid
-   WflowSedimentModel.clip_grid
-
-   WflowSedimentModel.read_geoms
-   WflowSedimentModel.write_geoms
-
-   WflowSedimentModel.read_forcing
-   WflowSedimentModel.write_forcing
-   WflowSedimentModel.clip_forcing
-
-   WflowSedimentModel.read_states
-   WflowSedimentModel.write_states
-
-   WflowSedimentModel.read_outputs
-
-Components
-----------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.config
-   WflowSedimentModel.staticmaps
-   WflowSedimentModel.forcing
-   WflowSedimentModel.states
-   WflowSedimentModel.tables
-   WflowSedimentModel.geoms
-   WflowSedimentModel.output_grid
-   WflowSedimentModel.output_scalar
-   WflowSedimentModel.output_csv
-
-Attributes
-----------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.crs
-   WflowSedimentModel.root
-   WflowSedimentModel.flwdir
-   WflowSedimentModel.basins
-   WflowSedimentModel.rivers
-
-Other general methods
----------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.set_config
-   WflowSedimentModel.get_config
-   WflowSedimentModel.set_forcing
-   WflowSedimentModel.set_grid
-   WflowSedimentModel.set_states
-
 .. _data_containers:
 
-WflowSbmModel components
+WflowBaseModel components
 ========================
 
 WflowConfigComponent
@@ -288,6 +245,7 @@ WflowForcingComponent
 
 WflowGeomsComponent
 -------------------
+
 .. autosummary::
    :toctree: _generated
 
