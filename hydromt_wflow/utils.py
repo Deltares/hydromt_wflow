@@ -15,7 +15,7 @@ from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATADIR = Path(Path(__file__).parent, "data")
+DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
     "get_config",

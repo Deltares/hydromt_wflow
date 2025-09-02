@@ -17,7 +17,7 @@ def ksat_horizontal_ratio(
 ) -> xr.DataArray:
     """Create KsatHorfrac map.
 
-    Based on the data properties of the WflowBaseModel.
+    Based on the data properties of the WflowSbmModel.
 
     Parameters
     ----------

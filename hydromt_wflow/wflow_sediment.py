@@ -2,7 +2,6 @@
 
 import logging
 import tomllib
-from os.path import join
 from pathlib import Path
 
 import geopandas as gpd
@@ -31,16 +30,11 @@ class WflowSedimentModel(WflowBaseModel):
 
     name: str = "wflow_sediment"
 
-    _DATADIR: Path = utils.DATADIR
-    _DEFAULT_TEMPLATE_FILENAME: Path = join(
-        _DATADIR, "wflow_sediment", "wflow_sediment.toml"
-    )
-
     def __init__(
         self,
         root: str | None = None,
-        config_filename: str = "wflow_sediment.toml",
-        mode: str | None = "w",
+        config_filename: str | None = None,
+        mode: str = "w",
         data_libs: list | str = [],
         **catalog_keys,
     ):
@@ -169,7 +163,8 @@ class WflowSedimentModel(WflowBaseModel):
             "river__slope": "river_slope",
         },
     ):
-        """Set all river parameter maps.
+        """
+        Set all river parameter maps.
 
         The river mask is defined by all cells with a minimum upstream area threshold
         ``river_upa`` [km2].
@@ -188,7 +183,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         The river width is derived from the nearest river segment in ``river_geom_fn``.
         Data gaps are filled by the nearest valid upstream value and averaged along
-        the flow directions over a length ``smooth_len`` [m]
+        the flow directions over a length ``smooth_len`` [m].
 
         Adds model layers:
 
@@ -196,7 +191,7 @@ class WflowSedimentModel(WflowBaseModel):
         * **river_length** map: river length [m]
         * **river_width** map: river width [m]
         * **river_slope** map: river slope [m/m]
-        * **rivers** geom: river vector based on wflow_river mask
+        * **rivers** geom: river vector based on river_mask
 
         Parameters
         ----------
@@ -222,7 +217,7 @@ class WflowSedimentModel(WflowBaseModel):
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         smooth_len : float, optional
-            Length [m] over which to smooth the output river width and depth,
+            Length [m] over which to smooth the output river width,
             by default 5e3
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
@@ -231,74 +226,18 @@ class WflowSedimentModel(WflowBaseModel):
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
         """
-        logger.info("Preparing river maps.")
-        # update self._MAPS and self._WFLOW_NAMES with user defined output names
-        self._update_naming(output_names)
-
-        # Check that river_upa threshold is bigger than the maximum uparea in the grid
-        if river_upa > float(self.staticmaps.data[self._MAPS["uparea"]].max()):
-            raise ValueError(
-                f"river_upa threshold {river_upa} should be larger than the maximum "
-                "uparea in the grid "
-                f"{float(self.staticmaps.data[self._MAPS['uparea']].max())}"
-                "in order to create river cells."
-            )
-
-        # read data
-        ds_hydro = self.data_catalog.get_rasterdataset(
-            hydrography_fn, geom=self.region, buffer=10
-        )
-        ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
-
-        # get rivmsk, rivlen, rivslp
-        # read model maps and revert wflow to hydromt map names
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps.data}
-        ds_riv = workflows.river(
-            ds=ds_hydro,
-            ds_model=self.staticmaps.data.rename(inv_rename),
+        super().setup_rivers(
+            hydrography_fn=hydrography_fn,
+            river_geom_fn=river_geom_fn,
             river_upa=river_upa,
             slope_len=slope_len,
-            channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-        )[0]
-
-        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
-            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+            smooth_len=smooth_len,
+            min_rivwth=min_rivwth,
+            rivdph_method=None,
+            min_rivdph=None,
+            output_names=output_names,
         )
-        dvars = ["rivmsk", "rivlen", "rivslp"]
-        rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
-        # update config
-        for dvar in dvars:
-            if dvar == "rivmsk":
-                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
-            else:
-                self._update_config_variable_name(self._MAPS[dvar])
-
-        # get rivwth
-        if river_geom_fn is not None:
-            gdf_riv = self.data_catalog.get_geodataframe(
-                river_geom_fn, geom=self.region
-            )
-            # re-read model data to get river maps
-            inv_rename = {
-                v: k for k, v in self._MAPS.items() if v in self.staticmaps.data
-            }
-            ds_riv1 = workflows.river_bathymetry(
-                ds_model=self.staticmaps.data.rename(inv_rename),
-                gdf_riv=gdf_riv,
-                smooth_len=smooth_len,
-                min_rivwth=min_rivwth,
-            )
-            # only add river width
-            self.set_grid(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
-            # update config
-            self._update_config_variable_name(self._MAPS["rivwth"])
-
-        logger.debug("Adding rivers vector to geoms.")
-        if "rivers" in self.geoms.data:
-            self.geoms.pop("rivers")  # remove old rivers if in geoms
-        self.rivers  # add new rivers to geoms
 
     @hydromt_step
     def setup_natural_reservoirs(
@@ -968,6 +907,51 @@ capacity [-]
             gauge_toml_param=gauge_toml_param,
             **kwargs,
         )
+
+    @hydromt_step
+    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
+        """Clip grid to subbasin.
+
+        Parameters
+        ----------
+        region : dict
+            See :meth:`models.wflow_base.WflowBaseModel.setup_basemaps`
+        buffer : int, optional
+            Buffer around subbasin in number of pixels, by default 0
+        align : float, optional
+            Align bounds of region to raster with resolution <align>, by default None
+        crs: int, optional
+            Default crs of the grid to clip.
+        inverse_clip: bool, optional
+            Flag to perform "inverse clipping": removing an upstream part of the model
+            instead of the subbasin itself, by default False
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped grid.
+        """
+        super().clip_grid(
+            region, buffer=buffer, align=align, crs=crs, inverse_clip=inverse_clip
+        )
+
+        # Update reservoirs
+        if self._MAPS["reservoir_area_id"] in self.staticmaps.data:
+            reservoir = self.staticmaps.data[self._MAPS["reservoir_area_id"]]
+            if not np.any(reservoir > 0):
+                remove_maps = [
+                    self._MAPS["reservoir_area_id"],
+                    self._MAPS["reservoir_outlet_id"],
+                    self._MAPS["reservoir_lower_id"],
+                    self._MAPS["reservoir_area"],
+                    self._MAPS["reservoir_trapping_efficiency"],
+                ]
+                self.staticmaps.drop_vars(remove_maps, errors="ignore")
+
+                # Update config
+                # Remove the absolute path and if needed remove reservoirs
+                # change reservoir__flag = true to false
+                self.set_config("model.reservoir__flag", False)
 
     @hydromt_step
     def upgrade_to_v1_wflow(

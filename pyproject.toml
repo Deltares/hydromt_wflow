@@ -85,7 +85,7 @@ extra = [
 test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout", "pytest-benchmark"]
 
 [project.entry-points."hydromt.models"]
-wflow          = "hydromt_wflow.wflow_sbm"
+wflow_sbm      = "hydromt_wflow.wflow_sbm"
 wflow_sediment = "hydromt_wflow.wflow_sediment"
 
 [project.urls]
@@ -287,13 +287,13 @@ test-full-py311 = { features = ["py311", "extra", "test"] }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_full", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
+  "hydromt", "build", "wflow_sbm", "./wflow_test_full", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "examples" }
 build-example-model-sediment = { cmd = [
   "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "examples" }
 build-example-model-clipped = { cmd = [
-  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
+  "hydromt", "clip", "wflow_sbm", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
 ], cwd = "examples" }
 build-example-models = {depends-on = [
   "build-example-model-full",
@@ -320,10 +320,10 @@ test-cov-local = { cmd = [
   "html",
 ] }
 build-test-model-simple = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
+  "hydromt", "build", "wflow_sbm", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "tests" }
 build-test-model-full = { cmd = [
-  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
+  "hydromt", "build", "wflow_sbm", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
 ], cwd = "tests" }
 build-test-model-sediment = { cmd = [
   "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_sediment_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"

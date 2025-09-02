@@ -5947,7 +5947,46 @@ packages:
 - pypi: ./
   name: hydromt-wflow
   version: 1.0.0.dev0
-  sha256: 223ed82312b92807e15160a26cae47312074d2557b75fd7151bcbe74b32390e2
+  sha256: 257e8a595933601f05ba6d7fb81ec0ff75d0bdab4efbaaa880e27fc1f622d977
+  requires_dist:
+  - dask
+  - geopandas>=0.10
+  - hydromt @ git+https://github.com/Deltares/hydromt.git
+  - numpy
+  - pandas
+  - pyflwdir>=0.5.7
+  - pyproj
+  - scipy
+  - shapely
+  - xarray
+  - pooch
+  - pre-commit ; extra == 'dev'
+  - ruff ; extra == 'dev'
+  - nbsphinx ; extra == 'docs'
+  - pydata-sphinx-theme ; extra == 'docs'
+  - sphinx ; extra == 'docs'
+  - sphinx-design ; extra == 'docs'
+  - sphinx-autosummary-accessors ; extra == 'docs'
+  - sbom4python ; extra == 'docs'
+  - cartopy ; extra == 'examples'
+  - jupyterlab ; extra == 'examples'
+  - nbconvert ; extra == 'examples'
+  - notebook ; extra == 'examples'
+  - gwwapi ; extra == 'extra'
+  - hydroengine ; extra == 'extra'
+  - pyet ; extra == 'extra'
+  - wradlib ; extra == 'extra'
+  - pytest>=2.7.3 ; extra == 'test'
+  - pytest-cov ; extra == 'test'
+  - pytest-mock ; extra == 'test'
+  - pytest-timeout ; extra == 'test'
+  - pytest-benchmark ; extra == 'test'
+  requires_python: '>=3.11'
+  editable: true
+- pypi: ./
+  name: hydromt-wflow
+  version: 1.0.0.dev0
+  sha256: 409c86cef88a77487653dd8d0be7530ad05d3e99a7c1916abd458ccbb9c47e0d
   requires_dist:
   - dask
   - geopandas>=0.10

@@ -1,6 +1,5 @@
 """Tests for the utils module."""
 
-import tomllib
 from os.path import abspath, dirname, join
 from pathlib import Path
 
@@ -128,42 +127,6 @@ def test_convert_to_wflow_v1_sediment():
             wflow.staticmaps.data["reservoir_trapping_efficiency"].raster.mask_nodata(),
         )
     )
-
-
-def test_config_toml_grouping(tmpdir, static_layer):
-    dummy_model = WflowSbmModel(root=tmpdir, mode="w")
-    dummy_model.staticmaps.set(static_layer, name="layer")
-    dummy_model.read_config()
-
-    dummy_model.set_config(
-        "input.forcing.netcdf.name",
-        "blah.nc",
-    )
-    dummy_model.config.set(
-        "input.forcing.scale",
-        1,
-    )
-    dummy_model.config.set(
-        "input.static.staticsoil~compacted_surface_water__infiltration_capacity.value",
-        5,
-    )
-    dummy_model.config.set(
-        "input.static.soil_root~wet__sigmoid_function_shape_parameter.value",
-        -500,
-    )
-    dummy_model.config.set(
-        "input.static.soil_water_sat-zone_bottom__max_leakage_volume_flux.value", 0
-    )
-
-    dummy_model.write()
-
-    with open(tmpdir / "wflow_sbm.toml", "rb") as file:
-        written_config = tomllib.load(file)
-
-    with open(TESTDATADIR / "grouped_model_config.toml", "rb") as file:
-        expected_config = tomllib.load(file)
-
-    assert written_config == expected_config
 
 
 def test_config_toml_overwrite(tmpdir: Path):

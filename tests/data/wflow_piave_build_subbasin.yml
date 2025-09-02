@@ -15,7 +15,7 @@ steps:
         strord: 4
         bounds: [11.70, 45.35, 12.95, 46.70]
 
-  - setup_river_roughness:
+  - setup_rivers:
       hydrography_fn: merit_hydro
       river_geom_fn: hydro_rivers_lin
       river_upa: 30
@@ -24,6 +24,8 @@ steps:
       min_rivwth: 30
       slope_len: 2000
       smooth_len: 5000
+
+  - setup_river_roughness:
 
   - setup_reservoirs_simple_control:
       reservoirs_fn: hydro_reservoirs

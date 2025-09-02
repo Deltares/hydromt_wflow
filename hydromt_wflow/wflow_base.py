@@ -70,25 +70,25 @@ class WflowBaseModel(Model):
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _DATADIR = utils.DATADIR
-    _DEFAULT_TEMPLATE_FILENAME = join(_DATADIR, "wflow", "wflow.toml")
-    _CATALOGS = join(_DATADIR, "parameters_data.yml")
+    _DATADIR: Path = utils.DATADIR
 
     def __init__(
         self,
         root: str | None = None,
-        config_filename: str = "wflow.toml",
+        config_filename: str | None = None,
         mode: str = "w",
         data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
-        # Define components when they are implemented
-        # This is when config_fn should be able to be passed to ConfigComponent later
+        default_filename = self._DATADIR / self.name / f"{self.name}.toml"
+        if config_filename is None:
+            config_filename = default_filename.name
+
         components = {
             "config": WflowConfigComponent(
                 self,
                 filename=str(config_filename),
-                default_template_filename=self._DEFAULT_TEMPLATE_FILENAME,
+                default_template_filename=default_filename.as_posix(),
             ),
             "forcing": WflowForcingComponent(self, region_component="staticmaps"),
             "geoms": WflowGeomsComponent(self, region_component="staticmaps"),
@@ -117,8 +117,7 @@ class WflowBaseModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self._results: dict | None = None
-        self.data_catalog.from_yml(self._CATALOGS)
+        self.data_catalog.from_yml(self._DATADIR / "parameters_data.yml")
 
         # Supported Wflow.jl version
         logger.info("Supported Wflow.jl version v1+")
@@ -459,27 +458,17 @@ skipping adding gauge specific outputs to the toml."
         hydrography_fn: str | xr.Dataset,
         river_geom_fn: str | gpd.GeoDataFrame | None = None,
         river_upa: float = 30,
-        rivdph_method: str = "powlaw",
         slope_len: float = 2e3,
         min_rivlen_ratio: float = 0.0,
-        min_rivdph: float = 1,
-        min_rivwth: float = 30,
         smooth_len: float = 5e3,
-        rivman_mapping_fn: str
-        | Path
-        | pd.DataFrame = "roughness_river_mapping_default",
-        elevtn_map: str = "land_elevation",
-        river_routing: str = "kinematic-wave",
-        connectivity: int = 8,
-        strord_name: str = "meta_streamorder",
+        min_rivwth: float = 30,
+        rivdph_method: str | None = "powlaw",
+        min_rivdph: float = 1,
         output_names: dict = {
             "river_location__mask": "river_mask",
             "river__length": "river_length",
             "river__width": "river_width",
-            "river_bank_water__depth": "river_depth",
             "river__slope": "river_slope",
-            "river_water_flow__manning_n_parameter": "river_manning_n",
-            "river_bank_water__elevation": "river_bank_elevation",
         },
     ):
         """
@@ -497,40 +486,17 @@ skipping adding gauge specific outputs to the toml."
         at a half distance ``slope_len`` [m] up-
         and downstream from the subgrid outlet pixel.
 
-        The river manning roughness coefficient is derived based on reclassification
-        of the streamorder map using a lookup table ``rivman_mapping_fn``.
-
         The river width is derived from the nearest river segment in ``river_geom_fn``.
         Data gaps are filled by the nearest valid upstream value and averaged along
-        the flow directions over a length ``smooth_len`` [m]
-
-        The river depth can be directly derived from ``river_geom_fn`` property or
-        calculated using the ``rivdph_method``, by default powlaw:
-        h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
-        segment in ``river_geom_fn`` and takes optional arguments for the hc
-        (default = 0.27) and hp (default = 0.30) parameters. For other methods see
-        :py:meth:`hydromt.workflows.river_depth`.
-
-        If ``river_routing`` is set to "local-inertial", the bankfull elevation map
-        can be conditioned based on the average cell elevation ("land_elevation")
-        or subgrid outlet pixel elevation ("meta_subgrid_elevation").
-        The subgrid elevation might provide a better representation
-        of the river elevation profile, however in combination with
-        local-inertial land routing (see :py:meth:`setup_floodplains`)
-        the subgrid elevation will likely overestimate the floodplain storage capacity.
-        Note that the same input elevation map should be used for river bankfull
-        elevation and land elevation when using local-inertial land routing.
+        the flow directions over a length ``smooth_len`` [m].
 
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
         * **river_length** map: river length [m]
         * **river_width** map: river width [m]
-        * **river_depth** map: bankfull river depth [m]
         * **river_slope** map: river slope [m/m]
-        * **river_manning_n** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
-        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -539,12 +505,12 @@ skipping adding gauge specific outputs to the toml."
             Must be same as setup_basemaps for consistent results.
 
             * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-              'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+            'elevtn'[m+REF]
+            * Optional variables: 'rivwth' [m]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
-            * Required variables: 'rivwth' [m], 'rivdph' [m] or 'qbankfull' [m3/s]
+            * Required variables: 'rivwth' [m]
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
@@ -555,73 +521,33 @@ skipping adding gauge specific outputs to the toml."
             The river length smoothing is skipped if `min_riverlen_ratio` = 0.
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
-        rivdph_method : {'gvf', 'manning', 'powlaw'}
-            see :py:meth:`hydromt.workflows.river_depth` for details, by default \
-                "powlaw"
-        river_routing : {'kinematic-wave', 'local-inertial'}
-            Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
-            Length [m] over which to smooth the output river width and depth,
+            Length [m] over which to smooth the output river width,
             by default 5e3
-        min_rivdph : float, optional
-            Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
-        elevtn_map : str, optional
-            Name of the elevation map in the current WflowBaseModel.staticmaps.
-            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
-
-        See Also
-        --------
-        workflows.river_bathymetry
-        hydromt.workflows.river_depth
-        pyflwdir.FlwdirRaster.river_depth
-        setup_floodplains
         """
         logger.info("Preparing river maps.")
-        # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
-        # check for streamorder
-        if self._MAPS["strord"] not in self.staticmaps.data:
-            if strord_name not in self.staticmaps.data:
-                raise ValueError(
-                    f"Streamorder map {strord_name} not found in grid. "
-                    "Please run setup_basemaps or update the strord_name argument."
-                )
-            else:
-                self._MAPS["strord"] = strord_name
 
-        # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.staticmaps.data[self._MAPS["uparea"]].max()):
             raise ValueError(
-                f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {float(self.staticmaps.data[self._MAPS['uparea']].max())} in order \
-to create river cells."
+                f"river_upa threshold {river_upa} should be larger than the maximum "
+                f"uparea {float(self.staticmaps.data[self._MAPS['uparea']].max())} "
+                "to create river cells."
             )
 
-        rivdph_methods = ["gvf", "manning", "powlaw"]
-        if rivdph_method not in rivdph_methods:
-            raise ValueError(f'"{rivdph_method}" unknown. Select from {rivdph_methods}')
-
-        routing_options = ["kinematic-wave", "local-inertial"]
-        if river_routing not in routing_options:
-            raise ValueError(
-                f'river_routing="{river_routing}" unknown. \
-Select from {routing_options}.'
-            )
-
-        # read data
+        # read hydrography data
         ds_hydro = self.data_catalog.get_rasterdataset(
             hydrography_fn, geom=self.region, buffer=10
         )
         ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
-        # get rivmsk, rivlen, rivslp
-        # read model maps and revert wflow to hydromt map names
+        # derive rivmsk, rivlen, rivslp
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps.data}
         ds_riv = workflows.river(
             ds=ds_hydro,
@@ -638,69 +564,36 @@ Select from {routing_options}.'
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_grid(ds_riv[dvars].rename(rmdict))
-        # update config
         for dvar in dvars:
             if dvar == "rivmsk":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             else:
                 self._update_config_variable_name(self._MAPS[dvar])
 
-        # get rivdph, rivwth
-        # while we still have setup_riverwidth one can skip river_bathymetry here
-        # TODO make river_geom_fn required after removing setup_riverwidth
+        # optional width/depth
         if river_geom_fn is not None:
             gdf_riv = self.data_catalog.get_geodataframe(
                 river_geom_fn, geom=self.region
             )
-            # reread model data to get river maps
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.staticmaps.data
             }
             ds_riv1 = workflows.river_bathymetry(
                 ds_model=self.staticmaps.data.rename(inv_rename),
                 gdf_riv=gdf_riv,
-                method=rivdph_method,
+                method=rivdph_method,  # None skips depth
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
-            # update config
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
-        logger.info("Adding rivers vector to geoms.")
+        logger.debug("Adding rivers vector to geoms.")
         if "rivers" in self.geoms.data:
-            self.geoms.pop("rivers")  # remove old rivers if in geoms
-        self.rivers  # add new rivers to geoms
-
-        # Add hydrologically conditioned elevation map for the river, if required
-        logger.info(f'Update wflow config model.river_routing="{river_routing}"')
-        self.set_config("model.river_routing", river_routing)
-        if river_routing == "local-inertial":
-            postfix = {
-                "land_elevation": "_avg",
-                "meta_subgrid_elevation": "_subgrid",
-            }.get(elevtn_map, "")
-            name = f"river_bank_elevation{postfix}"
-            # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
-            if hydrodem_var in output_names:
-                name = output_names[hydrodem_var]
-            self._update_naming({hydrodem_var: name})
-
-            ds_out = flw.dem_adjust(
-                da_flwdir=self.staticmaps.data[self._MAPS["flwdir"]],
-                da_elevtn=self.staticmaps.data[elevtn_map],
-                da_rivmsk=self.staticmaps.data[self._MAPS["rivmsk"]],
-                flwdir=self.flwdir,
-                connectivity=connectivity,
-                river_d8=True,
-            ).rename(name)
-            self.set_grid(ds_out)
-
-            # update toml model.river_routing
-            self._update_config_variable_name(name)
+            self.geoms.pop("rivers")
+        self.rivers
 
     @hydromt_step
     def setup_riverwidth(
@@ -1691,6 +1584,9 @@ one variable and variables list is not provided."
         _ = self.config.data  # try to read default if not yet set
         if "staticmaps" in self.components:
             self.write_grid(filename=grid_filename)
+            self.staticmaps.write_region(
+                filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
+            )
         if "geoms" in self.components:
             self.write_geoms(folder=geoms_folder)
         if "forcing" in self.components:
@@ -1699,10 +1595,6 @@ one variable and variables list is not provided."
             self.write_tables()
         if "states" in self.components:
             self.write_states(filename=states_filename)
-        if "staticmaps" in self.components:
-            self.staticmaps.write_region(
-                filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
-            )
 
         # Write the config last as variables can get set in other write methods
         self.write_config(filename=config_filename)
@@ -2067,13 +1959,6 @@ one variable and variables list is not provided."
         # fall back on default set_states behaviour
         self.states.set(data, name=name)
 
-    @property
-    def results(self) -> dict[str, xr.Dataset | xr.DataArray]:
-        """Model results. Returns dict of xarray.DataArray or xarray.Dataset."""
-        if self._results is None:
-            self._initialize_results()
-        return self._results
-
     @hydromt_step
     def read_outputs(self):
         """
@@ -2087,12 +1972,6 @@ one variable and variables list is not provided."
         self.output_grid.read()
         self.output_scalar.read()
         self.output_csv.read()
-
-    @hydromt_step
-    def write_results(self):
-        """Write results at <root/?/> in model ready format."""
-        if not self.root.is_writing_mode():
-            raise IOError("Model opened in read-only mode")
 
     @hydromt_step
     def read_tables(self, **kwargs):
@@ -2242,55 +2121,6 @@ one variable and variables list is not provided."
         value = args[-1]
         self.config.set(key, value)
 
-    def _update_naming(self, rename_dict: dict):
-        """Update the naming of the model variables.
-
-        Parameters
-        ----------
-        rename_dict: dict
-            Dictionary with the wflow variable and new output name in file.
-        """
-        _wflow_names_inv = {v: k for k, v in self._WFLOW_NAMES.items()}
-        _hydromt_names_inv = {v: k for k, v in self._MAPS.items()}
-        for wflow_var, new_name in rename_dict.items():
-            if wflow_var is None:
-                continue
-            # Find the previous name in self._WFLOW_NAMES
-            old_name = _wflow_names_inv.get(wflow_var, None)
-            if old_name is not None:
-                # Rename the variable in self._WFLOW_NAMES
-                self._WFLOW_NAMES.pop(old_name)
-                self._WFLOW_NAMES[new_name] = wflow_var
-                # Rename the variable in self._MAPS
-                hydromt_name = _hydromt_names_inv.get(old_name, None)
-                if hydromt_name is not None:
-                    self._MAPS[hydromt_name] = new_name
-            else:
-                logger.warning(f"Wflow variable {wflow_var} not found, check spelling.")
-
-    def _update_config_variable_name(
-        self, data_vars: str | list[str], data_type: str | None = "static"
-    ):
-        """Update the variable names in the config file.
-
-        Parameters
-        ----------
-        data_vars: list of str
-            List of variable names to update in the config file.
-        data_type: str, optional
-            Type of data (static, forcing, cyclic, None), by default "static"
-        """
-        data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
-        _prefix = f"input.{data_type}" if data_type is not None else "input"
-        for var in data_vars:
-            if var in self._WFLOW_NAMES:
-                # Get the name from the Wflow variable name
-                wflow_var = self._WFLOW_NAMES[var]
-                # Update the config variable name
-                self.set_config(f"{_prefix}.{wflow_var}", var)
-            # else not a wflow variable
-            # (spelling mistakes should have been checked in _update_naming)
-
     ## WFLOW specific modification (clip for now) methods
     @hydromt_step
     def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
@@ -2418,6 +2248,55 @@ one variable and variables list is not provided."
             )
             self.states._data = xr.Dataset()  # Clear existing states
             self.set_states(ds_states)
+
+    def _update_naming(self, rename_dict: dict):
+        """Update the naming of the model variables.
+
+        Parameters
+        ----------
+        rename_dict: dict
+            Dictionary with the wflow variable and new output name in file.
+        """
+        _wflow_names_inv = {v: k for k, v in self._WFLOW_NAMES.items()}
+        _hydromt_names_inv = {v: k for k, v in self._MAPS.items()}
+        for wflow_var, new_name in rename_dict.items():
+            if wflow_var is None:
+                continue
+            # Find the previous name in self._WFLOW_NAMES
+            old_name = _wflow_names_inv.get(wflow_var, None)
+            if old_name is not None:
+                # Rename the variable in self._WFLOW_NAMES
+                self._WFLOW_NAMES.pop(old_name)
+                self._WFLOW_NAMES[new_name] = wflow_var
+                # Rename the variable in self._MAPS
+                hydromt_name = _hydromt_names_inv.get(old_name, None)
+                if hydromt_name is not None:
+                    self._MAPS[hydromt_name] = new_name
+            else:
+                logger.warning(f"Wflow variable {wflow_var} not found, check spelling.")
+
+    def _update_config_variable_name(
+        self, data_vars: str | list[str], data_type: str | None = "static"
+    ):
+        """Update the variable names in the config file.
+
+        Parameters
+        ----------
+        data_vars: list of str
+            List of variable names to update in the config file.
+        data_type: str, optional
+            Type of data (static, forcing, cyclic, None), by default "static"
+        """
+        data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
+        _prefix = f"input.{data_type}" if data_type is not None else "input"
+        for var in data_vars:
+            if var in self._WFLOW_NAMES:
+                # Get the name from the Wflow variable name
+                wflow_var = self._WFLOW_NAMES[var]
+                # Update the config variable name
+                self.set_config(f"{_prefix}.{wflow_var}", var)
+            # else not a wflow variable
+            # (spelling mistakes should have been checked in _update_naming)
 
     ## WFLOW specific data and method
     # Non model component properties

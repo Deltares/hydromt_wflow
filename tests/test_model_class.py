@@ -8,20 +8,21 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_supported_models: dict[str, type[WflowSbmModel]] = {
+_supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow": WflowSbmModel,
     "wflow_sediment": WflowSedimentModel,
     "wflow_simple": WflowSbmModel,
 }
 
 
-def _compare_wflow_models(mod0: WflowSbmModel, mod1: WflowSbmModel):
+def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}

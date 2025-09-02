@@ -52,20 +52,12 @@ class WflowSbmModel(WflowBaseModel):
         Additional keyword arguments to be passed down to the DataCatalog.
     """
 
-    name: str = "wflow"
-
-    _MODEL_VERSION = None
-    # TODO supported model version should be filled by the plugins
-    # e.g. _MODEL_VERSION = ">=1.0, <1.1
-
-    _DATADIR = utils.DATADIR
-    _DEFAULT_TEMPLATE_FILENAME = join(_DATADIR, "wflow", "wflow_sbm.toml")
-    _CATALOGS = join(_DATADIR, "parameters_data.yml")
+    name: str = "wflow_sbm"
 
     def __init__(
         self,
         root: str | None = None,
-        config_filename: str = "wflow_sbm.toml",
+        config_filename: str | None = None,
         mode: str = "w",
         data_libs: list[str] | str | None = None,
         **catalog_keys,
@@ -85,7 +77,7 @@ class WflowSbmModel(WflowBaseModel):
 
     ## SETUP METHODS
     @hydromt_step
-    def setup_river_roughness(
+    def setup_rivers(
         self,
         hydrography_fn: str | xr.Dataset,
         river_geom_fn: str | gpd.GeoDataFrame | None = None,
@@ -96,41 +88,189 @@ class WflowSbmModel(WflowBaseModel):
         min_rivdph: float = 1,
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
-        rivman_mapping_fn: str
-        | Path
-        | pd.DataFrame = "roughness_river_mapping_default",
         elevtn_map: str = "land_elevation",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
-        strord_name: str = "meta_streamorder",
         output_names: dict = {
             "river_location__mask": "river_mask",
             "river__length": "river_length",
             "river__width": "river_width",
             "river_bank_water__depth": "river_depth",
             "river__slope": "river_slope",
-            "river_water_flow__manning_n_parameter": "river_manning_n",
             "river_bank_water__elevation": "river_bank_elevation",
         },
     ):
-        """Set river maps and Manning roughness coefficient for SBM."""
-        logger.info("Preparing river maps and Manning roughness.")
+        """
+        Set full river parameter maps including river depth and bank elevation.
+
+        The river mask is defined by all cells with a minimum upstream area threshold
+        ``river_upa`` [km2].
+
+        The river length is defined as the distance from the subgrid outlet pixel to
+        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
+        global river length to avg. cell resolution ratio and is used as a threshold in
+        window based smoothing of river length.
+
+        The river slope is derived from the subgrid elevation difference between pixels
+        at a half distance ``slope_len`` [m] up-
+        and downstream from the subgrid outlet pixel.
+
+        The river width is derived from the nearest river segment in ``river_geom_fn``.
+        Data gaps are filled by the nearest valid upstream value and averaged along
+        the flow directions over a length ``smooth_len`` [m]
+
+        The river depth can be directly derived from ``river_geom_fn`` property or
+        calculated using the ``rivdph_method``, by default powlaw:
+        h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
+        segment in ``river_geom_fn`` and takes optional arguments for the hc
+        (default = 0.27) and hp (default = 0.30) parameters. For other methods see
+        :py:meth:`hydromt.workflows.river_depth`.
+
+        If ``river_routing`` is set to "local-inertial", the bankfull elevation map
+        can be conditioned based on the average cell elevation ("land_elevation")
+        or subgrid outlet pixel elevation ("meta_subgrid_elevation").
+        The subgrid elevation might provide a better representation
+        of the river elevation profile, however in combination with
+        local-inertial land routing (see :py:meth:`setup_floodplains`)
+        the subgrid elevation will likely overestimate the floodplain storage capacity.
+        Note that the same input elevation map should be used for river bankfull
+        elevation and land elevation when using local-inertial land routing.
+
+        Adds model layers:
+
+        * **wflow_river** map: river mask [-]
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_depth** map: bankfull river depth [m]
+        * **river_slope** map: river slope [m/m]
+        * **rivers** geom: river vector based on wflow_river mask
+        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
+
+        Parameters
+        ----------
+        hydrography_fn : str, Path, xarray.Dataset
+            Name of RasterDataset source for hydrography data.
+            Must be same as setup_basemaps for consistent results.
+
+            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+            'elevtn'[m+REF]
+            * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
+            Name of GeoDataFrame source for river data.
+
+            * Required variables: 'rivwth' [m], 'rivdph' [m] or 'qbankfull' [m3/s]
+        river_upa : float, optional
+            Minimum upstream area threshold for the river map [km2]. By default 30.0
+        slope_len : float, optional
+            Length over which the river slope is calculated [km]. By default 2.0
+        min_rivlen_ratio: float, optional
+            Ratio of cell resolution used minimum length threshold in a moving
+            window based smoothing of river length, by default 0.0
+            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
+            For details about the river length smoothing,
+            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
+        rivdph_method : {'gvf', 'manning', 'powlaw'}
+            see :py:meth:`hydromt.workflows.river_depth` for details, by default \
+                "powlaw"
+        river_routing : {'kinematic-wave', 'local-inertial'}
+            Routing methodology to be used, by default "kinematic-wave".
+        smooth_len : float, optional
+            Length [m] over which to smooth the output river width and depth,
+            by default 5e3
+        min_rivdph : float, optional
+            Minimum river depth [m], by default 1.0
+        min_rivwth : float, optional
+            Minimum river width [m], by default 30.0
+        elevtn_map : str, optional
+            Name of the elevation map in the current WflowBaseModel.staticmaps.
+            By default "land_elevation"
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+
+        See Also
+        --------
+        workflows.river_bathymetry
+        hydromt.workflows.river_depth
+        pyflwdir.FlwdirRaster.river_depth
+        setup_floodplains
+        """
         super().setup_rivers(
             hydrography_fn=hydrography_fn,
             river_geom_fn=river_geom_fn,
             river_upa=river_upa,
-            rivdph_method=rivdph_method,
             slope_len=slope_len,
             min_rivlen_ratio=min_rivlen_ratio,
-            min_rivdph=min_rivdph,
-            min_rivwth=min_rivwth,
             smooth_len=smooth_len,
-            elevtn_map=elevtn_map,
-            river_routing=river_routing,
-            connectivity=connectivity,
-            strord_name=strord_name,
+            min_rivwth=min_rivwth,
+            rivdph_method=rivdph_method,
+            min_rivdph=min_rivdph,
             output_names=output_names,
         )
+
+        routing_options = ["kinematic-wave", "local-inertial"]
+        if river_routing not in routing_options:
+            raise ValueError(
+                f'river_routing="{river_routing}" unknown. '
+                f"Select from {routing_options}."
+            )
+
+        logger.info(f'Update wflow config model.river_routing="{river_routing}"')
+        self.set_config("model.river_routing", river_routing)
+
+        if river_routing == "local-inertial":
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
+            name = f"river_bank_elevation{postfix}"
+
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            if hydrodem_var in output_names:
+                name = output_names[hydrodem_var]
+            self._update_naming({hydrodem_var: name})
+
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps.data[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps.data[elevtn_map],
+                da_rivmsk=self.staticmaps.data[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+            ).rename(name)
+            self.set_grid(ds_out)
+            self._update_config_variable_name(name)
+
+    @hydromt_step
+    def setup_river_roughness(
+        self,
+        rivman_mapping_fn: str | Path | pd.DataFrame | None = None,
+        strord_name: str = "meta_streamorder",
+        output_name: str = "river_manning_n",
+    ):
+        """Set river Manning roughness coefficient for SBM.
+
+        THIS FUNCTION SHOULD BE RUN AFTER ``setup_basemaps`` AND ``setup_rivers``.
+
+        Adds model layers:
+        - **river_manning_n** map: river Manning roughness coefficient [-]
+
+        Parameters
+        ----------
+        rivman_mapping_fn : str | Path | pd.DataFrame
+            Path to the river Manning mapping file or a DataFrame with the mapping.
+        strord_name : str
+            Name of the stream order map.
+        output_names : dict
+            Mapping of output variable names.
+
+        See Also
+        --------
+        WflowBaseModel.setup_basemaps
+        WflowBaseModel.setup_rivers
+        """
+        logger.info("Preparing river Manning roughness.")
 
         # then add Manning roughness mapping
         if self._MAPS["strord"] not in self.staticmaps.data:
@@ -141,11 +281,17 @@ class WflowSbmModel(WflowBaseModel):
                 )
             else:
                 self._MAPS["strord"] = strord_name
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming({"river_water_flow__manning_n_parameter": output_name})
 
-        # Make river_manning_n map from csv file with mapping
-        # between streamorder and river_manning_n value
+        # Make river_manning_n map from csv file with mapping with streamorder
+        if rivman_mapping_fn is None:
+            fn_map = "roughness_river_mapping_default"
+        else:
+            fn_map = rivman_mapping_fn
+        df = self.data_catalog.get_dataframe(fn_map)
+
         strord = self.staticmaps.data[self._MAPS["strord"]].copy()
-        df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same river_manning_n value
         max_str = df.index[-2]
         nodata = df.index[-1]
@@ -3566,40 +3712,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             self.set_config(option, states_config[option])
 
     @hydromt_step
-    def upgrade_to_v1_wflow(self):
-        """
-        Upgrade the model to wflow v1 format.
-
-        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
-        The other components stay the same.
-
-        Lakes and reservoirs have also been merged into one structure and parameters in
-        the resulted staticmaps will be combined.
-
-        This function should be followed by write_config() to write the upgraded file.
-        """
-        config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sbm(self.config.data)
-        # Update the config
-        with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
-            self.config._data = tomllib.load(file)
-        for option in config_out:
-            self.set_config(option, config_out[option])
-
-        # Merge lakes and reservoirs layers
-        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
-            self.staticmaps.data, config_v0
-        )
-        if ds_res is not None:
-            # Remove older maps from grid
-            self.staticmaps.drop_vars(vars_to_remove)
-            # Add new reservoir maps to grid
-            self.set_grid(ds_res)
-            # Update the config with the new names
-            for option in config_opt:
-                self.set_config(option, config_opt[option])
-
-    @hydromt_step
     def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
         """Clip grid to subbasin.
 
@@ -3665,7 +3777,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             for res_id in ids:
                 keys_to_remove = [k for k in self.tables.data if str(res_id) in k]
                 for key in keys_to_remove:
-                    del self.tables._tables[key]
+                    del self.tables.data[key]
 
     @hydromt_step
     def clip_states(self):
@@ -3677,10 +3789,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             Clipped states.
         """
         if len(self.states.data) > 0:
-            logger.info("Clipping NetCDF states..")
-            ds_states = self.states.data.raster.clip_bbox(
-                self.staticmaps.data.raster.bounds
-            )
+            super().clip_states()
+
             # Check for reservoirs presence in the clipped model
             remove_maps = []
             if self._MAPS["reservoir_area_id"] not in self.staticmaps.data:
@@ -3688,10 +3798,42 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                     "state.variables.reservoir_water_surface__instantaneous_elevation",
                     fallback="reservoir_instantaneous_water_level",
                 )
-                if state_name in ds_states:
+                if state_name in self.states.data:
                     remove_maps.extend([state_name])
 
-            ds_states = ds_states.drop_vars(remove_maps)
-
             self.states._data = xr.Dataset()  # Clear existing states
-            self.set_states(ds_states)
+            self.set_states(self.states.data.drop_vars(remove_maps, errors="ignore"))
+
+    @hydromt_step
+    def upgrade_to_v1_wflow(self):
+        """
+        Upgrade the model to wflow v1 format.
+
+        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
+        The other components stay the same.
+
+        Lakes and reservoirs have also been merged into one structure and parameters in
+        the resulted staticmaps will be combined.
+
+        This function should be followed by write_config() to write the upgraded file.
+        """
+        config_v0 = self.config.data.copy()
+        config_out = convert_to_wflow_v1_sbm(self.config.data)
+        # Update the config
+        with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
+            self.config._data = tomllib.load(file)
+        for option in config_out:
+            self.set_config(option, config_out[option])
+
+        # Merge lakes and reservoirs layers
+        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
+            self.staticmaps.data, config_v0
+        )
+        if ds_res is not None:
+            # Remove older maps from grid
+            self.staticmaps.drop_vars(vars_to_remove)
+            # Add new reservoir maps to grid
+            self.set_grid(ds_res)
+            # Update the config with the new names
+            for option in config_opt:
+                self.set_config(option, config_opt[option])
