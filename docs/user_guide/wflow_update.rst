@@ -14,7 +14,7 @@ To add or change one or more components of an existing Wflow model the ``update`
 .. code-block:: console
 
     activate hydromt-wflow
-    hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.yml -d data_sources.yml -vvv
+    hydromt update wflow_sbm path/to/model_to_update -o path/to/updated_model -i wflow_update.yml -d data_sources.yml -vvv
 
 .. NOTE::
 

@@ -44,6 +44,8 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 class WflowBaseModel(Model):
     """Base Class for all Wflow Model implementations.
 
+    DO NOT USE THIS CLASS DIRECTLY. ONLY USE SUBCLASSES OF THIS CLASS.
+
     It provides common functionality (IO, components and workflows).
     Any specific implementation details for either `sediment` of `sbm` should be
     handled in the derived classes.
