@@ -9,7 +9,7 @@ API reference
 .. _api_model:
 
 Wflow model classes
-=================
+===================
 
 Initialize
 ----------
@@ -19,7 +19,7 @@ Initialize
 
    WflowBaseModel
 
-.. _components:
+.. _components_base:
 
 
 High level and I/O methods
@@ -123,7 +123,7 @@ Initialize
 
    WflowSbmModel
 
-.. _components:
+.. _components_sbm:
 
 Setup methods
 -------------
@@ -211,7 +211,7 @@ Setup components
 .. _data_containers:
 
 WflowBaseModel components
-========================
+=========================
 
 WflowConfigComponent
 --------------------
