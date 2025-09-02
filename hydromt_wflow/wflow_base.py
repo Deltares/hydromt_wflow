@@ -82,6 +82,13 @@ class WflowBaseModel(Model):
         data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
+        if type(self) is WflowBaseModel:
+            raise TypeError(
+                "``WflowBaseModel`` is an abstract class and cannot be instantiated "
+                "directly. Please use one of its subclasses defined as hydromt-entry "
+                "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
+            )
+
         default_filename = self._DATADIR / self.name / f"{self.name}.toml"
         if config_filename is None:
             config_filename = default_filename.name

@@ -131,6 +131,17 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
+def test_base_model_init_should_raise():
+    with pytest.raises(TypeError) as exc_info:
+        WflowBaseModel()
+
+    assert str(exc_info.value) == (
+        "``WflowBaseModel`` is an abstract class and cannot be instantiated "
+        "directly. Please use one of its subclasses defined as hydromt-entry "
+        "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
+    )
+
+
 @pytest.mark.skip(
     reason="Allow clipping again - current conflict for reading forcing and states"
 )
