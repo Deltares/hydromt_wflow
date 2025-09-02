@@ -11,18 +11,18 @@ Overview
 
 HydroMT-Wflow is used as a Python library or as a command-line tool using YAML (.yml) configuration files.
 
-To keep usage relatively simple, the package is designed around a single ``WflowBaseModel`` object, which is used to build, modify, and export Wflow models.
+To keep usage relatively simple, the package is designed around a single ``WflowBaseModel`` object, which should never be used directly by end-users.
+Its subclasses, which are ``WflowSbmModel`` and ``WflowSedimentModel``, are used to build, modify, and export Wflow models.
 
 To allow for extensions and customizations for specific use cases, the ``WflowBaseModel`` class contains the generic components, methods and properties that are common across all Wflow models.
-Any specific implementations and behaviors are meant to be defined in subclasses, which are currently: ``WflowSbmModel`` and ``WflowSedimentModel``.
+Any specific implementations and behaviors are meant to be defined in subclasses.
 From now, we will refer to these models collectively as ``Model`` for simplicity, but it is important to note that the principles and guidelines apply to all these classes.
 
 Users interact with the package primarily through YAML files, which are translated into function calls on the ``Model`` class.
 This means that end users do not need to worry or know about the underlying components, workflows, or processes.
-The only way that people can interact with / use Hydromt-Wflow, will be the public methods in ``Model``.
-Even users that prefer the yml files will be using only the public functions (or ``hydromt_step``) of ``Model``, which are a 1 to 1 mapping to these functions as well.
-
-Only the public methods of ``Model`` can be a ``hydromt_step``.
+The only way that people should interact with / use Hydromt-Wflow, will be the public methods in ``Model``.
+Functions used in yml files correspond 1-to-1 to public model functions decorated with ``hydromt_step```.
+Only the public methods of ``Model`` are allowed to be a ``hydromt_step``.
 Components and workflows cannot be used directly as ``hydromt_step`` callables.
 
 Model as Orchestrator
@@ -38,9 +38,10 @@ Currently, some ``Model`` methods do combine logic from multiple components.
 
 For instance, the forcing component may need configuration settings from the config component, and then need to use the data from the grid component. However, to keep these components ignorant of each other, the WflowBaseModel class will be the connection.
 
-This design choice is intentional: **any logic that requires coordination between multiple components should be placed in ``Model``.**
-
-The **only exception** to this rule is for IO methods like read and write. These methods often require knowledge of multiple components and their interactions (e.g. write_forcing requires access to the config and grid). So they are allowed to access the model's other components directly.
+This design choice is intentional: **any interaction between multiple components has to go through public methods on the ``Model`` class.**
+Methods often require knowledge of multiple components and their interactions (e.g. write_forcing requires access to the config and grid).
+To encourage reduced coupling, components are allowed to call public functions on the Model class.
+This way ``set_config``, ``get_config``, ``set_grid``, etc, can be used without needing to know about the internals of other components.
 
 Typical Method Structure in Model
 ------------------------------------------
