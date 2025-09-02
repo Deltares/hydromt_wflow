@@ -243,6 +243,11 @@ def _convert_to_wflow_v1(
                 _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
+    map_variable_conversions = {
+        "lateral.river.lake.locs": "reservoir_location__count",
+        "lateral.river.reservoir.locs": "reservoir_location__count",
+    }
+
     if get_config("netcdf", config=config, fallback=None) is not None:
         if "output" not in config_out:
             config_out["output"] = {}
@@ -254,10 +259,13 @@ def _convert_to_wflow_v1(
         config_out["output"]["netcdf_scalar"]["variable"] = []
         nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
         for nc_scalar in nc_scalar_vars:
-            if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
+            if nc_scalar["parameter"] in WFLOW_CONVERSION:
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
-                if "map" in nc_scalar and nc_scalar["map"] in input_options.keys():
-                    nc_scalar["map"] = input_options[nc_scalar["map"]]
+                if map_var := nc_scalar.get("map"):
+                    if map_var in input_options:
+                        nc_scalar["map"] = input_options[map_var]
+                    elif map_var in map_variable_conversions:
+                        nc_scalar["map"] = map_variable_conversions[map_var]
                 config_out["output"]["netcdf_scalar"]["variable"].append(nc_scalar)
             else:
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
@@ -274,10 +282,13 @@ def _convert_to_wflow_v1(
         config_out["output"]["csv"]["column"] = []
         csv_vars = get_config("csv.column", config=config, fallback=[])
         for csv_var in csv_vars:
-            if csv_var["parameter"] in WFLOW_CONVERSION.keys():
+            if csv_var["parameter"] in WFLOW_CONVERSION:
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
-                if csv_var.get("map", None) in input_options.keys():
-                    csv_var["map"] = input_options[csv_var["map"]]
+                if map_var := csv_var.get("map"):
+                    if map_var in input_options:
+                        csv_var["map"] = input_options[map_var]
+                    elif map_var in map_variable_conversions:
+                        csv_var["map"] = map_variable_conversions[map_var]
                 config_out["output"]["csv"]["column"].append(csv_var)
             else:
                 _warn_str(csv_var["parameter"], "csv")
@@ -328,8 +339,8 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
         "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa : E501
-        "lateral.river.lake.storage": "lake_water__instantaneous_volume",
-        "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
+        "lateral.river.lake.storage": "reservoir_water__instantaneous_volume",
+        "lateral.river.lake.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",
     }
 
     # Options in model section that were renamed
