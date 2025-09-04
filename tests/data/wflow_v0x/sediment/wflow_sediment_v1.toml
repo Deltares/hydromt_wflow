@@ -8,13 +8,13 @@ time_units = "days since 1900-01-01 00:00:00"
 timestepsecs = 86400
 
 [model]
+type = "sediment"
 cold_start__flag = true
 run_river_model__flag = true
-reservoir__flag = true
-lake__flag = true
 rainfall_erosion = "answers"
 land_transport = "yalinpart"
 river_transport = "bagnold"
+reservoir__flag = true
 
 [state]
 path_input = "instate/instates.nc"
@@ -48,10 +48,8 @@ river_location__mask = "wflow_river"
 subbasin_location__count = "wflow_subcatch"
 gauges = "wflow_gauges"
 gauges_grdc = "wflow_gauges_grdc"
-lake_area__count = "wflow_lakeareas"
-lake_location__count = "wflow_lakelocs"
-reservoir_area__count = "wflow_reservoirareas"
-reservoir_location__count = "wflow_reservoirlocs"
+reservoir_area__count = "reservoir_area_id"
+reservoir_location__count = "reservoir_outlet_id"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "prec"
@@ -68,9 +66,6 @@ land_surface__slope = "Slope"
 river__length = "wflow_riverlength"
 river__slope = "RiverSlope"
 river__width = "wflow_riverwidth"
-reservoir_surface__area = "ResSimpleArea"
-lake_surface__area = "LakeArea"
-"reservoir_water_sediment~bedload__trapping_efficiency" = "ResTrapEff"
 vegetation_canopy__height = "CanopyHeight"
 "soil~compacted__area_fraction" = "PathFrac"
 soil_erosion__eurosem_exponent = "eros_spl_EUROSEM"
@@ -97,6 +92,9 @@ river_water_sediment__kodatie_transport_capacity_a-coefficient = "river_kodatie_
 river_water_sediment__kodatie_transport_capacity_b-coefficient = "river_kodatie_b"
 river_water_sediment__kodatie_transport_capacity_c-coefficient = "river_kodatie_c"
 river_water_sediment__kodatie_transport_capacity_d-coefficient = "river_kodatie_d"
+reservoir_surface__area = "reservoir_area"
+"reservoir_water_sediment~bedload__trapping_efficiency" = "reservoir_trapping_efficiency"
+
 
 [output.netcdf_grid]
 path = "output.nc"

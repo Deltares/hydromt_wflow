@@ -7,9 +7,9 @@ The main interactions are available from the HydroMT Command Line Interface and 
 HydroMT in order to build or update or clip Wflow Sediment models.
 
 When building or updating a model from command line a
-`model region <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_; a model setup
+`model region <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_; a model setup
 :ref:`configuration <model_config_sed>` (.yml file) with model components and options and, optionally,
-a `data sources <https://deltares.github.io/hydromt/latest/user_guide/data_main>`_ (.yml) file should be prepared.
+a `data sources <https://deltares.github.io/hydromt/stable/guides/user_guide/data_existing_cat.html>`_ (.yml) file should be prepared.
 
 .. currentmodule:: hydromt_wflow
 
@@ -36,10 +36,10 @@ a specific method see its documentation.
       - This component sets the region of interest and res (resolution in degrees) of the model.
     * - :py:func:`~WflowSedimentModel.setup_rivers`
       - This component sets the all river parameter maps.
-    * - :py:func:`~WflowSedimentModel.setup_lakes`
-      - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
+    * - :py:func:`~WflowSedimentModel.setup_natural_reservoirs`
+      - This component generates maps of lake (natural reservoirs) areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_reservoirs`
-      - This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
+      - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
     * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
     * - :py:func:`~WflowModel.setup_lulcmaps_from_vector`

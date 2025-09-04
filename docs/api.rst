@@ -27,12 +27,11 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
-   WflowModel.setup_lakes
-   WflowModel.setup_reservoirs
+   WflowModel.setup_reservoirs_no_control
+   WflowModel.setup_reservoirs_simple_control
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_lulcmaps_from_vector
@@ -162,7 +161,7 @@ Setup components
    WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
    WflowSedimentModel.setup_rivers
-   WflowSedimentModel.setup_lakes
+   WflowSedimentModel.setup_natural_reservoirs
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_lulcmaps_from_vector
@@ -218,7 +217,6 @@ General methods
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.setup_config
    WflowSedimentModel.get_config
    WflowSedimentModel.set_config
    WflowSedimentModel.read_config
@@ -280,9 +278,13 @@ Wflow workflows
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
    workflows.update_soil_with_paddy
-   workflows.waterbodymaps
-   workflows.reservoirattrs
-   workflows.lakeattrs
+   workflows.reservoir_id_maps
+   workflows.reservoir_simple_control_parameters
+   workflows.reservoir_parameters
+   workflows.merge_reservoirs
+   workflows.merge_reservoirs_sediment
+   workflows.create_reservoirs_geoms
+   workflows.create_reservoirs_geoms_sediment
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim

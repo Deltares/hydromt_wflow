@@ -46,6 +46,9 @@ author = "Dirk Eilander"
 
 # The short version which is displayed
 version = hydromt_wflow.__version__
+bare_version = hydromt_wflow.__version__
+doc_version = bare_version[: bare_version.find("dev") - 1]
+
 
 # # -- Copy notebooks to include in docs -------
 if os.path.isdir("_examples"):
@@ -159,7 +162,11 @@ html_theme_options = {
     "logo": {
         "text": "HydroMT Wflow",
     },
-    "navbar_end": ["navbar-icon-links"],  # remove dark mode switch
+        "navbar_end": ["navbar-icon-links", "version-switcher"],  # remove dark mode switch
+    "switcher": {
+        "json_url": "https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json",
+        "version_match": doc_version,}
+
 }
 
 html_context = {
@@ -289,3 +296,7 @@ nbsphinx_prolog = r"""
 
 nbsphinx_execute = 'always'
 nbsphinx_timeout = 300
+linkcheck_ignore = [
+    r'https://localhost:\d+/',
+    'https://doi.org/10.1029/2018JG004881' # wiley blocks headless requests so this will be repored as broken
+]

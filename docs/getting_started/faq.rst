@@ -7,7 +7,7 @@ Frequently asked questions
 
 This page contains some FAQ / tips and tricks to work with HydroMT-Wflow.
 For more general questions on how to work with data or the HydroMT config and command line,
-you can visit the `HydroMT core FAQ page <https://deltares.github.io/hydromt/latest/getting_started/faq.html>`_
+you can visit the `HydroMT core FAQ page <https://deltares.github.io/hydromt/stable/overview/faq.html>`_
 
 Building a Wflow model
 ----------------------
@@ -51,9 +51,9 @@ enumerating the methods by adding a number to the end of the method name. For ex
 Updating a Wflow model
 ----------------------
 
- | **Q**: Is there an easy way to update reservoirs or lakes parameters in my Wflow model ?
+ | **Q**: Is there an easy way to update reservoir parameters in my Wflow model ?
 
-To easily update reservoirs or lakes parameters, you can directly use the *reservoirs.geojson* and *lakes.geojson* that are saved
+To easily update reservoir parameters, you can directly use the *meta_reservoirs_simple_control.geojson* and *meta_reservoirs_no_control.geojson* that are saved
 by HydroMT into the *staticgeoms* folder. Once you have updated the parameters with the new value, just use these geojson files as
 your new "local" input data!
 
@@ -70,9 +70,10 @@ where you can specify which TOML file to use using the *config_fn* argument.
 Others
 ------
 
- | **Q**: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?
+ | **Q**: Can I convert my old Wflow model to the new Wflow Julia version with HydroMT ?
 
-HydroMT is still able to read the python PCRaster based maps of Wflow with the method :py:func:`~WflowModel.setup_grid_from_raster`. See this example: `convert_staticmaps_to_mapstack.ipynb <../_examples/convert_staticmaps_to_mapstack.ipynb>`_.
-So actually just a read and write of your python model will do most of the job :) For lakes and reservoirs parameters,
-the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating
-reservoir).
+Conversion from an old python Wflow model to Wflow Julia is not possible anymore since HydroMT Wflow version 1.0.
+You can use an older version to do so and check the required steps in the previous version of this documentation page.
+
+We do support conversion of Wflow v0.x Julia models to Wflow v1.x Julia models using the :py:func:`~WflowModel.upgrade_to_v1_wflow` method.
+See the corresponding example for more information: `Upgrade to Wflow.jl version 1 <../_examples/upgrade_to_wflow_v1.ipynb>`_

@@ -237,7 +237,7 @@ def river_bathymetry(
             ys_out = ds_model["y_out"].values[riv_mask]
         else:
             # get river cell coordinates
-            row, col = np.where(riv_mask)
+            row, col = np.nonzero(riv_mask)
             xs_out = ds_model.raster.xcoords.values[col]
             ys_out = ds_model.raster.ycoords.values[row]
         gdf_out = gpd.GeoDataFrame(
@@ -467,7 +467,7 @@ def river_width(
         rivmsk = rivwth_org != nodata
         rivwth_org = np.where(rivmsk, rivwth_org, -9999)
 
-        # mask zero and negative riverwidth and waterbodies if present
+        # mask zero and negative riverwidth and reservoirs if present
         mask = rivwth_org > min_wth
         for name in mask_names:
             if name in ds_like:

@@ -17,7 +17,7 @@ import pandas as pd
 import pyflwdir
 import pyproj
 import shapely
-import tomlkit
+import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
@@ -26,9 +26,12 @@ from hydromt.nodata import NoDataStrategy
 from shapely.geometry import box
 
 import hydromt_wflow.utils as utils
-
-from . import workflows
-from .naming import _create_hydromt_wflow_mapping_sbm
+from hydromt_wflow import workflows
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
+from hydromt_wflow.version_upgrade import (
+    convert_reservoirs_to_wflow_v1_sbm,
+    convert_to_wflow_v1_sbm,
+)
 
 __all__ = ["WflowModel"]
 
@@ -214,20 +217,19 @@ class WflowModel(GridModel):
                 f"The model resolution {res} should be \
 larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             )
-        if ds_org.raster.crs.is_geographic:
-            if res > 1:  # 111 km
-                raise ValueError(
-                    f"The model resolution {res} should be smaller than 1 degree \
+        if ds_org.raster.crs.is_geographic and res > 1:  # 111 km
+            raise ValueError(
+                f"The model resolution {res} should be smaller than 1 degree \
 (111km) for geographic coordinate systems. "
-                    "Make sure you provided res in degree rather than in meters."
-                )
+                "Make sure you provided res in degree rather than in meters."
+            )
 
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
             if basin_index_fn is not None:
-                bas_index = self.data_catalog[basin_index_fn]
+                bas_index = self.data_catalog.get_source(basin_index_fn)
             else:
                 bas_index = None
             geom, xy = hydromt.workflows.get_basin_geometry(
@@ -778,103 +780,64 @@ setting new flood_depth dimensions"
         if floodplain_type == "1d":
             # Add states
             self.set_config(
-                "state.floodplain_water__instantaneous_volume_flow_rate",
+                "state.variables.floodplain_water__instantaneous_volume_flow_rate",
                 "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.floodplain_water__instantaneous_depth",
+                "state.variables.floodplain_water__instantaneous_depth",
                 "floodplain_instantaneous_h",
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 "land_instantaneous_q",
             )
             # Remove local-inertial land states
-            if (
-                self.get_config(
-                    "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"].pop(
-                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
-            if (
-                self.get_config(
-                    "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"].pop(
-                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
+            self.remove_config(
+                "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+
             # Remove from output.netcdf_grid section
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                    None,
-                )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
         else:
             # Add local-inertial land routing states
             self.set_config(
-                "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qx",
             )
             self.set_config(
-                "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
-            if (
-                self.get_config(
-                    "state.land_surface_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"].pop(
-                    "land_surface_water__instantaneous_volume_flow_rate", None
-                )
-            if (
-                self.get_config(
-                    "state.floodplain_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["state"].pop(
-                    "floodplain_water__instantaneous_volume_flow_rate", None
-                )
-            if (
-                self.get_config("state.floodplain_water__instantaneous_depth")
-                is not None
-            ):
-                self.config["state"].pop("floodplain_water__instantaneous_depth", None)
+            self.remove_config(
+                "state.variables.land_surface_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.floodplain_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
+            self.remove_config(
+                "state.variables.floodplain_water__instantaneous_depth",
+                errors="ignore",
+            )
             # Remove from output.netcdf_grid section
-            if (
-                self.get_config(
-                    "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate"
-                )
-                is not None
-            ):
-                self.config["output"]["netcdf_grid"]["variables"].pop(
-                    "land_surface_water__instantaneous_volume_flow_rate", None
-                )
+            self.remove_config(
+                "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate",
+                errors="ignore",
+            )
 
     def setup_riverwidth(
         self,
@@ -937,8 +900,8 @@ setting new flood_depth dimensions"
             The name of the output river__width map.
         """
         self.logger.warning(
-            'The "setup_riverwidth" method has been deprecated \
-and will soon be removed. '
+            'The "setup_riverwidth" method has been deprecated '
+            "and will soon be removed. "
             'You can now use the "setup_river" method for all river parameters.'
         )
         if self._MAPS["rivmsk"] not in self.grid:
@@ -1077,14 +1040,12 @@ and will soon be removed. '
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
+
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
             self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
@@ -1228,13 +1189,10 @@ and will soon be removed. '
         --------
         workflows.landuse_from_vector
         """
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
@@ -1722,7 +1680,6 @@ gauge locations [-] (if derive_subcatch)
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
-        kwargs = {}
         if isinstance(gauges_fn, gpd.GeoDataFrame):
             gdf_gauges = gauges_fn
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
@@ -1741,8 +1698,8 @@ gauge locations [-] (if derive_subcatch)
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
-        elif gauges_fn in self.data_catalog:
-            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+        elif self.data_catalog.contains_source(gauges_fn):
+            if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
@@ -1941,109 +1898,159 @@ gauge locations [-] (if derive_subcatch)
             col2raster_name = col2raster
         self.set_grid(da_area.rename(col2raster_name))
 
-    def setup_lakes(
+    def setup_reservoirs_no_control(
         self,
-        lakes_fn: str | Path | gpd.GeoDataFrame,
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
         rating_curve_fns: List[str | Path | pd.DataFrame] | None = None,
+        overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 10.0,
-        add_maxstorage: bool = False,
         output_names: Dict = {
-            "lake_area__count": "lake_area_id",
-            "lake_location__count": "lake_outlet_id",
-            "lake_surface__area": "lake_area",
-            "lake_water_surface__initial_elevation": "lake_initial_depth",
-            "lake_water_flow_threshold-level__elevation": "lake_outflow_threshold",
-            "lake_water__rating_curve_coefficient": "lake_b",
-            "lake_water__rating_curve_exponent": "lake_e",
-            "lake_water__rating_curve_type_count": "lake_rating_curve",
-            "lake_water__storage_curve_type_count": "lake_storage_curve",
-            "lake~lower_location__count": "lake_lower_id",
+            "reservoir_area__count": "reservoir_area_id",
+            "reservoir_location__count": "reservoir_outlet_id",
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water_surface__initial_elevation": "reservoir_initial_depth",
+            "reservoir_water_flow_threshold-level__elevation": "reservoir_outflow_threshold",  # noqa: E501
+            "reservoir_water__rating_curve_coefficient": "reservoir_b",
+            "reservoir_water__rating_curve_exponent": "reservoir_e",
+            "reservoir_water__rating_curve_type_count": "reservoir_rating_curve",
+            "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
+            "reservoir~lower_location__count": "reservoir_lower_id",
         },
-        geom_name: str = "lakes",
+        geom_name: str = "meta_reservoirs_no_control",
         **kwargs,
     ):
-        """Generate maps of lake areas and outlets.
+        """Generate maps of reservoir areas, outlets and parameters.
 
-        Also meant to generate parameters with average lake area,
-        depth and discharge values. The data is generated from features with
-        ``min_area`` [km2] (default 1 km2) from a database with lake geometry, IDs and
-        metadata. Data required are lake ID 'waterbody_id',
-        average area 'Area_avg' [m2], average volume 'Vol_avg' [m3],
-        average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
+        This function adds (uncontrolled) reservoirs such as natural lakes or weirs to
+        the model. It prepares rating and storage curves parameters for the reservoirs
+        modelled with the following rating curve types (see
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/kinwave/>`__ ):
+
+        * 1 for Q = f(H) from reservoir data and interpolation
+        * 2 for Q = b(H - H0)^e (general power law)
+        * 3 for Q = b(H - H0)^2 (Modified Puls Approach)
+
+        Created reservoirs can be added to already existing ones in the model
+        `overwrite_existing=False` (default) or overwrite them
+        `overwrite_existing=True`.
+
+        Reservoir data is generated from features with ``min_area`` [km2] (default 1
+        km2) from a database with reservoir geometry, IDs and metadata. Parameters can
+        be directly provided in the GeoDataFrame or derived using common properties such
+        as average depth, area and discharge.
 
         If rating curve data is available for storage and discharge they can be prepared
         via ``rating_curve_fns`` (see below for syntax and requirements).
-        Else the parameters 'lake_b' and 'lake_e' will be used for discharge and
-        for storage a rectangular profile lake is assumed.
-        See Wflow documentation for more information.
+        Else the parameters 'reservoir_b' and 'reservoir_e' will be used for discharge,
+        and a rectangular profile will be used to compute storage. This corresponds to
+        the following storage curve types in Wflow:
 
-        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the
-        output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
+        * 1 for S = A * H
+        * 2 for S = f(H) from reservoir data and interpolation
 
         Adds model layers:
 
-        * **lake_area_id** map: lake IDs [-]
-        * **lake_outlet_id** map: lake IDs at outlet locations [-]
-        * **lake_area** map: lake area [m2]
-        * **lake_initial_depth** map: lake average water level [m]
-        * **lake_outflow_threshold** map: lake outflow threshold water level [m]
-        * **meta_lake_mean_outflow** map: lake average discharge [m3/s]
-        * **lake_b** map: lake rating curve coefficient [-]
-        * **lake_e** map: lake rating curve exponent [-]
-        * **lake_rating_curve** map: option to compute rating curve [-]
-        * **lake_storage_curve** map: option to compute storage curve [-]
-        * **lake_lower_id** map: optional, lower linked lake locations [-]
-        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
-        * **lakes** geom: polygon with lakes and wflow lake parameters
+        * **reservoir_area_id** map: reservoir IDs [-]
+        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_initial_depth** map: reservoir average water level [m]
+        * **reservoir_outflow_threshold** map: reservoir outflow threshold water
+            level [m]
+        * **meta_reservoir_mean_outflow** map: reservoir average discharge [m3/s]
+        * **reservoir_b** map: reservoir rating curve coefficient [-]
+        * **reservoir_e** map: reservoir rating curve exponent [-]
+        * **reservoir_rating_curve** map: option to compute rating curve [-]
+        * **reservoir_storage_curve** map: option to compute storage curve [-]
+        * **reservoir_lower_id** map: optional, lower linked reservoir locations [-]
+        * **meta_reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or
+          weirs) and wflow parameters.
+        * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
-        lakes_fn :
-            Name of GeoDataFrame source for lake parameters.
+        reservoirs_fn : str, Path, gpd.GeoDataFrame
+            Name of GeoDataFrame source for uncontrolled reservoir parameters.
 
-            * Required variables for direct use: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'lake_b' [-], \
-'lake_e' [-], 'lake_rating_curve' [-], 'lake_storage_curve' [-], \
-'lake_outflow_threshold' [m], 'lake_lower_id' [-]
+                * Required variables for direct use:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg' [m3/s],
+                    - 'reservoir_b' [-],
+                    - 'reservoir_e' [-],
+                    - 'reservoir_rating_curve' [-],
+                    - 'reservoir_storage_curve' [-],
+                    - 'reservoir_outflow_threshold' [m],
+                    - 'reservoir_lower_id' [-]
+                * Required variables for parameter estimation:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Vol_avg' [m3],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg'[m3/s]
 
-            * Required variables for parameter estimation: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
         rating_curve_fns: str, Path, pandas.DataFrame, List, optional
             Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
-            curve values for lakes. If None then will be derived from properties of
-            `lakes_fn`.
-            Assumes one file per lake (with all variables) and that the lake ID is
-            either in the filename or data catalog entry name (eg using placeholder).
-            The ID should be placed at the end separated by an underscore (eg
-            'rating_curve_12.csv' or 'rating_curve_12')
+            curve values for reservoirs. If None then will be derived from properties of
+            `reservoirs_fn`.
+            Assumes one file per reservoir (with all variables) and that the reservoir
+            ID is either in the filename or data catalog entry name (eg using
+            placeholder). The ID should be placed at the end separated by an underscore
+            (eg 'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
+                * Required variables for storage curve:
+                    - 'elevtn' [m+REF],
+                    - 'volume' [m3]
+                * Required variables for rating curve:
+                    - 'elevtn' [m+REF],
+                    - 'discharge' [m3/s]
 
-            * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
+        overwrite_existing : bool, optional
+            If False (default), update existing reservoirs in the model with the new
+            reservoirs_fn data.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
-            Minimum lake area threshold [km2], by default 10.0 km2.
-        add_maxstorage : bool, optional
-            If True, maximum storage of the lake is added to the output
-            (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
-            By default False (natural lake).
+            Minimum reservoir area threshold [km2], by default 10.0 km2.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
         geom_name : str, optional
-            Name of the lakes geometry in the staticgeoms folder, by default 'lakes'
-            for lakes.geojson.
+            Name of the reservoir geometry in the staticgeoms folder, by default
+            'meta_reservoirs_no_control' for meta_reservoirs_no_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
-        """
-        # Derive lake are and outlet maps
-        gdf_org, ds_lakes = self._setup_waterbodies(
-            lakes_fn, "lake", min_area, **kwargs
+        """  # noqa: E501
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir maps.")
+        kwargs.setdefault("predicate", "contains")
+        gdf_org = self.data_catalog.get_geodataframe(
+            reservoirs_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
         )
-        if ds_lakes is None:
+        if gdf_org is None:
             self.logger.info("Skipping method, as no data has been found")
             return
+
+        # Derive reservoir area and outlet maps
+        ds_reservoirs, gdf_org = workflows.reservoir_id_maps(
+            gdf=gdf_org,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
+        )
+        if ds_reservoirs is None:
+            # No reservoirs of sufficient size found
+            return
+
         self._update_naming(output_names)
 
         # If rating_curve_fn prepare rating curve dict
@@ -2057,92 +2064,153 @@ gauge locations [-] (if derive_subcatch)
                     fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
                 except Exception:
                     self.logger.warning(
-                        f"Could not parse integer lake index from \
-rating curve fn {fn}. Skipping."
+                        "Could not parse integer reservoir index from "
+                        f"rating curve fn {fn}. Skipping."
                     )
-            # assume lake index will be in the path
-            # Assume one rating curve per lake index
-            for id in gdf_org["waterbody_id"].values:
-                id = int(id)
-                # Find if id is is one of the paths in rating_curve_fns
-                if id in fns_ids:
+            # assume reservoir index will be in the path
+            # Assume one rating curve per reservoir index
+            for _id in gdf_org["waterbody_id"].values:
+                _id = int(_id)
+                # Find if _id is is one of the paths in rating_curve_fns
+                if _id in fns_ids:
                     # Update path based on current waterbody_id
-                    i = fns_ids.index(id)
+                    i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                    if isfile(rating_fn) or self.data_catalog.contains_source(
+                        rating_fn
+                    ):
                         self.logger.info(
-                            f"Preparing lake rating curve data from {rating_fn}"
+                            f"Preparing reservoir rating curve data from {rating_fn}"
                         )
                         df_rate = self.data_catalog.get_dataframe(rating_fn)
                         # Add to dict
-                        rating_dict[id] = df_rate
+                        rating_dict[_id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file not found for lake with id {id}. \
-Using default storage/outflow function parameters."
+                        f"Rating curve file not found for reservoir with id {_id}. "
+                        "Using default storage/outflow function parameters."
                     )
         else:
             self.logger.info(
-                "No rating curve data provided. \
-Using default storage/outflow function parameters."
+                "No rating curve data provided. "
+                "Using default storage/outflow function parameters."
             )
 
-        # add waterbody parameters
-        ds_lakes, gdf_lakes, rating_curves = workflows.waterbodies.lakeattrs(
-            ds_lakes, gdf_org, rating_dict, add_maxstorage=add_maxstorage
+        # add reservoir parameters
+        ds_reservoirs, gdf_reservoirs, rating_curves = (
+            workflows.reservoirs.reservoir_parameters(
+                ds_reservoirs,
+                gdf_org,
+                rating_dict,
+            )
         )
 
+        # merge with existing reservoirs
+        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
+            ds_reservoirs = workflows.reservoirs.merge_reservoirs(
+                ds_reservoirs,
+                self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
+                logger=self.logger,
+            )
+            # Check if ds_res is None ie duplicate IDs
+            if ds_reservoirs is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skipping adding new reservoirs."
+                )
+                return
+        else:
+            # remove all reservoir layers from the grid as some control parameters
+            # like demand will not be in ds_reservoirs and won't be overwritten
+            reservoir_maps = [
+                self._MAPS.get(k, k) for k in workflows.reservoirs.RESERVOIR_LAYERS
+            ]
+            self.drop_vars_grid(reservoir_maps, errors="ignore")
+
         # add to grid
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
-        # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes, name=geom_name)
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_reservoirs.data_vars}
+        self.set_grid(ds_reservoirs.rename(rmdict))
+        # write reservoirs with attr tables to static geoms.
+        self.set_geoms(gdf_reservoirs, name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
+            ds_reservoirs.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="reservoirs")
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
 
-        # Lake settings in the toml to update
-        self.set_config("model.lake__flag", True)
+        # Reservoir settings in the toml to update
+        self.set_config("model.reservoir__flag", True)
         self.set_config(
-            "state.variables.lake_water_surface__instantaneous_elevation",
-            "lake_instantaneous_water_level",
+            "state.variables.reservoir_water_surface__instantaneous_elevation",
+            "reservoir_instantaneous_water_level",
         )
 
-        for dvar in ds_lakes.data_vars:
-            if dvar in ["lake_area_id", "lake_outlet_id", "lake_lower_id"]:
+        for dvar in ds_reservoirs.data_vars:
+            if dvar in [
+                "reservoir_area_id",
+                "reservoir_outlet_id",
+                "reservoir_lower_id",
+            ]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
 
-    def setup_reservoirs(
+    def setup_reservoirs_simple_control(
         self,
         reservoirs_fn: str | gpd.GeoDataFrame,
         timeseries_fn: str | None = None,
+        overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         output_names: Dict = {
             "reservoir_area__count": "reservoir_area_id",
             "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
+            "reservoir_water_surface__initial_elevation": "reservoir_initial_depth",
+            "reservoir_water__rating_curve_type_count": "reservoir_rating_curve",
+            "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
             "reservoir_water__max_volume": "reservoir_max_volume",
             "reservoir_water~min-target__volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
             "reservoir_water~full-target__volume_fraction": "reservoir_target_full_fraction",  # noqa: E501
             "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
             "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
-        geom_name: str = "reservoirs",
+        geom_name: str = "meta_reservoirs_simple_control",
         **kwargs,
     ):
-        """Generate maps of reservoir areas and outlets.
+        """Generate maps of controlled reservoir areas, outlets and parameters.
 
-        Also meant to generate parameters with average reservoir area, demand,
+        Also generates parameters with average reservoir area, demand,
         min and max target storage capacities and discharge capacity values.
 
+        This function adds reservoirs with simple control operations to the model. It
+        prepares rating and storage curves parameters for the reservoirs modelled with
+        the following rating curve types (see
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/waterbodies/>`__
+        ):
+
+        * 4 simple reservoir operational parameters
+
+        Created reservoirs can be added to already existing ones in the model
+        `overwrite_existing=False` (default) or overwrite them
+        `overwrite_existing=True`.
+
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
-        from a database with reservoir geometry, IDs and metadata.
+        from a database with reservoir geometry, IDs and metadata. Parameters can
+        be directly provided in the GeoDataFrame or derived using common properties such
+        as average depth, area and discharge.
 
         Data requirements for direct use (i.e. wflow parameters are data already present
         in reservoirs_fn) are reservoir ID 'waterbody_id', area 'reservoir_area' [m2],
+        initial depth 'reservoir_initial_depth' [m], rating curve type
+        'reservoir_rating_curve' [-], storage curve type 'reservoir_storage_curve' [-],
         maximum volume 'reservoir_max_volume' [m3], the targeted minimum and maximum
         fraction of water volume in the reservoir 'reservoir_target_min_fraction' and
         'reservoir_target_full_fraction' [-], the average water demand
@@ -2167,38 +2235,52 @@ Using default storage/outflow function parameters."
 
         Adds model layers:
 
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_max_volume** map: reservoir max volume [m3]
-        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
-        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
-        * **reservoir_demand** map: reservoir demand flow [m3/s]
-        * **reservoir_max_release** map: reservoir max release flow [m3/s]
-        * **reservoirs** geom: polygon with reservoirs and wflow reservoir parameters
+            * **reservoir_area_id** map: reservoir IDs [-]
+            * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+            * **reservoir_area** map: reservoir area [m2]
+            * **reservoir_initial_depth** map: reservoir initial water level [m]
+            * **reservoir_rating_curve** map: option to compute rating curve [-]
+            * **reservoir_storage_curve** map: option to compute storage curve [-]
+            * **reservoir_max_volume** map: reservoir max volume [m3]
+            * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
+            * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
+            * **reservoir_demand** map: reservoir demand flow [m3/s]
+            * **reservoir_max_release** map: reservoir max release flow [m3/s]
+            * **meta_reservoirs_simple_control** geom: polygon with
+                reservoirs and parameters
+            * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
         reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables for direct use: \
-'waterbody_id' [-], 'reservoir_area' [m2], 'reservoir_max_volume' [m3], \
-'reservoir_target_min_fraction' [m3/m3], 'reservoir_target_full_fraction' [m3/m3], \
-'reservoir_demand' [m3/s], 'reservoir_max_release' [m3/s]
+            * Required variables for direct use:
+              'waterbody_id' [-], 'reservoir_area' [m2], 'reservoir_max_volume' [m3],
+              'reservoir_initial_depth' [m], 'reservoir_rating_curve' [-],
+              'reservoir_storage_curve' [-], 'reservoir_target_min_fraction' [m3/m3],
+              'reservoir_target_full_fraction' [m3/m3], 'reservoir_demand' [m3/s],
+              'reservoir_max_release' [m3/s]
+            * Required variables for computation with timeseries_fn:
+              'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m],
+              'Dis_avg' [m3/s], 'Dam_height' [m]
+            * Required variables for computation without timeseries_fn:
+              'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m],
+              'Dis_avg' [m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3],
+              'Capacity_min' [m3], 'Dam_height' [m]
 
-            * Required variables for computation with timeseries_fn: \
-'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' [m3/s], \
-'Dam_height' [m]
-
-            * Required variables for computation without timeseries_fn: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' \
-[m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3], 'Capacity_min' [m3], 'Dam_height' [m]
         timeseries_fn : {'gww', 'hydroengine', None}, optional
             Download and use time series of reservoir surface water area to calculate
             and overwrite the reservoir volume/areas of the data source. Timeseries are
             either downloaded from Global Water Watch 'gww' (using gwwapi package) or
             JRC 'jrc' (using hydroengine package). By default None.
+        overwrite_existing : bool, optional
+            If False (default), update existing reservoirs in the model with the new
+            reservoirs_fn data.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         output_names : dict, optional
@@ -2207,158 +2289,95 @@ Using default storage/outflow function parameters."
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "reservoirs" for reservoirs.geojson.
+            "meta_reservoirs_simple_control" for meta_reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
-
-        """
-        # Derive reservoir area and outlet maps
-        gdf_org, ds_res = self._setup_waterbodies(
-            reservoirs_fn, "reservoir", min_area, **kwargs
-        )
-
-        # Skip method if no data is returned
-        if ds_res is None:
-            self.logger.info("Skipping method, as no data has been found")
-            return
-        self._update_naming(output_names)
-        # Continue method if data has been found
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
-        self._update_config_variable_name(
-            ds_res.rename(rmdict).data_vars, data_type=None
-        )
-
-        # add attributes
-        # if present use directly
-        resattributes = [
-            "waterbody_id",
-            "reservoir_area",
-            "reservoir_max_volume",
-            "reservoir_target_min_fraction",
-            "reservoir_target_full_fraction",
-            "reservoir_demand",
-            "reservoir_max_release",
-        ]
-        if np.all(np.isin(resattributes, gdf_org.columns)):
-            intbl_reservoirs = gdf_org[resattributes]
-            reservoir_accuracy = None
-            reservoir_timeseries = None
-        # else compute
-        else:
-            (
-                intbl_reservoirs,
-                reservoir_accuracy,
-                reservoir_timeseries,
-            ) = workflows.reservoirattrs(
-                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
-            )
-
-        # create a geodf with id of reservoir and geometry at outflow location
-        gdf_org_points = gpd.GeoDataFrame(
-            gdf_org["waterbody_id"],
-            geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
-        )
-        intbl_reservoirs = intbl_reservoirs.rename(columns={"expr1": "waterbody_id"})
-        gdf_org_points = gdf_org_points.merge(
-            intbl_reservoirs, on="waterbody_id"
-        )  # merge
-        # add parameter attributes to polygon gdf:
-        gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
-
-        # write reservoirs with param values to geoms
-        self.set_geoms(gdf_org, name=geom_name)
-
-        for name in gdf_org_points.columns[2:]:
-            gdf_org_points[name] = gdf_org_points[name].astype("float32")
-            da_res = ds_res.raster.rasterize(
-                gdf_org_points, col_name=name, dtype="float32", nodata=-999
-            )
-            output_name = self._MAPS.get(name, name)
-            self.set_grid(da_res.rename(output_name))
-            self._update_config_variable_name(output_name, data_type="static")
-
-        # Save accuracy information on reservoir parameters
-        if reservoir_accuracy is not None:
-            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
-
-        if reservoir_timeseries is not None:
-            reservoir_timeseries.to_csv(
-                join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
-            )
-
-        # update toml
-        self.set_config("model.reservoir__flag", True)
-        self.set_config(
-            "state.variables.reservoir_water__instantaneous_volume",
-            "reservoir_instantaneous_volume",
-        )
-
-    def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
-        """Help with common workflow of setup_lakes and setup_reservoir.
-
-        See specific methods for more info about the arguments.
-        """
+        """  # noqa: E501
         # retrieve data for basin
-        self.logger.info(f"Preparing {wb_type} maps.")
-        if "predicate" not in kwargs:
-            kwargs.update(predicate="contains")
+        self.logger.info("Preparing reservoir with simple control maps.")
+        kwargs.setdefault("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn,
+            reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
         )
+        # Skip method if no data is returned
         if gdf_org is None:
-            # Return two times None (similar to main function output), if there is no
-            # data found
-            return None, None
+            self.logger.info("Skipping method, as no data has been found")
+            return
 
-        # skip small size waterbodies
-        if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
-            min_area_m2 = min_area * 1e6
-            gdf_org = gdf_org[gdf_org.Area_avg >= min_area_m2]
-        else:
-            self.logger.warning(
-                f"{wb_type}'s database has no area attribute. "
-                f"All {wb_type}s will be considered."
-            )
-        # get waterbodies maps and parameters
-        nb_wb = gdf_org.geometry.size
-        ds_waterbody = None
-        if nb_wb > 0:
-            self.logger.info(
-                f"{nb_wb} {wb_type}(s) of sufficient size found within region."
-            )
-            # add waterbody maps
-            uparea_name = self._MAPS["uparea"]
-            if uparea_name not in self.grid.data_vars:
-                self.logger.warning(
-                    f"Upstream area map for {wb_type} outlet setup not found. "
-                    "Database coordinates used instead"
-                )
-                uparea_name = None
-            ds_waterbody, gdf_wateroutlet = workflows.waterbodymaps(
-                gdf=gdf_org,
-                ds_like=self.grid,
-                wb_type=wb_type,
-                uparea_name=uparea_name,
+        # Derive reservoir area and outlet maps
+        ds_res, gdf_org = workflows.reservoir_id_maps(
+            gdf=gdf_org,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
+        )
+        if ds_res is None:
+            # No reservoir of sufficient size found
+            return
+        self._update_naming(output_names)
+
+        # add parameters
+        ds_res, gdf_res = workflows.reservoir_simple_control_parameters(
+            gdf=gdf_org,
+            ds_reservoirs=ds_res,
+            timeseries_fn=timeseries_fn,
+            output_folder=self.root,
+            logger=self.logger,
+        )
+
+        # merge with existing reservoirs
+        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
+            ds_res = workflows.reservoirs.merge_reservoirs(
+                ds_res,
+                self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
                 logger=self.logger,
             )
-            # update/replace xout and yout in gdf_org from gdf_wateroutlet:
-            gdf_org["xout"] = gdf_wateroutlet["xout"]
-            gdf_org["yout"] = gdf_wateroutlet["yout"]
-
+            # Check if ds_res is None ie duplicate IDs
+            if ds_res is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skipping adding new reservoirs."
+                )
+                return
         else:
-            self.logger.warning(
-                f"No {wb_type}s of sufficient size found within region! "
-                f"Skipping {wb_type} procedures!"
-            )
+            # remove all reservoir layers from the grid as some parameters
+            # like b or e will not be in ds_res and won't be overwritten
+            reservoir_maps = [
+                self._MAPS.get(k, k) for k in workflows.reservoirs.RESERVOIR_LAYERS
+            ]
+            self.drop_vars_grid(reservoir_maps, errors="ignore")
 
-        # rasterize points polygons in raster.rasterize --
-        # you need grid to know the grid
-        return gdf_org, ds_waterbody
+        # add to grid
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
+        self.set_grid(ds_res.rename(rmdict))
+
+        # write reservoirs with param values to geoms
+        self.set_geoms(gdf_res, name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
+            ds_res.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="reservoirs")
+
+        # update toml
+        self.set_config("model.reservoir__flag", True)
+        self.set_config(
+            "state.variables.reservoir_water_surface__instantaneous_elevation",
+            "reservoir_instantaneous_water_level",
+        )
+        for dvar in ds_res.data_vars:
+            if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:
+                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
+            elif dvar in self._WFLOW_NAMES:
+                self._update_config_variable_name(self._MAPS[dvar], data_type="static")
 
     def setup_soilmaps(
         self,
@@ -2375,82 +2394,87 @@ Using default storage/outflow function parameters."
         },
     ):
         """
-        Derive several (layered) soil parameters.
+                Derive several (layered) soil parameters.
 
         Based on a database with physical soil properties using available point-scale
         (pedo)transfer functions (PTFs) from literature with upscaling rules to
         ensure flux matching across scales.
 
-        Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
-        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
-        "brakensiek" and "cosby". "soilgrids" provides data at 7 specific depths,
-        while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        Currently supported values for `soil_fn` are `"soilgrids"` and
+        `"soilgrids_2020"`.
+        Options for `ptf_ksatver` (PTF for the vertical hydraulic conductivity) are
+        `"brakensiek"` and `"cosby"`.
+
+          - `"soilgrids"` provides data at 7 specific depths.
+          - `"soilgrids_2020"` provides data averaged over 6 depth intervals.
+
         This leads to small changes in the workflow:
-        (1) M parameter uses midpoint depths in soilgrids_2020 versus \
-specific depths in soilgrids,
-        (2) weighted average of soil properties over soil thickness is done with \
-the trapezoidal rule in soilgrids versus simple block weighted average in \
-soilgrids_2020,
-        (3) the soil_brooks_corey_c parameter is computed as weighted average over \
-wflow_sbm soil layers defined in ``wflow_thicknesslayers``.
+          1. M parameter uses midpoint depths in `"soilgrids_2020"`
+             versus specific depths in `"soilgrids"`.
+          2. Weighted average of soil properties over soil thickness is done with the
+             trapezoidal rule in `"soilgrids"` versus simple block weighted average
+             in `"soilgrids_2020"`.
+          3. The `soil_brooks_corey_c` parameter is computed as a weighted average over
+             `wflow_sbm` soil layers defined
+             in `wflow_thicknesslayers`.
 
-        The required data from soilgrids are soil bulk density 'bd_sl*' [g/cm3], \
-clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon content \
-'oc_sl*' [%], pH 'ph_sl*' [-], sand content 'sndppt_sl*' [%] and soil thickness \
-'soilthickness' [cm].
+        Required data from `"soilgrids"`:
+          - Soil bulk density: `bd_sl*` [g/cm³]
+          - Clay content: `clyppt_sl*` [%]
+          - Silt content: `sltppt_sl*` [%]
+          - Organic carbon content: `oc_sl*` [%]
+          - pH: `ph_sl*` [-]
+          - Sand content: `sndppt_sl*` [%]
+          - Soil thickness: `soilthickness` [cm]
 
-        A ``soil_mapping_fn`` can optionnally be provided to derive parameters based
-        on soil texture classes. A default table *soil_mapping_default* is available
+        A `soil_mapping_fn` can optionally be provided to derive parameters based
+        on soil texture classes. A default table `soil_mapping_default` is available
         to derive the infiltration capacity of the soil.
 
-        The following maps are added to grid:
-
-        * **soil_theta_s** map:
-            average saturated soil water content [m3/m3]
-        * **soil_theta_r** map:
-            average residual water content [m3/m3]
-        * **soil_ksat_vertical ** map:
-            vertical saturated hydraulic conductivity at soil surface [mm/day]
-        * **soil_thickness** map:
-            soil thickness [mm]
-        * **soil_f** map: scaling parameter controlling the decline of ksat_vertical \
-[mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **soil_f_** map:
-            scaling parameter controlling the decline of soil_ksat_vertical \
-[mm-1] (fitted with numpy linalg regression), bounds are checked
-        * **soil_brooks_corey_c_n** map:
-            Brooks Corey coefficients [-] based on pore size distribution, \
-a map for each of the wflow_sbm soil layers (n in total)
-        * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
-            [mm/day] at soil depths [z] of ``soil_fn`` data
-            [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
-(mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
-6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
+        The following maps are added to the grid:
+          - **soil_theta_s**: average saturated soil water content [m³/m³]
+          - **soil_theta_r**: average residual water content [m³/m³]
+          - **soil_ksat_vertical**: vertical saturated hydraulic conductivity at soil
+            surface [mm/day]
+          - **soil_thickness**: soil thickness [mm]
+          - **soil_f**: scaling parameter controlling the decline of `ksat_vertical`
+            [mm⁻¹] (fitted with `curve_fit` from `scipy.optimize`)
+          - **soil_f_**: scaling parameter controlling the decline of
+            `soil_ksat_vertical` [mm⁻¹] (fitted with NumPy linear regression)
+          - **soil_brooks_corey_c_n**: Brooks-Corey coefficients [-] based on pore size
+            distribution, one map per `wflow_sbm` soil layer
+          - **meta_{soil_fn}_ksat_vertical_[z]cm**: vertical hydraulic conductivity
+            [mm/day] at soil depths `[z]` of
+            `soil_fn` data: [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+          - **meta_soil_texture**: soil texture based on USDA soil texture triangle
+            (mapping: 1=Clay, 2=Silty Clay, ..., 12=Sandy Loam)
 
 
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of RasterDataset source for soil parameter maps, see
-            data/data_sources.yml.
-            Should contain info for the 7 soil depths of soilgrids
-            (or 6 depths intervals for soilgrids_2020).
-            * Required variables: \
-'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
-'sndppt_sl*' [%], 'soilthickness' [cm]
+            Name of RasterDataset source for soil parameter maps,
+            see `data/data_sources.yml`.
+            Should contain info for the 7 soil depths of `"soilgrids"` or 6
+            depth intervals for `"soilgrids_2020"`.
+            Required variables: `bd_sl*`, `clyppt_sl*`, `sltppt_sl*`, `oc_sl*`,
+            `ph_sl*`, `sndppt_sl*`, `soilthickness`
+
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation of ksat vertical
-            (vertical saturated hydraulic conductivity [mm/day]).
-            By default 'brakensiek'.
+            Pedotransfer function (PTF) to use for calculation of vertical saturated
+            hydraulic conductivity [mm/day].
+            Default is `'brakensiek'`.
+
         wflow_thicknesslayers : list of int, optional
-            Thickness of soil layers [mm] for wflow_sbm soil model.
-            By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
-            Used only for Brooks Corey coefficients.
+            Thickness of soil layers [mm] for the `wflow_sbm` soil model.
+            Default is `[100, 300, 800]` for layers at depths 100, 400, 1200,
+            and >1200 mm.
+            Used only for Brooks-Corey coefficients.
+
         output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+            Dictionary with output names used in the model NetCDF input files.
+            Users should provide the Wflow.jl variable name followed by the name in
+            the NetCDF file.
         """
         self.logger.info("Preparing soil parameter maps.")
         self._update_naming(output_names)
@@ -2481,9 +2505,9 @@ a map for each of the wflow_sbm soil layers (n in total)
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
 
-        This predetermined map contains (preferably) 'calibrated' values of \
-the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
-or created by a third party/ individual.
+        This predetermined map contains (preferably) 'calibrated' values of
+        the KsatHorFrac parameter. This map is either selected from the wflow Deltares
+        data or created by a third party/ individual.
 
         Parameters
         ----------
@@ -2512,9 +2536,9 @@ or created by a third party/ individual.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                "The ksat_fn data contains several variables. \
-Select the variable to use for subsurface_ksat_horizontal_ratio \
-using 'variable' argument."
+                "The ksat_fn data contains several variables."
+                "Select the variable to use for subsurface_ksat_horizontal_ratio"
+                "using 'variable' argument."
             )
 
         # Create scaled subsurface_ksat_horizontal_ratio map
@@ -2539,16 +2563,16 @@ using 'variable' argument."
     ):
         """Correct vertical saturated hydraulic conductivity with vegetation properties.
 
-        This allows to account for biologically-promoted soil structure and \
-        heterogeneities in natural landscapes based on the work of \
+        This allows to account for biologically-promoted soil structure and
+        heterogeneities in natural landscapes based on the work of
         Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
         This method requires to have run setup_soilgrids and setup_lai first.
 
         The following map is added to grid:
 
-        * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \
-        vegetation characteristics [mm/d]
+            * **KsatVer_vegetation** map: saturated hydraulic conductivity considering
+                vegetation characteristics [mm/d]
 
         Parameters
         ----------
@@ -2556,7 +2580,7 @@ using 'variable' argument."
             Name of RasterDataset source for soil parameter maps, see
             data/data_sources.yml.
             Should contain info for the sand percentage of the upper layer
-            * Required variable: 'sndppt_sl1' [%]
+            Required variable: ``'sndppt_sl1' [%]``
         alfa : float, optional
             Shape parameter. The default is 4.5 when using LAI.
         beta : float, optional
@@ -2574,7 +2598,7 @@ using 'variable' argument."
 
         # in ksatver_vegetation, ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
-        KSatVer_vegetation = workflows.ksatver_vegetation(
+        ksatver_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
@@ -2582,7 +2606,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(KSatVer_vegetation, output_name)
+        self.set_grid(ksatver_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -2661,7 +2685,7 @@ using 'variable' argument."
             Landuse class [-]
         * **vegetation_kext** map:
             Extinction coefficient in the canopy gap fraction
-          equation [-]
+            equation [-]
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
@@ -2763,21 +2787,13 @@ using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameter
-           soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
+            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
-        if output_names_suffix is not None:
-            # rename lulc_vars with the suffix
-            output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
-            }
-            # Add soil_ksat_vertical_factor
-            output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
-                f"soil_ksat_vertical_factor_{output_names_suffix}"
-            )
-
-        else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+        output_names = {
+            v: f"{k}_{output_names_suffix}" if output_names_suffix else k
+            for k, v in lulc_vars.items()
+        }
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
@@ -2927,16 +2943,16 @@ using 'variable' argument."
 
         Adds model layers:
 
-        * **meta_glacier_area_id** map: glacier IDs [-]
-        * **glacier_fraction** map: area fraction of glacier per cell [-]
-        * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
+            * **meta_glacier_area_id** map: glacier IDs [-]
+            * **glacier_fraction** map: area fraction of glacier per cell [-]
+            * **glacier_initial_leq_depth** map: storage (volume) of glacier
+                per cell [mm]
 
         Parameters
         ----------
         glaciers_fn :
             Name of data source for glaciers, see data/data_sources.yml.
-
-            * Required variables: ['simple_id']
+            Required variables: ['simple_id']
         min_area : float, optional
             Minimum glacier area threshold [km2], by default 0 (all included)
         output_names : dict, optional
@@ -2980,7 +2996,6 @@ using 'variable' argument."
             ds_like=self.grid,
             id_column="simple_id",
             elevtn_name=self._MAPS["elevtn"],
-            logger=self.logger,
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
@@ -2997,7 +3012,7 @@ using 'variable' argument."
 
         Adds model layer:
 
-        * **param_name** map: constant parameter map.
+            * **param_name** map: constant parameter map.
 
         Parameters
         ----------
@@ -3044,7 +3059,7 @@ using 'variable' argument."
 
         Adds model layers:
 
-        * **raster.name** or **variables** grid: data from raster_fn
+            * **raster.name** or **variables** grid: data from raster_fn
 
         Parameters
         ----------
@@ -3052,9 +3067,9 @@ using 'variable' argument."
             Source name of RasterDataset in data_catalog.
         reproject_method: str
             Reprojection method from rasterio.enums.Resampling.
-            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
-'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
-'sum', 'rms']
+            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline',
+            'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3',
+            'sum', 'rms']
         variables: list, optional
             List of variables to add to grid from raster_fn. By default all.
         wflow_variables: list, optional
@@ -3098,8 +3113,8 @@ using 'variable' argument."
                     variables = list(ds_out.data_vars.keys())
                 else:
                     raise ValueError(
-                        "Cannot update the toml if raster_fn has more than \
-one variable and variables list is not provided."
+                        "Cannot update the toml if raster_fn has more than"
+                        "one variable and variables list is not provided."
                     )
 
             # Check on len
@@ -3209,50 +3224,56 @@ one variable and variables list is not provided."
         * **precip**: precipitation [mm]
 
         Supported interpolation methods:
-        * uniform: Applies spatially uniform precipitation to the model. \
-        Only works when `precip_fn` contains a single timeseries.
-        * nearest: Nearest-neighbour interpolation, also works with a single station.
-        * idw: Inverse-distance weighting using 1 / distance ** p.
-        * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator, \
-        may result in missing values when station coverage is limited.
-        * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib \
-        documentation for a full explanation: `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
-        * externaldriftkriging: Kriging interpolation including an external drift, \
-        see wradlib documentation for a full explanation: \
-        `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
+            * uniform: Applies spatially uniform precipitation to the model.
+                Only works when `precip_fn` contains a single timeseries.
+            * nearest: Nearest-neighbour interpolation, also works with a single
+                station.
+            * idw: Inverse-distance weighting using 1 / distance ** p.
+            * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator,
+                may result in missing values when station coverage is limited.
+            * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib
+                documentation for a full explanation:
+                `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
+            * externaldriftkriging: Kriging interpolation including an external drift,
+                see wradlib documentation for a full explanation:
+                `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
 
 
         Parameters
         ----------
         precip_fn : str, pd.DataFrame, xr.Dataset
-            Precipitation source as DataFrame or GeoDataset. \
-            - DataFrame: the index column should contain time and the other \
-            columns should correspond to the name or ID values of the stations \
-            in `precip_stations_fn`.
-            - GeoDataset: the dataset should contain the variable 'precip' and \
-            the dimensions 'time' and 'index'.
+            Precipitation source as DataFrame or GeoDataset.
+                - DataFrame: the index column should contain time and the other
+                    columns should correspond to the name or ID values of the
+                    stations in `precip_stations_fn`.
+                - GeoDataset: the dataset should contain the variable 'precip' and
+                    the dimensions 'time' and 'index'.
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str
-            Interpolation method. Options: "nearest", "idw", "linear", \
-            "ordinarykriging", "externaldriftkriging".
+            Interpolation method. Options:
+                - "nearest",
+                - "idw",
+                - "linear",
+                - "ordinarykriging",
+                - "externaldriftkriging".
         precip_stations_fn : str, gpd.GeoDataFrame, optional
-            Source for the locations of the stations as points: (x, y) or (lat, lon). \
-            Only required if precip_fn is of type DataFrame.
+            Source for the locations of the stations as points: (x, y) or (lat, lon).
+            Only required if ``precip_fn`` is of type DataFrame.
         index_col : str, optional
             Column in precip_stations_fn to use for station ID values, by default None.
         buffer: float, optional
             Buffer around the basins in metres to determine which
             stations to include. Set to 100 km (1e5 metres) by default.
         **kwargs
-            Additional keyword arguments passed to the interpolation function. \
-            Supported arguments depend on the interpolation type:
-            - nnearest: Maximum number of neighbors for interpolation (default: 4).
-            - p: Power parameter for IDW interpolation (default: 2).
-            - remove_missing: Mask NaN values in the input data (default: False).
-            - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
-            - src_drift: External drift values at source points (stations).
-            - trg_drift: External drift values at target points (grid).
+            Additional keyword arguments passed to the interpolation function.
+                Supported arguments depend on the interpolation type:
+                - nnearest: Maximum number of neighbors for interpolation (default: 4).
+                - p: Power parameter for IDW interpolation (default: 2).
+                - remove_missing: Mask NaN values in the input data (default: False).
+                - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
+                - src_drift: External drift values at source points (stations).
+                - trg_drift: External drift values at target points (grid).
 
         See Also
         --------
@@ -3292,11 +3313,10 @@ one variable and variables list is not provided."
                 # Use basin centroid as 'station' for uniform case
                 gdf_stations = gpd.GeoDataFrame(
                     data=None,
-                    geometry=[self.basins.unary_union.centroid],
+                    geometry=[self.basins.union_all().centroid],
                     index=df_precip.columns,
                     crs=self.crs,
                 )
-                index_col = df_precip.columns
                 interp_type = "nearest"
                 if df_precip.shape[1] != 1:
                     raise ValueError(
@@ -4015,7 +4035,10 @@ Run setup_soilmaps first"
             self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
-            gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
+            centroid = utils.planar_operation_in_utm(
+                gdf_tributary["geometry"], lambda geom: geom.centroid
+            )
+            gdf_tributary["geometry"] = centroid
             gdf_tributary["value"] = gdf_tributary["value"].astype(
                 ds_out["gauges"].dtype
             )
@@ -4824,7 +4847,7 @@ Run setup_soilmaps first"
             buffer=1000,
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
-        )
+        ).copy()  # Ensure we have a copy to resolve SettingWithCopyWarning
 
         # Check if the geodataframe is empty
         if irrigated_area is None or irrigated_area.empty:
@@ -4924,43 +4947,39 @@ Run setup_soilmaps first"
         To be run last as this requires some soil parameters or constant_pars to be
         computed already.
 
-        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        To be run after setup_reservoirs methods and setup_glaciers to also create
         cold states for them if they are present in the basin.
 
         This function is mainly useful in case the wflow model is read into Delft-FEWS.
 
         Adds model layers:
 
-        * **soil_saturated_depth**: saturated store [mm]
-        * **snow_leq_depth**: snow storage [mm]
-        * **soil_temp**: top soil temperature [°C]
-        * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
-          layer [mm]
-        * **snow_water_depth**: liquid water content in the snow pack [mm]
-        * **vegetation_water_depth**: canopy storage [mm]
-        * **river_instantaneous_q**: river discharge [m3/s]
-        * **river_instantaneous_h**: river water level [m]
-        * **subsurface_q**: subsurface flow [m3/d]
-        * **land_instantaneous_h**: land water level [m]
-        * **land_instantaneous_q** or **land_instantaneous_qx**+
-          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
-          overland flow in x/y directions for local-inertial [m3/s]
-
-        If lakes, also adds:
-
-        * **lake_instantaneous_water_level**: lake water level [m]
+            * **soil_saturated_depth**: saturated store [mm]
+            * **snow_leq_depth**: snow storage [mm]
+            * **soil_temp**: top soil temperature [°C]
+            * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
+              layer [mm]
+            * **snow_water_depth**: liquid water content in the snow pack [mm]
+            * **vegetation_water_depth**: canopy storage [mm]
+            * **river_instantaneous_q**: river discharge [m3/s]
+            * **river_instantaneous_h**: river water level [m]
+            * **subsurface_q**: subsurface flow [m3/d]
+            * **land_instantaneous_h**: land water level [m]
+            * **land_instantaneous_q** or **land_instantaneous_qx**+
+              **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
+              overland flow in x/y directions for local-inertial [m3/s]
 
         If reservoirs, also adds:
 
-        * **reservoir_instantaneous_volume**: reservoir volume [m3]
+            * **reservoir_instantaneous_water_level**: reservoir water level [m]
 
         If glaciers, also adds:
 
-        * **glacier_leq_depth**: water within the glacier [mm]
+            * **glacier_leq_depth**: water within the glacier [mm]
 
         If paddy, also adds:
 
-        * **demand_paddy_h**: water on the paddy fields [mm]
+            * **demand_paddy_h**: water on the paddy fields [mm]
 
         Parameters
         ----------
@@ -4990,19 +5009,33 @@ Run setup_soilmaps first"
 
         The function reads a TOML from wflow v0x and converts it to wflow v1x format.
         The other components stay the same.
+
+        Lakes and reservoirs have also been merged into one structure and parameters in
+        the resulted staticmaps will be combined.
+
         This function should be followed by write_config() to write the upgraded file.
         """
         self.read()
 
-        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
-
-        self._config = tomlkit.parse(default_header_str)
+        config_v0 = self.config.copy()
+        config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
+        self._config = {}
 
         for option in config_out:
             self.set_config(option, config_out[option])
+
+        # Merge lakes and reservoirs layers
+        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
+            self.grid, config_v0, logger=self.logger
+        )
+        if ds_res is not None:
+            # Remove older maps from grid
+            self.drop_vars_grid(vars_to_remove)
+            # Add new reservoir maps to grid
+            self.set_grid(ds_res)
+            # Update the config with the new names
+            for option in config_opt:
+                self.set_config(option, config_opt[option])
 
     # I/O
     def read(
@@ -5242,7 +5275,7 @@ Run setup_soilmaps first"
                 )
             tname = "time"
             time_axes = {
-                k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
+                k: v for k, v in dict(self.grid.sizes).items() if k.startswith("time")
             }
             if data["time"].size not in time_axes.values():
                 tname = f"time_{data['time'].size}" if "time" in time_axes else tname
@@ -5265,7 +5298,7 @@ Run setup_soilmaps first"
                     f"dimension: {vars_to_drop}"
                 )
                 # Use `_grid` as `grid` cannot be set
-                self._grid = self.grid.drop_vars(vars_to_drop)
+                self.drop_vars_grid(vars_to_drop)
 
         if isinstance(data, np.ndarray):
             # TODO: because of all types for data, masking should move to
@@ -5278,6 +5311,23 @@ Run setup_soilmaps first"
             data = utils.mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
+
+    def drop_vars_grid(self, names: list[str], errors: str = "raise"):
+        """
+        Drop variables from the grid.
+
+        This method is a wrapper around the xarray.Dataset.drop_vars method.
+
+        Parameters
+        ----------
+        names : list of str
+            List of variable names to drop from the grid.
+        errors : str, optional {raise, ignore}
+            How to handle errors. If 'raise', raises a ValueError error if any of the
+            variable passed are not in the dataset. If 'ignore', any given names that
+            are in the dataset are dropped and no error is raised.
+        """
+        self._grid = self.grid.drop_vars(names, errors=errors)
 
     def read_geoms(
         self,
@@ -5768,58 +5818,45 @@ change name input.path_forcing "
 
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = tomlkit.load(f)
+            fdict = toml.load(f)
 
         return fdict
 
     def _configwrite(self, fn):
         with codecs.open(fn, "w", encoding="utf-8") as f:
-            tomlkit.dump(self.config, f)
+            toml.dump(self.config, f)
 
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
+    def get_config(self, *args, fallback=None, abs_path: bool = False):
+        """
+        Get a config value at key(s).
+
+        See Also
+        --------
+        hydromt.Model.get_config
 
         Parameters
         ----------
-        args : tuple, str
+        args : tuple or string
             keys can given by multiple args: ('key1', 'key2')
             or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
+        fallback: any, optional
             fallback value if key(s) not found in config, by default None.
         abs_path: bool, optional
             If True return the absolute path relative to the model root,
             by default False.
-            NOTE: this assumes the config is located in model root!
 
         Returns
         -------
-        value : Any
+        value : any type
             dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
         """
+        self._initialize_config()
         return utils.get_config(
-            self.config,
             *args,
+            config=self._config,  # we already initialized with _initalize_config
             fallback=fallback,
+            root=Path(self.root),
             abs_path=abs_path,
-            root=self.root,
         )
 
     def set_config(self, *args):
@@ -5856,23 +5893,6 @@ change name input.path_forcing "
             scale = 1
 
 
-        .. warning::
-
-            Due to limitations of the underlying library it is currently not possible to
-            create new headers (i.e. groups like ``input.forcing`` in the example above)
-            programmatically, and they will need to be added to the default config
-            toml document
-
-
-        .. warning::
-
-            Even though the underlying config object behaves like a dictionary, it is
-            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-            errors can easily be introduced if this structure is modified by hand.
-            Therefore we strongly discourage users from manually modyfing it, and
-            instead ask them to use this ``set_config`` and ``remove_config``
-            functions to avoid problems.
-
         Parameters
         ----------
         args : str, tuple, list
@@ -5895,11 +5915,11 @@ change name input.path_forcing "
         """
         self._initialize_config()
         utils.set_config(
-            self.config,  # read config at first call
+            self._config,  # we already initialized with _initalize_config
             *args,
         )
 
-    def remove_config(self, *args: str) -> Any:
+    def remove_config(self, *args: str, errors: str = "raise") -> Any:
         """
         Remove a config key and return its value.
 
@@ -5908,19 +5928,31 @@ change name input.path_forcing "
         key: str, tuple[str, ...]
             Key to remove from the config.
             Can be a dotted toml string when providing a list of strings.
+        errors: str, optional
+            What to do if the key is not found. Can be "raise" (default) or "ignore".
 
         Returns
         -------
         The popped value, or raises a KeyError if the key is not found.
         """
+        args = list(args)
+        if len(args) == 1 and "." in args[0]:
+            args = args[0].split(".") + args[1:]
+
         current = self.config
         for index, key in enumerate(args):
             if current is None:
-                raise KeyError(f"Key {'.'.join(args)} not found in config.")
+                if errors == "ignore":
+                    return None
+                else:
+                    raise KeyError(f"Key {'.'.join(args)} not found in config.")
 
             if index == len(args) - 1:
                 # Last key, pop it
-                current = current.pop(key)
+                if errors == "ignore":
+                    current = current.pop(key, None)
+                else:
+                    current = current.pop(key)
                 break
 
             # Not the last key, go deeper
@@ -6129,79 +6161,47 @@ change name input.path_forcing "
         self.basins
         self.rivers
 
-        # Update reservoir and lakes
-        remove_reservoir = False
+        # Update reservoirs
         if self._MAPS["reservoir_area_id"] in self.grid:
             reservoir = self.grid[self._MAPS["reservoir_area_id"]]
             if not np.any(reservoir > 0):
-                remove_reservoir = True
                 remove_maps = [
                     self._MAPS["reservoir_area_id"],
                     self._MAPS["reservoir_outlet_id"],
+                    self._MAPS["reservoir_lower_id"],
+                    self._MAPS["reservoir_storage_curve"],
+                    self._MAPS["reservoir_rating_curve"],
                     self._MAPS["reservoir_area"],
+                    self._MAPS["reservoir_initial_depth"],
                     self._MAPS["reservoir_demand"],
                     self._MAPS["reservoir_target_full_fraction"],
                     self._MAPS["reservoir_target_min_fraction"],
                     self._MAPS["reservoir_max_release"],
                     self._MAPS["reservoir_max_volume"],
+                    "meta_reservoir_mean_outflow",  # this is a hydromt meta map
+                    self._MAPS["reservoir_outflow_threshold"],
+                    self._MAPS["reservoir_b"],
+                    self._MAPS["reservoir_e"],
                 ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                self.drop_vars_grid(remove_maps, errors="ignore")
 
-        remove_lake = False
-        if self._MAPS["lake_area_id"] in self.grid:
-            lake = self.grid[self._MAPS["lake_area_id"]]
-            if not np.any(lake > 0):
-                remove_lake = True
-                remove_maps = [
-                    self._MAPS["lake_area_id"],
-                    self._MAPS["lake_outlet_id"],
-                    self._MAPS["lake_lower_id"],
-                    self._MAPS["lake_storage_curve"],
-                    self._MAPS["lake_rating_curve"],
-                    self._MAPS["lake_area"],
-                    self._MAPS["lake_initial_depth"],
-                    "meta_lake_mean_outflow",  # this is a hydromt meta map
-                    self._MAPS["lake_outflow_threshold"],
-                    self._MAPS["lake_b"],
-                    self._MAPS["lake_e"],
-                ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                # Update config
+                # Remove the absolute path and if needed remove reservoirs
+                # change reservoir__flag = true to false
+                self.set_config("model.reservoir__flag", False)
+                # remove states
+                self.remove_config(
+                    "state.variables.reservoir_water_surface__instantaneous_elevation",
+                    errors="ignore",
+                )
 
             # Update tables
-            ids = np.unique(lake)
+            ids = np.unique(reservoir)
             self._tables = {
                 k: v
                 for k, v in self.tables.items()
                 if not any([str(x) in k for x in ids])
             }
-
-        # Update config
-        # Remove the absolute path and if needed remove lakes and reservoirs
-        if remove_reservoir:
-            # change reservoir__flag = true to false
-            self.set_config("model.reservoir__flag", False)
-            # remove states
-            if (
-                self.get_config("state.variables.reservoir_water__instantaneous_volume")
-                is not None
-            ):
-                del self.config["state"]["variables"][
-                    "reservoir_water__instantaneous_volume"
-                ]
-
-        if remove_lake:
-            # change lake__flag = true to false
-            self.set_config("model.lake__flag", False)
-            # remove states
-            if (
-                self.get_config(
-                    "state.variables.lake_water_surface__instantaneous_elevation"
-                )
-                is not None
-            ):
-                del self.config["state"]["variables"][
-                    "lake_water_surface__instantaneous_elevation"
-                ]
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
@@ -6232,21 +6232,15 @@ change name input.path_forcing "
             ds_states = xr.merge(self.states.values()).raster.clip_bbox(
                 self.grid.raster.bounds
             )
-            # Check for reservoirs/lakes presence in the clipped model
+            # Check for reservoirs presence in the clipped model
             remove_maps = []
             if self._MAPS["reservoir_area_id"] not in self.grid:
                 state_name = self.get_config(
-                    "state.variables.reservoir_water__instantaneous_volume",
-                    fallback="reservoir_instantaneous_volume",
+                    "state.variables.reservoir_water_surface__instantaneous_elevation",
+                    fallback="reservoir_instantaneous_water_level",
                 )
                 if state_name in ds_states:
                     remove_maps.extend([state_name])
-            if self._MAPS["lake_area_id"] not in self.grid:
-                state_name = self.get_config(
-                    "state.variables.lake_water_surface__instantaneous_elevation",
-                    fallback="lake_instantaneous_water_level",
-                )
-                if state_name in ds_states:
-                    remove_maps.extend([state_name])
+
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)

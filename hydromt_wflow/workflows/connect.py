@@ -12,6 +12,8 @@ from shapely import union_all
 from shapely.geometry import LineString, MultiLineString, Point
 from shapely.ops import linemerge, snap
 
+from hydromt_wflow.utils import planar_operation_in_utm
+
 logger = logging.getLogger(__name__)
 
 
@@ -152,7 +154,9 @@ def connect_subbasin_area(
         if not include_river_boundaries:
             gdf_tributaries = gpd.GeoDataFrame()
     else:
-        gdf_trib["geometry"] = gdf_trib.centroid
+        gdf_trib = gdf_trib.to_crs(ds_model.raster.crs)
+        centroid = planar_operation_in_utm(gdf_trib, lambda geom: geom.centroid)
+        gdf_trib["geometry"] = centroid
 
         # Merge with gdf_tributary if include_river_boundaries
         # else only keep intersecting tributaries

@@ -7,17 +7,17 @@ from typing import Dict, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import tomlkit
 import xarray as xr
+from hydromt.nodata import NoDataStrategy
 
-from hydromt_wflow.utils import (
-    DATADIR,
+from hydromt_wflow import workflows
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
+from hydromt_wflow.utils import DATADIR
+from hydromt_wflow.version_upgrade import (
+    convert_reservoirs_to_wflow_v1_sediment,
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
-
-from . import workflows
-from .naming import _create_hydromt_wflow_mapping_sediment
 
 __all__ = ["WflowSedimentModel"]
 
@@ -92,11 +92,11 @@ class WflowSedimentModel(WflowModel):
 
         Adds model layers:
 
-        * **river_mask** map: river mask [-]
-        * **river_length** map: river length [m]
-        * **river_width** map: river width [m]
-        * **river_slope** map: river slope [m/m]
-        * **rivers** geom: river vector based on wflow_river mask
+            * **river_mask** map: river mask [-]
+            * **river_length** map: river length [m]
+            * **river_width** map: river width [m]
+            * **river_slope** map: river slope [m/m]
+            * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
         ----------
@@ -104,13 +104,13 @@ class WflowSedimentModel(WflowModel):
             Name of RasterDataset source for hydrography data.
             Must be same as setup_basemaps for consistent results.
 
-            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-              'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m]
+                * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+                      'elevtn'[m+REF]
+                * Optional variables: 'rivwth' [m]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
-            * Required variables: 'rivwth' [m]
+                * Required variables: 'rivwth' [m]
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
@@ -142,9 +142,9 @@ class WflowSedimentModel(WflowModel):
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
             raise ValueError(
-                f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
-river cells."
+                f"river_upa threshold {river_upa} should be larger than the maximum "
+                f"uparea in the grid {float(self.grid[self._MAPS['uparea']].max())}"
+                "in order to create river cells."
             )
 
         # read data
@@ -202,87 +202,49 @@ river cells."
         self.geoms.pop("rivers", None)  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
-    def setup_lakes(
+    def setup_natural_reservoirs(
         self,
-        lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
+        overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         output_names: Dict = {
-            "lake_area__count": "lake_area_id",
-            "lake_location__count": "lake_outlet_id",
-            "lake_surface__area": "lake_area",
+            "reservoir_area__count": "reservoir_area_id",
+            "reservoir_location__count": "reservoir_outlet_id",
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
-        geom_name: str = "lakes",
+        geom_name: str = "meta_natural_reservoirs",
         **kwargs,
     ):
-        """Generate maps of lake areas and outlets.
+        """Generate maps of natural reservoir areas (lakes) and outlets.
 
-        Also generates average lake area.
+        This method is a specialized version of the `setup_reservoirs` method
+        that is specifically designed for lakes, which are natural water bodies
+        without artificial dams.
 
-        The data is generated from features with ``min_area`` [km2] from a database with
-        lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id',
-        average area 'Area_avg' [m2].
+        This means the trapping efficiency is set to 0.0 by default and the output
+        staticgeoms will be called meta_natural_reservoirs.geojson by default.
 
-        Adds model layers:
-
-        * **lake_area_id** map: lake IDs [-]
-        * **lake_outlet_id** map: lake IDs at outlet locations [-]
-        * **lake_area** map: lake area [m2]
-        * **lakes** geom: polygon with lakes and wflow lake parameters
-
-        Parameters
-        ----------
-        lakes_fn :
-            Name of GeoDataFrame source for lake parameters.
-
-            * Required variables: ['waterbody_id', 'Area_avg']
-        min_area : float, optional
-            Minimum lake area threshold [km2], by default 1.0 km2.
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
-        geom_name : str, optional
-            Name of the lakes geometry in the staticgeoms folder, by default 'lakes'
-            for lakes.geojson.
-        kwargs: optional
-            Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+        For a description of the parameters and functionality, see
+        py:meth:`setup_reservoirs`.
         """
-        # Derive lake are and outlet maps
-        gdf_lakes, ds_lakes = self._setup_waterbodies(
-            lakes_fn, "lake", min_area, **kwargs
+        self.setup_reservoirs(
+            reservoirs_fn=reservoirs_fn,
+            overwrite_existing=overwrite_existing,
+            duplicate_id=duplicate_id,
+            min_area=min_area,
+            trapping_default=0.0,  # lakes have no trapping efficiency
+            output_names=output_names,
+            geom_name=geom_name,
+            **kwargs,
         )
-        if ds_lakes is None:
-            self.logger.info("Skipping method, as no data has been found")
-            return
-        self._update_naming(output_names)
-
-        # add lake area
-        gdf_points = gpd.GeoDataFrame(
-            gdf_lakes[["waterbody_id", "Area_avg"]],
-            geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
-        )
-        ds_lakes["lake_area"] = self.grid.raster.rasterize(
-            gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
-        )
-
-        # add to grid
-        rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
-        # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
-
-        # Lake settings in the toml to update
-        self.set_config("model.lake__flag", True)
-        for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
-                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
-            elif dvar in self._WFLOW_NAMES:
-                self._update_config_variable_name(self._MAPS[dvar])
 
     def setup_reservoirs(
         self,
         reservoirs_fn: str | Path | gpd.GeoDataFrame,
+        overwrite_existing: bool = False,
+        duplicate_id: str = "error",
         min_area: float = 1.0,
         trapping_default: float = 1.0,
         output_names: Dict = {
@@ -291,12 +253,12 @@ river cells."
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
-        geom_name: str = "reservoirs",
+        geom_name: str = "meta_reservoirs",
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
 
-        Also generates well as parameters with average reservoir area,
+        Also generates parameters with average reservoir area,
         and trapping efficiency for large particles.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
@@ -304,44 +266,71 @@ river cells."
 
         Adds model layers:
 
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
-         coefficient [-]
+            * **reservoir_area_id** map: reservoir IDs [-]
+            * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+            * **reservoir_area** map: reservoir area [m2]
+            * **reservoir_trapping_efficiency** map: reservoir bedload trapping
+                efficiency coefficient [-] (0 for natural lakes, 0-1 depending
+                on the type of dam)
+            * **meta_reservoirs** geom: polygon with reservoirs and parameters
+            * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------
         reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables: ['waterbody_id', 'Area_avg']
+                * Required variables: ['waterbody_id', 'Area_avg']
 
-            * Optional variables: ['reservoir_trapping_efficiency']
+                * Optional variables: ['reservoir_trapping_efficiency']
+        overwrite_existing : bool, optional
+            If True, overwrite existing reservoirs in the model grid, by default False.
+        duplicate_id: str, optional {"error", "skip"}
+            Action to take if duplicate reservoir IDs are found when merging with
+            existing reservoirs. Options are "error" to raise an error (default); "skip"
+            to skip adding new reservoirs.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         trapping_default : float, optional
             Default trapping efficiency coefficient for large particles [between 0 and
             1], by default 1 to trap 100% of large particles (sand to gravel) for
             example for gravity dam. For the others the natural deposition in
-            waterbodies from Camp is used.
+            reservoirs from Camp is used.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
         geom_name : str, optional
             Name of the reservoirs geometry in the staticgeoms folder, by default
-            "reservoirs" for reservoirs.geojson.
+            "meta_reservoirs" for meta_reservoirs.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
         """
-        # Derive lake are and outlet maps
-        gdf_res, ds_res = self._setup_waterbodies(
-            reservoirs_fn, "reservoir", min_area, **kwargs
+        # retrieve data for basin
+        self.logger.info("Preparing reservoir maps.")
+        kwargs.setdefault("predicate", "contains")
+        gdf_res = self.data_catalog.get_geodataframe(
+            reservoirs_fn,
+            geom=self.basins_highres,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
+        )
+        # Skip method if no data is returned
+        if gdf_res is None:
+            self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Derive reservoir area and outlet maps
+        ds_res, gdf_res = workflows.reservoir_id_maps(
+            gdf=gdf_res,
+            ds_like=self.grid,
+            min_area=min_area,
+            uparea_name=self._MAPS["uparea"],
+            logger=self.logger,
         )
         if ds_res is None:
-            self.logger.info("Skipping method, as no data has been found")
+            # No reservoir of sufficient size found
             return
         self._update_naming(output_names)
 
@@ -363,13 +352,37 @@ river cells."
             nodata=-999,
         )
 
+        # merge with existing reservoirs
+        if not overwrite_existing and self._MAPS["reservoir_area"] in self.grid:
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
+            ds_res = workflows.reservoirs.merge_reservoirs_sediment(
+                ds_res,
+                self.grid.rename(inv_rename),
+                duplicate_id=duplicate_id,
+                logger=self.logger,
+            )
+            # Check if ds_res is None ie duplicate IDs
+            if ds_res is None:
+                self.logger.warning(
+                    "Duplicate reservoir IDs found. Skip adding the new reservoirs."
+                )
+                return
+
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
-        # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
-        # Lake settings in the toml to update
+        # write reservoirs with attr tables to static geoms.
+        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
+        # Prepare a combined geoms of all reservoirs
+        gdf_res_all = workflows.reservoirs.create_reservoirs_geoms_sediment(
+            ds_res.rename(rmdict),
+        )
+        self.set_geoms(gdf_res_all, name="reservoirs")
+
+        # Reservoir settings in the toml to update
         self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:
@@ -395,8 +408,8 @@ river cells."
 
         Adds model layers:
 
-        * **outlets** map: IDs map from catchment outlets [-]
-        * **outlets** geom: polygon of catchment outlets
+            * **outlets** map: IDs map from catchment outlets [-]
+            * **outlets** geom: polygon of catchment outlets
 
         Parameters
         ----------
@@ -454,9 +467,9 @@ river cells."
 
         The only differences are the default values for the arguments:
 
-        - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
-        - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
-            "river_water_sediment~suspended__mass_concentration"]
+            - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
+            - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
+                "river_water_sediment~suspended__mass_concentration"]
 
         See Also
         --------
@@ -498,7 +511,8 @@ river cells."
         orchard_c: float = 0.2188,
         output_names_suffix: str | None = None,
     ):
-        """Derive several wflow maps based on landuse-landcover (LULC) data.
+        """
+        Derive several wflow maps based on landuse-landcover (LULC) data.
 
         Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
         parameters based on literature. The data is remapped at its original resolution
@@ -517,13 +531,13 @@ river cells."
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-        cell [-]
+            * **landuse** map: Landuse class [-] Original source dependent LULC class,
+                resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per
+                grid cell [-]
 
         Parameters
         ----------
@@ -634,13 +648,13 @@ river cells."
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-          cell [-]
+            * **landuse** map: Landuse class [-]
+                Original source dependent LULC class, resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per grid
+              cell [-]
 
         Parameters
         ----------
@@ -751,15 +765,20 @@ river cells."
 
         Adds model layers:
 
-        * **river_bed_sediment_d50** map: median sediment diameter of the river bed [mm]
-        * **river_bed_clay_fraction** map: fraction of clay material in the river bed [-]
-        * **river_bed_silt_fraction** map: fraction of silt material in the river bed [-]
-        * **river_bed_sand_fraction** map: fraction of sand material in the river bed [-]
-        * **river_bed_gravel_fraction** map: fraction of gravel material in the river bed [-]
-        * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]
-        * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]
-        * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]
-        * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]
+            * **river_bed_sediment_d50** map: median sediment diameter of the river
+                bed [mm]
+            * **river_bed_clay_fraction** map: fraction of clay material in the river
+                bed [-]
+            * **river_bed_silt_fraction** map: fraction of silt material in the river
+                bed [-]
+            * **river_bed_sand_fraction** map: fraction of sand material in the river
+                bed [-]
+            * **river_bed_gravel_fraction** map: fraction of gravel material in the
+                river bed [-]
+            * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]
+            * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]
+            * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]
+            * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]
 
         Parameters
         ----------
@@ -767,11 +786,11 @@ river cells."
             Path to a mapping csv file from streamorder to river bed particles
             characteristics. If None reverts to default values.
 
-            * Required variable: ['strord','river_bed_sediment_d50',
-              'river_bed_clay_fraction', 'river_bed_silt_fraction',
-                'river_bed_sand_fraction', 'river_bed_gravel_fraction']
-            * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
-              'river_kodatie_c', 'river_kodatie_d']
+                * Required variable: ['strord','river_bed_sediment_d50',
+                  'river_bed_clay_fraction', 'river_bed_silt_fraction',
+                  'river_bed_sand_fraction', 'river_bed_gravel_fraction']
+                * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
+                  'river_kodatie_c', 'river_kodatie_d']
         strord_name : str, optional
             Name of the stream order map in the grid, by default 'meta_streamorder'.
         output_names : dict, optional
@@ -832,7 +851,7 @@ river cells."
 
         Adds model layers:
 
-        * **vegetation_height** map: height of the vegetation canopy [m]
+            * **vegetation_height** map: height of the vegetation canopy [m]
 
         Parameters
         ----------
@@ -888,26 +907,27 @@ river cells."
 
         Adds model layers:
 
-        * **soil_clay_fraction**: clay content of the topsoil [g/g]
-        * **soil_silt_fraction**: silt content of the topsoil [g/g]
-        * **soil_sand_fraction**: sand content of the topsoil [g/g]
-        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
-        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
-        * **erosion_soil_detachability** map: mean detachability of the soil
-        (Morgan et al., 1998) [g/J]
-        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
-        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
-        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
-        * **land_govers_n** map: Govers exponent for overland flow transport
-        capacity [-]
+            * **soil_clay_fraction**: clay content of the topsoil [g/g]
+            * **soil_silt_fraction**: silt content of the topsoil [g/g]
+            * **soil_sand_fraction**: sand content of the topsoil [g/g]
+            * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
+            * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
+            * **erosion_soil_detachability** map: mean detachability of the soil
+                (Morgan et al., 1998) [g/J]
+            * **erosion_usle_k** map: soil erodibility factor from the USLE equation
+                [-]
+            * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
+            * **land_govers_c** map: Govers factor for overland flow transport
+                capacity [-]
+            * **land_govers_n** map: Govers exponent for overland flow transport
+                capacity [-]
 
 
         Parameters
         ----------
         soil_fn : {"soilgrids"}
             Name of soil data source in data_sources.yml file.
-
-            * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
+                * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
         usle_k_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         add_aggregates: bool, optional
@@ -950,10 +970,14 @@ river cells."
 
         The function reads a TOML from wflow v0x and converts it to wflow v1x format.
         The other components stay the same.
+
         A few variables that used to be computed within Wflow.jl are now moved to
         HydroMT to allow more flexibility for the users to update if they do get local
         data or calibrate some of the parameters specifically. For this, the
         ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.
+
+        Lakes and reservoirs have also been merged into one structure and parameters in
+        the resulted staticmaps will be combined.
 
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
@@ -968,12 +992,10 @@ river cells."
             strord_name argument of setup_riverbedsed method.
         """
         self.read()
-        config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
-        # tomlkit loads errors on this file so we have to do it in two steps
-        with open(DATADIR / "default_config_headers.toml", "r") as file:
-            default_header_str = file.read()
 
-        self._config = tomlkit.parse(default_header_str)
+        config_v0 = self.config.copy()
+        config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
+        self._config = dict()
 
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -987,3 +1009,16 @@ river cells."
 
         # Rerun setup_riverbedsed
         self.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)
+
+        # Merge lakes and reservoirs layers
+        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
+            self.grid, config_v0, logger=self.logger
+        )
+        if ds_res is not None:
+            # Remove older maps from grid
+            self.drop_vars_grid(vars_to_remove)
+            # Add new reservoir maps to grid
+            self.set_grid(ds_res)
+            # Update the config with the new names
+            for option in config_opt:
+                self.set_config(option, config_opt[option])

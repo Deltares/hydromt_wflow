@@ -15,7 +15,7 @@ data libraries are set, you can build a model by using:
   From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or \-\-region flag.
   The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
 
-The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
+The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of this model are:
 
 - basin
@@ -37,7 +37,7 @@ in its corresponding section.
 Note that the order in which the components are listed in the configuration file is important:
 
 - `setup_basemaps` should always be run first to determine the model domain
-- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)
+- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (reservoirs, riverwidth, gauges)
 
 Below is an example configuration file that can be used to build a complete Wflow model
 :download:`.yml file <../_examples/wflow_build.yml>`. Each section corresponds

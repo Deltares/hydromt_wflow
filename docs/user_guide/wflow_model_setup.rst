@@ -11,9 +11,9 @@ The main interactions are available from the HydroMT Command Line Interface and 
 HydroMT in order to build or update or clip Wflow models.
 
 When building or updating a model from command line a
-`model region <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_; a model setup
+`model region <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_; a model setup
 :ref:`configuration <model_config>` (.yml file) with model methods and options and, optionally,
-a `data sources <https://deltares.github.io/hydromt/latest/user_guide/data_main>`_ (.yml) file should be prepared.
+a `data sources <https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html>`_ (.yml) file should be prepared.
 
 .. _model_methods:
 
@@ -40,10 +40,10 @@ a specific method see its documentation.
       - This component sets the all river parameter maps.
     * - :py:func:`~WflowModel.setup_floodplains`
       - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
-    * - :py:func:`~WflowModel.setup_lakes`
-      - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
-    * - :py:func:`~WflowModel.setup_reservoirs`
-      - This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
+    * - :py:func:`~WflowModel.setup_reservoirs_no_control`
+      - This component generates maps of uncontrolled reservoirs (lakes, weirs) areas and outlets as well as parameters with average reservoir area, depth a discharge values.
+    * - :py:func:`~WflowModel.setup_reservoirs_simple_control`
+      - This component generates maps of controlled reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
     * - :py:func:`~WflowModel.setup_glaciers`
       - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
     * - :py:func:`~WflowModel.setup_lulcmaps`
