@@ -1,14 +1,22 @@
+## Build system related
 [build-system]
-requires = ["flit_core >=3.4.0,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.flit.sdist]
-include = ["hydromt_wflow"]
-exclude = ["docs", "examples", "tests", ".github"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hydromt_wflow*"]
 
+[tool.setuptools.package-data]
+"hydromt_wflow.data" = ["**"]
+
+[tool.setuptools.dynamic]
+version = {attr = "hydromt_wflow.version.__version__"}
+
+## Project related
 [project]
-name = "hydromt_wflow"
-dynamic = ['version', 'description']
+name    = "hydromt_wflow"
+dynamic = ['version']
 
 authors = [
 	{ name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
@@ -21,35 +29,39 @@ authors = [
 	{ name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
 ]
 
+description = "HydroMT plugin for wflow."
+license = "GPL-3.0-or-later"
 readme = "README.rst"
 classifiers = [
 	"Development Status :: 4 - Beta",
 	"Intended Audience :: Developers",
 	"Intended Audience :: Science/Research",
 	"Topic :: Scientific/Engineering :: Hydrology",
-	"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
 	"Programming Language :: Python :: 3",
 ]
 
 # Core dependencies
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-	"dask",
-	"geopandas>=0.10",
-	"hydromt>=0.10.1,<0.11",
-	"numpy",
-	"pandas",
-	"pyflwdir>=0.5.7",
-	"pyproj",
-	"scipy",
-	"shapely",
-	"toml",
-	"xarray",
+  "dask",
+  "geopandas>=0.10",
+  "hydromt@https://github.com/Deltares/hydromt.git", # TODO Set back after hydromt 1.2.1
+  "numpy",
+  "pandas",
+  "pyflwdir>=0.5.7",
+  "pyproj",
+  "scipy",
+  "shapely",
+  "xarray",
+  "pooch",
 ]
 
 # Optional dependencies
 [project.optional-dependencies]
-dev = ["pre-commit", "ruff"]
+dev = [
+  "pre-commit",
+  "ruff",
+]
 docs = [
 	"nbsphinx",
 	"pydata-sphinx-theme",
@@ -58,8 +70,18 @@ docs = [
 	"sphinx_autosummary_accessors",
 	"sbom4python",
 ]
-extra = ["gwwapi", "hydroengine", "pyet", "wradlib"]
-examples = ["cartopy", "jupyterlab", "nbconvert", "notebook"]
+examples = [
+	"cartopy",
+	"jupyterlab",
+	"nbconvert",
+	"notebook",
+]
+extra = [
+  "gwwapi",
+  "hydroengine",
+  "pyet",
+  "wradlib",
+]
 test = [
 	"pytest>=2.7.3",
 	"pytest-cov",
@@ -69,8 +91,8 @@ test = [
 ]
 
 [project.entry-points."hydromt.models"]
-wflow = "hydromt_wflow.wflow:WflowModel"
-wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
+wflow_sbm      = "hydromt_wflow.wflow_sbm"
+wflow_sediment = "hydromt_wflow.wflow_sediment"
 
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
@@ -120,9 +142,28 @@ line-length = 88
 exclude = ["docs", "examples"]
 
 [tool.ruff.lint]
-# enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
-select = ["E", "F", "I", "PT", "D"]
-ignore = ["D105", "D211", "D213", "E712", "E741"]
+select = [
+  "E",    # pydocstyle
+  "F",    # pyflakes
+  "I",    # isort
+  "PT",   # pycodestyle
+  "D",    # docstrings
+]
+ignore = [
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
+  "D211", # Missing docstring in public class
+  "D213", # Multi-line docstring summary should start at the second line
+  "E712", # Avoid comparison to True/False
+  "E741", # Ambiguous variable name 'l' (lowercase 'L')
+]
+fixable = [
+  "I",    # import sorting,
+  "F",    # flake8: unused imports/variables
+  "D",    # docstrings
+  "E",    # pycodestyle: whitespace and formatting
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -131,10 +172,10 @@ docstring-code-format = true
 docstring-code-line-length = 20
 
 [tool.ruff.lint.per-file-ignores]
-"hydromt_wflow/__init__.py" = ["E402", "F401", "F403"]
-"hydromt_wflow/workflows/__init__.py" = ["F403"]
-"tests/**" = ["D103", "D100", "D104"]
-"tests/conftest.py" = ["E402"]
+"hydromt_wflow/__init__.py"     = ["E402", "F401", "F403"]
+"hydromt_wflow/**/__init__.py"  = ["F403"]
+"tests/**"                      = ["D103", "D100", "D104"]
+"tests/conftest.py"             = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -246,58 +287,37 @@ pandoc = "*"
 gdal = ">=3.5"
 
 # Extra python environments
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
 [tool.pixi.feature.py311.dependencies]
 python = "3.11.*"
 
-[tool.pixi.feature.py310.dependencies]
-python = "3.10.*"
-
 ## Define the environments
 [tool.pixi.environments]
-default = { features = ["py310", "dev", "docs", "examples", "extra", "test"] }
-docs = { features = ["docs", "examples", "extra"] }
-full = { features = ["extra"] }
-slim = { features = [] }
+default         = { features = ["py313", "dev", "docs", "examples", "extra", "test"] }
+docs            = { features = ["py313", "docs", "examples", "extra"] }
+full            = { features = ["py313", "extra"] }
+slim            = { features = ["py313"] }
+test-slim-py313 = { features = ["py313", "test"] }
+test-slim-py312 = { features = ["py312", "test"] }
 test-slim-py311 = { features = ["py311", "test"] }
-test-slim-py310 = { features = ["py310", "test"] }
+test-full-py313 = { features = ["py313", "extra", "test"] }
+test-full-py312 = { features = ["py312", "extra", "test"] }
 test-full-py311 = { features = ["py311", "extra", "test"] }
-test-full-py310 = { features = ["py310", "extra", "test"] }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_full",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"wflow_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt", "build", "wflow_sbm", "./wflow_test_full", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "examples" }
 build-example-model-sediment = { cmd = [
-	"hydromt",
-	"build",
-	"wflow_sediment",
-	"./wflow_test_sediment",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"wflow_sediment_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "examples" }
 build-example-model-clipped = { cmd = [
-	"hydromt",
-	"clip",
-	"wflow",
-	"wflow_piave_subbasin",
-	"./wflow_test_clip",
-	"{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}",
-	"-vv",
+  "hydromt", "clip", "wflow_sbm", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}", "-vv"
 ], cwd = "examples" }
 build-example-models = { depends-on = [
 	"build-example-model-full",
@@ -324,30 +344,10 @@ test-cov-local = { cmd = [
 	"html",
 ] }
 build-test-model-simple = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_simple",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"../examples/wflow_build.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt", "build", "wflow_sbm", "./wflow_test_simple", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "../examples/wflow_build.yml", "-d", "artifact_data", "-vv"
 ], cwd = "tests" }
 build-test-model-full = { cmd = [
-	"hydromt",
-	"build",
-	"wflow",
-	"./wflow_test_full",
-	"-r",
-	"{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-	"-i",
-	"./data/wflow_piave_build_subbasin.yml",
-	"-d",
-	"artifact_data",
-	"-vv",
+  "hydromt", "build", "wflow_sbm", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "./data/wflow_piave_build_subbasin.yml", "-d", "artifact_data", "-vv"
 ], cwd = "tests" }
 build-test-model-sediment = { cmd = [
 	"hydromt",

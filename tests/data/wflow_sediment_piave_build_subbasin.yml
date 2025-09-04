@@ -1,63 +1,69 @@
-setup_config:
-  output.netcdf_grid.path: output.nc
-  output.netcdf_grid.compressionlevel: 1
-  output.netcdf_grid.variables.soil_erosion__mass_flow_rate: soil_loss
-  output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration: suspended_solids
+steps:
+  - setup_config:
+      data:
+        output.netcdf_grid.path: output.nc
+        output.netcdf_grid.compressionlevel: 1
+        output.netcdf_grid.variables.soil_erosion__mass_flow_rate: soil_loss
+        output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration: suspended_solids
 
-setup_basemaps:
-  res: 0.016666666666666666
-  hydrography_fn: merit_hydro
-  basin_index_fn: merit_hydro_index
-  upscale_method: ihu
+  - setup_basemaps:
+      res: 0.016666666666666666
+      hydrography_fn: merit_hydro
+      basin_index_fn: merit_hydro_index
+      upscale_method: ihu
+      region:
+        subbasin: [12.2051, 45.8331]
+        strord: 4
+        bounds: [11.70, 45.35, 12.95, 46.70]
 
-setup_rivers:
-  hydrography_fn: merit_hydro
-  river_geom_fn: hydro_rivers_lin
-  river_upa: 30
-  min_rivwth: 30
-  slope_len: 2000
-  smooth_len: 5000
+  - setup_rivers:
+      hydrography_fn: merit_hydro
+      river_geom_fn: hydro_rivers_lin
+      river_upa: 30
+      min_rivwth: 30
+      slope_len: 2000
+      smooth_len: 5000
 
-setup_reservoirs:
-  reservoirs_fn: hydro_reservoirs
-  min_area: 0.0
-  trapping_default: 1.0
+  - setup_reservoirs:
+      reservoirs_fn: hydro_reservoirs
+      min_area: 0.0
+      trapping_default: 1.0
 
-setup_natural_reservoirs:
-  reservoirs_fn: hydro_lakes
-  min_area: 1.0
+  - setup_natural_reservoirs:
+      reservoirs_fn: hydro_lakes
+      min_area: 1.0
 
-setup_riverbedsed:
+  - setup_riverbedsed:
 
-setup_lulcmaps:
-  lulc_fn: globcover_2009
-  lulc_mapping_fn: globcover_mapping_default
+  - setup_lulcmaps:
+      lulc_fn: globcover_2009
+      lulc_mapping_fn: globcover_mapping_default
 
-setup_canopymaps:
-  canopy_fn: simard
+  - setup_canopymaps:
+      canopy_fn: simard
 
-setup_soilmaps:
-  soil_fn: soilgrids
-  usle_k_method: renard
-  add_aggregates: True
+  - setup_soilmaps:
+      soil_fn: soilgrids
+      usle_k_method: renard
+      add_aggregates: True
 
-setup_outlets:
-  river_only: True
+  - setup_outlets:
+      river_only: True
 
-setup_gauges:
-  gauges_fn: grdc
-  snap_to_river: True
-  derive_subcatch: False
+  - setup_gauges:
+      gauges_fn: grdc
+      snap_to_river: True
+      derive_subcatch: False
 
-setup_constant_pars:
-  sediment__particle_density: 2650
-  clay__mean_diameter: 2
-  silt__mean_diameter: 10
-  "sediment_aggregates~small__mean_diameter": 30
-  sand__mean_diameter: 200
-  "sediment_aggregates~large__mean_diameter": 500
-  gravel__mean_diameter: 2000
-  river_water_sediment__bagnold_transport_capacity_coefficient: 0.0000175
-  soil_erosion__answers_overland_flow_factor: 0.9
-  soil_erosion__eurosem_exponent: 2.0
-  river_water_sediment__bagnold_transport_capacity_exponent: 1.4
+  - setup_constant_pars:
+      sediment__particle_density: 2650
+      clay__mean_diameter: 2
+      silt__mean_diameter: 10
+      "sediment_aggregates~small__mean_diameter": 30
+      sand__mean_diameter: 200
+      "sediment_aggregates~large__mean_diameter": 500
+      gravel__mean_diameter: 2000
+      river_water_sediment__bagnold_transport_capacity_coefficient: 0.0000175
+      soil_erosion__answers_overland_flow_factor: 0.9
+      soil_erosion__eurosem_exponent: 2.0
+      river_water_sediment__bagnold_transport_capacity_exponent: 1.4

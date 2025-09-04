@@ -1,60 +1,61 @@
-setup_allocation_areas:
-  waterareas_fn: gadm_level2
-  priority_basins: True
-  output_name: allocation_areas_admin2
+steps:
+  - setup_allocation_areas:
+      waterareas_fn: gadm_level2
+      priority_basins: True
+      output_name: allocation_areas_admin2
 
-setup_allocation_surfacewaterfrac:
-  gwfrac_fn: lisflood_gwfrac
-  gwbodies_fn: lisflood_gwbodies
-  ncfrac_fn: lisflood_ncfrac
+  - setup_allocation_surfacewaterfrac:
+      gwfrac_fn: lisflood_gwfrac
+      gwbodies_fn: lisflood_gwbodies
+      ncfrac_fn: lisflood_ncfrac
 
-# Update model with GLCNMO landuse data in order to add the paddies
-setup_lulcmaps_with_paddy:
-  lulc_fn: glcnmo
-  paddy_class: 12
-  soil_fn: soilgrids
-  wflow_thicknesslayers:
-    - 50
-    - 100
-    - 50
-    - 200
-    - 800
-  target_conductivity:
-    - null
-    - null
-    - 5
-    - null
-    - null
-  paddy_waterlevels:
-    "demand_paddy_h_min": 20
-    "demand_paddy_h_opt": 50
-    "demand_paddy_h_max": 80
+  # Update model with GLCNMO landuse data in order to add the paddies
+  - setup_lulcmaps_with_paddy:
+      lulc_fn: glcnmo
+      paddy_class: 12
+      soil_fn: soilgrids
+      wflow_thicknesslayers:
+        - 50
+        - 100
+        - 50
+        - 200
+        - 800
+      target_conductivity:
+        - null
+        - null
+        - 5
+        - null
+        - null
+      paddy_waterlevels:
+        "demand_paddy_h_min": 20
+        "demand_paddy_h_opt": 50
+        "demand_paddy_h_max": 80
 
-setup_domestic_demand:
-  domestic_fn: pcr_globwb
-  population_fn: ghs_pop_2015
-  domestic_fn_original_res: 0.5
+  - setup_domestic_demand:
+      domestic_fn: pcr_globwb
+      population_fn: ghs_pop_2015
+      domestic_fn_original_res: 0.5
 
-setup_other_demand:
-  demand_fn: pcr_globwb
-  variables:
-    - industry_gross
-    - industry_net
-    - livestock_gross
-    - livestock_net
-  resampling_method: nearest
+  - setup_other_demand:
+      demand_fn: pcr_globwb
+      variables:
+        - industry_gross
+        - industry_net
+        - livestock_gross
+        - livestock_net
+      resampling_method: nearest
 
-setup_irrigation:
-  irrigated_area_fn: irrigated_area
-  irrigation_value:
-    - 1
-  cropland_class:
-    - 11
-    - 14
-    - 20
-    - 30
-  paddy_class:
-    - 12
-  area_threshold: 0.6
-  lai_threshold: 0.2
-  lulcmap_name: meta_landuse
+  - setup_irrigation:
+      irrigated_area_fn: irrigated_area
+      irrigation_value:
+        - 1
+      cropland_class:
+        - 11
+        - 14
+        - 20
+        - 30
+      paddy_class:
+        - 12
+      area_threshold: 0.6
+      lai_threshold: 0.2
+      lulcmap_name: meta_landuse
