@@ -146,6 +146,8 @@ def test_wflow_states_component_write(
 ):
     # Setup the component
     component = WflowStatesComponent(mock_model)
+    mock_model.components = {"states": component}
+
     component._data = grid_dummy_data.to_dataset(name="test_layer")
 
     # Write to a file

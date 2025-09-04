@@ -19,6 +19,7 @@ DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
     "get_config",
+    "set_config",
     "get_grid_from_config",
     "read_csv_output",
     "set_config",
@@ -326,8 +327,8 @@ def get_grid_from_config(
     # get config value
     # try with input only
     var = get_config(
-        config,
-        f"input.{var_name}",
+        key=f"input.{var_name}",
+        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
@@ -335,8 +336,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.static
         var = get_config(
-            config,
-            f"input.static.{var_name}",
+            key=f"input.static.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -347,8 +348,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.cyclic
         var = get_config(
-            config,
-            f"input.cyclic.{var_name}",
+            key=f"input.cyclic.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -377,7 +378,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config(var, "netcdf.variable.name")
+            var_name = get_config(key="netcdf.variable.name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset

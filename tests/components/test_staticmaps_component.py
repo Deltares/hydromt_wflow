@@ -251,6 +251,7 @@ def test_wflow_staticmaps_component_write(
 ):
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
+    mock_model.components = {"staticmaps": component}
 
     # Set the data like a dummy
     component._data = static_layer.to_dataset(name="layer1")

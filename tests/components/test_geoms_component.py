@@ -114,6 +114,7 @@ def test_wflow_geoms_component_set(
 
     # Add geometry and write it to disk
     comp.set(mock_geometry, name="test_geom")
+    model.components = {"geoms": comp}
     # mock for dir_input check
     type(comp.model.config).get_value = MagicMock(return_value="")
     comp.write(folder="staticgeoms")
@@ -146,6 +147,7 @@ def test_wflow_geoms_component_read_with_pattern(
     comp = WflowGeomsComponent(model=model)
     comp.set(mock_geometry, name="geom1")
     comp.set(mock_geometry, name="geom2")
+    model.components = {"geoms": comp}
     type(comp.model.config).get_value = MagicMock(return_value="")
     comp.write(folder="staticgeoms")
 
@@ -175,6 +177,7 @@ def test_wflow_geoms_component_write_to_wgs84(
     # Initialize component
     model: WflowSbmModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
+    model.components = {"geoms": comp}
     geom = mock_geometry.to_crs("EPSG:28992")
 
     # Add geometry and write it to disk in WGS84
@@ -221,6 +224,8 @@ def test_wflow_geoms_component_write_precision_defaults(
     model: WflowSbmModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
     comp.set(geometry, name="test_geom")
+    model.components = {"geoms": comp}
+
     type(comp.model.config).get_value = MagicMock(return_value="")
     comp.write(folder="")
     out_file = model.root.path / "test_geom.geojson"
@@ -253,6 +258,7 @@ def test_wflow_geoms_component_write_precision_manual(
     model: WflowSbmModel = mock_model_factory(mode="w")
     comp = WflowGeomsComponent(model=model)
     comp.set(mock_geometry, name="test_geom")
+    model.components = {"geoms": comp}
     type(comp.model.config).get_value = MagicMock(return_value="")
     comp.write(folder="", precision=precision)
     out_file = model.root.path / "test_geom.geojson"

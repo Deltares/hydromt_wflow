@@ -612,7 +612,7 @@ setting new flood_depth dimensions"
         This function adds (uncontrolled) reservoirs such as natural lakes or weirs to
         the model. It prepares rating and storage curves parameters for the reservoirs
         modelled with the following rating curve types (see
-        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html>`__ ):
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/kinwave/>`__ ):
 
         * 1 for Q = f(H) from reservoir data and interpolation
         * 2 for Q = b(H - H0)^e (general power law)
@@ -642,7 +642,8 @@ setting new flood_depth dimensions"
         * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_initial_depth** map: reservoir average water level [m]
-        * **reservoir_outflow_threshold** map: reservoir outflow threshold water level [m]
+        * **reservoir_outflow_threshold** map: reservoir outflow threshold water
+            level [m]
         * **meta_reservoir_mean_outflow** map: reservoir average discharge [m3/s]
         * **reservoir_b** map: reservoir rating curve coefficient [-]
         * **reservoir_e** map: reservoir rating curve exponent [-]
@@ -658,12 +659,23 @@ setting new flood_depth dimensions"
         reservoirs_fn : str, Path, gpd.GeoDataFrame
             Name of GeoDataFrame source for uncontrolled reservoir parameters.
 
-            * Required variables for direct use: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'reservoir_b' [-], \
-'reservoir_e' [-], 'reservoir_rating_curve' [-], 'reservoir_storage_curve' [-], \
-'reservoir_outflow_threshold' [m], 'reservoir_lower_id' [-]
-            * Required variables for parameter estimation: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
+                * Required variables for direct use:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg' [m3/s],
+                    - 'reservoir_b' [-],
+                    - 'reservoir_e' [-],
+                    - 'reservoir_rating_curve' [-],
+                    - 'reservoir_storage_curve' [-],
+                    - 'reservoir_outflow_threshold' [m],
+                    - 'reservoir_lower_id' [-]
+                * Required variables for parameter estimation:
+                    - 'waterbody_id' [-],
+                    - 'Area_avg' [m2],
+                    - 'Vol_avg' [m3],
+                    - 'Depth_avg' [m],
+                    - 'Dis_avg'[m3/s]
 
         rating_curve_fns: str, Path, pandas.DataFrame, List, optional
             Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
@@ -674,8 +686,12 @@ setting new flood_depth dimensions"
             placeholder). The ID should be placed at the end separated by an underscore
             (eg 'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
-            * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
+                * Required variables for storage curve:
+                    - 'elevtn' [m+REF],
+                    - 'volume' [m3]
+                * Required variables for rating curve:
+                    - 'elevtn' [m+REF],
+                    - 'discharge' [m3/s]
 
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
@@ -866,7 +882,7 @@ setting new flood_depth dimensions"
         This function adds reservoirs with simple control operations to the model. It
         prepares rating and storage curves parameters for the reservoirs modelled with
         the following rating curve types (see
-        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/routing/reservoirs.html>`__
+        `Wflow reservoir concepts <https://deltares.github.io/Wflow.jl/stable/model_docs/lateral/waterbodies/>`__
         ):
 
         * 4 simple reservoir operational parameters
@@ -908,19 +924,20 @@ setting new flood_depth dimensions"
 
         Adds model layers:
 
-        * **reservoir_area_id** map: reservoir IDs [-]
-        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **reservoir_area** map: reservoir area [m2]
-        * **reservoir_initial_depth** map: reservoir initial water level [m]
-        * **reservoir_rating_curve** map: option to compute rating curve [-]
-        * **reservoir_storage_curve** map: option to compute storage curve [-]
-        * **reservoir_max_volume** map: reservoir max volume [m3]
-        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
-        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
-        * **reservoir_demand** map: reservoir demand flow [m3/s]
-        * **reservoir_max_release** map: reservoir max release flow [m3/s]
-        * **meta_reservoirs_simple_control** geom: polygon with reservoirs and parameters
-        * **reservoirs** geom: polygon with all reservoirs as in the model
+            * **reservoir_area_id** map: reservoir IDs [-]
+            * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
+            * **reservoir_area** map: reservoir area [m2]
+            * **reservoir_initial_depth** map: reservoir initial water level [m]
+            * **reservoir_rating_curve** map: option to compute rating curve [-]
+            * **reservoir_storage_curve** map: option to compute storage curve [-]
+            * **reservoir_max_volume** map: reservoir max volume [m3]
+            * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
+            * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
+            * **reservoir_demand** map: reservoir demand flow [m3/s]
+            * **reservoir_max_release** map: reservoir max release flow [m3/s]
+            * **meta_reservoirs_simple_control** geom: polygon with
+                reservoirs and parameters
+            * **reservoirs** geom: polygon with all reservoirs as in the model
 
         Parameters
         ----------

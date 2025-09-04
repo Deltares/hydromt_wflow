@@ -2,15 +2,15 @@
 
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
-HYDROMT_NAMES_DEFAULT = {
+HYDROMT_NAMES_DEFAULT: dict[str, str] = {
     "glacareas": "meta_glacier_area_id",
 }
 
-HYDROMT_NAMES_DEFAULT_SEDIMENT = {
+HYDROMT_NAMES_DEFAULT_SEDIMENT: dict[str, str] = {
     "elevtn": "land_elevation",
 }
 
-HYDROMT_NAMES_COMMON = {
+HYDROMT_NAMES_COMMON: dict[str, str] = {
     "subelv": "meta_subgrid_elevation",
     "uparea": "meta_upstream_area",
     "subare": "meta_subgrid_area",
@@ -28,7 +28,7 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT.update(HYDROMT_NAMES_COMMON)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
 # {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
 # {staticmap_name: (wflow_v0, wflow_v1)}
-WFLOW_NAMES = {
+WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     # general input
     "subcatchment": {
         "wflow_v0": "subcatchment",
@@ -340,6 +340,10 @@ WFLOW_NAMES = {
         "wflow_v1": "floodplain_water__sum_of_volume-per-depth",
         "hydromt_name": "floodplain_volume",
     },
+    "floodplain_manning_n": {
+        "wflow_v0": "lateral.river.floodplain.n",
+        "wflow_v1": "floodplain_water_flow__manning_n_parameter",
+    },
     "river_bank_elevation": {
         "wflow_v0": "lateral.river.bankfull_elevation",
         "wflow_v1": "river_bank_water__elevation",
@@ -492,7 +496,7 @@ WFLOW_NAMES = {
     },
 }
 
-WFLOW_STATES_NAMES = {
+WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     "vegetation_water_depth": {
         "wflow_v0": "vertical.canopystorage",
         "wflow_v1": "vegetation_canopy_water__depth",
@@ -583,7 +587,7 @@ WFLOW_STATES_NAMES = {
     },
 }
 
-WFLOW_SEDIMENT_NAMES = {
+WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     # general input
     "subcatchment": {
         "wflow_v0": "subcatchment",
@@ -855,7 +859,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
 }
 
-WFLOW_SEDIMENT_STATES_NAMES = {
+WFLOW_SEDIMENT_STATES_NAMES: dict[str, dict[str, str | None]] = {
     "river_clay_load": {
         "wflow_v0": "lateral.river.clayload",
         "wflow_v1": "river_water_clay__mass",

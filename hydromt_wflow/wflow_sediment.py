@@ -91,11 +91,11 @@ class WflowSedimentModel(WflowBaseModel):
 
         Adds model layers:
 
-        * **river_mask** map: river mask [-]
-        * **river_length** map: river length [m]
-        * **river_width** map: river width [m]
-        * **river_slope** map: river slope [m/m]
-        * **rivers** geom: river vector based on river_mask
+            * **river_mask** map: river mask [-]
+            * **river_length** map: river length [m]
+            * **river_width** map: river width [m]
+            * **river_slope** map: river slope [m/m]
+            * **rivers** geom: river vector based on river_mask
 
         Parameters
         ----------
@@ -471,13 +471,13 @@ class WflowSedimentModel(WflowBaseModel):
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per \
-grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid \
-cell [-]
+            * **landuse** map: Landuse class [-]
+                Original source dependent LULC class, resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per
+                grid cell [-]
 
         Parameters
         ----------
@@ -590,13 +590,13 @@ cell [-]
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.
-        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
-          grid cell [-]
-        * **land_water_fraction** map: The fraction of water covered area per grid
-          cell [-]
+            * **landuse** map: Landuse class [-]
+                Original source dependent LULC class, resampled using nearest neighbour.
+            * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+            * **soil_compacted_fraction** map: The fraction of compacted or urban area
+                per grid cell [-]
+            * **land_water_fraction** map: The fraction of water covered area per grid
+              cell [-]
 
         Parameters
         ----------
@@ -695,7 +695,7 @@ cell [-]
 
         Adds model layers:
 
-        * **vegetation_height** map: height of the vegetation canopy [m]
+            * **vegetation_height** map: height of the vegetation canopy [m]
 
         Parameters
         ----------
@@ -752,27 +752,27 @@ cell [-]
 
         Adds model layers:
 
-        * **soil_clay_fraction**: clay content of the topsoil [g/g]
-        * **soil_silt_fraction**: silt content of the topsoil [g/g]
-        * **soil_sand_fraction**: sand content of the topsoil [g/g]
-        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
-        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
-        * **erosion_soil_detachability** map: mean detachability of the soil \
-(Morgan et al., 1998) [g/J]
-        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
-        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
-        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
-        * **land_govers_n** map: Govers exponent for overland flow transport \
-capacity [-]
+            * **soil_clay_fraction**: clay content of the topsoil [g/g]
+            * **soil_silt_fraction**: silt content of the topsoil [g/g]
+            * **soil_sand_fraction**: sand content of the topsoil [g/g]
+            * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
+            * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
+            * **erosion_soil_detachability** map: mean detachability of the soil
+                (Morgan et al., 1998) [g/J]
+            * **erosion_usle_k** map: soil erodibility factor from the USLE equation
+                [-]
+            * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
+            * **land_govers_c** map: Govers factor for overland flow transport
+                capacity [-]
+            * **land_govers_n** map: Govers exponent for overland flow transport
+                capacity [-]
 
 
         Parameters
         ----------
         soil_fn : {"soilgrids"}
             Name of soil data source in data_sources.yml file.
-
-            * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
-
+                * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
         usle_k_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         add_aggregates: bool, optional

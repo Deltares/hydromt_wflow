@@ -60,12 +60,14 @@ Fixed
 - **setup_floodplains**: states were not correctly added to the model config. PR #486
 - Fix wflow build config example in the docs. PR #486
 - Fix crop_factor and water_frac values for grassland in CORINE. PR #523
+- included ``floodplain_water_flow__manning_n_parameter`` in naming script (#529)
 
 Deprecated
 ----------
 
 Removed
 -------
+- Reverted use of tomlkit (#529)
 
 
 
