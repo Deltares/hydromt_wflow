@@ -12,6 +12,8 @@ from hydromt._io import _write_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
 
+from hydromt_wflow.components import utils
+
 __all__ = ["WflowForcingComponent"]
 
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -76,7 +78,7 @@ class WflowForcingComponent(GridComponent):
         Parameters
         ----------
         **kwargs : dict
-            Additional keyword arguments to be passed to the `write_nc` method.
+            Additional keyword arguments to be passed to the `read_nc` method.
         """
         # Sort which path/ filename is actually the one used
         # Hierarchy is: 1: config, 2: default from component
@@ -277,7 +279,7 @@ class WflowForcingComponent(GridComponent):
         Parameters
         ----------
         data: xarray.DataArray or xarray.Dataset
-            new map layer to add to grid
+            new map layer to add to forcing
         name: str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
@@ -288,28 +290,11 @@ class WflowForcingComponent(GridComponent):
 
         if self._region_component is not None:
             # Ensure the data is aligned with the region component (staticmaps)
-            region_grid = self._get_grid_data()
-            if not data.raster.identical_grid(region_grid):
-                y_dim = region_grid.raster.y_dim
-                x_dim = region_grid.raster.x_dim
-                # First try to rename dimensions
-                data = data.rename(
-                    {
-                        data.raster.x_dim: x_dim,
-                        data.raster.y_dim: y_dim,
-                    }
-                )
-                # Flip latitude if needed
-                if (
-                    np.diff(data[y_dim].values)[0] > 0
-                    and np.diff(region_grid[y_dim].values)[0] < 0
-                ):
-                    data = data.reindex({y_dim: data[y_dim][::-1]})
-            # Check again, this time the grid is really different if not True
-            if not data.raster.identical_grid(region_grid):
-                raise ValueError(
-                    f"Data grid must be identical to {self._region_component} component"
-                )
+            data = utils.align_grid_with_region(
+                data,
+                region_grid=self._get_grid_data(),
+                region_component_name=self._region_component,
+            )
 
         # Call set of parent class
         super().set(

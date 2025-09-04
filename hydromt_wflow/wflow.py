@@ -30,6 +30,9 @@ from hydromt_wflow.components import (
     WflowConfigComponent,
     WflowForcingComponent,
     WflowGeomsComponent,
+    WflowOutputCsvComponent,
+    WflowOutputGridComponent,
+    WflowOutputScalarComponent,
     WflowStatesComponent,
     WflowStaticmapsComponent,
     WflowTablesComponent,
@@ -83,7 +86,6 @@ class WflowModel(Model):
         **catalog_keys,
     ):
         # Define components when they are implemented
-        # This is when config_fn should be able to be passed to ConfigComponent later
         components = {
             "config": WflowConfigComponent(
                 self,
@@ -95,6 +97,13 @@ class WflowModel(Model):
             "states": WflowStatesComponent(self, region_component="staticmaps"),
             "staticmaps": WflowStaticmapsComponent(self),
             "tables": WflowTablesComponent(self),
+            "output_grid": WflowOutputGridComponent(
+                self, region_component="staticmaps"
+            ),
+            "output_scalar": WflowOutputScalarComponent(self),
+            "output_csv": WflowOutputCsvComponent(
+                self, locations_component="staticmaps"
+            ),
         }
 
         super().__init__(
@@ -108,7 +117,6 @@ class WflowModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self._results: dict | None = None
         self.data_catalog.from_yml(self._CATALOGS)
 
         # Supported Wflow.jl version
@@ -149,6 +157,21 @@ class WflowModel(Model):
     def tables(self) -> WflowTablesComponent:
         """Return the WflowTablesComponent instance."""
         return self.components["tables"]
+
+    @property
+    def output_grid(self) -> WflowOutputGridComponent:
+        """Return the WflowOutputGridComponent instance."""
+        return self.components["output_grid"]
+
+    @property
+    def output_scalar(self) -> WflowOutputScalarComponent:
+        """Return the WflowOutputScalarComponent instance."""
+        return self.components["output_scalar"]
+
+    @property
+    def output_csv(self) -> WflowOutputCsvComponent:
+        """Return the WflowOutputCsvComponent instance."""
+        return self.components["output_csv"]
 
     # Non model component properties
     @property
@@ -5558,120 +5581,19 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         # fall back on default set_states behaviour
         self.states.set(data, name=name)
 
-    @property
-    def results(self) -> Dict[str, xr.Dataset | xr.DataArray]:
-        """Model results. Returns dict of xarray.DataArray or xarray.Dataset."""
-        if self._results is None:
-            self._initialize_results()
-        return self._results
-
     @hydromt_step
-    def read_results(self):
-        """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
-        if self.root.is_reading_mode():
-            # start fresh in read-only mode
-            self._results = dict()
-
-        output_dir = self.get_config("dir_output", fallback="")
-
-        # Read gridded netcdf (output section)
-        nc_fn = self.get_config("output.netcdf_grid.path", abs_path=True)
-        nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
-        if nc_fn is not None and isfile(nc_fn):
-            logger.info(f"Read results from {nc_fn}")
-            with xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all") as ds:
-                # TODO ? align coords names and values of results nc with grid
-                self.set_results(ds, name="netcdf_grid")
-
-        # Read scalar netcdf (netcdf section)
-        ncs_fn = self.get_config("output.netcdf_scalar.path", abs_path=True)
-        ncs_fn = (
-            ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
-        )
-        if ncs_fn is not None and isfile(ncs_fn):
-            logger.info(f"Read results from {ncs_fn}")
-            with xr.open_dataset(ncs_fn, chunks={"time": 30}) as ds:
-                self.set_results(ds, name="netcdf_scalar")
-
-        # Read csv timeseries (csv section)
-        csv_fn = self.get_config("output.csv.path", abs_path=True)
-        csv_fn = (
-            csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
-        )
-        if csv_fn is not None and isfile(csv_fn):
-            csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config.data, maps=self.staticmaps.data
-            )
-            for key in csv_dict:
-                # Add to results
-                self.set_results(csv_dict[f"{key}"])
-
-    def set_results(
-        self,
-        data: xr.DataArray | xr.Dataset,
-        name: str | None = None,
-        split_dataset: bool | None = False,
-    ):
-        """Add data to results attribute.
-
-        Dataset can either be added as is (default) or split into several
-        DataArrays using the split_dataset argument.
-
-        Arguments
-        ---------
-        data: xarray.Dataset or xarray.DataArray
-            New forcing data to add
-        name: str, optional
-            Results name, required if data is xarray.Dataset and split_dataset=False.
-        split_dataset: bool, optional
-            If True (False by default), split a Dataset to store each variable
-            as a DataArray.
+    def read_outputs(self):
         """
+        Read outputs at <root/dir_output>.
 
-        def _check_data(
-            _data: xr.DataArray | xr.Dataset,
-            _name: str | None = None,
-            split_dataset: bool = True,
-        ) -> dict:
-            if isinstance(_data, xr.DataArray):
-                # NOTE _name can be different from _data.name !
-                if _data.name is None and _name is not None:
-                    _data.name = _name
-                elif _name is None and _data.name is not None:
-                    _name = _data.name
-                elif _data.name is None and _name is None:
-                    raise ValueError("Name required for DataArray.")
-                _data = {_name: _data}
-            elif isinstance(_data, xr.Dataset):  # return dict for consistency
-                if split_dataset:
-                    _data = {_name: _data[_name] for _name in _data.data_vars}
-                elif _name is None:
-                    raise ValueError("Name required for Dataset.")
-                else:
-                    _data = {_name: _data}
-            else:
-                raise ValueError(f'Data type "{type(_data).__name__}" not recognized')
-            return _data
+        Reads netcdf_grid at ``output.netcdf_grid.path``, netcdf_scalar at
+        ``output.netcdf_scalar.path`` and csv outputs at ``output.csv.path``.
 
-        self._initialize_results()
-        data_dict = _check_data(data, name, split_dataset)
-        for name in data_dict:
-            if name in self._results:
-                logger.warning(f"Replacing result: {name}")
-            self._results[name] = data_dict[name]
-
-    def _initialize_results(self, skip_read=False) -> None:
-        """Initialize results."""
-        if self._results is None:
-            self._results = dict()
-            if self.root.is_reading_mode() and not skip_read:
-                self.read_results()
-
-    @hydromt_step
-    def write_results(self):
-        """Write results at <root/?/> in model ready format."""
-        if not self.root.is_writing_mode():
-            raise IOError("Model opened in read-only mode")
+        Checks if ``dir_output`` is present.
+        """
+        self.output_grid.read()
+        self.output_scalar.read()
+        self.output_csv.read()
 
     @hydromt_step
     def read_tables(self, **kwargs):

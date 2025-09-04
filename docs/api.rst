@@ -94,7 +94,7 @@ High level and I/O methods
    WflowModel.write_states
    WflowModel.clip_states
 
-   WflowModel.read_results
+   WflowModel.read_outputs
 
    WflowModel.read_tables
    WflowModel.write_tables
@@ -106,11 +106,14 @@ Components
    :toctree: _generated
 
    WflowModel.config
-   WflowModel.forcing
    WflowModel.staticmaps
+   WflowModel.forcing
    WflowModel.states
+   WflowModel.tables
    WflowModel.geoms
-
+   WflowModel.output_grid
+   WflowModel.output_scalar
+   WflowModel.output_csv
 
 Attributes
 ----------
@@ -208,7 +211,7 @@ High level and I/O methods
    WflowSedimentModel.read_states
    WflowSedimentModel.write_states
 
-   WflowSedimentModel.read_results
+   WflowSedimentModel.read_outputs
 
 Components
 ----------
@@ -217,8 +220,14 @@ Components
    :toctree: _generated
 
    WflowSedimentModel.config
-   WflowSedimentModel.forcing
    WflowSedimentModel.staticmaps
+   WflowSedimentModel.forcing
+   WflowSedimentModel.states
+   WflowSedimentModel.tables
+   WflowSedimentModel.geoms
+   WflowSedimentModel.output_grid
+   WflowSedimentModel.output_scalar
+   WflowSedimentModel.output_csv
 
 Attributes
 ----------
@@ -260,6 +269,16 @@ WflowConfigComponent
    components.WflowConfigComponent.get_value
    components.WflowConfigComponent.remove
 
+WflowStaticmapsComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowStaticmapsComponent
+   components.WflowStaticmapsComponent.data
+   components.WflowStaticmapsComponent.drop_vars
+
 WflowForcingComponent
 ------------------------
 
@@ -287,15 +306,44 @@ WflowStatesComponent
    components.WflowStatesComponent
    components.WflowStatesComponent.data
 
-WflowStaticmapsComponent
+WflowTablesComponent
+--------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowTablesComponent
+   components.WflowTablesComponent.data
+
+WflowOutputGridComponent
 ------------------------
 
 .. autosummary::
    :toctree: _generated
 
-   components.WflowStaticmapsComponent
-   components.WflowStaticmapsComponent.data
-   components.WflowStaticmapsComponent.drop_vars
+   components.WflowOutputGridComponent
+   components.WflowOutputGridComponent.data
+   components.WflowOutputGridComponent.read
+
+WflowOutputScalarComponent
+---------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowOutputScalarComponent
+   components.WflowOutputScalarComponent.data
+   components.WflowOutputScalarComponent.read
+
+WflowOutputCsvComponent
+------------------------
+
+.. autosummary::
+   :toctree: _generated
+
+   components.WflowOutputCsvComponent
+   components.WflowOutputCsvComponent.data
+   components.WflowOutputCsvComponent.read
 
 .. _workflows:
 
@@ -355,7 +403,7 @@ Input/Output methods
 .. autosummary::
    :toctree: _generated
 
-   utils.read_csv_results
+   utils.read_csv_output
 
 Utility methods
 ---------------

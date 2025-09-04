@@ -130,7 +130,7 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_results():
+def example_wflow_outputs():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
     mod = WflowModel(root=root, mode="r", config_filename=config_fn)
