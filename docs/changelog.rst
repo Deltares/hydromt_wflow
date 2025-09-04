@@ -31,6 +31,11 @@ Changed
 - **setup_config**: the method now explicitly uses a dictionary with the options to add/update.
 - **utils.read_csv_results** has been renamed to **utils.read_csv_output**.
 - Reverted the use of TOMLkit dependency
+- Renamed ``WflowModel`` to ``WflowSbmModel``. This also affects the cli command ``hydromt <build/update> wflow``, which now becomes ``hydromt <build/update> wflow_sbm``.
+- Split ``WflowModel`` into ``WflowBaseModel`` containing all generic parts of all wflow models, like components and some setup functions, and ``WflowSbmModel``, containing the specific parts for the wflow_sbm concept.
+- ``WflowSedimentModel`` and ``WflowSbmModel`` both inherit from ``WflowBaseModel`` and extend it for their specific use cases.
+- The old ``WflowModel.setup_rivers`` has been split into three parts: ``WflowBaseModel.setup_rivers``, ``WflowSbmModel.setup_rivers`` and ``WflowSbmModel.setup_river_roughness``. Where the first contains the generic river setup logic, the second Sbm-specific implementations, and the third contains manning roughness implementations.
+
 
 
 Unreleased

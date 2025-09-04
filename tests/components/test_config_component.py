@@ -167,7 +167,7 @@ def test_wflow_config_component_read_default_read_mode(
     # Setup the component
     component = WflowConfigComponent(
         model=mock_model,
-        default_template_filename=Path(DATADIR, "wflow_sbm", "wflow_sbm.toml"),
+        default_template_filename=str(DATADIR / "wflow_sbm" / "wflow_sbm.toml"),
     )
     assert component._data is None  # Assert no data or structure yet
 

@@ -51,6 +51,99 @@ class WflowSedimentModel(WflowBaseModel):
         )
 
     @hydromt_step
+    def setup_rivers(
+        self,
+        hydrography_fn: str | xr.Dataset,
+        river_geom_fn: str | gpd.GeoDataFrame | None = None,
+        river_upa: float = 30,
+        slope_len: float = 2e3,
+        min_rivlen_ratio: float = 0.0,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
+        output_names: dict = {
+            "river_location__mask": "river_mask",
+            "river__length": "river_length",
+            "river__width": "river_width",
+            "river__slope": "river_slope",
+        },
+    ):
+        """
+        Set all river parameter maps.
+
+        The river mask is defined by all cells with a minimum upstream area threshold
+        ``river_upa`` [km2].
+
+        The river length is defined as the distance from the subgrid outlet pixel to
+        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
+        global river length to avg. cell resolution ratio and is used as a threshold in
+        window based smoothing of river length.
+
+        The river slope is derived from the subgrid elevation difference between pixels
+        at a half distance ``slope_len`` [m] up-
+        and downstream from the subgrid outlet pixel.
+
+        The river manning roughness coefficient is derived based on reclassification
+        of the streamorder map using a lookup table ``rivman_mapping_fn``.
+
+        The river width is derived from the nearest river segment in ``river_geom_fn``.
+        Data gaps are filled by the nearest valid upstream value and averaged along
+        the flow directions over a length ``smooth_len`` [m].
+
+        Adds model layers:
+
+        * **river_mask** map: river mask [-]
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_slope** map: river slope [m/m]
+        * **rivers** geom: river vector based on river_mask
+
+        Parameters
+        ----------
+        hydrography_fn : str, Path, xarray.Dataset
+            Name of RasterDataset source for hydrography data.
+            Must be same as setup_basemaps for consistent results.
+
+            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+              'elevtn'[m+REF]
+            * Optional variables: 'rivwth' [m]
+        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
+            Name of GeoDataFrame source for river data.
+
+            * Required variables: 'rivwth' [m]
+        river_upa : float, optional
+            Minimum upstream area threshold for the river map [km2]. By default 30.0
+        slope_len : float, optional
+            Length over which the river slope is calculated [km]. By default 2.0
+        min_rivlen_ratio: float, optional
+            Ratio of cell resolution used minimum length threshold in a moving
+            window based smoothing of river length, by default 0.0
+            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
+            For details about the river length smoothing,
+            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
+        smooth_len : float, optional
+            Length [m] over which to smooth the output river width,
+            by default 5e3
+        min_rivwth : float, optional
+            Minimum river width [m], by default 30.0
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+        """
+        super().setup_rivers(
+            hydrography_fn=hydrography_fn,
+            river_geom_fn=river_geom_fn,
+            river_upa=river_upa,
+            slope_len=slope_len,
+            min_rivlen_ratio=min_rivlen_ratio,
+            smooth_len=smooth_len,
+            min_rivwth=min_rivwth,
+            rivdph_method=None,
+            min_rivdph=None,
+            output_names=output_names,
+        )
+
+    @hydromt_step
     def setup_riverbedsed(
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
@@ -145,99 +238,6 @@ class WflowSedimentModel(WflowBaseModel):
         self.set_grid(ds_riversed.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_riversed.rename(rmdict).data_vars)
-
-    @hydromt_step
-    def setup_rivers(
-        self,
-        hydrography_fn: str | xr.Dataset,
-        river_geom_fn: str | gpd.GeoDataFrame | None = None,
-        river_upa: float = 30,
-        slope_len: float = 2e3,
-        min_rivlen_ratio: float = 0.0,
-        min_rivwth: float = 30,
-        smooth_len: float = 5e3,
-        output_names: dict = {
-            "river_location__mask": "river_mask",
-            "river__length": "river_length",
-            "river__width": "river_width",
-            "river__slope": "river_slope",
-        },
-    ):
-        """
-        Set all river parameter maps.
-
-        The river mask is defined by all cells with a minimum upstream area threshold
-        ``river_upa`` [km2].
-
-        The river length is defined as the distance from the subgrid outlet pixel to
-        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
-        global river length to avg. cell resolution ratio and is used as a threshold in
-        window based smoothing of river length.
-
-        The river slope is derived from the subgrid elevation difference between pixels
-        at a half distance ``slope_len`` [m] up-
-        and downstream from the subgrid outlet pixel.
-
-        The river manning roughness coefficient is derived based on reclassification
-        of the streamorder map using a lookup table ``rivman_mapping_fn``.
-
-        The river width is derived from the nearest river segment in ``river_geom_fn``.
-        Data gaps are filled by the nearest valid upstream value and averaged along
-        the flow directions over a length ``smooth_len`` [m].
-
-        Adds model layers:
-
-        * **river_mask** map: river mask [-]
-        * **river_length** map: river length [m]
-        * **river_width** map: river width [m]
-        * **river_slope** map: river slope [m/m]
-        * **rivers** geom: river vector based on river_mask
-
-        Parameters
-        ----------
-        hydrography_fn : str, Path, xarray.Dataset
-            Name of RasterDataset source for hydrography data.
-            Must be same as setup_basemaps for consistent results.
-
-            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-              'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m]
-        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
-            Name of GeoDataFrame source for river data.
-
-            * Required variables: 'rivwth' [m]
-        river_upa : float, optional
-            Minimum upstream area threshold for the river map [km2]. By default 30.0
-        slope_len : float, optional
-            Length over which the river slope is calculated [km]. By default 2.0
-        min_rivlen_ratio: float, optional
-            Ratio of cell resolution used minimum length threshold in a moving
-            window based smoothing of river length, by default 0.0
-            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
-            For details about the river length smoothing,
-            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
-        smooth_len : float, optional
-            Length [m] over which to smooth the output river width,
-            by default 5e3
-        min_rivwth : float, optional
-            Minimum river width [m], by default 30.0
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
-        """
-        super().setup_rivers(
-            hydrography_fn=hydrography_fn,
-            river_geom_fn=river_geom_fn,
-            river_upa=river_upa,
-            slope_len=slope_len,
-            min_rivlen_ratio=min_rivlen_ratio,
-            smooth_len=smooth_len,
-            min_rivwth=min_rivwth,
-            rivdph_method=None,
-            min_rivdph=None,
-            output_names=output_names,
-        )
 
     @hydromt_step
     def setup_natural_reservoirs(
@@ -942,7 +942,6 @@ capacity [-]
                 remove_maps = [
                     self._MAPS["reservoir_area_id"],
                     self._MAPS["reservoir_outlet_id"],
-                    self._MAPS["reservoir_lower_id"],
                     self._MAPS["reservoir_area"],
                     self._MAPS["reservoir_trapping_efficiency"],
                 ]

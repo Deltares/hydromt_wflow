@@ -478,6 +478,7 @@ skipping adding gauge specific outputs to the toml."
             "river__length": "river_length",
             "river__width": "river_width",
             "river__slope": "river_slope",
+            "river__depth": "river_depth",
         },
     ):
         """
@@ -489,15 +490,18 @@ skipping adding gauge specific outputs to the toml."
         The river length is defined as the distance from the subgrid outlet pixel to
         the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
         global river length to avg. cell resolution ratio and is used as a threshold in
-        window based smoothing of river length.
+        window-based smoothing of river length.
 
         The river slope is derived from the subgrid elevation difference between pixels
-        at a half distance ``slope_len`` [m] up-
-        and downstream from the subgrid outlet pixel.
+        at a half distance ``slope_len`` [m] up- and downstream from the subgrid outlet
+        pixel.
 
         The river width is derived from the nearest river segment in ``river_geom_fn``.
         Data gaps are filled by the nearest valid upstream value and averaged along
         the flow directions over a length ``smooth_len`` [m].
+
+        Optionally, river depth is derived using ``rivdph_method`` if provided
+        (default is "powlaw"). Data gaps are filled similarly to river width.
 
         Adds model layers:
 
@@ -505,6 +509,7 @@ skipping adding gauge specific outputs to the toml."
         * **river_length** map: river length [m]
         * **river_width** map: river width [m]
         * **river_slope** map: river slope [m/m]
+        * **river_depth** map: river depth [m] (if ``rivdph_method`` is not None)
         * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
@@ -514,7 +519,7 @@ skipping adding gauge specific outputs to the toml."
             Must be same as setup_basemaps for consistent results.
 
             * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-            'elevtn'[m+REF]
+            'elevtn' [m+REF]
             * Optional variables: 'rivwth' [m]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
@@ -523,22 +528,28 @@ skipping adding gauge specific outputs to the toml."
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
-            Length over which the river slope is calculated [km]. By default 2.0
+            Length [km] over which the river slope is calculated. By default 2.0
         min_rivlen_ratio: float, optional
-            Ratio of cell resolution used minimum length threshold in a moving
-            window based smoothing of river length, by default 0.0
-            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
+            Ratio of cell resolution used as a minimum length threshold in a moving
+            window-based smoothing of river length, by default 0.0.
+            The river length smoothing is skipped if `min_rivlen_ratio` = 0.
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         smooth_len : float, optional
-            Length [m] over which to smooth the output river width,
-            by default 5e3
+            Length [m] over which to smooth the output river width and depth,
+            by default 5000.0
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
+        rivdph_method : str, optional
+            Method for estimating river depth. Default is "powlaw".
+            Set to None to skip river depth estimation.
+        min_rivdph : float, optional
+            Minimum river depth [m], by default 1.0
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+            in the netcdf file. By default, includes river mask, length, width, slope,
+            and depth.
         """
         logger.info("Preparing river maps.")
         self._update_naming(output_names)

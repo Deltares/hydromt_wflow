@@ -30,6 +30,8 @@ steps:
       smooth_len: 5000             # length over which to smooth river depth and river width [m]
       river_routing: kinematic-wave   # {'kinematic-wave', 'local-inertial'}
 
+  - setup_river_roughness:
+
   # - setup_floodplains: # if 2D floodplains are required
   #     hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
   #     floodplain_type: 2d #  # If two-dimensional floodplains are required

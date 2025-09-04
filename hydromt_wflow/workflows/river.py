@@ -229,6 +229,8 @@ def river_bathymetry(
     if method is not None:
         vars0 += ["rivdph", "qbankfull"]
 
+    # find nearest values from river shape if provided
+    # if None assume the data is in ds_model
     if gdf_riv is not None:
         vars = [c for c in vars0 if c in gdf_riv.columns]
         if len(vars) == 0:
@@ -237,9 +239,11 @@ def river_bathymetry(
 
         # outlet points
         if "x_out" in ds_model and "y_out" in ds_model:
+            # get subgrid outlet pixel index and coordinates
             xs_out = ds_model["x_out"].values[riv_mask]
             ys_out = ds_model["y_out"].values[riv_mask]
         else:
+            # get river cell coordinates
             row, col = np.nonzero(riv_mask)
             xs_out = ds_model.raster.xcoords.values[col]
             ys_out = ds_model.raster.ycoords.values[row]
@@ -249,7 +253,7 @@ def river_bathymetry(
         )
         idx_nn, dst_nn = _nearest(gdf_out, gdf_riv)
 
-        # distance tolerance
+        # get valid river data within max half pixel distance
         xres, yres = ds_model.raster.res
         if ds_model.raster.crs.is_geographic:  # convert degree to meters
             lat_avg = ds_model.raster.ycoords.values.mean()
@@ -271,6 +275,8 @@ def river_bathymetry(
         vars = vars0
 
     assert "rivwth" in ds_model
+    if method is not None:
+        assert "qbankfull" in ds_model or "rivdph" in ds_model
 
     # fill gaps in data using downward filling along flow directions
     for name in vars:
@@ -295,6 +301,7 @@ def river_bathymetry(
     # optional depth
     if method is not None:
         if "rivdph" not in ds_model:
+            # distance to outlet; required for manning and gvf rivdph methods
             if method != "powlaw" and "rivdst" not in ds_model:
                 rivlen = ds_model["rivlen"].values
                 nodata = ds_model["rivlen"].raster.nodata
@@ -302,6 +309,7 @@ def river_bathymetry(
                 ds_model["rivdst"] = xr.Variable(
                     dims, rivdst, attrs=dict(_FillValue=nodata)
                 )
+            # add river distance to outlet -> required for manning/gvf method
             rivdph = river_depth(
                 data=ds_model,
                 flwdir=flwdir_river,
@@ -312,6 +320,7 @@ def river_bathymetry(
             attrs = dict(_FillValue=-9999, unit="m")
             ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
 
+        # smooth by averaging along flow directions and set minimum
         if smooth_len > 0:
             ds_model["rivdph"].values = flwdir_river.moving_average(
                 ds_model["rivdph"].values,

@@ -17,7 +17,7 @@ This plugin assists the Wflow modeller in:
 
 Two Wflow Model classes are currently available:
 
-- ``wflow`` (WflowSbmModel): class for the wflow_sbm + kinematic and wflow_sbm + local inertial concepts
+- ``wflow_sbm`` (WflowSbmModel): class for the wflow_sbm + kinematic and wflow_sbm + local inertial concepts
 - ``wflow_sediment`` (WflowSedimentModel): class for the wflow_sediment concept
 
 .. toctree::
