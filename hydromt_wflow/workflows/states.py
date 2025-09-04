@@ -1,14 +1,12 @@
 """Workflow for wflow model states."""
 
-from typing import Dict, Tuple
-
 import numpy as np
 import pandas as pd
 import xarray as xr
 from hydromt.gis import full_like
 from hydromt.model.processes.grid import grid_from_constant
 
-from ..utils import get_grid_from_config
+from hydromt_wflow.utils import get_grid_from_config
 
 __all__ = ["prepare_cold_states"]
 
@@ -19,7 +17,7 @@ def prepare_cold_states(
     timestamp: str = None,
     mask_name_land: str = "subcatchment",
     mask_name_river: str = "river_mask",
-) -> Tuple[xr.Dataset, Dict[str, str]]:
+) -> tuple[xr.Dataset, dict[str, str]]:
     """
     Prepare cold states for Wflow.
 

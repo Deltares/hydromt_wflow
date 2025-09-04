@@ -23,8 +23,12 @@ for a proper implementation of the clipped model are:
 
 See the following model API:
 
-* :py:func:`~WflowModel.clip_staticmaps`
-* :py:func:`~WflowModel.clip_forcing`
+* :py:func:`~WflowSbmModel.clip_grid`
+* :py:func:`~WflowSbmModel.clip_forcing`
+* :py:func:`~WflowSbmModel.clip_states`
+* :py:func:`~WflowSedimentModel.clip_grid`
+* :py:func:`~WflowSedimentModel.clip_forcing`
+* :py:func:`~WflowSedimentModel.clip_states`
 
 
 .. .. toctree::

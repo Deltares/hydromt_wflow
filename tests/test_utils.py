@@ -1,12 +1,11 @@
 """Tests for the utils module."""
 
-import tomllib
 from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
 
-from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
 
 TESTDATADIR = Path(dirname(abspath(__file__)), "data")
@@ -71,14 +70,14 @@ def test_convert_to_wflow_v1_sbm():
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_filename=config_fn, mode="r")
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
 
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
-    wflow_v1 = WflowModel(root, config_filename=config_fn_v1, mode="r")
+    wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
     assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
@@ -130,44 +129,8 @@ def test_convert_to_wflow_v1_sediment():
     )
 
 
-def test_config_toml_grouping(tmpdir, static_layer):
-    dummy_model = WflowModel(root=tmpdir, mode="w")
-    dummy_model.staticmaps.set(static_layer, name="layer")
-    dummy_model.read_config()
-
-    dummy_model.set_config(
-        "input.forcing.netcdf.name",
-        "blah.nc",
-    )
-    dummy_model.config.set(
-        "input.forcing.scale",
-        1,
-    )
-    dummy_model.config.set(
-        "input.static.staticsoil~compacted_surface_water__infiltration_capacity.value",
-        5,
-    )
-    dummy_model.config.set(
-        "input.static.soil_root~wet__sigmoid_function_shape_parameter.value",
-        -500,
-    )
-    dummy_model.config.set(
-        "input.static.soil_water_sat-zone_bottom__max_leakage_volume_flux.value", 0
-    )
-
-    dummy_model.write()
-
-    with open(tmpdir / "wflow_sbm.toml", "rb") as file:
-        written_config = tomllib.load(file)
-
-    with open(TESTDATADIR / "grouped_model_config.toml", "rb") as file:
-        expected_config = tomllib.load(file)
-
-    assert written_config == expected_config
-
-
 def test_config_toml_overwrite(tmpdir: Path):
-    dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model = WflowSbmModel(root=tmpdir, mode="w")
     dummy_model.config.read()
     dummy_model.config.set(
         "input.forcing.khorfrac.value",

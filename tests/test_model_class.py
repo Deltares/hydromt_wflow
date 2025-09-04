@@ -8,20 +8,21 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_base import WflowBaseModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_supported_models: dict[str, type[WflowModel]] = {
-    "wflow": WflowModel,
+_supported_models: dict[str, type[WflowBaseModel]] = {
+    "wflow": WflowSbmModel,
     "wflow_sediment": WflowSedimentModel,
-    "wflow_simple": WflowModel,
+    "wflow_simple": WflowSbmModel,
 }
 
 
-def _compare_wflow_models(mod0: WflowModel, mod1: WflowModel):
+def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}
@@ -130,12 +131,25 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
+def test_base_model_init_should_raise():
+    with pytest.raises(TypeError) as exc_info:
+        WflowBaseModel()
+
+    assert str(exc_info.value) == (
+        "``WflowBaseModel`` is an abstract class and cannot be instantiated "
+        "directly. Please use one of its subclasses defined as hydromt-entry "
+        "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
+    )
+
+
 @pytest.mark.skip(
     reason="Allow clipping again - current conflict for reading forcing and states"
 )
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
-    tmpdir: Path, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+    tmpdir: Path,
+    example_wflow_model: WflowSbmModel,
+    clipped_wflow_model: WflowSbmModel,
 ):
     model = "wflow"
 
@@ -156,7 +170,7 @@ def test_model_clip(
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
-    mod1 = WflowModel(root=destination, mode="r")
+    mod1 = WflowSbmModel(root=destination, mode="r")
     mod1.read()
     # Read reference clipped model
     clipped_wflow_model.read()
@@ -167,7 +181,7 @@ def test_model_clip(
 @pytest.mark.skip(
     reason="Allow clipping again - current conflict for reading forcing and states"
 )
-def test_model_inverse_clip(example_wflow_model: WflowModel):
+def test_model_inverse_clip(example_wflow_model: WflowSbmModel):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],

@@ -16,7 +16,7 @@ Support for additionnal Wflow concepts
 Currently only support for the SBM (kinematic wave / local inertial) and Sediment concepts are available.
 Work is now carried out to also support:
 
-- SBM + groundwater flow concept in the WflowModel class, see https://github.com/Deltares/hydromt_wflow/pull/56
+- SBM + groundwater flow concept in the WflowSbmModel class, see https://github.com/Deltares/hydromt_wflow/pull/56
 - Flextopo concept in the new WflowFlextopoMocel class, see https://github.com/Deltares/hydromt_wflow/pull/45
 
 Connection to Delft-FEWS

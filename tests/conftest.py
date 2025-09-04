@@ -15,7 +15,7 @@ from hydromt.cli._utils import parse_config
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
@@ -51,7 +51,7 @@ def build_data_catalog(build_data) -> Path:
 @pytest.fixture
 def example_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
         data_libs=[
@@ -63,7 +63,7 @@ def example_wflow_model():
 
 
 @pytest.fixture
-def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]:
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowSbmModel]:
     def factory(
         root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
         mode: str = "r",
@@ -71,14 +71,14 @@ def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowModel]
             "artifact_data",
             join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
         ],
-    ) -> WflowModel:
-        return WflowModel(root=root, mode=mode, data_libs=data_libs)
+    ) -> WflowSbmModel:
+        return WflowSbmModel(root=root, mode=mode, data_libs=data_libs)
 
     return factory
 
 
 @pytest.fixture
-def example_sediment_model():
+def example_sediment_model() -> WflowSedimentModel:
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
         root=root,
@@ -89,7 +89,9 @@ def example_sediment_model():
 
 
 @pytest.fixture
-def example_models(example_wflow_model: WflowModel, example_sediment_model):
+def example_models(
+    example_wflow_model: WflowSbmModel, example_sediment_model: WflowSedimentModel
+):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
@@ -130,17 +132,17 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_outputs():
+def example_wflow_outputs() -> WflowSbmModel:
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_filename=config_fn)
+    mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 
 @pytest.fixture
-def clipped_wflow_model(build_data_catalog):
+def clipped_wflow_model(build_data_catalog) -> WflowSbmModel:
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
         data_libs=[build_data_catalog],
@@ -149,7 +151,7 @@ def clipped_wflow_model(build_data_catalog):
 
 
 @pytest.fixture
-def floodplain1d_testdata():
+def floodplain1d_testdata() -> xr.Dataset:
     data = xr.load_dataset(
         join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
@@ -164,7 +166,7 @@ def floodplain1d_testdata():
 
 
 @pytest.fixture
-def globcover_gdf():
+def globcover_gdf() -> gpd.GeoDataFrame:
     cat = DataCatalog("artifact_data")
     globcover = cat.get_rasterdataset("globcover_2009")
     globcover_gdf = globcover.raster.vectorize()
@@ -173,7 +175,7 @@ def globcover_gdf():
 
 
 @pytest.fixture
-def planted_forest_testdata():
+def planted_forest_testdata() -> gpd.GeoDataFrame:
     bbox1 = [12.38, 46.12, 12.42, 46.16]
     bbox2 = [12.21, 46.07, 12.26, 46.11]
     gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
@@ -182,7 +184,7 @@ def planted_forest_testdata():
 
 
 @pytest.fixture
-def rivers1d():
+def rivers1d() -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     data = gpd.read_file(
         join(dirname(abspath(__file__)), "..", "examples", "data", "rivers.geojson"),
@@ -191,7 +193,7 @@ def rivers1d():
 
 
 @pytest.fixture
-def df_precip_stations():
+def df_precip_stations() -> pd.DataFrame:
     np.random.seed(42)
     time = pd.date_range(
         start="2010-02-01T00:00:00", end="2010-09-01T00:00:00", freq="D"
@@ -204,7 +206,7 @@ def df_precip_stations():
 
 
 @pytest.fixture
-def gdf_precip_stations():
+def gdf_precip_stations() -> gpd.GeoDataFrame:
     geometry = [
         # inside Piave basin
         Point(12.6, 46.6),
@@ -225,7 +227,7 @@ def gdf_precip_stations():
 
 
 @pytest.fixture
-def da_pet(example_wflow_model: WflowModel):
+def da_pet(example_wflow_model: WflowSbmModel) -> xr.DataArray:
     da = example_wflow_model.data_catalog.get_rasterdataset(
         "era5",
         geom=example_wflow_model.region,
@@ -240,7 +242,7 @@ def da_pet(example_wflow_model: WflowModel):
 
 
 @pytest.fixture
-def demda():
+def demda() -> xr.DataArray:
     np.random.seed(11)
     da = xr.DataArray(
         data=np.random.rand(15, 10),
