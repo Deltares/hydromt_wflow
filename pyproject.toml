@@ -71,10 +71,10 @@ docs = [
 	"sbom4python",
 ]
 examples = [
-  "cartopy",
-  "jupyterlab",
-  "nbconvert",
-  "notebook",
+	"cartopy",
+	"jupyterlab",
+	"nbconvert",
+	"notebook",
 ]
 extra = [
   "gwwapi",
@@ -82,7 +82,13 @@ extra = [
   "pyet",
   "wradlib",
 ]
-test = ["pytest>=2.7.3", "pytest-cov", "pytest-mock", "pytest-timeout", "pytest-benchmark"]
+test = [
+	"pytest>=2.7.3",
+	"pytest-cov",
+	"pytest-mock",
+	"pytest-timeout",
+	"pytest-benchmark",
+]
 
 [project.entry-points."hydromt.models"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"

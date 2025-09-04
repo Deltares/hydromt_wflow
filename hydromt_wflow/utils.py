@@ -2,7 +2,7 @@
 
 import logging
 from functools import reduce
-from os.path import abspath, isabs, join
+from os.path import abspath, join
 from pathlib import Path
 from typing import Any, Callable, Union
 
@@ -22,7 +22,6 @@ __all__ = [
     "set_config",
     "get_grid_from_config",
     "read_csv_output",
-    "set_config",
 ]
 
 
@@ -79,7 +78,11 @@ def get_config(
 
     if abs_path and isinstance(value, (str, Path)):
         value = Path(value)
-        if not isabs(value):
+        if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
             value = Path(abspath(join(root, value)))
 
     return value
