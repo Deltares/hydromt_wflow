@@ -1690,7 +1690,6 @@ skipping adding gauge specific outputs to the toml."
             "river_water__volume_flow_rate",
             "atmosphere_water__precipitation_volume_flux",
         ],
-        driver: str | None = None,
         **kwargs,
     ):
         """Set a gauge map based on ``gauges_fn`` data.
@@ -1812,9 +1811,6 @@ gauge locations [-] (if derive_subcatch)
                     kwargs["metadata"].update(crs=code)
                 else:
                     kwargs.update(metadata={"crs": code})
-                if not driver:
-                    driver = "geodataframe_table"
-                kwargs.update({"driver": {"name": driver}})
 
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
