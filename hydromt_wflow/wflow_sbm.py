@@ -152,15 +152,15 @@ class WflowSbmModel(WflowBaseModel):
             Name of RasterDataset source for hydrography data. Must be same as
             setup_basemaps for consistent results.
 
-            Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-            'elevtn'[m+REF]
+            * **Required variables**: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+              'elevtn' [m+REF]
 
-            Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+            * **Optional variables**: 'rivwth' [m], 'qbankfull' [m3/s]
 
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
-            Required variables: 'rivwth' [m], 'rivdph' [m] or 'qbankfull' [m3/s]
+            * **Required variables**: 'rivwth' [m], 'rivdph' [m] or 'qbankfull' [m3/s]
 
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0

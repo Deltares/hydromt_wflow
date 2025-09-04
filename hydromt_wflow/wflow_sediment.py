@@ -103,13 +103,16 @@ class WflowSedimentModel(WflowBaseModel):
             Name of RasterDataset source for hydrography data.
             Must be same as setup_basemaps for consistent results.
 
-            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-              'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m]
+            * **Required variables**: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+              'elevtn' [m+REF]
+
+            * **Optional variables**: 'rivwth' [m]
+
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
-            * Required variables: 'rivwth' [m]
+            * **Required variables**: 'rivwth' [m]
+
         river_upa : float, optional
             Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
