@@ -59,6 +59,8 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Prepare flow directions and related data from a DEM" href="prepare_ldd.html" />
+    <link rel="prev" title="Connect Wflow to a 1D model" href="connect_to_1d_model.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -143,7 +145,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../getting_started/intro.html">
     Getting started
   </a>
@@ -284,10 +286,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -302,7 +302,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../getting_started/intro.html">
     Getting started
   </a>
@@ -408,6 +408,37 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../getting_started/example_index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_model.html">Build a Wflow model from scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_sediment.html">Build a Wflow Sediment model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_landuse.html">Update a Wflow model: landuse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_forcing.html">Update a Wflow model: forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_water_demand.html">Update a wflow model: water demand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect_to_1d_model.html">Connect Wflow to a 1D model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Convert Wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -443,6 +474,12 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
+    
+    <li class="breadcrumb-item"><a href="../getting_started/intro.html" class="nav-link">Getting started</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../getting_started/example_index.html" class="nav-link">Examples</a></li>
+    
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Convert Wflow staticmaps netcdf to raster files</span></li>
   </ul>
 </nav>
@@ -479,7 +516,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">exists</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">listdir</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
 </pre></div>
 </div>
 </div>
@@ -492,7 +529,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">root</span> <span class="o">=</span> <span class="s2">&quot;wflow_piave_subbasin&quot;</span>
-<span class="n">wflow</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">wflow</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># here the staticmaps netcdf is loaded</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
@@ -656,7 +693,7 @@ argument.</p>
 </pre></div></div>
 </div>
 <p>You will need to find the <code class="docutils literal notranslate"><span class="pre">wflow</span> <span class="pre">variable</span></code> that corresponds to the map you updated, which in the case of <code class="docutils literal notranslate"><span class="pre">soil_ksat_vertical.tif</span></code> is <code class="docutils literal notranslate"><span class="pre">soil_surface_water__vertical_saturated_hydraulic_conductivity</span></code>. For information on the available wflow variables, see the <a class="reference external" href="https://deltares.github.io/Wflow.jl/stable/model_docs/parameters_intro.html">Wflow documentation</a></p>
-<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable/_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html">setup_grid_from_raster</a>.</p>
+<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable/_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_raster.html">setup_grid_from_raster</a>.</p>
 <p>In the below example, we will use python to update our model. If you wish to update via command line, the steps are:</p>
 <ol class="arabic simple">
 <li><p>Create a data catalog entry for the maps in the “updated_staticmaps” folder</p></li>
@@ -667,8 +704,8 @@ argument.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate a new WflowModel object in read/write mode (r+) to be able to update it</span>
-<span class="n">wflow</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate a new WflowSbmModel object in read/write mode (r+) to be able to update it</span>
+<span class="n">wflow</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">)</span>
 
 <span class="c1"># `KsatVer` corresponds to the `soil_surface_water__vertical_saturated_hydraulic_conductivity` variable</span>
 <span class="n">wflow_variable</span> <span class="o">=</span> <span class="s2">&quot;soil_surface_water__vertical_saturated_hydraulic_conductivity&quot;</span>
@@ -717,6 +754,24 @@ After setup_grid_from_raster: soil_ksat_vertical_updated
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="connect_to_1d_model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Connect Wflow to a 1D model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="prepare_ldd.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Prepare flow directions and related data from a DEM</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               

@@ -59,6 +59,8 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Update a wflow model: water demand" href="update_model_water_demand.html" />
+    <link rel="prev" title="Update a Wflow model: landuse" href="update_model_landuse.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -143,7 +145,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../getting_started/intro.html">
     Getting started
   </a>
@@ -284,10 +286,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -302,7 +302,7 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../getting_started/intro.html">
     Getting started
   </a>
@@ -408,6 +408,37 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../getting_started/example_index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_model.html">Build a Wflow model from scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_sediment.html">Build a Wflow Sediment model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_landuse.html">Update a Wflow model: landuse</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Update a Wflow model: forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_water_demand.html">Update a wflow model: water demand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="connect_to_1d_model.html">Connect Wflow to a 1D model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Convert Wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -443,6 +474,12 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
+    
+    <li class="breadcrumb-item"><a href="../getting_started/intro.html" class="nav-link">Getting started</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../getting_started/example_index.html" class="nav-link">Examples</a></li>
+    
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Update a Wflow model: forcing</span></li>
   </ul>
 </nav>
@@ -600,7 +637,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_forcing<span class="w"> </span>-i<span class="w"> </span>wflow_update_forcing.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_forcing<span class="w"> </span>-i<span class="w"> </span>wflow_update_forcing.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
 </pre></div>
 </div>
 </div>
@@ -609,64 +646,66 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-08-29 03:28:05,671 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
-2025-08-29 03:28:05,671 - hydromt.cli.main - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2025-08-29 03:28:05,671 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2025-08-29 03:28:05,671 - hydromt.cli.main - main - INFO - User settings:
-2025-08-29 03:28:05,842 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-08-29 03:28:05,843 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2025-08-29 03:28:06,485 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
-2025-08-29 03:28:06,486 - hydromt.model.model - model - INFO - Initializing wflow model from hydromt_wflow (v1.0.0.dev0).
-2025-08-29 03:28:06,486 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-08-29 03:28:06,498 - hydromt.hydromt_wflow.wflow - wflow - INFO - Supported Wflow.jl version v1+
-2025-08-29 03:28:06,499 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-08-29 03:28:06,500 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-08-29 03:28:07,351 - hydromt.model.components.tables - tables - INFO - Reading model table files.
-2025-08-29 03:28:07,352 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - update: setup_config
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 2, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 2, 10, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;input.path_forcing&#39;: &#39;inmaps-chirps.nc&#39;}
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - update: setup_precip_forcing
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_clim_fn=None
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - setup_precip_forcing.chunksize=None
-2025-08-29 03:28:07,354 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_fn=chirps_global
-2025-08-29 03:28:07,429 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: precip
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - update: setup_temp_pet_forcing
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.pet_method=debruin
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.press_correction=True
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_correction=True
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_correction=True
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_altitude=10
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.reproj_method=nearest_index
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.fillna_method=None
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.dem_forcing_fn=era5_orography
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.skip_pet=False
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.chunksize=None
-2025-08-29 03:28:07,431 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_pet_fn=era5
-2025-08-29 03:28:07,676 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: pet
-2025-08-29 03:28:07,682 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: temp
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - update: write_forcing
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.filename=None
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.output_frequency=M
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.time_chunk=1
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.time_units=days since 1900-01-01T00:00:00
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.decimals=2
-2025-08-29 03:28:07,685 - hydromt.model.model - model - INFO - write_forcing.overwrite=False
-2025-08-29 03:28:07,686 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2025-08-29 03:28:07,686 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Start time 2010-02-01T00:00:00.000000 does not match the beginning of the data. Changing to start of the data: 2010-02-02T00:00:00.000000000.
-2025-08-29 03:28:07,688 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing several forcing with freq M
-2025-08-29 03:28:07,694 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
-[########################################] | 100% Completed | 101.33 ms
-2025-08-29 03:28:07,815 - hydromt.model.model - model - INFO - update: write_grid
-2025-08-29 03:28:07,815 - hydromt.model.model - model - INFO - write_grid.filename=None
-2025-08-29 03:28:07,819 - hydromt._io.writers - writers - INFO - writing region data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/region.geojson
-2025-08-29 03:28:07,871 - hydromt.model.model - model - INFO - update: write_geoms
-2025-08-29 03:28:07,871 - hydromt.model.model - model - INFO - write_geoms.folder=staticgeoms
-2025-08-29 03:28:07,871 - hydromt.model.model - model - INFO - write_geoms.precision=None
-2025-08-29 03:28:07,871 - hydromt.model.model - model - INFO - write_geoms.to_wgs84=False
-2025-08-29 03:28:07,965 - hydromt.model.model - model - INFO - update: write_config
-2025-08-29 03:28:07,965 - hydromt.model.model - model - INFO - write_config.filename=None
-2025-08-29 03:28:07,966 - hydromt.model.model - model - INFO - write_config.config_root=None
-2025-08-29 03:28:07,966 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
+2025-09-04 13:27:49,981 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
+2025-09-04 13:27:49,982 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-09-04 13:27:49,982 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2025-09-04 13:27:49,982 - hydromt.cli.main - main - INFO - User settings:
+2025-09-04 13:27:50,124 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-09-04 13:27:50,124 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2025-09-04 13:27:50,766 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
+2025-09-04 13:27:50,766 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-09-04 13:27:50,766 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-09-04 13:27:50,779 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-09-04 13:27:50,779 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-09-04 13:27:50,780 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-09-04 13:27:51,639 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-09-04 13:27:51,639 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2025-09-04 13:27:51,641 - hydromt.model.model - model - INFO - update: setup_config
+2025-09-04 13:27:51,642 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 2, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 2, 10, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;input.path_forcing&#39;: &#39;inmaps-chirps.nc&#39;}
+2025-09-04 13:27:51,642 - hydromt.model.model - model - INFO - update: setup_precip_forcing
+2025-09-04 13:27:51,642 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_clim_fn=None
+2025-09-04 13:27:51,642 - hydromt.model.model - model - INFO - setup_precip_forcing.chunksize=None
+2025-09-04 13:27:51,642 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_fn=chirps_global
+2025-09-04 13:27:51,644 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading chirps_global RasterDataset data from /home/runner/.hydromt/artifact_data/latest/chirps_global.nc
+2025-09-04 13:27:51,718 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: precip
+2025-09-04 13:27:51,720 - hydromt.model.model - model - INFO - update: setup_temp_pet_forcing
+2025-09-04 13:27:51,720 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.pet_method=debruin
+2025-09-04 13:27:51,720 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.press_correction=True
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_correction=True
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_correction=True
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_altitude=10
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.reproj_method=nearest_index
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.fillna_method=None
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.dem_forcing_fn=era5_orography
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.skip_pet=False
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.chunksize=None
+2025-09-04 13:27:51,721 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_pet_fn=era5
+2025-09-04 13:27:51,723 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5.nc
+2025-09-04 13:27:51,765 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5_orography RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5_orography.nc
+2025-09-04 13:27:51,969 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: pet
+2025-09-04 13:27:51,975 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: temp
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - update: write_forcing
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.filename=None
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.output_frequency=M
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.time_chunk=1
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.time_units=days since 1900-01-01T00:00:00
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.decimals=2
+2025-09-04 13:27:51,979 - hydromt.model.model - model - INFO - write_forcing.overwrite=False
+2025-09-04 13:27:51,979 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2025-09-04 13:27:51,979 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Start time 2010-02-01T00:00:00.000000 does not match the beginning of the data. Changing to start of the data: 2010-02-02T00:00:00.000000000.
+2025-09-04 13:27:51,981 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing several forcing with freq M
+2025-09-04 13:27:51,987 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+[########################################] | 100% Completed | 101.34 ms
+2025-09-04 13:27:52,109 - hydromt.model.model - model - INFO - update: write_grid
+2025-09-04 13:27:52,109 - hydromt.model.model - model - INFO - write_grid.filename=None
+2025-09-04 13:27:52,158 - hydromt.model.model - model - INFO - update: write_geoms
+2025-09-04 13:27:52,159 - hydromt.model.model - model - INFO - write_geoms.folder=staticgeoms
+2025-09-04 13:27:52,159 - hydromt.model.model - model - INFO - write_geoms.precision=None
+2025-09-04 13:27:52,159 - hydromt.model.model - model - INFO - write_geoms.to_wgs84=False
+2025-09-04 13:27:52,254 - hydromt.model.model - model - INFO - update: write_config
+2025-09-04 13:27:52,255 - hydromt.model.model - model - INFO - write_config.filename=None
+2025-09-04 13:27:52,255 - hydromt.model.model - model - INFO - write_config.config_root=None
+2025-09-04 13:27:52,255 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -688,10 +727,10 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load both models with hydromt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
 
-<span class="n">model0</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
-<span class="n">model1</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_forcing&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">model0</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">model1</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_forcing&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -761,6 +800,24 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="update_model_landuse.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Update a Wflow model: landuse</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="update_model_water_demand.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Update a wflow model: water demand</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               

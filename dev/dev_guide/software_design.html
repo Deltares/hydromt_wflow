@@ -484,26 +484,33 @@ The package is designed to be <strong>modular</strong>, <strong>extensible</stro
 <section id="overview">
 <span id="software-design"></span><h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>HydroMT-Wflow is used as a Python library or as a command-line tool using YAML (.yml) configuration files.</p>
-<p>To keep usage relatively simple, the package is designed around a single <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> object, which is used to build, modify, and export Wflow models.
-Users interact with the package primarily through YAML files, which are translated into function calls on the <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> class.</p>
-<p>This means that end users do not need to worry or know about the underlying components, workflows, or processes.
-The only way that people can interact with / use Hydromt-Wflow, will be the public methods in <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code>.
-Even users that prefer the yml files will be using only the public functions (or <code class="docutils literal notranslate"><span class="pre">hydromt_step</span></code>) of <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code>, which are a 1 to 1 mapping to these functions as well.</p>
-<p>Only the public methods of <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> can be a <code class="docutils literal notranslate"><span class="pre">hydromt_step</span></code>.
+<p>To keep usage relatively simple, the package is designed around a single <code class="docutils literal notranslate"><span class="pre">WflowBaseModel</span></code> object, which should never be used directly by end-users.
+Its subclasses, which are <code class="docutils literal notranslate"><span class="pre">WflowSbmModel</span></code> and <code class="docutils literal notranslate"><span class="pre">WflowSedimentModel</span></code>, are used to build, modify, and export Wflow models.</p>
+<p>To allow for extensions and customizations for specific use cases, the <code class="docutils literal notranslate"><span class="pre">WflowBaseModel</span></code> class contains the generic components, methods and properties that are common across all Wflow models.
+Any specific implementations and behaviors are meant to be defined in subclasses.
+From now, we will refer to these models collectively as <code class="docutils literal notranslate"><span class="pre">Model</span></code> for simplicity, but it is important to note that the principles and guidelines apply to all these classes.</p>
+<p>Users interact with the package primarily through YAML files, which are translated into function calls on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class.
+This means that end users do not need to worry or know about the underlying components, workflows, or processes.
+The only way that people should interact with / use Hydromt-Wflow, will be the public methods in <code class="docutils literal notranslate"><span class="pre">Model</span></code>.
+Functions used in yml files correspond 1-to-1 to public model functions decorated with <code class="docutils literal notranslate"><span class="pre">hydromt_step`</span></code>.
+Only the public methods of <code class="docutils literal notranslate"><span class="pre">Model</span></code> are allowed to be a <code class="docutils literal notranslate"><span class="pre">hydromt_step</span></code>.
 Components and workflows cannot be used directly as <code class="docutils literal notranslate"><span class="pre">hydromt_step</span></code> callables.</p>
 </section>
-<section id="wflowmodel-as-orchestrator">
-<h2>WflowModel as Orchestrator<a class="headerlink" href="#wflowmodel-as-orchestrator" title="Link to this heading">#</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> class is designed to serve as an orchestrator or manager for the other parts of the codebase.</p>
+<section id="model-as-orchestrator">
+<h2>Model as Orchestrator<a class="headerlink" href="#model-as-orchestrator" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Model</span></code> class is designed to serve as an orchestrator or manager for the other parts of the codebase.</p>
 <p>It combines components, workflows, and processes, but does <strong>not</strong> contain the actual implementation logic or complexity.</p>
-<p>All the methods in <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> are simple and delegate the real work to the respective components.</p>
-<p>Currently, some <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> methods do combine logic from multiple components.</p>
-<p>For instance, the forcing component may need configuration settings from the config component, and then need to use the data from the grid component. However, to keep these components ignorant of each other, the WflowModel class will be the connection.</p>
-<p>This design choice is intentional: <strong>any logic that requires coordination between multiple components should be placed in ``WflowModel``.</strong></p>
+<p>All the methods in <code class="docutils literal notranslate"><span class="pre">Model</span></code> are simple and delegate the real work to the respective components and workflows.</p>
+<p>Currently, some <code class="docutils literal notranslate"><span class="pre">Model</span></code> methods do combine logic from multiple components.</p>
+<p>For instance, the forcing component may need configuration settings from the config component, and then need to use the data from the grid component. However, to keep these components ignorant of each other, the WflowBaseModel class will be the connection.</p>
+<p>This design choice is intentional: <strong>any interaction between multiple components has to go through public methods on the ``Model`` class.</strong>
+Methods often require knowledge of multiple components and their interactions (e.g. write_forcing requires access to the config and grid).
+To encourage reduced coupling, components are allowed to call public functions on the Model class.
+This way <code class="docutils literal notranslate"><span class="pre">set_config</span></code>, <code class="docutils literal notranslate"><span class="pre">get_config</span></code>, <code class="docutils literal notranslate"><span class="pre">set_grid</span></code>, etc, can be used without needing to know about the internals of other components.</p>
 </section>
-<section id="typical-method-structure-in-wflowmodel">
-<h2>Typical Method Structure in WflowModel<a class="headerlink" href="#typical-method-structure-in-wflowmodel" title="Link to this heading">#</a></h2>
-<p>Every method in the <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> class should generally follow these steps:</p>
+<section id="typical-method-structure-in-model">
+<h2>Typical Method Structure in Model<a class="headerlink" href="#typical-method-structure-in-model" title="Link to this heading">#</a></h2>
+<p>Every method in the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class should generally follow these steps:</p>
 <ol class="arabic">
 <li><p><strong>Data Retrieval</strong></p>
 <blockquote>
@@ -515,7 +522,7 @@ For example, reading data from the catalog or retrieving internal component stat
 <blockquote>
 <div><p>Based on the inputs and retrieved data, determine which components, methods, or workflows to call, then pass the validated inputs to the appropriate methods.</p>
 <p>This may involve calling methods from <code class="docutils literal notranslate"><span class="pre">config</span></code>, <code class="docutils literal notranslate"><span class="pre">grid</span></code>, <code class="docutils literal notranslate"><span class="pre">forcing</span></code>, <code class="docutils literal notranslate"><span class="pre">geoms</span></code>, or any workflow logic.</p>
-<p><strong>Important</strong>: Each component should only use its own methods or public methods from <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code>, components must <strong>not</strong> access or depend on other components directly.</p>
+<p><strong>Important</strong>: Each component should only use its own methods or public methods from <code class="docutils literal notranslate"><span class="pre">Model</span></code>, components must <strong>not</strong> access or depend on other components directly.</p>
 </div></blockquote>
 </li>
 <li><p><strong>Output Handling</strong></p>
@@ -525,11 +532,12 @@ Outputs may be stored in components or returned to the user.</p>
 </div></blockquote>
 </li>
 </ol>
-<p>An example method structure using made up method names in <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> might look like this:</p>
+<p>An example method structure using made up method names in <code class="docutils literal notranslate"><span class="pre">Model</span></code> might look like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wflow_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowBaseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">components</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForcingComponent</span><span class="p">,</span> <span class="n">ConfigComponent</span><span class="p">,</span> <span class="n">DataCatalog</span><span class="p">,</span> <span class="n">GridComponent</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">WflowModel</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WflowExampleModel</span><span class="p">(</span><span class="n">WflowBaseModel</span><span class="p">):</span>
   <span class="n">forcing</span><span class="p">:</span> <span class="n">ForcingComponent</span>
   <span class="n">config</span><span class="p">:</span> <span class="n">ConfigComponent</span>
   <span class="n">data_catalog</span><span class="p">:</span> <span class="n">DataCatalog</span>
@@ -540,7 +548,7 @@ Outputs may be stored in components or returned to the user.</p>
     <span class="n">config_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;setting1&quot;</span><span class="p">)</span> <span class="c1"># eg get starttime and endtime</span>
     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">config_data</span><span class="p">)</span>
 
-    <span class="c1"># Step 2: Delegation to components</span>
+    <span class="c1"># Step 2: Delegation to components and workflows</span>
     <span class="n">partial_result</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">example_workflow1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">example_workflow2</span><span class="p">(</span><span class="n">partial_result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">model_option1</span><span class="p">)</span>
 
@@ -561,20 +569,20 @@ It also allows the components and workflows to focus on their specific tasks wit
 <ul>
 <li><p><strong>Encapsulation and Independence</strong></p>
 <p>Each component is self-contained and independent.
-It must not call or depend on any other components or internal attributes of <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code>.
+It must not call or depend on any other components or internal attributes of <code class="docutils literal notranslate"><span class="pre">Model</span></code>.
 This ensures components are easily replaceable and extensible without impacting the system as a whole.
 For example:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">grid</span></code> must not access <code class="docutils literal notranslate"><span class="pre">config</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">forcing</span></code> must not use <code class="docutils literal notranslate"><span class="pre">grid</span></code></p></li>
 </ul>
-<p>Instead, components should expose methods that can be called by <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> that will take in and or return the necessary data, which can then be passed to other components or workflows as needed.</p>
+<p>Instead, components should expose methods that can be called by <code class="docutils literal notranslate"><span class="pre">Model</span></code> that will take in and or return the necessary data, which can then be passed to other components or workflows as needed.</p>
 </li>
 <li><p><strong>Strict Typing and Interfaces</strong></p>
 <p>Component methods should have narrow and well-defined type signatures.
 This improves clarity, maintainability, and testability.
 Broad or ambiguous argument types (e.g., <code class="docutils literal notranslate"><span class="pre">data_like</span></code> in the datacatalog, which might be a <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">Path</span></code>, <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">xr.Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>) are <strong>not allowed</strong> in component methods.</p>
-<p>Any such type resolution or transformation must be handled in the <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> before calling component methods.
+<p>Any such type resolution or transformation must be handled in the <code class="docutils literal notranslate"><span class="pre">Model</span></code> before calling component methods.
 This also means that components might have multiple methods for different data types.</p>
 </li>
 <li><p><strong>Validation</strong>
@@ -585,11 +593,11 @@ This can include checking types, formats, values, and asserting read/write modes
 <section id="workflows">
 <h2>Workflows<a class="headerlink" href="#workflows" title="Link to this heading">#</a></h2>
 <p>Workflows are functions that combine primitive data and model operations into higher-level processes.
-They are defined in the <code class="docutils literal notranslate"><span class="pre">workflows</span></code> module and can be called from <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code> methods.
+They are defined in the <code class="docutils literal notranslate"><span class="pre">workflows</span></code> module and can be called from <code class="docutils literal notranslate"><span class="pre">Model</span></code> methods.
 Workflows should follow these principles:
 - <strong>Single Responsibility</strong>: Each workflow should perform a specific task or process.
 - <strong>Reusability</strong>: Workflows should be designed to be reusable across different components and methods.
-- <strong>No Direct Component Access</strong>: Workflows should not directly access or modify component states. Instead, they should operate on data passed to them from <code class="docutils literal notranslate"><span class="pre">WflowModel</span></code>.
+- <strong>No Direct Component Access</strong>: Workflows should not directly access or modify component states. Instead, they should operate on data passed to them from <code class="docutils literal notranslate"><span class="pre">WflowBaseModel</span></code>.
 - <strong>Validation</strong>: Workflows should validate their inputs and outputs to ensure correctness.
 - <strong>Naming Conventions</strong>: workflows work with the hydromt-naming conventions, and should also handle the renaming between hydromt-names and wflow names.</p>
 </section>
@@ -634,8 +642,8 @@ Workflows should follow these principles:
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wflowmodel-as-orchestrator">WflowModel as Orchestrator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-method-structure-in-wflowmodel">Typical Method Structure in WflowModel</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-as-orchestrator">Model as Orchestrator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-method-structure-in-model">Typical Method Structure in Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#component-design-principles">Component Design Principles</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows">Workflows</a></li>
 </ul>

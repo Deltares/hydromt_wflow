@@ -45,6 +45,8 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/example_index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -56,7 +58,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Frequently asked questions" href="faq.html" />
+    <link rel="next" title="Build a Wflow model from scratch" href="../_examples/build_model.html" />
     <link rel="prev" title="Installation Guide" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -413,7 +415,22 @@
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Examples</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/build_model.html">Build a Wflow model from scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/build_sediment.html">Build a Wflow Sediment model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/update_model_landuse.html">Update a Wflow model: landuse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/update_model_forcing.html">Update a Wflow model: forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/update_model_water_demand.html">Update a wflow model: water demand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/connect_to_1d_model.html">Connect Wflow to a 1D model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">Convert Wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Plot Wflow forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_results.html">Plot Wflow outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
 </ul>
@@ -477,7 +494,7 @@
                 <article class="bd-article">
                   
   <section id="examples">
-<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" />
 </a>
 <p>This folder contains several iPython notebook examples for <strong>HydroMT-wflow</strong>.</p>
@@ -570,31 +587,33 @@ after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
 <h2>List of examples<a class="headerlink" href="#list-of-examples" title="Link to this heading">#</a></h2>
 <p>For a static (non-interactive) view of the examples follow one of the links below:</p>
 <p><strong>Build model from command line interface</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../_examples/build_model.html"><span class="doc">Build Wflow model</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/build_sediment.html"><span class="doc">Build Wflow sediment model</span></a></p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/build_model.html">Build a Wflow model from scratch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/build_sediment.html">Build a Wflow Sediment model</a></li>
 </ul>
+</div>
 <p><strong>Update model from command line interface</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../_examples/update_model_landuse.html"><span class="doc">Update Wflow model: landuse</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/update_model_forcing.html"><span class="doc">Update Wflow model: forcing</span></a></p></li>
-<li><p><a class="reference external" href="../_examples/update_model_gauges.ipynb">Update Wflow model: gauges</a></p></li>
-<li><p><a class="reference internal" href="../_examples/update_model_water_demand.html"><span class="doc">Update Wflow model: water demands</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/connect_to_1d_model.html"><span class="doc">Update Wflow model (python): connect to a 1D river model</span></a></p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/update_model_landuse.html">Update a Wflow model: landuse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/update_model_forcing.html">Update a Wflow model: forcing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/update_model_water_demand.html">Update a wflow model: water demand</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/connect_to_1d_model.html">Connect Wflow to a 1D model</a></li>
 </ul>
-<p><strong>Clip model from command line interface</strong></p>
-<ul class="simple">
-<li><p><a class="reference external" href="../_examples/clip_model.ipynb">Clip Wflow model</a></p></li>
-</ul>
+</div>
 <p><strong>Pre- Post-processing and visualization</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html"><span class="doc">Convert wflow staticmaps netcdf to raster files</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/prepare_ldd.html"><span class="doc">Prepare flow directions and related maps from a DEM</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html"><span class="doc">Plot Wflow static maps</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/plot_wflow_forcing.html"><span class="doc">Plot Wflow forcing data</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/plot_wflow_results.html"><span class="doc">Plot Wflow results data</span></a></p></li>
-<li><p><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html"><span class="doc">Upgrade to Wflow.jl version 1</span></a></p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">Convert Wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/prepare_ldd.html#Deriving-other-DEM-and-flow-directions-related-data">Deriving other DEM and flow directions related data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Plot Wflow forcing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/plot_wflow_results.html">Plot Wflow outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 </ul>
+</div>
 </section>
 </section>
 
@@ -618,11 +637,11 @@ after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
       </div>
     </a>
     <a class="right-next"
-       href="faq.html"
+       href="../_examples/build_model.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Frequently asked questions</p>
+        <p class="prev-next-title">Build a Wflow model from scratch</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -651,7 +670,9 @@ after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-examples">3 - Running the examples</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#list-of-examples">List of examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#list-of-examples">List of examples</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
 </ul>
   </nav></div>
 

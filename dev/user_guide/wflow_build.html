@@ -494,13 +494,14 @@
 <span id="wflow-build"></span><h1>Building a model<a class="headerlink" href="#building-a-model" title="Link to this heading">#</a></h1>
 <p>This plugin allows to build a complete model from available data. Once the configuration and
 data libraries are set, you can build a model by using:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">hydromt build wflow path/to/built_model -r &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_build.yml -d data_sources.yml -vvv</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">hydromt build wflow_sbm path/to/built_model -i wflow_build.yml -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or --region flag.
-The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.</p>
+The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
+From HydroMT version 1.0 onwards, the region argument has been moved to <code class="docutils literal notranslate"><span class="pre">setup_basemaps</span></code> function arguments and is no longer available via cli.</p>
 </div>
 <p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">region options</a>
 for a proper implementation of this model are:</p>
@@ -556,6 +557,8 @@ to a model component with the same name.</p>
 <span class="w">      </span><span class="nt">slope_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
 <span class="w">      </span><span class="nt">smooth_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
 <span class="w">      </span><span class="nt">river_routing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinematic-wave</span><span class="w">   </span><span class="c1"># {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_river_roughness</span><span class="p">:</span>
 
 <span class="w">  </span><span class="c1"># - setup_floodplains: # if 2D floodplains are required</span>
 <span class="w">  </span><span class="c1">#     hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>

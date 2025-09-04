@@ -588,7 +588,10 @@
         <span class="n">config_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Write config to &lt;(config_)root/config_fn&gt;.</span>
+<span class="sd">        Write the configuration to a file.</span>
+
+<span class="sd">        The file is written to ``&lt;root&gt;/&lt;filename&gt;`` by default, or to</span>
+<span class="sd">        ``&lt;config_root&gt;/&lt;filename&gt;`` if a ``config_root`` is provided.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
