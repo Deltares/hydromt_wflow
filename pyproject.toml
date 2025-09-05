@@ -101,13 +101,24 @@ Source = "https://github.com/Deltares/hydromt_wflow"
 ## Pytest and coverage
 [tool.pytest.ini_options]
 filterwarnings = [
-	# Error on below warning(s), since this can result in significant bugs
-	"error::pandas.errors.SettingWithCopyWarning",
+	# Turn all warnings into errors, except those we specifically ignore below
+	"error",
+
+	# Ignore harmless numpy warnings that numpy itself ignores, but due to the `error` above, we overwrite.
+	# The latest netcdf4 release is always tested against the latest numpy release, so this should be safe.
+	# https://github.com/Unidata/netcdf4-python/issues/1354
+	# https://github.com/numpy/numpy/blob/398917323d3ee430161d3001384c8b5071f207e0/numpy/__init__.py#L705
+	"ignore:numpy.ndarray size changed:RuntimeWarning",
+
 	# Ignore below warning(s) for now. Check and resolve when hydromt v1 PR is done
 	"ignore::Warning:hydromt.*",
 	"ignore::Warning:wradlib.*",
 	"ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
-	# Ignore below warning(s), they are not raised in/caused by hydromt_wflow
+
+	# Ignore upstream warnings, to be fixed in future releases
+	"ignore:Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned:rasterio.errors.NotGeoreferencedWarning",                              # upstream issue with rasterio, see https://github.com/rasterio/rasterio/issues/2497
+	"ignore:Bitwise inversion '~' on bool is deprecated:DeprecationWarning",
+    "ignore:Conversion of an array with ndim > 0 to a scalar is deprecated:DeprecationWarning",
 	"ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
 ]
 testpaths = ["tests"]
