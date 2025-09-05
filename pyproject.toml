@@ -110,12 +110,11 @@ filterwarnings = [
 	# https://github.com/numpy/numpy/blob/398917323d3ee430161d3001384c8b5071f207e0/numpy/__init__.py#L705
 	"ignore:numpy.ndarray size changed:RuntimeWarning",
 
-	# Ignore below warning(s) for now. Check and resolve when hydromt v1 PR is done
-	"ignore::Warning:hydromt.*",
-	"ignore::Warning:wradlib.*",
-	"ignore:Using iterating over the DataCatalog directly is deprecated:DeprecationWarning",
+	# raised in Zhang function in rootzoneclim.py TODO check and fix
+	"ignore:overflow encountered in scalar power:RuntimeWarning",
 
 	# Ignore upstream warnings, to be fixed in future releases
+	"ignore::Warning:wradlib.*", # `nnearest` is larger than number of source points
 	"ignore:Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned:rasterio.errors.NotGeoreferencedWarning",                              # upstream issue with rasterio, see https://github.com/rasterio/rasterio/issues/2497
 	"ignore:Bitwise inversion '~' on bool is deprecated:DeprecationWarning",
     "ignore:Conversion of an array with ndim > 0 to a scalar is deprecated:DeprecationWarning",

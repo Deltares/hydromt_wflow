@@ -530,7 +530,7 @@ please use one of [gww, jrc] or None."
 
     # Then compute from EO data and fill or replace the previous values
     # (if a valid source is provided)
-    gdf = gdf.fillna(value=np.nan).infer_objects(copy=False)
+    gdf = gdf.where(pd.notna(gdf), np.nan).infer_objects(copy=False)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
