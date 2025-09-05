@@ -1533,6 +1533,6 @@ def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmpdir: Path):
     example_wflow_model.read_states()
 
     xrt.assert_equal(
-        xr.merge(states.values()),
-        xr.merge(example_wflow_model.states.data.values()),
+        xr.merge(states.values(), compat="override"),
+        xr.merge(example_wflow_model.states.data.values(), compat="override"),
     )
