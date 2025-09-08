@@ -96,7 +96,6 @@ def derive_riv1d_edges(
     riv1d_edges_outlet_id = riv1d_edges.index[0]
     # Rasterize the riv1d_edges
     riv1d_edges_raster = ds_model.raster.rasterize(riv1d_edges, col_name="index")
-    mask = riv1d_edges_raster == riv1d_edges_raster.raster.nodata
     mask = flwdir.downstream(riv1d_edges_raster.values)
     # Find the downstream ID of each edge
     idxs_edge, _ = flwdir.snap(
@@ -340,6 +339,49 @@ def buffer_basin_mask(
     return basin_mask
 
 
+def snap_river_endpoints(
+    gdf_riv: gpd.GeoDataFrame,
+    geom_snapping_tolerance: float,
+    logger: logging.Logger = logger,
+) -> gpd.GeoDataFrame:
+    """Snap river endpoints that are close to each other."""
+    logger.info(
+        f"Snapping river segments using geom_snapping_tolerance = "
+        f"{geom_snapping_tolerance}."
+    )
+
+    # Extract endpoints of each line geometry
+    endpoints = []
+    for geom in gdf_riv.geometry:
+        if isinstance(geom, LineString):
+            endpoints.append(Point(geom.coords[0]))  # start point
+            endpoints.append(Point(geom.coords[-1]))  # end point
+
+    # Create a GeoSeries of endpoints
+    endpoint_gs = gpd.GeoSeries(endpoints)
+
+    # Snap each line geometry to nearby endpoints
+    snapped_geometries = []
+    snapped_count = 0
+    for geom in gdf_riv.geometry:
+        snapped_geom = geom
+        for point in endpoint_gs:
+            new_geom = snap(snapped_geom, point, geom_snapping_tolerance)
+            if new_geom != snapped_geom:
+                snapped_geom = new_geom
+                snapped_count += 1
+        snapped_geometries.append(snapped_geom)
+
+    # Update the geometry in the GeoDataFrame
+    gdf_riv.geometry = snapped_geometries
+    logger.info(
+        f"{snapped_count} river segments were snapped. "
+        "Update `geom_snapping_tolerance` if this leads to issues."
+    )
+
+    return gdf_riv
+
+
 def subbasin_preprocess_river_geometry(
     gdf_riv: gpd.GeoDataFrame,
     basin_buffer_cells: int,
@@ -370,38 +412,10 @@ def subbasin_preprocess_river_geometry(
 
     # Snapping
     if geom_snapping_tolerance > 0:
-        logger.info(
-            f"Snapping river segments using geom_snapping_tolerance = "
-            f"{geom_snapping_tolerance}."
-        )
-
-        # Extract endpoints of each line geometry
-        endpoints = []
-        for geom in gdf_riv.geometry:
-            if isinstance(geom, LineString):
-                endpoints.append(Point(geom.coords[0]))  # start point
-                endpoints.append(Point(geom.coords[-1]))  # end point
-
-        # Create a GeoSeries of endpoints
-        endpoint_gs = gpd.GeoSeries(endpoints)
-
-        # Snap each line geometry to nearby endpoints
-        snapped_geometries = []
-        snapped_count = 0
-        for geom in gdf_riv.geometry:
-            snapped_geom = geom
-            for point in endpoint_gs:
-                new_geom = snap(snapped_geom, point, geom_snapping_tolerance)
-                if new_geom != snapped_geom:
-                    snapped_geom = new_geom
-                    snapped_count += 1
-            snapped_geometries.append(snapped_geom)
-
-        # Update the geometry in the GeoDataFrame
-        gdf_riv.geometry = snapped_geometries
-        logger.info(
-            f"{snapped_count} river segments were snapped. "
-            "Update `geom_snapping_tolerance` if this leads to issues."
+        gdf_riv = snap_river_endpoints(
+            gdf_riv=gdf_riv,
+            geom_snapping_tolerance=geom_snapping_tolerance,
+            logger=logger,
         )
 
     if gdf_riv.empty:
