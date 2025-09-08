@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from hydromt._io.readers import _read_toml
-from hydromt._io.writers import _write_toml
+from hydromt._io.writers import write_toml
 from hydromt.model import Model
 from hydromt.model.components import ConfigComponent
 
@@ -125,7 +125,10 @@ class WflowConfigComponent(ConfigComponent):
         config_root: Path | str | None = None,
     ):
         """
-        Write config to <(config_)root/config_fn>.
+        Write the configuration to a file.
+
+        The file is written to ``<root>/<filename>`` by default, or to
+        ``<config_root>/<filename>`` if a ``config_root`` is provided.
 
         Parameters
         ----------
@@ -155,7 +158,7 @@ class WflowConfigComponent(ConfigComponent):
             # Extra check for dir_input
             rel_path = Path(write_path.parent, self.get_value("dir_input", fallback=""))
             write_data = make_config_paths_relative(self.data, rel_path)
-            _write_toml(write_path, write_data)
+            write_toml(write_path, write_data)
         else:
             logger.warning("Model config has no data, skip writing.")
 

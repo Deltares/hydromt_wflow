@@ -9,7 +9,7 @@ import xarray as xr
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowStaticmapsComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 
 @pytest.fixture
@@ -202,7 +202,7 @@ def test_wflow_staticmaps_component_update_names_warming(
 
 
 def test_wflow_staticmaps_component_read(
-    mock_model_factory: Callable[[Path, str], WflowModel],
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
     model_subbasin_cached: Path,
 ):
     # Set the root to model dir in read mode
@@ -251,6 +251,7 @@ def test_wflow_staticmaps_component_write(
 ):
     # Setup the component
     component = WflowStaticmapsComponent(mock_model)
+    mock_model.components = {"staticmaps": component}
 
     # Set the data like a dummy
     component._data = static_layer.to_dataset(name="layer1")

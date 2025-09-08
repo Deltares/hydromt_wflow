@@ -15,7 +15,7 @@ To clip a smaller model from an existing one use:
     activate hydromt-wflow
     hydromt clip wflow path/to/model_to_clip path/to/clipped_model "{'basin' [1001]}" -vvv
 
-As for building, the recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
+As for building, the recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of the clipped model are:
 
 - basin
@@ -23,8 +23,12 @@ for a proper implementation of the clipped model are:
 
 See the following model API:
 
-* :py:func:`~WflowModel.clip_staticmaps`
-* :py:func:`~WflowModel.clip_forcing`
+* :py:func:`~WflowSbmModel.clip_grid`
+* :py:func:`~WflowSbmModel.clip_forcing`
+* :py:func:`~WflowSbmModel.clip_states`
+* :py:func:`~WflowSedimentModel.clip_grid`
+* :py:func:`~WflowSedimentModel.clip_forcing`
+* :py:func:`~WflowSedimentModel.clip_states`
 
 
 .. .. toctree::

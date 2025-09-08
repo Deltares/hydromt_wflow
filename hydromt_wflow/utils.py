@@ -2,9 +2,9 @@
 
 import logging
 from functools import reduce
-from os.path import abspath, isabs, join
+from os.path import abspath, join
 from pathlib import Path
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Union
 
 import geopandas as gpd
 import numpy as np
@@ -15,13 +15,13 @@ from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATADIR = Path(Path(__file__).parent, "data")
+DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
     "get_config",
+    "set_config",
     "get_grid_from_config",
     "read_csv_output",
-    "set_config",
 ]
 
 
@@ -78,7 +78,11 @@ def get_config(
 
     if abs_path and isinstance(value, (str, Path)):
         value = Path(value)
-        if not isabs(value):
+        if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
             value = Path(abspath(join(root, value)))
 
     return value
@@ -112,8 +116,8 @@ def set_config(config: dict, key: str, value: Any):
 
 
 def read_csv_output(
-    fn: Path | str, config: Dict, maps: xr.Dataset
-) -> Dict[str, GeoDataArray]:
+    fn: Path | str, config: dict, maps: xr.Dataset
+) -> dict[str, GeoDataArray]:
     """Read wflow output csv timeseries and parse to dictionary.
 
     Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per
@@ -282,7 +286,7 @@ of the config.
 
 def get_grid_from_config(
     var_name: str,
-    config: Dict = {},
+    config: dict = {},
     grid: xr.Dataset | None = None,
     root: Path | None = None,
     abs_path: bool = False,
@@ -326,8 +330,8 @@ def get_grid_from_config(
     # get config value
     # try with input only
     var = get_config(
-        config,
-        f"input.{var_name}",
+        key=f"input.{var_name}",
+        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
@@ -335,8 +339,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.static
         var = get_config(
-            config,
-            f"input.static.{var_name}",
+            key=f"input.static.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -347,8 +351,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.cyclic
         var = get_config(
-            config,
-            f"input.cyclic.{var_name}",
+            key=f"input.cyclic.{var_name}",
+            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -377,7 +381,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config(var, "netcdf.variable.name")
+            var_name = get_config(key="netcdf.variable.name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset

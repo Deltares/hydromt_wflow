@@ -302,3 +302,7 @@ nbsphinx_prolog = r"""
 
 nbsphinx_execute = "always"
 nbsphinx_timeout = 300
+linkcheck_ignore = [
+    r'https://localhost:\d+/',
+    'https://doi.org/10.1029/2018JG004881' # wiley blocks headless requests so this will be repored as broken
+]

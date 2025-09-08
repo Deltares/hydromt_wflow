@@ -1,7 +1,6 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List
 
 import hydromt
 import numpy as np
@@ -40,7 +39,7 @@ c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
 def concat_layers(
     ds: xr.Dataset,
     soil_fn: str = "soilgrids",
-    variables: List[str] = ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"],
+    variables: list[str] = ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"],
 ):
     """
     Preprocess functions to concat soilgrids along a layer dimension.
@@ -133,8 +132,8 @@ def average_soillayers(ds, soilthickness):
 
     Using the trapezoidal rule.
     See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,
-    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \
-Global gridded soil information based on machine learning,
+    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m:
+    Global gridded soil information based on machine learning,
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
     This function is used for soilgrids (2017).
 
@@ -195,7 +194,6 @@ def pore_size_distribution_index_layers(ds, thetas):
     ds_out : xarray.Dataset
         Dataset containing pore size distribution index [-] for each soil layer
         depth.
-
     """
     ds_out = xr.apply_ufunc(
         ptf.pore_size_index_brakensiek,
@@ -217,7 +215,7 @@ def brooks_corey_layers(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
     soildepth_cm: np.array = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]),
 ):
     """
@@ -266,8 +264,8 @@ def brooks_corey_layers(
     # Check if the last wflow depth is less than 2000 mm (soilgrids limit)
     if wflow_depths[-1] > 2000:
         raise ValueError(
-            "The total depth of the wflow soil layers should be 2000 mm, as the \
-soilgrids data does not go deeper than 2 m."
+            "The total depth of the wflow soil layers should be 2000 mm, as the "
+            "soilgrids data does not go deeper than 2 m."
         )
     # Add a zero for the first depth and 2000 for the last depth
     wflow_depths = np.insert(wflow_depths, 0, 0)
@@ -384,7 +382,7 @@ def do_linalg(x, y):
     Parameters
     ----------
     x : array_like (float)
-        “Coefficient” matrix.
+        "Coefficient"  matrix.
     y : array_like (float)
         dependent variable.
 
@@ -450,7 +448,7 @@ def soilgrids(
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
 ):
     """
     Return soil parameter maps at model resolution.
@@ -460,13 +458,13 @@ def soilgrids(
     at 7 specific depths, while soilgrids_2020 provides soil properties averaged over
     6 depth intervals.
     Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,
-    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \
-Global gridded soil information based on machine learning,
+    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m:
+    Global gridded soil information based on machine learning,
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
     Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio,
-    E. and Rossiter, D., 2020. SoilGrids 2.0: \
-producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
-    https://doi.org/10.5194/soil-2020-65.
+    E. and Rossiter, D., 2020. SoilGrids 2.0:
+    producing quality-assessed soil information for the globe. SOIL Discussions,
+    pp.1-37. https://doi.org/10.5194/soil-2020-65.
 
     A ``soil_mapping`` table can optionally be provided to derive parameters based
     on soil texture classes. A default table *soil_mapping_default* is available
@@ -474,23 +472,24 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
 
     The following soil parameter maps are calculated:
 
-    - **theta_s** : average saturated soil water content [m3/m3]
-    - **theta_r** : average residual water content [m3/m3]
-    - **ksat_vertical** : vertical saturated hydraulic conductivity at soil \
-surface [mm/day]
-    - **soil_thickness** : soil thickness [mm]
-    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
-(fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
-(fitted with numpy linalg regression), bounds are checked
-    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \
-distribution index for the wflow_sbm soil layers.
-    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
-[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt, \
-sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, \
-5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, \
-12:Sandy Loam]
+        - **theta_s** : average saturated soil water content [m3/m3]
+        - **theta_r** : average residual water content [m3/m3]
+        - **ksat_vertical** : vertical saturated hydraulic conductivity at soil
+            surface [mm/day]
+        - **soil_thickness** : soil thickness [mm]
+        - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1]
+            (fitted with curve_fit (scipy.optimize)), bounds are checked
+        - **soil_f_** : scaling parameter controlling the decline of ksat_vertical
+            [mm-1] (fitted with numpy linalg regression), bounds are checked
+        - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore
+            size distribution index for the wflow_sbm soil layers.
+        - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil
+            depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
+            sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay,
+            5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand,
+            11: Loamy Sand, 12:Sandy Loam]
+
 
     Parameters
     ----------
@@ -681,7 +680,7 @@ def soilgrids_brooks_corey(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     soil_fn: str = "soilgrids",
-    wflow_layers: List[int] = [100, 300, 800],
+    wflow_layers: list[int] = [100, 300, 800],
 ):
     """
     Determine Brooks Corey coefficient per wflow soil layer depth.
@@ -764,17 +763,17 @@ def soilgrids_sediment(
 
     The following soil parameter maps are calculated:
 
-    * soil_clay_fraction: clay content of the topsoil [g/g]
-    * soil_silt_fraction: silt content of the topsoil [g/g]
-    * soil_sand_fraction: sand content of the topsoil [g/g]
-    * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
-    * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
-    * erosion_soil_detachability: mean detachability of the soil (Morgan et al., 1998)
-      [g/J]
-    * usle_k: soil erodibility factor from the USLE equation [-]
-    * soil_sediment_d50: median sediment diameter of the soil [mm]
-    * land_govers_c: Govers factor for overland flow transport capacity [-]
-    * land_govers_n: Govers exponent for overland flow transport capacity [-]
+        * soil_clay_fraction: clay content of the topsoil [g/g]
+        * soil_silt_fraction: silt content of the topsoil [g/g]
+        * soil_sand_fraction: sand content of the topsoil [g/g]
+        * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
+        * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
+        * erosion_soil_detachability: mean detachability of the soil
+            (Morgan et al., 1998) [g/J]
+        * usle_k: soil erodibility factor from the USLE equation [-]
+        * soil_sediment_d50: median sediment diameter of the soil [mm]
+        * land_govers_c: Govers factor for overland flow transport capacity [-]
+        * land_govers_n: Govers exponent for overland flow transport capacity [-]
 
     Parameters
     ----------
@@ -910,8 +909,8 @@ def update_soil_with_paddy(
     paddy_mask: xr.DataArray,
     soil_fn: str = "soilgrids",
     update_c: bool = True,
-    wflow_layers: List[int] = [50, 100, 50, 200, 800],
-    target_conductivity: List[None | int | float] = [None, None, 5, None, None],
+    wflow_layers: list[int] = [50, 100, 50, 200, 800],
+    target_conductivity: list[None | int | float] = [None, None, 5, None, None],
 ):
     """
     Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.

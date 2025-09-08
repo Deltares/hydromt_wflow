@@ -18,8 +18,12 @@ gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
-forcing = [ "vertical.precipitation", "vertical.temperature", "vertical.potential_evaporation",]
-cyclic = [ "vertical.leaf_area_index",]
+forcing = [
+    "vertical.precipitation",
+    "vertical.temperature",
+    "vertical.potential_evaporation",
+]
+cyclic = ["vertical.leaf_area_index"]
 gauges_grdc = "wflow_gauges_grdc"
 
 [model]
@@ -35,7 +39,7 @@ river_routing = "kinematic-wave"
 kin_wave_iteration = true
 kw_river_tstep = 900
 kw_land_tstep = 3600
-thicknesslayers = [ 100, 300, 800,]
+thicknesslayers = [100, 300, 800]
 
 [state.vertical]
 satwaterdepth = "satwaterdepth"
@@ -104,8 +108,8 @@ slope = "RiverSlope"
 width = "wflow_riverwidth"
 bankfull_depth = "RiverDepth"
 
-[input.lateral.subsurface]
-ksathorfrac = "KsatHorFrac"
+[input.lateral.subsurface.ksathorfrac]
+value = 100
 
 [input.lateral.land]
 n = "N"
@@ -157,6 +161,11 @@ map = "gauges"
 parameter = "lateral.river.q"
 
 [[netcdf.variable]]
+name = "lake-volume"
+map = "lateral.river.lake.locs"
+parameter = "lateral.river.lake.storage"
+
+[[netcdf.variable]]
 name = "temp_coord"
 location = "temp_bycoord"
 coordinate.x = 11.9594
@@ -192,6 +201,11 @@ parameter = "vertical.temperature"
 header = "Q"
 map = "gauges_grdc"
 parameter = "lateral.river.q_av"
+
+[[csv.column]]
+header = "lake-volume"
+map = "lateral.river.lake.locs"
+parameter = "lateral.river.lake.storage"
 
 [[csv.column]]
 header = "P"

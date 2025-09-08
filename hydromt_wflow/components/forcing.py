@@ -8,7 +8,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt._io import _write_nc
+from hydromt._io import write_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
 
@@ -113,7 +113,7 @@ class WflowForcingComponent(GridComponent):
             * Default name format (no downscaling):
               inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
-        Key-word arguments are passed to :py:meth:`~hydromt._io.writers._write_nc`
+        Key-word arguments are passed to :py:meth:`~hydromt._io.writers.write_nc`
 
         Parameters
         ----------
@@ -220,9 +220,9 @@ class WflowForcingComponent(GridComponent):
         # Write the file either in one go
         if output_frequency is None:
             logger.info(f"Writing file {filepath.as_posix()}")
-            _write_nc(
+            write_nc(
                 ds,
-                filepath=filepath,
+                file_path=filepath,
                 compress=True,
                 gdal_compliant=True,
                 rename_dims=True,
@@ -242,9 +242,9 @@ class WflowForcingComponent(GridComponent):
                 filepath_freq = Path(filepath.parent, f"{filepath.stem}_{start}.nc")
                 logger.info(f"Writing file {filepath_freq.as_posix()}")
                 # Write to file
-                _write_nc(
+                write_nc(
                     data_freq,
-                    filepath=filepath_freq,
+                    file_path=filepath_freq,
                     compress=True,
                     gdal_compliant=True,
                     rename_dims=True,
@@ -257,11 +257,11 @@ class WflowForcingComponent(GridComponent):
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
         # Set back to the config
-        self.model.config.set("input.path_forcing", filepath.as_posix())
-        self.model.config.set(
+        self.model.set_config("input.path_forcing", filepath.as_posix())
+        self.model.set_config(
             "time.starttime", start_time.strftime("%Y-%m-%dT%H:%M:%S")
         )
-        self.model.config.set("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
+        self.model.set_config("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
 
         return
 

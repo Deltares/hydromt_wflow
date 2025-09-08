@@ -18,7 +18,7 @@ river_routing = "kinematic-wave"
 kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
-soil_layer__thickness = [ 100, 300, 800,]
+soil_layer__thickness = [100, 300, 800]
 reservoir__flag = true
 
 [state]
@@ -80,7 +80,6 @@ vegetation_wood_water__storage_capacity = "Swood"
 soil_layer_water__brooks-corey_exponent = "c"
 soil_surface_water__infiltration_reduction_parameter = "cf_soil"
 soil_surface_water__vertical_saturated_hydraulic_conductivity = "KsatVer"
-subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio = "KsatHorFrac"
 soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "f"
 "soil~compacted_surface_water__infiltration_capacity" = "InfiltCapPath"
 soil_water__residual_volume_fraction = "thetaR"
@@ -110,6 +109,9 @@ reservoir_water__rating_curve_coefficient = "reservoir_b"
 reservoir_water__rating_curve_exponent = "reservoir_e"
 reservoir_water_flow_threshold-level__elevation = "reservoir_outflow_threshold"
 
+[input.static.subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio]
+value = 100
+
 [output.netcdf_grid]
 path = "output.nc"
 compressionlevel = 1
@@ -124,6 +126,11 @@ path = "output_scalar.nc"
 name = "Q"
 map = "gauges"
 parameter = "river_water__instantaneous_volume_flow_rate"
+
+[[output.netcdf_scalar.variable]]
+name = "lake-volume"
+map = "reservoir_location__count"
+parameter = "reservoir_water__instantaneous_volume"
 
 [[output.netcdf_scalar.variable]]
 name = "temp_coord"
@@ -164,6 +171,11 @@ y = 6
 header = "Q"
 map = "gauges_grdc"
 parameter = "river_water__volume_flow_rate"
+
+[[output.csv.column]]
+header = "lake-volume"
+map = "reservoir_location__count"
+parameter = "reservoir_water__instantaneous_volume"
 
 [[output.csv.column]]
 header = "P"

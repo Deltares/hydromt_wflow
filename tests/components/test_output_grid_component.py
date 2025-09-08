@@ -7,12 +7,12 @@ import pytest
 import xarray as xr
 
 from hydromt_wflow.components import WflowOutputGridComponent
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 
 @pytest.fixture
-def mock_model(mock_model_factory) -> WflowModel:
-    """Fixture to create a mock WflowModel."""
+def mock_model(mock_model_factory) -> WflowSbmModel:
+    """Fixture to create a mock WflowSbmModel."""
     return mock_model_factory(mode="w")
 
 
@@ -25,7 +25,7 @@ def get_value_side_effect(key, fallback=None):
     return fallback
 
 
-def test_wflow_output_grid_component_init(mock_model: WflowModel):
+def test_wflow_output_grid_component_init(mock_model: WflowSbmModel):
     # Setup the component
     component = WflowOutputGridComponent(mock_model)
 
@@ -39,7 +39,7 @@ def test_wflow_output_grid_component_init(mock_model: WflowModel):
 
 
 def test_wflow_output_grid_component_init_with_region(
-    mock_model_staticmaps: WflowModel,
+    mock_model_staticmaps: WflowSbmModel,
 ):
     # Setup the component with a region component
     component = WflowOutputGridComponent(
@@ -52,7 +52,7 @@ def test_wflow_output_grid_component_init_with_region(
 
 
 def test_wflow_output_grid_component_set(
-    mock_model_staticmaps: WflowModel, forcing_layer: xr.DataArray
+    mock_model_staticmaps: WflowSbmModel, forcing_layer: xr.DataArray
 ):
     # Setup the component
     component = WflowOutputGridComponent(
@@ -73,7 +73,7 @@ def test_wflow_output_grid_component_set(
 
 
 def test_wflow_output_grid_component_set_errors(
-    mock_model_staticmaps: WflowModel, forcing_layer: xr.DataArray
+    mock_model_staticmaps: WflowSbmModel, forcing_layer: xr.DataArray
 ):
     # Setup the component
     component = WflowOutputGridComponent(
@@ -96,7 +96,7 @@ def test_wflow_output_grid_component_set_errors(
 
 
 def test_wflow_output_grid_component_read(
-    mock_model_factory: Callable[[Path, str], WflowModel],
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
@@ -121,7 +121,7 @@ def test_wflow_output_grid_component_read(
 
 
 def test_wflow_output_grid_component_read_init(
-    mock_model_factory: Callable[[Path, str], WflowModel],
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
     model_subbasin_cached: Path,
 ):
     # Set it to read mode
@@ -140,7 +140,7 @@ def test_wflow_output_grid_component_read_init(
 
 
 def test_wflow_output_grid_component_write(
-    mock_model: WflowModel,
+    mock_model: WflowSbmModel,
     grid_dummy_data: xr.DataArray,
     caplog: pytest.LogCaptureFixture,
 ):

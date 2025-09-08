@@ -11,7 +11,7 @@ data libraries are set, you can build a model by using:
     activate hydromt-wflow
     hydromt build wflow_sediment path/to/built_model -r "{'basin': [x, y]}" -i wflow_sediment_build.yml -d data_sources.yml -vvv
 
-The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
+The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of the Wflow Sediment model are:
 
 - basin
@@ -70,8 +70,7 @@ command line would be:
 .. literalinclude:: ../_examples/wflow_extend_sediment.yml
    :language: yaml
 
-.. _data: https://deltares.github.io/hydromt/latest/user_guide/data.html
-.. _region: https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options
+.. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
 
 .. .. toctree::
 ..     :hidden:
