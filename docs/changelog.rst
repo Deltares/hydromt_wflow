@@ -26,6 +26,7 @@ Fixed
 -----
 - **upgrade_to_v1_wflow**: fixed bug for [model] options that kept the same name in Wflow v1. (e.g. type, river_routing, land_routing). PR #487
 - **setup_floodplains**: states were not correctly added to the model config. PR #486
+- **setup_1d_model_connection**: improve clipping and snapping of 1D river with wflow basins/river. PR #416
 - Fix wflow build config example in the docs. PR #486
 - Fix crop_factor and water_frac values for grassland in CORINE. PR #523
 - included ``floodplain_water_flow__manning_n_parameter`` in naming script (#529)
