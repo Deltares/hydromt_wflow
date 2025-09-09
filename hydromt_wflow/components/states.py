@@ -3,10 +3,9 @@
 import logging
 from pathlib import Path
 
-import numpy as np
 import xarray as xr
 from hydromt.model import Model
-from hydromt.model.components import GridComponent
+from hydromt.model.components import GridComponent, ModelComponent
 
 from hydromt_wflow.components import utils
 
@@ -139,14 +138,9 @@ class WflowStatesComponent(GridComponent):
             ds_states = self.data.raster.clip_bbox(region_grid.raster.bounds)
 
             # Check reservoirs and remove states if empty
-            if len(reservoir_states) > 0 and reservoir_name in region_grid:
-                reservoir = region_grid[reservoir_name]
-                if not np.any(reservoir > 0):
-                    logger.info(
-                        "No reservoirs present in the clipped model, removing them from"
-                        " states."
-                    )
-                    ds_states = ds_states.drop_vars(reservoir_states)
+            if len(reservoir_states) > 0 and reservoir_name not in region_grid:
+                # no reservoirs in the clipped or original model
+                ds_states = ds_states.drop_vars(reservoir_states, errors="ignore")
 
             # Update states data
             self._data = xr.Dataset()  # clear existing states
@@ -224,3 +218,29 @@ class WflowStatesComponent(GridComponent):
 
         # Update the config
         self.model.config.set("state.path_input", p)
+
+    def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
+        """Test if two staticmaps components are equal.
+
+        Checks the model component type as well as the data variables and their values.
+
+        Parameters
+        ----------
+        other : ModelComponent
+            The component to compare against.
+
+        Returns
+        -------
+        tuple[bool, Dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        errors: dict[str, str] = {}
+        if not isinstance(other, self.__class__):
+            errors["__class__"] = f"other does not inherit from {self.__class__}."
+
+        # Check dimensions
+        _, data_errors = utils.test_equal_grid_data(self.data, other.data)
+        errors.update(data_errors)
+
+        return len(errors) == 0, errors

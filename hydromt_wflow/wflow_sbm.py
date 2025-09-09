@@ -3732,7 +3732,15 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             self.set_config(option, states_config[option])
 
     @hydromt_step
-    def clip(self, region: dict, inverse_clip: bool = False, crs: int = 4326, **kwargs):
+    def clip(
+        self,
+        region: dict,
+        inverse_clip: bool = False,
+        clip_forcing: bool = True,
+        clip_states: bool = True,
+        crs: int = 4326,
+        **kwargs,
+    ):
         """Clip model to region.
 
         First the staticmaps are clipped to the region.
@@ -3747,12 +3755,18 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         inverse_clip: bool, optional
             Flag to perform "inverse clipping": removing an upstream part of the model
             instead of the subbasin itself, by default False
+        clip_forcing: bool, optional
+            Flag to clip the forcing to the new grid extent, by default True
+        clip_states: bool, optional
+            Flag to clip the states to the new grid extent, by default True
         crs: int, optional
             Default crs of the grid to clip.
         **kwargs: dict
             Additional keyword arguments passed to
             :py:meth:`~hydromt.raster.Raster.clip_geom`
         """
+        # Reservoir maps that will be removed if no reservoirs after clipping
+        # key: staticmaps name,  value: wflow intput variable name
         reservoir_maps = [
             self._MAPS["reservoir_area_id"],
             self._MAPS["reservoir_outlet_id"],
@@ -3771,43 +3785,33 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             self._MAPS["reservoir_b"],
             self._MAPS["reservoir_e"],
         ]
+        reservoir_maps = {k: self._WFLOW_NAMES.get(k, None) for k in reservoir_maps}
+
+        # Reservoir states that will be removed if no reservoirs after clipping
+        # key: states name,  value: wflow state variable name
+        reservoir_state = self.get_config(
+            "state.variables.reservoir_water_surface__instantaneous_elevation",
+            fallback="reservoir_instantaneous_water_level",
+        )
+        reservoir_states = {
+            reservoir_state: "reservoir_water_surface__instantaneous_elevation"
+        }
 
         super().clip(
             region,
             inverse_clip=inverse_clip,
-            crs=crs,
+            clip_forcing=clip_forcing,
+            clip_states=clip_states,
             reservoir_maps=reservoir_maps,
+            reservoir_states=reservoir_states,
+            crs=crs,
             **kwargs,
         )
 
-        # Update reservoirs
+        # Update reservoirs tables
         if self._MAPS["reservoir_area_id"] in self.staticmaps.data:
             reservoir = self.staticmaps.data[self._MAPS["reservoir_area_id"]]
-            if not np.any(reservoir > 0):
-                logger.info(
-                    "No reservoirs present in the clipped model, removing them from "
-                    "staticmaps, config, states."
-                )
 
-                # 2. Update states
-                state_name = self.get_config(
-                    "state.variables.reservoir_water_surface__instantaneous_elevation",
-                    fallback="reservoir_instantaneous_water_level",
-                )
-                self.states.drop_vars([state_name], errors="ignore")
-
-                # 3. Update config
-                # change reservoir__flag = true to false
-                self.set_config("model.reservoir__flag", False)
-                # remove states
-                self.config.remove(
-                    "state.variables.reservoir_water_surface__instantaneous_elevation",
-                    errors="ignore",
-                )
-            else:
-                logger.info("Reservoir(s) are still present in the clipped model.")
-
-            # 4. Update tables
             logger.info("Updating reservoir tables to match clipped model.")
             ids = np.unique(reservoir)
             for res_id in ids:

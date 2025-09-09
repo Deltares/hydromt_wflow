@@ -7,14 +7,14 @@ import hydromt
 import numpy as np
 import xarray as xr
 from hydromt.model import Model
-from hydromt.model.components import GridComponent
+from hydromt.model.components import GridComponent, ModelComponent
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
 )
 from hydromt.model.steps import hydromt_step
 
-from hydromt_wflow.components.utils import get_mask_layer
+from hydromt_wflow.components.utils import get_mask_layer, test_equal_grid_data
 
 __all__ = ["WflowStaticmapsComponent"]
 
@@ -361,8 +361,8 @@ class WflowStaticmapsComponent(GridComponent):
             ds_grid.raster.set_crs(crs)
 
         # Update staticmaps data
-        self.staticmaps._data = xr.Dataset()
-        self.set_grid(ds_grid)
+        self._data = xr.Dataset()
+        self.set(ds_grid)
 
     ## Setup and update methods
     @hydromt_step
@@ -391,3 +391,29 @@ class WflowStaticmapsComponent(GridComponent):
         if len(not_found) != 0:
             logger.warning(f"Could not rename {not_found}, not found in data")
         self._data = self.data.rename(**rename)
+
+    def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
+        """Test if two staticmaps components are equal.
+
+        Checks the model component type as well as the data variables and their values.
+
+        Parameters
+        ----------
+        other : ModelComponent
+            The component to compare against.
+
+        Returns
+        -------
+        tuple[bool, Dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        errors: dict[str, str] = {}
+        if not isinstance(other, self.__class__):
+            errors["__class__"] = f"other does not inherit from {self.__class__}."
+
+        # Check dimensions
+        _, data_errors = test_equal_grid_data(self.data, other.data)
+        errors.update(data_errors)
+
+        return len(errors) == 0, errors

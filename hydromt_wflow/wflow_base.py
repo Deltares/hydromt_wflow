@@ -1557,6 +1557,116 @@ one variable and variables list is not provided."
             col2raster_name = col2raster
         self.set_grid(da_area.rename(col2raster_name))
 
+    ## WFLOW other step methods (clip and upgrade)
+    @hydromt_step
+    def clip(
+        self,
+        region: dict,
+        inverse_clip: bool = False,
+        clip_forcing: bool = True,
+        clip_states: bool = True,
+        reservoir_maps: dict[str, str | None] = {},
+        reservoir_states: dict[str, str | None] = {},
+        crs: int = 4326,
+        **kwargs,
+    ):
+        """Clip model to region.
+
+        First the staticmaps are clipped to the region.
+        Then the staticgeoms are re-generated to match the new grid for basins and
+        rivers and clipped for the others.
+        Finally the forcing and states are clipped to the new grid extent.
+
+        Parameters
+        ----------
+        region : dict
+            See :meth:`models.wflow_base.WflowBaseModel.setup_basemaps`
+        inverse_clip: bool, optional
+            Flag to perform "inverse clipping": removing an upstream part of the model
+            instead of the subbasin itself, by default False
+        clip_forcing: bool, optional
+            Flag to clip the forcing to the new grid extent, by default True
+        clip_states: bool, optional
+            Flag to clip the states to the new grid extent, by default True
+        reservoir_maps: dict[str, str | None] = {},
+            Dictionnary of staticmap names in the wflow model staticmaps and
+            corresponding wflow input variables to be treated as
+            reservoirs. These maps are removed if empty after clipping.
+        reservoir_states: dict[str, str | None] = {},
+            Dictionnary of state names in the wflow model states and corresponding
+            wflow state variables to be treated as reservoirs.
+            These states are removed if no reservoir was found after clipping.
+        crs: int, optional
+            Default crs of the model in case it cannot be read.
+            By default 4326 (WGS84)
+        **kwargs: dict
+            Additional keyword arguments passed to
+            :py:meth:`~hydromt.raster.Raster.clip_geom`
+        """
+        # 0. Read the model in case not done yet
+        if self.root.mode.is_reading_mode():
+            logger.info("Reading full model before clipping..")
+            self.read()
+
+        # 1. Clip staticmaps
+        logger.info("Clipping staticmaps..")
+        basins_name = self._MAPS["basins"]
+        flwdir_name = self._MAPS["flwdir"]
+        reservoir_name = self._MAPS["reservoir_area_id"]
+
+        self.staticmaps.clip(
+            region=region,
+            inverse_clip=inverse_clip,
+            crs=crs,
+            basins_name=basins_name,
+            flwdir_name=flwdir_name,
+            reservoir_name=reservoir_name,
+            reservoir_maps=list(reservoir_maps.keys()),
+            **kwargs,
+        )
+
+        # Re-derive flwdir after clipping (add pits at edges)
+        self._flwdir = None  # make sure old flwdir object is removed
+        self.staticmaps.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+
+        # 2. Reinitiliase geoms, re-create basins/rivers/outlets and clip the rest
+        logger.info("Re-generating/clipping staticgeoms..")
+        old_geoms = self.geoms.data.copy()
+        self.geoms.clear()
+        self.basins
+        self.rivers
+        self.setup_outlets()
+        exclude_geoms = ["basins", "basins_highres", "region", "rivers", "outlets"]
+        for name, gdf in old_geoms.items():
+            if name not in exclude_geoms:
+                logger.debug(f"Clipping geometry {name}..")
+                self.set_geoms(
+                    geometry=gdf.clip(self.basins, keep_geom_type=True),
+                    name=name,
+                )
+
+        # 3. Clip states
+        if clip_states:
+            self.states.clip(
+                reservoir_name=reservoir_name,
+                reservoir_states=list(reservoir_states.keys()),
+            )
+        else:
+            self.states._data = xr.Dataset()  # clear states
+
+        # 4. Clip forcing
+        if clip_forcing:
+            self.forcing.clip()
+        else:
+            self.forcing._data = xr.Dataset()  # clear forcing
+
+        # 5. Update config
+        if reservoir_name not in self.staticmaps.data:
+            self.config.remove_reservoirs(
+                input=list(reservoir_maps.values()),
+                state=list(reservoir_states.values()),
+            )
+
     # I/O
     @hydromt_step
     def write(
@@ -2138,99 +2248,6 @@ one variable and variables list is not provided."
         key = ".".join(args[:-1])
         value = args[-1]
         self.config.set(key, value)
-
-    ## WFLOW specific modification (clip for now) methods
-    @hydromt_step
-    def clip(
-        self,
-        region: dict,
-        inverse_clip: bool = False,
-        crs: int = 4326,
-        reservoir_maps: list[str] = [],
-        reservoir_states: list[str] = [],
-        **kwargs,
-    ):
-        """Clip model to region.
-
-        First the staticmaps are clipped to the region.
-        Then the staticgeoms are re-generated to match the new grid for basins and
-        rivers and clipped for the others.
-        Finally the forcing and states are clipped to the new grid extent.
-
-        Parameters
-        ----------
-        region : dict
-            See :meth:`models.wflow_base.WflowBaseModel.setup_basemaps`
-        inverse_clip: bool, optional
-            Flag to perform "inverse clipping": removing an upstream part of the model
-            instead of the subbasin itself, by default False
-        crs: int, optional
-            Default crs of the model in case it cannot be read.
-            By default 4326 (WGS84)
-        reservoir_maps: list of str, optional
-            List of map names in the wflow model grid to be treated as reservoirs.
-            These maps are removed if empty after clipping.
-        reservoir_states: list of str, optional
-            List of state names in the wflow model states to be treated as reservoirs.
-            These states are removed if empty after clipping.
-        **kwargs: dict
-            Additional keyword arguments passed to
-            :py:meth:`~hydromt.raster.Raster.clip_geom`
-        """
-        # 0. Read the model
-        logger.info("Reading full model before clipping..")
-        self.read()
-
-        # 1. Clip staticmaps
-        logger.info("Clipping staticmaps..")
-        basins_name = self._MAPS["basins"]
-        flwdir_name = self._MAPS["flwdir"]
-        reservoir_name = self._MAPS["reservoir_area_id"]
-
-        self.staticmaps.clip(
-            region=region,
-            inverse_clip=inverse_clip,
-            crs=crs,
-            basins_name=basins_name,
-            flwdir_name=flwdir_name,
-            reservoir_name=reservoir_name,
-            reservoir_maps=reservoir_maps,
-            **kwargs,
-        )
-
-        # Re-derive flwdir after clipping
-        self._flwdir = None  # make sure old flwdir object is removed
-        self.flwdir
-
-        # 2. Reinitiliase geoms, re-create basins/rivers/outlets and clip the rest
-        logger.info("Re-generating/clipping staticgeoms..")
-        old_geoms = self.geoms.data.copy()
-        self.geoms.clear()
-        self.basins
-        self.rivers
-        self.setup_outlets()
-        exclude_geoms = ["basins", "basins_highres", "rivers", "outlets"]
-        for name, gdf in old_geoms.items():
-            if name not in exclude_geoms:
-                logger.debug(f"Clipping geometry {name}..")
-                self.set_geoms(
-                    geometry=gdf.clip(self.basins, keep_geom_type=True),
-                    name=name,
-                )
-
-        # 3. Clip states
-        self.clip_states(
-            reservoir_name=reservoir_name, reservoir_states=reservoir_states
-        )
-
-        # 4. Clip forcing
-        self.forcing.clip()
-
-        # 5. Update config
-        if reservoir_name in self.staticmaps.data:
-            if not np.any(self.staticmaps.data[reservoir_name] > 0):
-                # change reservoir__flag = true to false
-                self.set_config("model.reservoir__flag", False)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.

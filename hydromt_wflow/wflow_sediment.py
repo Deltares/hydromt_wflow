@@ -912,7 +912,15 @@ class WflowSedimentModel(WflowBaseModel):
         )
 
     @hydromt_step
-    def clip(self, region: dict, inverse_clip: bool = False, crs: int = 4326, **kwargs):
+    def clip(
+        self,
+        region: dict,
+        inverse_clip: bool = False,
+        clip_forcing: bool = True,
+        clip_states: bool = True,
+        crs: int = 4326,
+        **kwargs,
+    ):
         """Clip model to region.
 
         First the staticmaps are clipped to the region.
@@ -927,37 +935,35 @@ class WflowSedimentModel(WflowBaseModel):
         inverse_clip: bool, optional
             Flag to perform "inverse clipping": removing an upstream part of the model
             instead of the subbasin itself, by default False
+        clip_forcing: bool, optional
+            Flag to clip the forcing to the new grid extent, by default True
+        clip_states: bool, optional
+            Flag to clip the states to the new grid extent, by default True
         crs: int, optional
             Default crs of the grid to clip.
         **kwargs: dict
             Additional keyword arguments passed to
             :py:meth:`~hydromt.raster.Raster.clip_geom`
         """
-        super().clip(region, inverse_clip=inverse_clip, crs=crs, **kwargs)
+        # Reservoir maps that will be removed if no reservoirs after clipping
+        # key: staticmaps name,  value: wflow intput variable name
+        reservoir_maps = [
+            self._MAPS["reservoir_area_id"],
+            self._MAPS["reservoir_outlet_id"],
+            self._MAPS["reservoir_area"],
+            self._MAPS["reservoir_trapping_efficiency"],
+        ]
+        reservoir_maps = {k: self._WFLOW_NAMES.get(k, None) for k in reservoir_maps}
 
-        # Update reservoirs
-        if self._MAPS["reservoir_area_id"] in self.staticmaps.data:
-            reservoir = self.staticmaps.data[self._MAPS["reservoir_area_id"]]
-            if not np.any(reservoir > 0):
-                logger.info(
-                    "No reservoirs present in the clipped model, removing them from "
-                    "staticmaps, config, states."
-                )
-
-                # 1. Update staticmaps
-                remove_maps = [
-                    self._MAPS["reservoir_area_id"],
-                    self._MAPS["reservoir_outlet_id"],
-                    self._MAPS["reservoir_area"],
-                    self._MAPS["reservoir_trapping_efficiency"],
-                ]
-                self.staticmaps.drop_vars(remove_maps, errors="ignore")
-
-                # 2. Update config
-                # change reservoir__flag = true to false
-                self.set_config("model.reservoir__flag", False)
-            else:
-                logger.info("Reservoir(s) are still present in the clipped model.")
+        super().clip(
+            region,
+            inverse_clip=inverse_clip,
+            clip_forcing=clip_forcing,
+            clip_states=clip_states,
+            reservoir_maps=reservoir_maps,
+            crs=crs,
+            **kwargs,
+        )
 
     @hydromt_step
     def upgrade_to_v1_wflow(

@@ -296,6 +296,10 @@ class WflowForcingComponent(GridComponent):
                 region_component_name=self._region_component,
             )
 
+            # Check for CRS - eg sediment forcing is wflow.jl output and has no crs
+            if data.raster.crs is None:
+                data.raster.set_crs(self._get_grid_data().raster.crs)
+
         # Call set of parent class
         super().set(
             data=data,
