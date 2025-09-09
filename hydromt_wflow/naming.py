@@ -26,6 +26,16 @@ HYDROMT_NAMES_COMMON = {
 HYDROMT_NAMES_DEFAULT.update(HYDROMT_NAMES_COMMON)
 HYDROMT_NAMES_DEFAULT_SEDIMENT.update(HYDROMT_NAMES_COMMON)
 
+# Variables in the input section rather than input.static
+WFLOW_VARS_IN_INPUT = [
+    "basin__local_drain_direction",
+    "subbasin_location__count",
+    "river_location__mask",
+    "reservoir_area__count",
+    "reservoir_location__count",
+    "reservoir~lower_location__count",
+]
+
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
 # {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
@@ -997,11 +1007,21 @@ def _create_hydromt_wflow_mapping(
     is_wflow_v0 = _check_wflow_version(config_dict)
 
     if "input" in config_dict and not is_wflow_v0:
-        variable_types = ["forcing", "cyclic", "static"]
+        variable_types = ["", "forcing", "cyclic", "static"]
         for var_type in variable_types:
-            if var_type not in config_dict["input"]:
+            if var_type != "" and var_type not in config_dict["input"]:
                 continue
-            for var_name, new_name in config_dict["input"][var_type].items():
+            # Variables in the general input section
+            if var_type == "":
+                vars_dict = {}
+                for input_var in WFLOW_VARS_IN_INPUT:
+                    if input_var in config_dict["input"]:
+                        vars_dict[input_var] = config_dict["input"][input_var]
+            # Others (static / cyclic / forcing)
+            else:
+                vars_dict = config_dict["input"][var_type]
+            # Go through the variables that can be renamed
+            for var_name, new_name in vars_dict.items():
                 # Get the old name
                 old_name = wflow_names.get(var_name)
                 # If they are different update the mapping
