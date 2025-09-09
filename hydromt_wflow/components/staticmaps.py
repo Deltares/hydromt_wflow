@@ -3,10 +3,15 @@
 import logging
 from pathlib import Path
 
+import hydromt
 import numpy as np
 import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
+from hydromt.model.processes.basin_mask import get_basin_geometry
+from hydromt.model.processes.region import (
+    _parse_region_value,
+)
 from hydromt.model.steps import hydromt_step
 
 from hydromt_wflow.components.utils import get_mask_layer
@@ -248,6 +253,116 @@ class WflowStaticmapsComponent(GridComponent):
             are in the dataset are dropped and no error is raised.
         """
         self._data = self.data.drop_vars(names, errors=errors)
+
+    def clip(
+        self,
+        region: dict,
+        inverse_clip: bool = False,
+        crs: int = 4326,
+        basins_name: str = "subcatchment",
+        flwdir_name: str = "local_drain_direction",
+        reservoir_name: str = "reservoir_area_id",
+        reservoir_maps: list[str] = [],
+        **kwargs,
+    ):
+        """
+        Clip staticmaps to region.
+
+        Parameters
+        ----------
+        region : dict
+            The region to clip to.
+        inverse_clip: bool, optional
+            Flag to perform "inverse clipping": removing an upstream part of the model
+            instead of the subbasin itself, by default False
+        crs: int, optional
+            Default crs of the model in case it cannot be read.
+        basins_name: str, optional
+            Name of the basin/subbasin variable in the staticmaps data, by default
+            "subcatchment"
+        flwdir_name: str, optional
+            Name of the flow direction variable in the staticmaps data, by default
+            "local_drain_direction"
+        reservoir_name: str, optional
+            Name of the reservoir id variable in the staticmaps data, by default
+            "reservoir_area_id"
+        reservoir_maps: list of str, optional
+            List of map names in the wflow model grid to be treated as reservoirs.
+            These maps are removed if empty after clipping.
+        **kwargs: dict
+            Additional keyword arguments passed to
+            :py:meth:`~hydromt.raster.Raster.clip_geom`
+        """
+        # translate basin and outlet kinds to geom
+        # get basin geometry and clip data
+        logger.debug(f"Clipping staticmaps to region: {region}")
+        kind = next(iter(region))
+        if kind in ["basin", "subbasin"]:
+            # parse_region_basin does not return xy, only geom...
+            # should be fixed in core
+            region_kwargs = _parse_region_value(
+                region.pop(kind),
+                data_catalog=self.data_catalog,
+            )
+            region_kwargs.update(region)
+            geom, _ = get_basin_geometry(
+                ds=self.data,
+                kind=kind,
+                basins_name=basins_name,
+                flwdir_name=flwdir_name,
+                **region_kwargs,
+            )
+        elif kind == "bbox":
+            logger.warning(
+                "Kind 'bbox' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_bbox(region)
+        elif kind == "geom":
+            logger.warning(
+                "Kind 'geom' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_geom(region)
+        else:
+            raise ValueError(
+                f"wflow region kind not understood or supported: {kind}. "
+                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+            )
+
+        # Remove upstream part from model if inverse_clip
+        if inverse_clip:
+            logger.debug("Performing inverse clipping of staticmaps")
+            basins = self.data[basins_name].raster.vectorize()
+            geom = basins.overlay(geom, how="difference")
+
+        # clip based on subbasin args, geom or bbox
+        ds_grid = self.data.raster.clip_geom(geom, **kwargs)
+        ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
+        ds_grid[basins_name] = ds_grid[basins_name].where(
+            ds_grid.coords["mask"], self.data[basins_name].raster.nodata
+        )
+        ds_grid[basins_name].attrs.update(
+            _FillValue=self.data[basins_name].raster.nodata
+        )
+
+        # Check reservoirs and remove maps if empty
+        if reservoir_name in ds_grid:
+            reservoir = ds_grid[reservoir_name]
+            if not np.any(reservoir > 0):
+                logger.info(
+                    "No reservoirs present in the clipped model, removing them from "
+                    "staticmaps."
+                )
+                ds_grid = ds_grid.drop_vars(reservoir_maps)
+
+        # Check CRS
+        if self.data.raster.crs is None and crs is not None:
+            ds_grid.raster.set_crs(crs)
+
+        # Update staticmaps data
+        self.staticmaps._data = xr.Dataset()
+        self.set_grid(ds_grid)
 
     ## Setup and update methods
     @hydromt_step
