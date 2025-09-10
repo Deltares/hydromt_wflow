@@ -3749,97 +3749,102 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             self.set_config(option, states_config[option])
 
     @hydromt_step
-    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
-        """Clip grid to subbasin.
+    def clip(
+        self,
+        region: dict,
+        inverse_clip: bool = False,
+        clip_forcing: bool = True,
+        clip_states: bool = True,
+        crs: int = 4326,
+        **kwargs,
+    ):
+        """Clip model to region.
+
+        First the staticmaps are clipped to the region.
+        Then the staticgeoms are re-generated to match the new grid for basins and
+        rivers and clipped for the others.
+        Finally the forcing and states are clipped to the new grid extent.
 
         Parameters
         ----------
         region : dict
             See :meth:`models.wflow_base.WflowBaseModel.setup_basemaps`
-        buffer : int, optional
-            Buffer around subbasin in number of pixels, by default 0
-        align : float, optional
-            Align bounds of region to raster with resolution <align>, by default None
-        crs: int, optional
-            Default crs of the grid to clip.
         inverse_clip: bool, optional
             Flag to perform "inverse clipping": removing an upstream part of the model
             instead of the subbasin itself, by default False
-
-        Returns
-        -------
-        xarray.DataSet
-            Clipped grid.
+        clip_forcing: bool, optional
+            Flag to clip the forcing to the new grid extent, by default True
+        clip_states: bool, optional
+            Flag to clip the states to the new grid extent, by default True
+        crs: int, optional
+            Default crs of the grid to clip.
+        **kwargs: dict
+            Additional keyword arguments passed to
+            :py:meth:`~hydromt.raster.Raster.clip_geom`
         """
-        super().clip_grid(
-            region, buffer=buffer, align=align, crs=crs, inverse_clip=inverse_clip
+        # Reservoir maps that will be removed if no reservoirs after clipping
+        # key: staticmaps name,  value: wflow intput variable name
+        reservoir_maps = [
+            self._MAPS["reservoir_area_id"],
+            self._MAPS["reservoir_outlet_id"],
+            self._MAPS["reservoir_lower_id"],
+            self._MAPS["reservoir_storage_curve"],
+            self._MAPS["reservoir_rating_curve"],
+            self._MAPS["reservoir_area"],
+            self._MAPS["reservoir_initial_depth"],
+            self._MAPS["reservoir_demand"],
+            self._MAPS["reservoir_target_full_fraction"],
+            self._MAPS["reservoir_target_min_fraction"],
+            self._MAPS["reservoir_max_release"],
+            self._MAPS["reservoir_max_volume"],
+            "meta_reservoir_mean_outflow",  # this is a hydromt meta map
+            self._MAPS["reservoir_outflow_threshold"],
+            self._MAPS["reservoir_b"],
+            self._MAPS["reservoir_e"],
+        ]
+        reservoir_maps = {k: self._WFLOW_NAMES.get(k, None) for k in reservoir_maps}
+
+        # Reservoir states that will be removed if no reservoirs after clipping
+        # key: states name,  value: wflow state variable name
+        reservoir_state = self.get_config(
+            "state.variables.reservoir_water_surface__instantaneous_elevation",
+            fallback="reservoir_instantaneous_water_level",
+        )
+        reservoir_states = {
+            reservoir_state: "reservoir_water_surface__instantaneous_elevation"
+        }
+
+        super().clip(
+            region,
+            inverse_clip=inverse_clip,
+            clip_forcing=clip_forcing,
+            clip_states=clip_states,
+            reservoir_maps=reservoir_maps,
+            reservoir_states=reservoir_states,
+            crs=crs,
+            **kwargs,
         )
 
-        # Update reservoirs
-        if self._MAPS["reservoir_area_id"] in self.staticmaps.data:
+        # Update reservoirs tables
+        logger.info("Updating reservoir tables to match clipped model.")
+        if self._MAPS["reservoir_area_id"] not in self.staticmaps.data:
+            # no more reservoirs in the model, tables can be cleared
+            self.tables._data = {}
+        else:
+            old_tables = self.tables.data.copy()
             reservoir = self.staticmaps.data[self._MAPS["reservoir_area_id"]]
-            if not np.any(reservoir > 0):
-                remove_maps = [
-                    self._MAPS["reservoir_area_id"],
-                    self._MAPS["reservoir_outlet_id"],
-                    self._MAPS["reservoir_lower_id"],
-                    self._MAPS["reservoir_storage_curve"],
-                    self._MAPS["reservoir_rating_curve"],
-                    self._MAPS["reservoir_area"],
-                    self._MAPS["reservoir_initial_depth"],
-                    self._MAPS["reservoir_demand"],
-                    self._MAPS["reservoir_target_full_fraction"],
-                    self._MAPS["reservoir_target_min_fraction"],
-                    self._MAPS["reservoir_max_release"],
-                    self._MAPS["reservoir_max_volume"],
-                    "meta_reservoir_mean_outflow",  # this is a hydromt meta map
-                    self._MAPS["reservoir_outflow_threshold"],
-                    self._MAPS["reservoir_b"],
-                    self._MAPS["reservoir_e"],
-                ]
-                self.staticmaps.drop_vars(remove_maps, errors="ignore")
-
-                # Update config
-                # Remove the absolute path and if needed remove reservoirs
-                # change reservoir__flag = true to false
-                self.set_config("model.reservoir__flag", False)
-                # remove states
-                self.config.remove(
-                    "state.variables.reservoir_water_surface__instantaneous_elevation",
-                    errors="ignore",
-                )
-
-            # Update tables
-            ids = np.unique(reservoir)
+            ids = np.unique(reservoir.raster.mask_nodata())
+            # remove nan from ids
+            ids = ids[~np.isnan(ids)].astype(int)
+            keys_to_keep = []
             for res_id in ids:
-                keys_to_remove = [k for k in self.tables.data if str(res_id) in k]
-                for key in keys_to_remove:
-                    del self.tables.data[key]
+                res_tbl = [k for k in self.tables.data if str(res_id) in k]
+                keys_to_keep.extend(res_tbl)
 
-    @hydromt_step
-    def clip_states(self):
-        """Return clippped states for subbasin.
-
-        Returns
-        -------
-        xarray.DataSet
-            Clipped states.
-        """
-        if len(self.states.data) > 0:
-            super().clip_states()
-
-            # Check for reservoirs presence in the clipped model
-            remove_maps = []
-            if self._MAPS["reservoir_area_id"] not in self.staticmaps.data:
-                state_name = self.get_config(
-                    "state.variables.reservoir_water_surface__instantaneous_elevation",
-                    fallback="reservoir_instantaneous_water_level",
-                )
-                if state_name in self.states.data:
-                    remove_maps.extend([state_name])
-
-            self.states._data = xr.Dataset()  # Clear existing states
-            self.set_states(self.states.data.drop_vars(remove_maps, errors="ignore"))
+            # Clear and add
+            self.tables._data = {}
+            for k in keys_to_keep:
+                self.set_tables(old_tables[k], name=k)
 
     @hydromt_step
     def upgrade_to_v1_wflow(self):

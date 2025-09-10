@@ -1,0 +1,10 @@
+global:
+  config_filename: wflow_sbm.toml # name of the config file including paths to staticmaps / forcing / states to clip
+steps:
+  - clip: # clip method
+      region: # region to clip
+        subbasin: [12.3006, 46.4324] # derive a subbasin with its outlet at the given x,y coordinates
+        meta_streamorder: 4 # snapped to a river with minimum stream order (strord) of 4
+      inverse_clip: false # whether to clip the region (false) or the part outside of the region (true)
+      clip_states: true # whether to clip the states or not
+      clip_forcing: true # whether to clipt eh forcing or not

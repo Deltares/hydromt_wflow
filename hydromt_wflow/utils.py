@@ -329,34 +329,17 @@ def get_grid_from_config(
     """
     # get config value
     # try with input only
+    var_name = get_wflow_var_fullname(var_name, config)
     var = get_config(
-        key=f"input.{var_name}",
+        key=var_name,
         config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
     )
     if var is None:
-        # try with input.static
-        var = get_config(
-            key=f"input.static.{var_name}",
-            config=config,
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
-    if var is None:
         # try with input.static.var.value
         var = config["input"]["static"].get(f"{var_name}.value", None)
-    if var is None:
-        # try with input.cyclic
-        var = get_config(
-            key=f"input.cyclic.{var_name}",
-            config=config,
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
     if var is None:
         raise ValueError(f"variable {var_name} not found in config.")
 
@@ -390,6 +373,24 @@ def get_grid_from_config(
             da = grid[var_name] * scale + offset
 
     return da
+
+
+def get_wflow_var_fullname(input_var: str, config: dict) -> str:
+    """Get the full variable name for a Wflow variable."""
+    # Check if the variable is in the input section
+    if get_config(config, f"input.{input_var}") is not None:
+        return f"input.{input_var}"
+    # Check if the variable is in the static section
+    if get_config(config, f"input.static.{input_var}") is not None:
+        return f"input.static.{input_var}"
+    # Check if the variable is in the cyclic section
+    if get_config(config, f"input.cyclic.{input_var}") is not None:
+        return f"input.cyclic.{input_var}"
+    # Check if the variable is in the forcing section
+    if get_config(config, f"input.forcing.{input_var}") is not None:
+        return f"input.forcing.{input_var}"
+    # If not found, return the original variable name
+    return input_var
 
 
 def _mask_data_array(data_array: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:

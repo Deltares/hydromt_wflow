@@ -228,3 +228,20 @@ class WflowConfigComponent(ConfigComponent):
             # Not the last key, go deeper
             current = current.get(key)
         return current
+
+    def remove_reservoirs(
+        self, input: list[str | None] = [], state: list[str | None] = []
+    ):
+        """Remove all reservoir related config options."""
+        # a. change reservoir__flag = true to false
+        self.set("model.reservoir__flag", False)
+        # b. remove reservoir state
+        for state_var in state:
+            if state_var is not None:
+                self.remove(f"state.variables.{state_var}", errors="ignore")
+        # c. remove reservoir input
+        for input_var in input:
+            if input_var is not None:
+                # find if variable in input/static/cyclic/forcing
+                input_var = utils.get_wflow_var_fullname(input_var, self.data)
+                self.remove(input_var, errors="ignore")

@@ -1,10 +1,10 @@
 """Test plugin model class against hydromt.models.model_api."""
 
-import warnings
 from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -24,79 +24,20 @@ _supported_models: dict[str, type[WflowBaseModel]] = {
 
 def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
     # check maps
-    invalid_maps = {}
-    # invalid_maps_dtype = {}
     if mod0.staticmaps._data:
-        maps = mod0.staticmaps.data.raster.vars
-        assert np.all(mod0.crs == mod1.crs), "map crs grid"
-        # check on dims names and values
-        for dim in mod1.staticmaps.data.dims:
-            try:
-                xr.testing.assert_identical(
-                    mod1.staticmaps.data[dim], mod0.staticmaps.data[dim]
-                )
-            except AssertionError:
-                raise AssertionError(f"dim {dim} in map not identical")
+        eq, errors = mod0.staticmaps.test_equal(mod1.staticmaps)
+        assert eq, f"staticmaps not equal: {errors}"
 
-        for name in maps:
-            map0 = mod0.staticmaps.data[name].fillna(0)
-            if name not in mod1.staticmaps.data:
-                invalid_maps[name] = "KeyError"
-                continue
-            map1 = mod1.staticmaps.data[name].fillna(0)
-            if (
-                not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
-                or map0.dtype != map1.dtype
-            ):
-                if len(map0.dims) > 2:  # 3 dim map
-                    map0 = map0[0, :, :]
-                    map1 = map1[0, :, :]
-                # Check on dtypes
-                err = (
-                    ""
-                    if map0.dtype == map1.dtype
-                    else f"{map1.dtype} instead of {map0.dtype}"
-                )
-                # Check on nodata
-                # hilariously np.nan == np.nan returns False, hence the additional check
-                err = (
-                    err
-                    if map0.raster.nodata == map1.raster.nodata
-                    or (np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata))
-                    else f"nodata {map1.raster.nodata} instead of \
-{map0.raster.nodata}; {err}"
-                )
-                notclose = ~np.equal(map0, map1)
-                ncells = int(np.sum(notclose))
-                if ncells > 0:
-                    # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
-                    # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
-                    diff = (map0.values - map1.values)[notclose].mean()
-                    err = f"mean diff ({ncells:d} cells): {diff:.4f}; {err}"
-                invalid_maps[name] = err
-    # invalid_map_str = ", ".join(invalid_maps)
-    # assert (
-    #    len(invalid_maps_dtype) == 0
-    # ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
-    assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
     if mod0.geoms._data:
-        for name in mod0.geoms.data:
-            geom0 = mod0.geoms.get(name)
-            geom1 = mod1.geoms.get(name)
-            assert geom0.index.size == geom1.index.size
-            assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
-            assert geom0.columns.size == geom1.columns.size
-            assert np.all(set(geom0.columns) == set(geom1.columns)), (
-                f"geom columns {name}"
-            )
-            assert geom0.crs == geom1.crs, f"geom crs {name}"
-            if not np.all(geom0.geometry == geom1.geometry):
-                warnings.warn(f"New geom {name} different than the example one.")
+        eq, errors = mod0.geoms.test_equal(mod1.geoms)
+        assert eq, f"geoms not equal: {errors}"
+
     # check config
     if mod0.config._data:
         # flatten
-        assert mod0.config.data == mod1.config.data, "config mismatch"
+        eq, errors = mod0.config.test_equal(mod1.config)
+        assert eq, f"config not equal: {errors}"
 
 
 @pytest.mark.timeout(300)  # max 5 min
@@ -142,9 +83,6 @@ def test_base_model_init_should_raise():
     )
 
 
-@pytest.mark.skip(
-    reason="Allow clipping again - current conflict for reading forcing and states"
-)
 @pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(
     tmpdir: Path,
@@ -163,9 +101,7 @@ def test_model_clip(
     # Clip workflow, based on example model
     example_wflow_model.read()
     example_wflow_model.set_root(destination, mode="w")
-    example_wflow_model.clip_grid(region)
-    example_wflow_model.clip_forcing()
-    example_wflow_model.clip_states()
+    example_wflow_model.clip(region)
     example_wflow_model.write()
 
     # Compare with model from examples folder
@@ -176,11 +112,71 @@ def test_model_clip(
     clipped_wflow_model.read()
     # compare models
     _compare_wflow_models(clipped_wflow_model, mod1)
+    # check states
+    eq, errors = clipped_wflow_model.states.test_equal(mod1.states)
+    assert eq, f"states not equal: {errors}"
 
 
-@pytest.mark.skip(
-    reason="Allow clipping again - current conflict for reading forcing and states"
-)
+def test_model_clip_reservoir(
+    tmpdir: Path,
+    example_wflow_model: WflowSbmModel,
+    reservoir_rating: dict[str, pd.DataFrame],
+):
+    model = "wflow"
+
+    # Clip method options
+    destination = str(tmpdir.join(model))
+    region = {
+        "subbasin": [12.3162, 46.1676],
+        "meta_streamorder": 3,
+    }
+
+    # Read and add reservoir rating tables before clipping
+    clip_model = WflowSbmModel(root=example_wflow_model.root.path, mode="r+")
+    clip_model.read()
+
+    for name, tbl in reservoir_rating.items():
+        clip_model.set_tables(tbl, name=name)
+    assert len(clip_model.tables.data) == 4
+    assert "reservoir_sh_169986" in clip_model.tables.data
+    assert "reservoir_hq_3367" in clip_model.tables.data
+
+    # Clip
+    clip_model.set_root(destination, mode="w")
+    clip_model.clip(region)
+    assert len(clip_model.tables.data) == 2
+    assert "reservoir_sh_169986" in clip_model.tables.data
+    assert "reservoir_hq_3367" not in clip_model.tables.data
+
+
+def test_sediment_model_clip(
+    tmpdir: Path,
+    example_sediment_model: WflowSedimentModel,
+):
+    model = "wflow"
+
+    # Clip method options
+    destination = str(tmpdir.join(model))
+    region = {
+        "subbasin": [12.3162, 46.1676],
+        "meta_streamorder": 3,
+    }
+
+    # Clip workflow, based on example model
+    example_sediment_model.read()
+    example_sediment_model.set_root(destination, mode="w")
+    example_sediment_model.clip(region)
+
+    # Check extent of the clipped model
+    n_pixels = example_sediment_model.staticmaps.data["subcatchment"].sum()
+    assert n_pixels == 97
+    # This model should still have one reservoir after clipping
+    assert "reservoirs" in example_sediment_model.geoms.data
+    assert len(example_sediment_model.geoms.data["reservoirs"]) == 1
+    assert "reservoir_area_id" in example_sediment_model.staticmaps.data
+    assert example_sediment_model.get_config("model.reservoir__flag") is True
+
+
 def test_model_inverse_clip(example_wflow_model: WflowSbmModel):
     # Clip method options
     region = {
@@ -188,19 +184,21 @@ def test_model_inverse_clip(example_wflow_model: WflowSbmModel):
         "meta_streamorder": 4,
     }
 
+    inverse_clip_model = WflowSbmModel(root=example_wflow_model.root.path, mode="r+")
     # Clip workflow, based on example model
-    example_wflow_model.read()
+    inverse_clip_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.staticmaps.data["subcatchment"].sum()
-    example_wflow_model.clip_grid(region.copy(), inverse_clip=True)
+    n_pixels_full = inverse_clip_model.staticmaps.data["subcatchment"].sum()
+    inverse_clip_model.clip(region.copy(), inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_inverse_clipped = inverse_clip_model.staticmaps.data["subcatchment"].sum()
 
     # Do clipping again, but normally
-    example_wflow_model.read()
-    example_wflow_model.clip_grid(region.copy(), inverse_clip=False)
+    clip_model = WflowSbmModel(root=example_wflow_model.root.path, mode="r+")
+    clip_model.read()
+    clip_model.clip(region.copy(), inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.staticmaps.data["subcatchment"].sum()
+    n_pixels_clipped = clip_model.staticmaps.data["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped

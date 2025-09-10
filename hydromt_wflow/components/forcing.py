@@ -296,12 +296,37 @@ class WflowForcingComponent(GridComponent):
                 region_component_name=self._region_component,
             )
 
+            # Check for CRS - eg sediment forcing is wflow.jl output and has no crs
+            if data.raster.crs is None:
+                data.raster.set_crs(self._get_grid_data().raster.crs)
+
         # Call set of parent class
         super().set(
             data=data,
             name=name,
         )
 
+    def clip(self):
+        """Clip the forcing component to the region of the region component.
+
+        If no region component is set, the forcing component is clipped to its own
+        extent.
+
+        """
+        if self._region_component is None:
+            logger.info(
+                "No region component set, forcing component will not be clipped."
+            )
+            return
+
+        if len(self.data) > 0:
+            logger.info("Clipping forcing...")
+            region_grid = self._get_grid_data()
+            ds_forcing = self.data.raster.clip_bbox(region_grid.raster.bounds)
+            self._data = xr.Dataset()  # clear existing forcing
+            self.set(ds_forcing)
+
+    ### Internal methods
     def _create_new_filename(
         self, filepath: Path, start_time: datetime, end_time: datetime, frequency: str
     ) -> Path:
