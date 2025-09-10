@@ -4,6 +4,7 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -31,18 +32,6 @@ def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
     if mod0.geoms._data:
         eq, errors = mod0.geoms.test_equal(mod1.geoms)
         assert eq, f"geoms not equal: {errors}"
-        # for name in mod0.geoms.data:
-        #     geom0 = mod0.geoms.get(name)
-        #     geom1 = mod1.geoms.get(name)
-        #     assert geom0.index.size == geom1.index.size
-        #     assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
-        #     assert geom0.columns.size == geom1.columns.size
-        #     assert np.all(set(geom0.columns) == set(geom1.columns)), (
-        #         f"geom columns {name}"
-        #     )
-        #     assert geom0.crs == geom1.crs, f"geom crs {name}"
-        #     if not np.all(geom0.geometry == geom1.geometry):
-        #         warnings.warn(f"New geom {name} different than the example one.")
 
     # check config
     if mod0.config._data:
@@ -126,6 +115,38 @@ def test_model_clip(
     # check states
     eq, errors = clipped_wflow_model.states.test_equal(mod1.states)
     assert eq, f"states not equal: {errors}"
+
+
+def test_model_clip_reservoir(
+    tmpdir: Path,
+    example_wflow_model: WflowSbmModel,
+    reservoir_rating: dict[str, pd.DataFrame],
+):
+    model = "wflow"
+
+    # Clip method options
+    destination = str(tmpdir.join(model))
+    region = {
+        "subbasin": [12.3162, 46.1676],
+        "meta_streamorder": 3,
+    }
+
+    # Read and add reservoir rating tables before clipping
+    clip_model = WflowSbmModel(root=example_wflow_model.root.path, mode="r+")
+    clip_model.read()
+
+    for name, tbl in reservoir_rating.items():
+        clip_model.set_tables(tbl, name=name)
+    assert len(clip_model.tables.data) == 4
+    assert "reservoir_sh_169986" in clip_model.tables.data
+    assert "reservoir_hq_3367" in clip_model.tables.data
+
+    # Clip
+    clip_model.set_root(destination, mode="w")
+    clip_model.clip(region)
+    assert len(clip_model.tables.data) == 2
+    assert "reservoir_sh_169986" in clip_model.tables.data
+    assert "reservoir_hq_3367" not in clip_model.tables.data
 
 
 def test_sediment_model_clip(

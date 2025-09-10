@@ -3809,15 +3809,25 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         )
 
         # Update reservoirs tables
-        if self._MAPS["reservoir_area_id"] in self.staticmaps.data:
+        logger.info("Updating reservoir tables to match clipped model.")
+        if self._MAPS["reservoir_area_id"] not in self.staticmaps.data:
+            # no more reservoirs in the model, tables can be cleared
+            self.tables._data = {}
+        else:
+            old_tables = self.tables.data.copy()
             reservoir = self.staticmaps.data[self._MAPS["reservoir_area_id"]]
-
-            logger.info("Updating reservoir tables to match clipped model.")
-            ids = np.unique(reservoir)
+            ids = np.unique(reservoir.raster.mask_nodata())
+            # remove nan from ids
+            ids = ids[~np.isnan(ids)].astype(int)
+            keys_to_keep = []
             for res_id in ids:
-                keys_to_remove = [k for k in self.tables.data if str(res_id) in k]
-                for key in keys_to_remove:
-                    del self.tables.data[key]
+                res_tbl = [k for k in self.tables.data if str(res_id) in k]
+                keys_to_keep.extend(res_tbl)
+
+            # Clear and add
+            self.tables._data = {}
+            for k in keys_to_keep:
+                self.set_tables(old_tables[k], name=k)
 
     @hydromt_step
     def upgrade_to_v1_wflow(self):

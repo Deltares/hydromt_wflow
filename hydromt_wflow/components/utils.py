@@ -197,11 +197,20 @@ def test_equal_grid_data(
         except KeyError:
             errors["dims"] = f"dim {dim} not in grid"
 
+    # Check if new maps in other grid
+    new_maps = []
+    for name in other_grid.raster.vars:
+        if name not in maps:
+            new_maps.append(name)
+    if len(new_maps) > 0:
+        errors["Other grid has additional maps"] = f"{', '.join(new_maps)}"
+
     # Check per map (dtype, value, nodata)
+    missing_maps = []
     for name in maps:
         map0 = grid[name].fillna(0)
         if name not in other_grid:
-            invalid_maps[name] = "KeyError"
+            missing_maps.append(name)
             continue
         map1 = other_grid[name].fillna(0)
         if (
@@ -232,6 +241,9 @@ def test_equal_grid_data(
                 diff = (map0.values - map1.values)[not_close].mean()
                 err = f"mean diff ({n_cells:d} cells): {diff:.4f}; {err}"
             invalid_maps[name] = err
+
+    if len(missing_maps) > 0:
+        errors["Other grid is missing maps"] = f"{', '.join(missing_maps)}"
 
     if len(invalid_maps) > 0:
         errors[f"{len(invalid_maps)} invalid maps"] = invalid_maps

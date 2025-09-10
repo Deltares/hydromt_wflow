@@ -256,6 +256,37 @@ def demda() -> xr.DataArray:
 
 
 @pytest.fixture
+def reservoir_rating() -> dict[str, pd.DataFrame]:
+    """Reservoir rating curves for testing purposes."""
+    rating = {
+        "reservoir_sh_169986": pd.DataFrame(
+            {
+                "H": [100, 101, 102, 103, 104, 105],
+                "S": [0, 1000, 1500, 2000, 3000, 5000],
+            }
+        ),
+        "reservoir_hq_169986": pd.DataFrame(
+            {
+                "H": [102, 103, 104, 105],
+                "1": [0, 1, 2.5, 4],
+            }
+        ),
+    }
+    # repeat column 1 of "reservoir_hq_169986" 365 time (1 column per day of year)
+    rating["reservoir_hq_169986"] = pd.concat(
+        [rating["reservoir_hq_169986"]] + [rating["reservoir_hq_169986"]["1"]] * 364,
+        axis=1,
+    )
+    rating["reservoir_hq_169986"].columns = ["H"] + [str(i) for i in range(1, 366)]
+
+    # Copy for reservoir id 3367
+    rating["reservoir_sh_3367"] = rating["reservoir_sh_169986"].copy()
+    rating["reservoir_hq_3367"] = rating["reservoir_hq_169986"].copy()
+
+    return rating
+
+
+@pytest.fixture
 def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
     """Mock rasterdataset for testing purposes."""
     ds = mocker.create_autospec(xr.Dataset, instance=True)

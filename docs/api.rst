@@ -39,14 +39,12 @@ High level and I/O methods
 
    WflowBaseModel.read_grid
    WflowBaseModel.write_grid
-   WflowBaseModel.clip_grid
 
    WflowBaseModel.read_geoms
    WflowBaseModel.write_geoms
 
    WflowBaseModel.read_forcing
    WflowBaseModel.write_forcing
-   WflowBaseModel.clip_forcing
 
    WflowBaseModel.read_states
    WflowBaseModel.write_states
@@ -167,6 +165,7 @@ Setup methods
    WflowSbmModel.setup_grid_from_raster
    WflowSbmModel.setup_cold_states
    WflowSbmModel.upgrade_to_v1_wflow
+   WflowSbmModel.clip
 
 .. _api_model_sediment:
 
@@ -207,6 +206,7 @@ Setup components
    WflowSedimentModel.setup_constant_pars
    WflowSedimentModel.setup_grid_from_raster
    WflowSedimentModel.upgrade_to_v1_wflow
+   WflowSedimentModel.clip
 
 .. _data_containers:
 
