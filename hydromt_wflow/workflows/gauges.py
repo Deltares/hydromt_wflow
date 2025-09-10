@@ -6,9 +6,9 @@ from typing import Optional
 import geopandas as gpd
 import numpy as np
 import xarray as xr
-from hydromt import flw
+from hydromt.gis import flw
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = ["gauge_map_uparea"]
@@ -23,7 +23,6 @@ def gauge_map_uparea(
     rel_error: float = 0.05,
     abs_error: float = 50,
     fillna: bool = False,
-    logger=logger,
 ):
     """
     Snap point locations to grid cell.
@@ -138,7 +137,6 @@ def gauge_map_uparea(
         ids=ids_out,
         stream=None,
         flwdir=None,
-        logger=logger,
     )
 
     # Final message

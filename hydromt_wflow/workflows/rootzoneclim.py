@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import xarray as xr
-from hydromt import flw
+from hydromt.gis import flw
 from scipy import optimize
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 __all__ = ["rootzoneclim"]
 
@@ -610,7 +610,6 @@ def rootzoneclim(
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
     missing_days_threshold: int | None = 330,
-    logger=logger,
 ):
     """
     Estimates the root zone storage parameter.

@@ -2,13 +2,13 @@
 
 from uuid import uuid4
 
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 
 def inner_benchmark_loop(tmpdir, wflow_ini):
     # don't interfere with output of other rounds
     root = tmpdir.join(str(uuid4()))
-    mod1 = WflowModel(root=root, mode="w", data_libs="artifact_data")
+    mod1 = WflowSbmModel(root=root, mode="w", data_libs="artifact_data")
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],

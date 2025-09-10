@@ -1,25 +1,27 @@
-setup_config:                  # options parsed to wflow toml file <section>.<option>
-  time.starttime: 2010-02-01T00:00:00
-  time.endtime: 2010-02-10T00:00:00
-  time.timestepsecs: 86400
-  input.path_forcing: inmaps-chirps.nc
+steps:
+  - setup_config:                  # options parsed to wflow toml file <section>.<option>
+      data:
+        time.starttime: 2010-02-01T00:00:00
+        time.endtime: 2010-02-10T00:00:00
+        time.timestepsecs: 86400
+        input.path_forcing: inmaps-chirps.nc
 
-setup_precip_forcing:
-  precip_fn: chirps_global # source for precipitation.
+  - setup_precip_forcing:
+      precip_fn: chirps_global # source for precipitation.
 
-setup_temp_pet_forcing:
-  temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
-  press_correction: True          # if True temperature is corrected with elevation lapse rate.
-  temp_correction: True          # if True pressure is corrected with elevation lapse rate.
-  dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
-  pet_method: debruin       # method to compute PET: {debruin, makkink}
-  skip_pet: False         # if True, only temperature is prepared.
+  - setup_temp_pet_forcing:
+      temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
+      press_correction: True          # if True temperature is corrected with elevation lapse rate.
+      temp_correction: True          # if True pressure is corrected with elevation lapse rate.
+      dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
+      pet_method: debruin       # method to compute PET: {debruin, makkink}
+      skip_pet: False         # if True, only temperature is prepared.
 
-write_forcing:                # Write forcing and re-write config if forcing filename or times are updated
-  freq_out: M             # Set frequency at which forcing files are written, following pandas offset aliases
+  - write_forcing:                # Write forcing and re-write config if forcing filename or times are updated
+      output_frequency: M             # Set frequency at which forcing files are written, following pandas offset aliases
 
-write_grid:             # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
+  - write_grid:             # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
 
-write_geoms:             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
+  - write_geoms:             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
 
-write_config:           # to make sure the configurations file is written with the updated start and endtime and the forcing file path
+  - write_config:           # to make sure the configurations file is written with the updated start and endtime and the forcing file path

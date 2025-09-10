@@ -17,7 +17,7 @@ def ksat_horizontal_ratio(
 ) -> xr.DataArray:
     """Create KsatHorfrac map.
 
-    Based on the data properties of the WflowModel.
+    Based on the data properties of the WflowSbmModel.
 
     Parameters
     ----------
@@ -53,7 +53,6 @@ the predefined KsatHorFrac map.
     # Set the default no fill value for doubles
     da = da.fillna(-9999.0)
     da.raster.set_nodata(-9999.0)
-    # Return as a dataset to be used for 'set_grid'
     return da
 
 
