@@ -610,7 +610,6 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-@pytest.mark.skip(reason="Issue with get_(geo)dataframe from file hydromt#1243")
 def test_setup_gauges(example_wflow_model: WflowSbmModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
@@ -717,6 +716,12 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
         ["river_mask", "meta_upstream_area"]
     ].raster.sample(gdf_snap, wdw=0)
     assert np.all(ds_samp["river_mask"].values == 1)
+
+    # 4. Test with test_stations.csv file
+    stations_csv_file = join(EXAMPLEDIR, "test_stations.csv")
+    example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
+    test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
+    assert len(test_stations_gdf) == 3
 
 
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
