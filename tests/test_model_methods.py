@@ -1098,6 +1098,46 @@ def test_setup_1dmodel_connection(example_wflow_model: WflowSbmModel, rivers1d):
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel-nodes")) == 6
 
 
+def test_setup_1dmodel_connection_other(
+    example_wflow_model: WflowSbmModel, rivers1d_projected: gpd.GeoDataFrame
+):
+    # rivers1d_projected has different crs and parts outside the model area
+
+    # raise ValueError too small area_max
+    with pytest.raises(
+        ValueError, match=r"^1 subbasin\(s\) do not contain a wflow river cell."
+    ):
+        example_wflow_model.setup_1dmodel_connection(
+            river1d_fn=rivers1d_projected,
+            connection_method="subbasin_area",
+            area_max=30.0,
+            add_tributaries=True,
+            include_river_boundaries=True,
+            mapname="1dmodel",
+            update_toml=True,
+            toml_output="netcdf_scalar",
+        )
+
+    # Check the coupling and results
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=rivers1d_projected,
+        connection_method="subbasin_area",
+        area_max=10.0,
+        add_tributaries=True,
+        include_river_boundaries=True,
+        mapname="1dmodel",
+        update_toml=True,
+        toml_output="netcdf_scalar",
+    )
+
+    assert "gauges_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms.data
+
+    assert len(example_wflow_model.geoms.data["gauges_1dmodel"]) == 1
+    assert len(example_wflow_model.geoms.data["subcatchment_1dmodel"]) == 1
+
+
 def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
     # Using the clipped_wflow_model as the reservoirs are not in this model
     clipped_wflow_model.setup_reservoirs_simple_control(
