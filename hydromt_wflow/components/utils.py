@@ -43,8 +43,7 @@ def _relpath(
             value = Path(relpath(value, root))
     except ValueError:
         pass  # `value` path is not relative to root
-    finally:
-        return value.as_posix()
+    return value.as_posix()
 
 
 def make_config_paths_relative(
