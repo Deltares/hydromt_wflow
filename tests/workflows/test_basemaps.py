@@ -180,8 +180,9 @@ class TestParseRegion:
     ):
         """Test that an error is raised if the basin geometry has no CRS."""
         basin_geom, xy = mock_get_basin_geometry.return_value
-        basin_geom.crs = None
-        mock_get_basin_geometry.return_value = (basin_geom, xy)
+        basin_geom_no_crs = basin_geom.set_crs(None, allow_override=True)
+        mock_get_basin_geometry.return_value = (basin_geom_no_crs, xy)
+
         with pytest.raises(ValueError, match="wflow region geometry has no CRS"):
             parse_region(
                 mock_datacatalog,
@@ -235,7 +236,7 @@ class TestParseRegion:
         mock_geometry,
     ):
         """Test that no error is raised if the model resolution is close to the hydrography resolution."""  # noqa: E501
-        mock_geometry.crs = "EPSG:4326"  # restore valid CRS
+        mock_geometry.set_crs(crs="EPSG:4326")  # restore valid CRS
         mock_get_basin_geometry.return_value = (mock_geometry, mock_xy)
         resolution = mock_datacatalog.get_rasterdataset.return_value.raster.res[0]
         # Should not raise any errors or warnings
