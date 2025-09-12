@@ -108,6 +108,9 @@ filterwarnings = [
   # upstream issue with rasterio, see https://github.com/rasterio/rasterio/issues/2497
   "ignore:Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned:rasterio.errors.NotGeoreferencedWarning",
 
+  #upstream pooch issue
+  "ignore:Python 3.14 will, by default, filter extracted tar archives and reject:DeprecationWarning",
+
   "ignore:Bitwise inversion '~' on bool is deprecated:DeprecationWarning",
   "ignore:Conversion of an array with ndim > 0 to a scalar is deprecated:DeprecationWarning",
   "ignore:'AS-[A-Za-z]{3}' is deprecated.*:FutureWarning:xarray.groupers",
