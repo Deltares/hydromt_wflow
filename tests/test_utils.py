@@ -65,7 +65,7 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm():
+def test_convert_to_wflow_v1_sbm(tmp_path):
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
@@ -78,6 +78,10 @@ def test_convert_to_wflow_v1_sbm():
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
     wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
+
+    # Set kinematic_wave__adaptive_time_step_flag to false to mirror settings in wflow
+    #  v1 config
+    wflow.config.data["model"]["kinematic_wave__adaptive_time_step_flag"] = False
     assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
