@@ -1,10 +1,11 @@
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import cast
 
 import geopandas as gpd
+from geopandas.testing import assert_geodataframe_equal
 from hydromt.model import Model
-from hydromt.model.components import GeomsComponent
+from hydromt.model.components import GeomsComponent, ModelComponent
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
@@ -21,7 +22,7 @@ class WflowGeomsComponent(GeomsComponent):
         model: Model,
         *,
         filename: str = "staticgeoms/{name}.geojson",
-        region_component: Optional[str] = None,
+        region_component: str | None = None,
         region_filename: str = "staticgeoms/geoms_region.geojson",
     ):
         """Initialize a WflowGeomsComponent.
@@ -77,7 +78,7 @@ class WflowGeomsComponent(GeomsComponent):
         self,
         folder: str = "staticgeoms",
         to_wgs84: bool = False,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         **kwargs,
     ) -> None:
         r"""
@@ -119,7 +120,7 @@ class WflowGeomsComponent(GeomsComponent):
 
         grid_size = 10 ** (-_precision)
         for gdf in self.data.values():
-            gdf.geometry.set_precision(
+            gdf.geometry = gdf.geometry.set_precision(
                 grid_size=grid_size,
             )
 
@@ -183,3 +184,47 @@ class WflowGeomsComponent(GeomsComponent):
         """Clear all geometries."""
         self.data.clear()
         logger.debug("Cleared all geometries from geoms.")
+
+    def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
+        """Test if two GeomsComponents are equal.
+
+        Parameters
+        ----------
+        other: GeomsComponent
+            The other GeomsComponent to compare with.
+
+        Returns
+        -------
+        tuple[bool, dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        errors: dict[str, str] = {}
+        if not isinstance(other, self.__class__):
+            errors["__class__"] = f"other does not inherit from {self.__class__}."
+
+        other_geoms = cast(WflowGeomsComponent, other)
+        for name, gdf in self.data.items():
+            if name not in other_geoms.data:
+                errors[name] = "Geom not found in other component."
+
+            # Geometries need to be normalized before comparison
+            # (eg polygon points defined in the exact same order)
+            gdf = gdf.copy()
+            gdf["geometry"] = gdf["geometry"].apply(lambda geom: geom.normalize())
+            other_gdf = other_geoms.data[name].copy()
+            other_gdf["geometry"] = other_gdf["geometry"].apply(
+                lambda geom: geom.normalize()
+            )
+
+            try:
+                assert_geodataframe_equal(
+                    gdf,
+                    other_gdf,
+                    check_like=True,
+                    check_less_precise=True,
+                )
+            except AssertionError as e:
+                errors[name] = str(e)
+
+        return len(errors) == 0, errors
