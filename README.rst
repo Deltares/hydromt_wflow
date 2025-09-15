@@ -26,7 +26,7 @@ and to facilitate the analysis of the model results.
 How to use HydroMT-Wflow?
 -------------------------
 The HydroMT-Wflow plugin can be used as a **command line** application, which provides commands to *build*,
-*update* and *clip* a Wflow model with a single line, or **from python** to exploit its rich interface.
+*update* (including clip) a Wflow model with a single line, or **from python** to exploit its rich interface.
 You can learn more about how to use HydroMT-Wflow in its `online documentation. <https://deltares.github.io/hydromt_wflow/latest/getting_started/intro>`_
 For a smooth installing experience we recommend installing HydroMT-Wflow and its dependencies
 from conda-forge in a clean environment, see `installation guide. <https://deltares.github.io/hydromt_wflow/latest/getting_started/installation>`_
