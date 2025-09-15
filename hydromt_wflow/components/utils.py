@@ -213,10 +213,18 @@ def test_equal_grid_data(
             missing_maps.append(name)
             continue
         map1 = other_grid[name].fillna(0)
+
+        # hilariously np.nan == np.nan returns False, hence the additional check
+        equal_nodata = map0.raster.nodata == map1.raster.nodata
+        if not equal_nodata and (
+            np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata)
+        ):
+            equal_nodata = True
+
         if (
             not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
             or map0.dtype != map1.dtype
-            or map0.raster.nodata != map1.raster.nodata
+            or not equal_nodata
         ):
             if len(map0.dims) > 2:  # 3 dim map
                 map0 = map0[0, :, :]
@@ -228,11 +236,9 @@ def test_equal_grid_data(
                 else f"{map1.dtype} instead of {map0.dtype}"
             )
             # Check on nodata
-            # hilariously np.nan == np.nan returns False, hence the additional check
             err = (
                 err
-                if map0.raster.nodata == map1.raster.nodata
-                or (np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata))
+                if equal_nodata
                 else f"nodata {map1.raster.nodata} instead of \
 {map0.raster.nodata}; {err}"
             )

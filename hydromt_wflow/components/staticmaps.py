@@ -6,6 +6,7 @@ from pathlib import Path
 import hydromt
 import numpy as np
 import xarray as xr
+from hydromt.gis import flw
 from hydromt.model import Model
 from hydromt.model.components import GridComponent, ModelComponent
 from hydromt.model.processes.basin_mask import get_basin_geometry
@@ -268,6 +269,16 @@ class WflowStaticmapsComponent(GridComponent):
         """
         Clip staticmaps to region.
 
+        Staticmaps are clipped to the region defined in the `region` argument. If
+        `inverse_clip` is True, the upstream part of the model is removed instead of
+        the subbasin itself. After clipping, the flow direction map is re-derived to
+        ensure that all edges of the clipped model are pits. If reservoir maps are
+        present in the staticmaps but no reservoirs are present in the clipped model,
+        these maps are removed from the staticmaps.
+
+        Note that the outlets are not re-derived in this function and should be done
+        separately using `WflowBaseModel.setup_outlets`.
+
         Parameters
         ----------
         region : dict
@@ -355,6 +366,15 @@ class WflowStaticmapsComponent(GridComponent):
                     "staticmaps."
                 )
                 ds_grid = ds_grid.drop_vars(reservoir_maps)
+
+        # Re-derive flwdir after clipping (add pits at edges)
+        _flwdir = flw.flwdir_from_da(
+            ds_grid[flwdir_name],
+            ftype="infer",
+            check_ftype=True,
+            mask=(ds_grid[basins_name] > 0),
+        )
+        ds_grid[flwdir_name].data = _flwdir.to_array("ldd")
 
         # Check CRS
         if self.data.raster.crs is None and crs is not None:
