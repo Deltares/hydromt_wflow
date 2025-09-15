@@ -159,6 +159,14 @@ def rivers1d():
 
 
 @pytest.fixture
+def rivers1d_projected():
+    data = gpd.read_file(
+        join(dirname(abspath(__file__)), "data", "1d-river-3857.geojson"),
+    )
+    return data
+
+
+@pytest.fixture
 def df_precip_stations():
     np.random.seed(42)
     time = pd.date_range(

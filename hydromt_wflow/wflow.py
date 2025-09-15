@@ -3910,6 +3910,8 @@ Run setup_soilmaps first"
         river1d_fn: str | Path | gpd.GeoDataFrame,
         connection_method: str = "subbasin_area",
         area_max: float = 30.0,
+        basin_buffer_cells: int = 0,
+        geom_snapping_tolerance: float = 0.001,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
@@ -3944,6 +3946,10 @@ Run setup_soilmaps first"
         save all river inflows for the subcatchments and lateral.river.q_av for the
         tributaries using :py:meth:`hydromt_wflow.wflow.setup_config_output_timeseries`.
 
+        Note that if the method is `subbasin_area`, only connecting one continuous
+        river1d is supported. To connect several riv1d networks to the same wflow model,
+        the method can be run several times.
+
         Adds model layer:
 
         * **subcatchment_{mapname}** map/geom:  connection subbasins between
@@ -3965,6 +3971,14 @@ Run setup_soilmaps first"
             Maximum area [km2] of the subbasins to connect to the 1D model in km2 with
             connection_method **subbasin_area** or **nodes** with add_tributaries
             set to True.
+        basin_buffer_cells : int, default 0
+            Number of cells to use when clipping the river1d geometry to the basin
+            extent. This can be used to not include river geometries near the basin
+            border.
+        geom_snapping_tolerance : float, default 0.1
+            Distance used to determine whether to snap parts of the river1d geometry
+            that are close to each other. This can be useful if some of the tributaries
+            of the 1D river are not perfectly connected to the main river.
         add_tributaries : bool, default True
             If True, derive tributaries for the subbasins larger than area_max. Always
             True for **subbasin_area** method.
@@ -3988,6 +4002,7 @@ Run setup_soilmaps first"
         See Also
         --------
         hydromt.flw.gauge_map
+        hydromt_wflow.workflows.wflow_1dmodel_connection
         """
         # Check connection method values
         if connection_method not in ["subbasin_area", "nodes"]:
@@ -4009,6 +4024,8 @@ Run setup_soilmaps first"
             ds_model=self.grid.rename(inv_rename),
             connection_method=connection_method,
             area_max=area_max,
+            basin_buffer_cells=basin_buffer_cells,
+            geom_snapping_tolerance=geom_snapping_tolerance,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
             logger=self.logger,
