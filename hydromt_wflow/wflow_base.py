@@ -1231,7 +1231,10 @@ gauge locations [-] (if derive_subcatch)
                 code = self.crs.to_epsg()
             else:
                 code = self.crs
-            kwargs.update(crs=code)
+            if "metadata" in kwargs:
+                kwargs["metadata"].update(crs=code)
+            else:
+                kwargs.update({"metadata": {"crs": code}})
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
                 geom=self.basins,
