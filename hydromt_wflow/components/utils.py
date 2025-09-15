@@ -216,6 +216,7 @@ def test_equal_grid_data(
         if (
             not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
             or map0.dtype != map1.dtype
+            or map0.raster.nodata != map1.raster.nodata
         ):
             if len(map0.dims) > 2:  # 3 dim map
                 map0 = map0[0, :, :]

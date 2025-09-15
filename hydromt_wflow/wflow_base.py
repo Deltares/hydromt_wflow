@@ -1629,7 +1629,7 @@ one variable and variables list is not provided."
         self._flwdir = None  # make sure old flwdir object is removed
         self.staticmaps.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
-        # 2. Reinitiliase geoms, re-create basins/rivers/outlets and clip the rest
+        # 2. Reinitialize geoms, re-create basins/rivers/outlets and clip the rest
         logger.info("Re-generating/clipping staticgeoms..")
         old_geoms = self.geoms.data.copy()
         self.geoms.clear()
