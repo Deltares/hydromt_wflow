@@ -26,6 +26,7 @@ For a static (non-interactive) view of the examples follow one of the links belo
 
    ../_examples/update_model_landuse
    ../_examples/update_model_forcing
+   ../_examples/update_model_gauges
    ../_examples/update_model_water_demand
    ../_examples/connect_to_1d_model
 
@@ -44,3 +45,4 @@ For a static (non-interactive) view of the examples follow one of the links belo
    ../_examples/plot_wflow_forcing
    ../_examples/plot_wflow_results
    ../_examples/upgrade_to_wflow_v1
+   ../_examples/clip_model
