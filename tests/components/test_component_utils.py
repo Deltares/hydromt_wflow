@@ -10,6 +10,7 @@ from hydromt_wflow.components.utils import (
     get_mask_layer,
     make_config_paths_relative,
 )
+from hydromt_wflow.components.utils import test_equal_grid_data as equal_grid_data
 
 
 def test__mount():
@@ -144,3 +145,81 @@ def test_make_config_paths_relative(
     assert not Path(p).is_absolute()  # Not anymore
     assert cfg["spooky"]["ghost"] == [1, 2, 3]
     assert cfg["baz"]["file2"] == "tmp/tmp.txt"
+
+
+def test__equal_grid():
+    # Create two identical grids
+    data1 = xr.DataArray(
+        np.array([[1, 2], [3, 4]]),
+        dims=("y", "x"),
+        coords={
+            "x": ("x", [0.5, 1.5]),
+            "y": ("y", [0.5, 1.5]),
+        },
+    )
+    data1.raster.set_crs(4326)
+    data1.raster.set_nodata(-1)
+    data1 = data1.to_dataset(name="data1")
+
+    # Test equality
+    eq, _ = equal_grid_data(data1, data1.copy())
+    assert eq
+
+    # Check for empty
+    empty_grid = xr.Dataset()
+    eq, errors = equal_grid_data(empty_grid, empty_grid)
+    assert eq
+
+    eq, errors = equal_grid_data(empty_grid, data1)
+    assert not eq
+    assert errors["grid"] == "first grid is empty, second is not"
+
+    # Check for crs
+    data2 = data1.copy()
+    data2.raster.set_crs(3857)
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["crs"] == "the two grids have different crs"
+
+    # Check for dims
+    data2 = data1.copy()
+    data2 = data1.rename({"x": "x2"})
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["dims"] == "dim x2 not in grid"
+
+    data2 = data1.copy()
+    data2["x"] = [0.5, 2.5]
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["dims"] == "dim x not identical"
+
+    # Check for missing data variables
+    data2 = data1.copy()
+    data2["data2"] = data2["data1"]
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["Other grid has additional maps"] == "data2"
+
+    eq, errors = equal_grid_data(data2, data1)
+    assert not eq
+    assert errors["Other grid is missing maps"] == "data2"
+
+    # Check on data variable differences: dtype, nodata, values
+    data2 = data1.copy()
+    data2["data1"] = data2["data1"].astype(np.float32)
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["1 invalid maps"] == {"data1": "float32 instead of int64"}
+
+    data2 = data1.copy()
+    data2["data1"].raster.set_nodata(-9999)
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["1 invalid maps"] == {"data1": "nodata -9999 instead of -1; "}
+
+    data2 = data1.copy()
+    data2["data1"].values = [[1, 1], [3, 6]]
+    eq, errors = equal_grid_data(data1, data2)
+    assert not eq
+    assert errors["1 invalid maps"] == {"data1": "mean diff (2 cells): -0.5000; "}
