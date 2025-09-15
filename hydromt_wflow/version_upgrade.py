@@ -352,7 +352,7 @@ def convert_to_wflow_v1_sbm(
         "snow": "snow__flag",
         "glacier": "glacier__flag",
         "pits": "pit__flag",
-        "masswasting": "snow_gravitional_transport__flag",
+        "masswasting": "snow_gravitational_transport__flag",
         "thicknesslayers": "soil_layer__thickness",
         "min_streamorder_land": "land_streamorder__min_count",
         "min_streamorder_river": "river_streamorder__min_count",
