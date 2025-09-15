@@ -119,7 +119,7 @@ def test_wflow_states_component_read(
 
     # Assert the read data
     assert isinstance(component.data, xr.Dataset)
-    assert len(component.data) == 14
+    assert len(component.data) == 13
     assert "river_instantaneous_q" in component.data
 
 
@@ -136,7 +136,7 @@ def test_wflow_states_component_read_init(
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 14
+    assert len(component.data) == 13
     assert "river_instantaneous_q" in component.data
 
 
@@ -187,5 +187,5 @@ def test_wflow_states_component_equal(
     # Assert unequal
     eq, errors = component.test_equal(component2)
     assert eq is False
-    assert "Data variables only on the right object" in errors["data"]
-    assert "test_layer" in errors["data"]
+    assert "Other grid has additional maps" in errors
+    assert "test_layer" in errors["Other grid has additional maps"]
