@@ -55,13 +55,6 @@ if os.path.isdir("_examples"):
 os.makedirs("_examples", exist_ok=True)
 copy_tree("../examples", "_examples")
 
-# delete exclude_notebooks from _examples - temporary
-exclude_notebooks = ["update_model_gauges.ipynb"]
-for notebook in exclude_notebooks:
-    notebook_path = os.path.join("_examples", notebook)
-    if os.path.exists(notebook_path):
-        os.remove(notebook_path)
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.

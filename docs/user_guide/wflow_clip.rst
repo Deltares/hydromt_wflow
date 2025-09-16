@@ -42,6 +42,6 @@ See the following model API:
 
 
 .. .. toctree::
-    .. :hidden:
+    :hidden:
 
-    .. Example: Clip Wflow model <../_examples/clip_model.ipynb>
+    Example Clip Wflow model <../_examples/clip_model.ipynb>
