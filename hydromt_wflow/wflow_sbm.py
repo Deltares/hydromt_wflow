@@ -3577,7 +3577,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             )
             temp_min_in.name = "temp_min"
 
-            temp_in = xr.merge([temp_in, temp_max_in, temp_min_in])
+            temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
         if not skip_pet:
             pet_out = hydromt.model.processes.meteo.pet(

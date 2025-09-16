@@ -77,7 +77,11 @@ def calc_kv_at_depth(depth, kv_0, f):
     kv_z
         The kv value at the requested depth
     """
-    kv_z = kv_0 * np.exp(-f * depth)
+    exp_arg = -f * depth
+    # Clip exponent to float64-safe range
+    exp_arg = np.clip(exp_arg, -700, 700)
+    kv_z = kv_0 * np.exp(exp_arg)
+
     return kv_z
 
 
