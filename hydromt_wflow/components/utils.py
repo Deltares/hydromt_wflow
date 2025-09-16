@@ -43,8 +43,7 @@ def _relpath(
             value = Path(relpath(value, root))
     except ValueError:
         pass  # `value` path is not relative to root
-    finally:
-        return value.as_posix()
+    return value.as_posix()
 
 
 def make_config_paths_relative(
@@ -148,3 +147,111 @@ def align_grid_with_region(
         )
 
     return data
+
+
+def test_equal_grid_data(
+    grid: xr.Dataset, other_grid: xr.Dataset
+) -> tuple[bool, dict[str, str]]:
+    """
+    Test if two grid datasets are equal.
+
+    Checks the CRS, dimensions, and data variables for equality.
+
+    Parameters
+    ----------
+    grid : xr.Dataset
+        The first grid dataset to compare.
+    other_grid : xr.Dataset
+        The second grid dataset to compare.
+
+    Returns
+    -------
+    tuple[bool, dict[str, str]]
+        True if the grids are equal, and a dict with the associated errors per property
+        checked.
+    """
+    errors: dict[str, str] = {}
+    invalid_maps: dict[str, str] = {}
+
+    # Check if grid is empty
+    if len(grid) == 0:
+        if len(other_grid) == 0:
+            return True, {}
+        else:
+            errors["grid"] = "first grid is empty, second is not"
+            return False, errors
+
+    # Check CRS and dims
+    maps = grid.raster.vars
+
+    if not np.all(grid.raster.crs == other_grid.raster.crs):
+        errors["crs"] = "the two grids have different crs"
+
+    # check on dims names and values
+    for dim in other_grid.dims:
+        try:
+            xr.testing.assert_identical(other_grid[dim], grid[dim])
+        except AssertionError:
+            errors["dims"] = f"dim {dim} not identical"
+        except KeyError:
+            errors["dims"] = f"dim {dim} not in grid"
+
+    # Check if new maps in other grid
+    new_maps = []
+    for name in other_grid.raster.vars:
+        if name not in maps:
+            new_maps.append(name)
+    if len(new_maps) > 0:
+        errors["Other grid has additional maps"] = f"{', '.join(new_maps)}"
+
+    # Check per map (dtype, value, nodata)
+    missing_maps = []
+    for name in maps:
+        map0 = grid[name].fillna(0)
+        if name not in other_grid:
+            missing_maps.append(name)
+            continue
+        map1 = other_grid[name].fillna(0)
+
+        # hilariously np.nan == np.nan returns False, hence the additional check
+        equal_nodata = map0.raster.nodata == map1.raster.nodata
+        if not equal_nodata and (
+            np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata)
+        ):
+            equal_nodata = True
+
+        if (
+            not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
+            or map0.dtype != map1.dtype
+            or not equal_nodata
+        ):
+            if len(map0.dims) > 2:  # 3 dim map
+                map0 = map0[0, :, :]
+                map1 = map1[0, :, :]
+            # Check on dtypes
+            err = (
+                ""
+                if map0.dtype == map1.dtype
+                else f"{map1.dtype} instead of {map0.dtype}"
+            )
+            # Check on nodata
+            err = (
+                err
+                if equal_nodata
+                else f"nodata {map1.raster.nodata} instead of \
+{map0.raster.nodata}; {err}"
+            )
+            not_close = ~np.equal(map0, map1)
+            n_cells = int(np.sum(not_close))
+            if n_cells > 0:
+                diff = (map0.values - map1.values)[not_close].mean()
+                err = f"mean diff ({n_cells:d} cells): {diff:.4f}; {err}"
+            invalid_maps[name] = err
+
+    if len(missing_maps) > 0:
+        errors["Other grid is missing maps"] = f"{', '.join(missing_maps)}"
+
+    if len(invalid_maps) > 0:
+        errors[f"{len(invalid_maps)} invalid maps"] = invalid_maps
+
+    return len(errors) == 0, errors

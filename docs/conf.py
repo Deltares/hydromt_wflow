@@ -56,7 +56,7 @@ os.makedirs("_examples", exist_ok=True)
 copy_tree("../examples", "_examples")
 
 # delete exclude_notebooks from _examples - temporary
-exclude_notebooks = ["clip_model.ipynb", "update_model_gauges.ipynb"]
+exclude_notebooks = ["update_model_gauges.ipynb"]
 for notebook in exclude_notebooks:
     notebook_path = os.path.join("_examples", notebook)
     if os.path.exists(notebook_path):

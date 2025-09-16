@@ -610,7 +610,6 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-@pytest.mark.skip(reason="Issue with get_(geo)dataframe from file hydromt#1243")
 def test_setup_gauges(example_wflow_model: WflowSbmModel):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
@@ -717,6 +716,12 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
         ["river_mask", "meta_upstream_area"]
     ].raster.sample(gdf_snap, wdw=0)
     assert np.all(ds_samp["river_mask"].values == 1)
+
+    # 4. Test with test_stations.csv file
+    stations_csv_file = join(EXAMPLEDIR, "test_stations.csv")
+    example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
+    test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
+    assert len(test_stations_gdf) == 3
 
 
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
@@ -1096,6 +1101,46 @@ def test_setup_1dmodel_connection(example_wflow_model: WflowSbmModel, rivers1d):
 
     assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms.data
     assert len(example_wflow_model.geoms.get("subcatchment_1dmodel-nodes")) == 6
+
+
+def test_setup_1dmodel_connection_other(
+    example_wflow_model: WflowSbmModel, rivers1d_projected: gpd.GeoDataFrame
+):
+    # rivers1d_projected has different crs and parts outside the model area
+
+    # raise ValueError too small area_max
+    with pytest.raises(
+        ValueError, match=r"^1 subbasin\(s\) do not contain a wflow river cell."
+    ):
+        example_wflow_model.setup_1dmodel_connection(
+            river1d_fn=rivers1d_projected,
+            connection_method="subbasin_area",
+            area_max=30.0,
+            add_tributaries=True,
+            include_river_boundaries=True,
+            mapname="1dmodel",
+            update_toml=True,
+            toml_output="netcdf_scalar",
+        )
+
+    # Check the coupling and results
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=rivers1d_projected,
+        connection_method="subbasin_area",
+        area_max=10.0,
+        add_tributaries=True,
+        include_river_boundaries=True,
+        mapname="1dmodel",
+        update_toml=True,
+        toml_output="netcdf_scalar",
+    )
+
+    assert "gauges_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms.data
+
+    assert len(example_wflow_model.geoms.data["gauges_1dmodel"]) == 1
+    assert len(example_wflow_model.geoms.data["subcatchment_1dmodel"]) == 1
 
 
 def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
