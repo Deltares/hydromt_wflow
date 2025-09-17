@@ -2,10 +2,10 @@
 
 import logging
 
-import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from hydromt.gis import raster_utils
 from scipy.optimize import curve_fit
 
 from hydromt_wflow.workflows import ptf, soilparams
@@ -277,7 +277,7 @@ def brooks_corey_layers(
     soildepth = soildepth_cm * 10
 
     # make empty dataarray for soil_brooks_corey_c for the 4 sbm layers
-    ds_c = hydromt.raster.full(
+    ds_c = raster_utils.full(
         coords=c_sl.raster.coords,
         nodata=np.nan,
         crs=c_sl.raster.crs,

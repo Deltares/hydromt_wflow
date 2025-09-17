@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.cli._utils import parse_config
+from hydromt.io import read_workflow_yaml
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
@@ -103,21 +103,21 @@ def example_models(
 @pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
-    opt = parse_config(config)
+    opt = read_workflow_yaml(config)
     return opt
 
 
 @pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
-    opt = parse_config(config)
+    opt = read_workflow_yaml(config)
     return opt
 
 
 @pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
-    opt = parse_config(config)
+    opt = read_workflow_yaml(config)
     return opt
 
 
