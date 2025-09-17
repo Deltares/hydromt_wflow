@@ -55,6 +55,17 @@ def _solve_var_name(var: str | dict, path: str, add: list):
         yield from _solve_var_name(item, path, add + [key])
 
 
+def _create_v0_to_v1_var_mapping(wflow_vars: dict) -> dict:
+    output_dict = {}
+    for value in wflow_vars.values():
+        if isinstance(value["wflow_v0"], list):
+            for var in value["wflow_v0"]:
+                output_dict[var] = value["wflow_v1"]
+        else:
+            output_dict[value["wflow_v0"]] = value["wflow_v1"]
+    return output_dict
+
+
 def _convert_to_wflow_v1(
     config: dict,
     wflow_vars: dict,
@@ -89,7 +100,7 @@ def _convert_to_wflow_v1(
     config_out: dict
         The converted config.
     """
-    WFLOW_CONVERSION = {v["wflow_v0"]: v["wflow_v1"] for v in wflow_vars.values()}
+    WFLOW_CONVERSION = _create_v0_to_v1_var_mapping(wflow_vars)
     for k, v in states_vars.items():
         WFLOW_CONVERSION[v["wflow_v0"]] = v["wflow_v1"]
     # Add a few extra output variables that are supported by the conversion

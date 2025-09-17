@@ -128,7 +128,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "hydromt_name": "glacstore",
     },
     "glacier_ttm": {
-        "wflow_v0": "vertical.g_ttm",
+        "wflow_v0": ["vertical.g_ttm", "vertical.g_tt"],
         "wflow_v1": "glacier_ice__melting_temperature_threshold",
     },
     "glacier_degree_day_coefficient": {
@@ -1043,7 +1043,7 @@ def _create_hydromt_wflow_mapping(
         for (staticmap_name, hydromt_name) in mapping_inv.items()
     }
 
-    # Get a mapping of staticmap_name: wflow_variable
+    # # Get a mapping of staticmap_name: wflow_variable
     mapping_wflow = {
         staticmap_name: wflow_var for wflow_var, staticmap_name in wflow_names.items()
     }
