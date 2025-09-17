@@ -8,12 +8,13 @@ data libraries are set, you can build a model by using:
 
 .. code-block:: console
 
-    hydromt build wflow path/to/built_model -r "{'basin': [x, y]}" -i wflow_build.yml -d data_sources.yml -vvv
+    hydromt build wflow_sbm path/to/built_model -i wflow_build.yml -d data_sources.yml -vvv
 
 
 .. Note::
   From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or \-\-region flag.
   The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
+  From HydroMT version 1.0 onwards, the region argument has been moved to ``setup_basemaps`` function arguments and is no longer available via cli.
 
 The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of this model are:
@@ -64,7 +65,7 @@ are three ways for the user to select which data libraries to use:
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 
-.. toctree::
-    :hidden:
+.. .. toctree::
+..     :hidden:
 
-    Example: Build Wflow model <../_examples/build_model.ipynb>
+..     Example: Build Wflow model <../_examples/build_model.ipynb>

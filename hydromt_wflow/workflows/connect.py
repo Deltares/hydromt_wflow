@@ -3,10 +3,10 @@
 import logging
 
 import geopandas as gpd
-import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from hydromt.gis import flw
 from pyflwdir import FlwdirRaster
 from scipy.ndimage import binary_erosion
 from shapely.geometry import LineString, MultiLineString, Point
@@ -14,7 +14,7 @@ from shapely.ops import snap
 
 from hydromt_wflow.utils import planar_operation_in_utm
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = ["wflow_1dmodel_connection"]
@@ -24,7 +24,6 @@ def flwdir_mask_to_subbasins(
     flwdir_mask: FlwdirRaster,
     area_max: float,
     ds_model: xr.Dataset,
-    logger: logging.Logger = logger,
 ) -> xr.DataArray:
     """
     Split the common basin between wflow model and 1D model into subbasins.
@@ -54,7 +53,7 @@ def derive_riv1d_edges(
 
     First derive the edges of the riv1d (start and end points of each linestring).
     Then snap them to the closest downstream wflow river cell using the
-    :py:meth:`hydromt.flw.gauge_map` method.
+    :py:meth:`hydromt.gis.flw.gauge_map` method.
     Finally, clean up the edges that were snapped to the main river (eg tributary
     starting to close to the main river) by keeping only the most downstream edge
     and the most upstream one.
@@ -74,12 +73,11 @@ def derive_riv1d_edges(
         geometry="geometry",
     )
 
-    _, idxs, ids = hydromt.flw.gauge_map(
+    _, idxs, ids = flw.gauge_map(
         ds_model,
         xy=(riv1d_edges.geometry.x, riv1d_edges.geometry.y),
         stream=ds_model["rivmsk"].values,
         flwdir=flwdir,
-        logger=logger,
         **kwargs,
     )
     points = gpd.points_from_xy(*ds_model.raster.idx_to_xy(idxs))
@@ -119,7 +117,6 @@ def connect_subbasin_area(
     flwdir: FlwdirRaster,
     area_max: float,
     include_river_boundaries: bool,
-    logger: logging.Logger = logger,
     **kwargs,
 ) -> tuple[FlwdirRaster, gpd.GeoDataFrame]:
     """
@@ -146,7 +143,7 @@ def connect_subbasin_area(
     riv1d_edges = derive_riv1d_edges(riv1d, ds_model, flwdir, **kwargs)
 
     # 2. Derive the subbasins corresponding to the river edges
-    da_edges_subbas, _ = hydromt.flw.basin_map(
+    da_edges_subbas, _ = flw.basin_map(
         ds_model,
         flwdir=flwdir,
         xy=(riv1d_edges.geometry.x, riv1d_edges.geometry.y),
@@ -250,7 +247,7 @@ def connect_subbasin_area(
     # 6. Mask the tributaries out of the subatch_to_split map
     if not gdf_tributaries.empty:
         # Derive the tributary basin map
-        da_trib_subbas, _ = hydromt.flw.basin_map(
+        da_trib_subbas, _ = flw.basin_map(
             ds_model,
             flwdir=flwdir,
             xy=(gdf_tributaries.geometry.x, gdf_tributaries.geometry.y),
@@ -268,7 +265,7 @@ def connect_subbasin_area(
             da_subcatch_to_split != da_subcatch_to_split.raster.nodata,
             ds_model["flwdir"].raster.nodata,
         )
-    flwdir_mask = hydromt.flw.flwdir_from_da(da_flwdir_mask)
+    flwdir_mask = flw.flwdir_from_da(da_flwdir_mask)
 
     return (flwdir_mask, gdf_tributaries)
 
@@ -278,7 +275,6 @@ def connect_nodes(
     gdf_riv: gpd.GeoDataFrame,
     flwdir: xr.DataArray,
     flwdir_mask: xr.DataArray,
-    logger: logging.Logger = logger,
     **kwargs,
 ) -> xr.DataArray:
     """Derive wflow subbasins for each 1d river node."""
@@ -297,16 +293,15 @@ def connect_nodes(
     gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
     gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
     # Snap the nodes to the wflow river
-    _, idxs, ids = hydromt.flw.gauge_map(
+    _, idxs, ids = flw.gauge_map(
         ds_model,
         xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
         stream=ds_model["rivmsk"].values,
         flwdir=flwdir,
-        logger=logger,
         **kwargs,
     )
     # Derive subbasins
-    da_subbasins, _ = hydromt.flw.basin_map(
+    da_subbasins, _ = flw.basin_map(
         ds_model,
         flwdir=flwdir_mask,
         idxs=idxs,
@@ -342,7 +337,6 @@ def buffer_basin_mask(
 def snap_river_endpoints(
     gdf_riv: gpd.GeoDataFrame,
     geom_snapping_tolerance: float,
-    logger: logging.Logger = logger,
 ) -> gpd.GeoDataFrame:
     """Snap river endpoints that are close to each other."""
     logger.info(
@@ -386,7 +380,6 @@ def subbasin_preprocess_river_geometry(
     gdf_riv: gpd.GeoDataFrame,
     basin_buffer_cells: int,
     geom_snapping_tolerance: float,
-    logger: logging.Logger = logger,
 ) -> gpd.GeoDataFrame:
     """Preprocess the river geometry by snapping and merging segments."""
     # 0. Preprocess the river geometry
@@ -415,7 +408,6 @@ def subbasin_preprocess_river_geometry(
         gdf_riv = snap_river_endpoints(
             gdf_riv=gdf_riv,
             geom_snapping_tolerance=geom_snapping_tolerance,
-            logger=logger,
         )
 
     if gdf_riv.empty:
@@ -435,7 +427,6 @@ def wflow_1dmodel_connection(
     geom_snapping_tolerance: float = 0.001,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
-    logger=logger,
     **kwargs,
 ) -> xr.Dataset:
     """
@@ -459,7 +450,7 @@ def wflow_1dmodel_connection(
     `include_river_boundaries` option.
 
     River edges or river nodes are snapped to the closest downstream wflow river
-    cell using the :py:meth:`hydromt.flw.gauge_map` method.
+    cell using the :py:meth:`hydromt.gis.flw.gauge_map` method.
 
     Parameters
     ----------
@@ -488,11 +479,9 @@ def wflow_1dmodel_connection(
     include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
-    logger : logging.Logger, optional
-        Logger object, by default logger
     **kwargs
         Additional keyword arguments passed to the snapping method
-        hydromt.flw.gauge_map. See its documentation for more information.
+        hydromt.gis.flw.gauge_map. See its documentation for more information.
 
     Returns
     -------
@@ -504,14 +493,14 @@ def wflow_1dmodel_connection(
 
     See Also
     --------
-    hydromt.flw.gauge_map
+    hydromt.gis.flw.gauge_map
     """
     # Check variables in 'ds_model'
     dvars_model = ["flwdir", "rivmsk", "rivlen", "basins"]
     if not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
     # Derive flwdir
-    flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
+    flwdir = flw.flwdir_from_da(ds_model["flwdir"])
     # Check for uparea and derive on the fly if needed
     if "uparea" not in ds_model:
         logger.info(
@@ -566,7 +555,6 @@ def wflow_1dmodel_connection(
             gdf_riv=gdf_riv,
             basin_buffer_cells=basin_buffer_cells,
             geom_snapping_tolerance=geom_snapping_tolerance,
-            logger=logger,
         )
 
         # Obtain flwdir_mask from 'riv1d'
@@ -576,7 +564,6 @@ def wflow_1dmodel_connection(
             flwdir=flwdir,
             area_max=area_max,
             include_river_boundaries=include_river_boundaries,
-            logger=logger,
             **kwargs,
         )
     else:
@@ -586,7 +573,7 @@ def wflow_1dmodel_connection(
     # Derive subbasins
     if connection_method == "subbasin_area":
         da_subbasins = flwdir_mask_to_subbasins(
-            flwdir_mask=flwdir_mask, area_max=area_max, ds_model=ds_model, logger=logger
+            flwdir_mask=flwdir_mask, area_max=area_max, ds_model=ds_model
         )
     elif connection_method == "nodes":
         da_subbasins = connect_nodes(
@@ -594,7 +581,6 @@ def wflow_1dmodel_connection(
             gdf_riv=gdf_riv,
             flwdir=flwdir,
             flwdir_mask=flwdir_mask,
-            logger=logger,
             **kwargs,
         )
 

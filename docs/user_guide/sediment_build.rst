@@ -72,7 +72,7 @@ command line would be:
 
 .. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
 
-.. toctree::
-    :hidden:
+.. .. toctree::
+..     :hidden:
 
-    Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>
+..     Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>

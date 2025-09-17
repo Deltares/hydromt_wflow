@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
 
 TESTDATADIR = Path(dirname(abspath(__file__)), "data")
@@ -70,24 +70,30 @@ def test_convert_to_wflow_v1_sbm(tmp_path):
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
+
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
-    wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
 
     # Set kinematic_wave__adaptive_time_step_flag to false to mirror settings in wflow
     #  v1 config
-    wflow.config["model"]["kinematic_wave__adaptive_time_step_flag"] = False
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    wflow.config.data["model"]["kinematic_wave__adaptive_time_step_flag"] = False
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
-    res_ids = np.unique(wflow.grid["reservoir_outlet_id"].raster.mask_nodata())
+    res_ids = np.unique(
+        wflow.staticmaps.data["reservoir_outlet_id"].raster.mask_nodata()
+    )
     assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
     assert np.all(
-        np.isin([3.0, 4.0], wflow.grid["reservoir_rating_curve"].raster.mask_nodata())
+        np.isin(
+            [3.0, 4.0],
+            wflow.staticmaps.data["reservoir_rating_curve"].raster.mask_nodata(),
+        )
     )
 
 
@@ -97,7 +103,7 @@ def test_convert_to_wflow_v1_sediment():
     config_fn = "wflow_sediment_v0x.toml"
 
     wflow = WflowSedimentModel(
-        root, config_fn=config_fn, data_libs=["artifact_data"], mode="r"
+        root, config_filename=config_fn, data_libs=["artifact_data"], mode="r"
     )
     # Convert to v1
     wflow.upgrade_to_v1_wflow(
@@ -106,38 +112,41 @@ def test_convert_to_wflow_v1_sediment():
 
     # Check with a test config
     config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
-    wflow_v1 = WflowSedimentModel(root, config_fn=config_fn_v1, mode="r")
+    wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
-    assert wflow.config == wflow_v1.config, "Config files are not equal"
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
-    assert "soil_sagg_fraction" in wflow.grid
-    assert "land_govers_c" in wflow.grid
-    assert "river_kodatie_a" in wflow.grid
-    assert "reservoir_outlet_id" in wflow.grid
-    res_ids = np.unique(wflow.grid["reservoir_outlet_id"].raster.mask_nodata())
+    assert "soil_sagg_fraction" in wflow.staticmaps.data
+    assert "land_govers_c" in wflow.staticmaps.data
+    assert "river_kodatie_a" in wflow.staticmaps.data
+    assert "reservoir_outlet_id" in wflow.staticmaps.data
+    res_ids = np.unique(
+        wflow.staticmaps.data["reservoir_outlet_id"].raster.mask_nodata()
+    )
     assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
     assert np.all(
         np.isin(
-            [0.0, 1.0], wflow.grid["reservoir_trapping_efficiency"].raster.mask_nodata()
+            [0.0, 1.0],
+            wflow.staticmaps.data["reservoir_trapping_efficiency"].raster.mask_nodata(),
         )
     )
 
 
-def test_config_toml_overwrite(tmpdir):
-    dummy_model = WflowModel(root=tmpdir, mode="w")
-    dummy_model.read_config()
-    dummy_model.set_config(
+def test_config_toml_overwrite(tmpdir: Path):
+    dummy_model = WflowSbmModel(root=tmpdir, mode="w")
+    dummy_model.config.read()
+    dummy_model.config.set(
         "input.forcing.khorfrac.value",
         100,
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input.forcing.khorfrac.value",
         200,
     )
-    assert dummy_model.get_config("input.forcing.khorfrac.value") == 200
+    assert dummy_model.config.get_value("input.forcing.khorfrac.value") == 200
 
     # Test overwriting top-level key
-    dummy_model.set_config("path_log", "log_file.log")
-    dummy_model.set_config("path_log", "log_file2.log")
-    assert dummy_model.get_config("path_log") == "log_file2.log"
+    dummy_model.config.set("path_log", "log_file.log")
+    dummy_model.config.set("path_log", "log_file2.log")
+    assert dummy_model.config.get_value("path_log") == "log_file2.log"

@@ -1,18 +1,27 @@
 """Basemap workflows for Wflow plugin."""
 
 import logging
+import math
 from typing import Optional
 
 import geopandas as gpd
 import numpy as np
 import pyflwdir
 import xarray as xr
-from hydromt import flw, gis_utils
+from hydromt import DataCatalog
+from hydromt.gis import flw
+from hydromt.gis._raster_utils import _reggrid_area
+from hydromt.model.processes.basin_mask import get_basin_geometry
+from hydromt.model.processes.region import (
+    _parse_region_value,
+    parse_region_bbox,
+    parse_region_geom,
+)
 from pyflwdir import core_conversion, core_d8, core_ldd
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
-__all__ = ["hydrography", "topography"]
+__all__ = ["hydrography", "topography", "parse_region"]
 
 
 def hydrography(
@@ -25,7 +34,6 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
-    logger=logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -119,7 +127,7 @@ parametrization of distributed hydrological models.
             "upstream area or stream order to snap the outlet."
         )
     else:
-        logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
+        logger.info(f"(Sub)basin at original resolution has {ncells} cells.")
 
     if scale_ratio > 1:  # upscale flwdir
         if flwdir is None:
@@ -145,7 +153,6 @@ parametrization of distributed hydrological models.
             method=upscale_method,
             uparea_name=uparea_name,
             flwdir_name=flwdir_name,
-            logger=logger,
         )
         da_flw.raster.set_crs(ds.raster.crs)
         # make sure x_out and y_out get saved
@@ -246,7 +253,7 @@ parametrization of distributed hydrological models.
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
-        subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
+        subare = _reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
         ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging
@@ -255,19 +262,22 @@ parametrization of distributed hydrological models.
     xy_pit_str = ", ".join([f"({x:.5f},{y:.5f})" for x, y in zip(*xy_pit)])
     # stream order
     if strord_name not in ds_out.data_vars:
-        logger.debug("Derive stream order.")
+        logger.info("Derive stream order.")
         strord = flwdir_out.stream_order()
         ds_out[strord_name] = xr.Variable(dims, strord)
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
     ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
+    # also mask idx_out coords if present
+    if "idx_out" in ds_out:
+        ds_out["idx_out"] = ds_out["idx_out"].where(
+            ds_out[basins_name], ds_out["idx_out"].raster.nodata
+        )
 
     ds_out.raster.set_crs(ds.raster.crs)
-    logger.debug(
-        f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
-    )
-    logger.debug(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
+    logger.info(f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}.")
+    logger.info(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
     if np.any(np.asarray(ds_out.raster.shape) == 1):
         raise ValueError(
             "The output extent at model resolution should at least consist of two "
@@ -301,7 +311,6 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
-    logger=logger,
 ):
     """Return topography maps (see list below) at model resolution.
 
@@ -334,8 +343,9 @@ def topography(
     --------
     pyflwdir.dem.slope
     """
+    logger.info("Derive elevation and slope.")
     if lndslp_name not in ds.data_vars:
-        logger.debug(f"Slope map {lndslp_name} not found: derive from elevation map.")
+        logger.info(f"Slope map {lndslp_name} not found: derive from elevation map.")
         crs = ds[elevtn_name].raster.crs
         nodata = ds[elevtn_name].raster.nodata
         ds[lndslp_name] = xr.Variable(
@@ -355,3 +365,96 @@ def topography(
     ds_out[elevtn_name].attrs.update(unit="m")
     ds_out[lndslp_name].attrs.update(unit="m.m-1")
     return ds_out
+
+
+def parse_region(
+    data_catalog: DataCatalog,
+    region: dict,
+    hydrography_fn: str | xr.Dataset,
+    resolution: float | int = 1 / 120.0,
+    basin_index_fn: str | xr.Dataset | None = None,
+) -> tuple[dict[str, gpd.GeoDataFrame], Optional[np.ndarray], xr.Dataset]:
+    """Parse the region dictionary to get basin geometry and coordinates."""
+    ds_org = data_catalog.get_rasterdataset(hydrography_fn)
+    if ds_org is None:
+        raise ValueError(f"hydrography_fn {hydrography_fn} not found in data catalog.")
+
+    # Check on resolution
+    hydrography_resolution = ds_org.raster.res[0]
+    scale_ratio = resolution / hydrography_resolution
+
+    if math.isclose(scale_ratio, 1):
+        pass
+    elif scale_ratio < 0.75:
+        raise ValueError(
+            f"Model resolution {resolution} should be larger than the "
+            f"{hydrography_fn} resolution {hydrography_resolution}."
+        )
+    elif 0.75 < scale_ratio < 1.25:
+        logger.warning(
+            f"Model resolution {resolution} does not match the hydrography "
+            f"resolution {hydrography_resolution}. This might lead to unexpected "
+            f"results, using hydrography resolution instead: "
+            f"{hydrography_resolution}."
+        )
+        resolution = hydrography_resolution
+    else:
+        if ds_org.raster.crs.is_geographic:
+            if resolution > 1:  # 111 km
+                raise ValueError(
+                    f"The model resolution {resolution} should be smaller than 1 "
+                    "degree (111km) for geographic coordinate systems. "
+                    "Make sure you provided res in degree rather than in meters."
+                )
+
+    # get basin geometry and clip data
+    kind = next(iter(region))
+    xy = None
+    if kind in ["basin", "subbasin"]:
+        # parse_region_basin does not return xy, only geom...
+        # should be fixed in core
+        region_kwargs = _parse_region_value(
+            region.pop(kind),
+            data_catalog=data_catalog,
+        )
+        region_kwargs.update(region)
+        if basin_index_fn is not None:
+            bas_index = data_catalog.get_source(basin_index_fn)
+        else:
+            bas_index = None
+        geom, xy = get_basin_geometry(
+            ds=ds_org,
+            kind=kind,
+            basin_index=bas_index,
+            **region_kwargs,
+        )
+    elif kind == "bbox":
+        logger.warning(
+            "Kind 'bbox' for the region is not recommended as it can lead "
+            "to mistakes in the catchment delineation. Use carefully."
+        )
+        geom = parse_region_bbox(region)
+    elif kind == "geom":
+        logger.warning(
+            "Kind 'geom' for the region is not recommended as it can lead "
+            "to mistakes in the catchment delineation. Use carefully."
+        )
+        geom = parse_region_geom(region)
+    else:
+        raise ValueError(
+            f"wflow region kind not understood or supported: {kind}. "
+            "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+        )
+
+    if geom is not None and geom.crs is None:
+        raise ValueError("wflow region geometry has no CRS")
+
+    # Set the basins geometry
+    ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
+    ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
+
+    geometries = {}
+    if not math.isclose(scale_ratio, 1):
+        geometries["basins_highres"] = geom
+
+    return geometries, xy, ds_org

@@ -1,18 +1,16 @@
 """Mapping dictionaries from hydromt to hydromt_wflow to Wflow.jl names."""
 
-from typing import Tuple
-
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
-HYDROMT_NAMES_DEFAULT = {
+HYDROMT_NAMES_DEFAULT: dict[str, str] = {
     "glacareas": "meta_glacier_area_id",
 }
 
-HYDROMT_NAMES_DEFAULT_SEDIMENT = {
+HYDROMT_NAMES_DEFAULT_SEDIMENT: dict[str, str] = {
     "elevtn": "land_elevation",
 }
 
-HYDROMT_NAMES_COMMON = {
+HYDROMT_NAMES_COMMON: dict[str, str] = {
     "subelv": "meta_subgrid_elevation",
     "uparea": "meta_upstream_area",
     "subare": "meta_subgrid_area",
@@ -40,7 +38,7 @@ WFLOW_VARS_IN_INPUT = [
 # and Wflow.jl variables for v0x and v1x (if not present, None)
 # {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
 # {staticmap_name: (wflow_v0, wflow_v1)}
-WFLOW_NAMES = {
+WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     # general input
     "subcatchment": {
         "wflow_v0": "subcatchment",
@@ -332,7 +330,7 @@ WFLOW_NAMES = {
         "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
     },
     # land surface water flow
-    "N": {
+    "land_manning_n": {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
@@ -508,7 +506,7 @@ WFLOW_NAMES = {
     },
 }
 
-WFLOW_STATES_NAMES = {
+WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     "vegetation_water_depth": {
         "wflow_v0": "vertical.canopystorage",
         "wflow_v1": "vegetation_canopy_water__depth",
@@ -599,7 +597,7 @@ WFLOW_STATES_NAMES = {
     },
 }
 
-WFLOW_SEDIMENT_NAMES = {
+WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     # general input
     "subcatchment": {
         "wflow_v0": "subcatchment",
@@ -871,7 +869,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
 }
 
-WFLOW_SEDIMENT_STATES_NAMES = {
+WFLOW_SEDIMENT_STATES_NAMES: dict[str, dict[str, str | None]] = {
     "river_clay_load": {
         "wflow_v0": "lateral.river.clayload",
         "wflow_v1": "river_water_clay__mass",
@@ -951,7 +949,7 @@ def _create_hydromt_wflow_mapping(
     hydromt_dict: dict,
     model_dict: dict,
     config_dict: dict,
-) -> Tuple[dict, dict]:
+) -> tuple[dict, dict]:
     """
     Create dictionaries to convert from hydromt/Wflow names to staticmaps names.
 
@@ -1053,7 +1051,7 @@ def _create_hydromt_wflow_mapping(
     return mapping_hydromt, mapping_wflow
 
 
-def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
+def _create_hydromt_wflow_mapping_sbm(config: dict) -> tuple[dict, dict]:
     """
     Create a dictionary to convert from hydromt names to wflow sbm input names.
 
@@ -1063,7 +1061,7 @@ def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
     return _create_hydromt_wflow_mapping(HYDROMT_NAMES_DEFAULT, WFLOW_NAMES, config)
 
 
-def _create_hydromt_wflow_mapping_sediment(config: dict) -> Tuple[dict, dict]:
+def _create_hydromt_wflow_mapping_sediment(config: dict) -> tuple[dict, dict]:
     """
     Create a dictionary to convert from hydromt names to wflow sediment input names.
 
