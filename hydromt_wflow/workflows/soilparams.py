@@ -2,7 +2,7 @@
 
 import numpy as np
 import xarray as xr
-from hydromt import raster
+from hydromt.gis import raster_utils
 
 __all__ = [
     "ksat_horizontal_ratio",
@@ -140,7 +140,7 @@ def update_kvfrac(
     target_conductivity = np.array(target_conductivity)
 
     # Prepare empty dataarray
-    da_kvfrac = raster.full_like(ds_model["soil_brooks_corey_c"])
+    da_kvfrac = raster_utils.full_like(ds_model["soil_brooks_corey_c"])
     # Set all values to 1
     da_kvfrac = da_kvfrac.where(ds_model["elevtn"].raster.mask_nodata().isnull(), 1.0)
 
