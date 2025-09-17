@@ -695,7 +695,7 @@ argument.</p>
 </pre></div></div>
 </div>
 <p>You will need to find the <code class="docutils literal notranslate"><span class="pre">wflow</span> <span class="pre">variable</span></code> that corresponds to the map you updated, which in the case of <code class="docutils literal notranslate"><span class="pre">soil_ksat_vertical.tif</span></code> is <code class="docutils literal notranslate"><span class="pre">soil_surface_water__vertical_saturated_hydraulic_conductivity</span></code>. For information on the available wflow variables, see the <a class="reference external" href="https://deltares.github.io/Wflow.jl/stable/model_docs/intro/">Wflow documentation</a></p>
-<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable/_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html">setup_grid_from_raster</a>.</p>
+<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowBaseModel.setup_grid_from_raster.html">setup_grid_from_raster</a>.</p>
 <p>In the below example, we will use python to update our model. If you wish to update via command line, the steps are:</p>
 <ol class="arabic simple">
 <li><p>Create a data catalog entry for the maps in the “updated_staticmaps” folder</p></li>
