@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from hydromt._io.readers import _read_toml
-from hydromt._io.writers import write_toml
+from hydromt.io.readers import read_toml
+from hydromt.io.writers import write_toml
 from hydromt.model import Model
 from hydromt.model.components import ConfigComponent
 
@@ -117,7 +117,7 @@ class WflowConfigComponent(ConfigComponent):
             return
 
         # Read the data and set it in the document
-        self._data = _read_toml(read_path)
+        self._data = read_toml(read_path)
 
     def write(
         self,

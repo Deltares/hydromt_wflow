@@ -10,7 +10,7 @@ import pyflwdir
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.gis import flw
-from hydromt.gis._raster_utils import _reggrid_area
+from hydromt.gis.raster_utils import _reggrid_area
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,

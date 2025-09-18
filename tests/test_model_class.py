@@ -58,7 +58,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     opt = example_inis[model]
 
     # Build model
-    mod1.build(steps=opt["steps"])
+    mod1.build(steps=opt[2])
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
