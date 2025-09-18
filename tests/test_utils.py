@@ -65,7 +65,7 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm(tmp_path):
+def test_convert_to_wflow_v1_sbm():
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
@@ -95,6 +95,35 @@ def test_convert_to_wflow_v1_sbm(tmp_path):
             wflow.staticmaps.data["reservoir_rating_curve"].raster.mask_nodata(),
         )
     )
+
+
+def test_convert_to_wflow_v1_sbm_with_exceptions():
+    # Initialize wflow model
+    root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
+    config_fn = "wflow_sbm_v0x.toml"
+
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
+    theta_s = wflow.config.data["input"]["vertical"].pop("theta_s")
+    theta_r = wflow.config.data["input"]["vertical"].pop("theta_r")
+    g_ttm = wflow.config.data["input"]["vertical"].pop("g_ttm")
+    kv = wflow.config.data["input"]["vertical"].pop("kv_0")
+
+    wflow.config.data["input"]["vertical"]["θₛ"] = theta_s
+    wflow.config.data["input"]["vertical"]["θᵣ"] = theta_r
+    wflow.config.data["input"]["vertical"]["g_tt"] = g_ttm
+    wflow.config.data["input"]["vertical"]["kv₀"] = kv
+
+    # Convert to v1
+    wflow.upgrade_to_v1_wflow()
+
+    # Check with a test config
+    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
+    wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
+
+    # Set kinematic_wave__adaptive_time_step_flag to false to mirror settings in wflow
+    #  v1 config
+    wflow.config.data["model"]["kinematic_wave__adaptive_time_step_flag"] = False
+    assert wflow.config.test_equal(wflow_v1.config)[0]
 
 
 def test_convert_to_wflow_v1_sediment():
