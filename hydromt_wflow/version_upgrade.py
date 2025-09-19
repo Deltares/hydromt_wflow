@@ -402,7 +402,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
     # Wflow entries that cross main headers (i.e. [input, state, model, output])
     cross_options = {
         "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
-        "model.riverlength_bc": "input.static.model_boundary_condition~river__length"
+        "model.riverlength_bc": "input.static.model_boundary_condition~river__length",
     }
 
     config_out = _convert_to_wflow_v1(
