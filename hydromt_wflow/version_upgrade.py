@@ -153,14 +153,10 @@ def _convert_to_wflow_v1(
                 for elem in new_config_var:
                     set_config(config_out, f"model.{elem}", value)
                 continue
+            elif new_config_var is None:
+                # This option was moved to cross_options
+                continue
             set_config(config_out, f"model.{new_config_var}", value)
-
-    # Cross options
-    for opt_old, opt_new in cross_options.items():
-        value = get_config(key=opt_old, config=config)
-        if value is None:
-            continue
-        set_config(config_out, opt_new, value)
 
     # State
     logger.info("Converting config state section")
@@ -219,6 +215,17 @@ def _convert_to_wflow_v1(
                 config_out["input"]["cyclic"][variables["wflow_v1"]] = name
             else:
                 config_out["input"]["static"][variables["wflow_v1"]] = name
+
+    # Cross options
+    for opt_old, opt_new in cross_options.items():
+        value = get_config(key=opt_old, config=config)
+        if value is None:
+            continue
+        # Ensure that it is set either as a value or as a map
+        elif isinstance(value, str):
+            set_config(config_out, opt_new, value)
+        else:
+            set_config(config_out, f"{opt_new}.value", value)
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
@@ -373,6 +380,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
         "water_demand.paddy": "water_demand.paddy__flag",
         "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
         "constanthead": "constanthead__flag",
+        "riverlength_bc": None,  # moved to cross_options
     }
 
     # Options in input section that were renamed
@@ -394,6 +402,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
     # Wflow entries that cross main headers (i.e. [input, state, model, output])
     cross_options = {
         "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
+        "model.riverlength_bc": "input.static.model_boundary_condition~river__length"
     }
 
     config_out = _convert_to_wflow_v1(
