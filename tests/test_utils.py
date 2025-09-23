@@ -110,7 +110,7 @@ def test_convert_to_wflow_v1_sbm_with_exceptions():
 
     wflow.config.set("input.vertical.θₛ", theta_s)
     wflow.config.set("input.vertical.θᵣ", theta_r)
-    wflow.config.set("input.vertical. g_tt", g_ttm)
+    wflow.config.set("input.vertical.g_tt", g_ttm)
     wflow.config.set("input.vertical.kv₀", kv)
 
     # Convert to v1
