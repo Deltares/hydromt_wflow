@@ -9,8 +9,8 @@ from typing import Any, Callable, Union
 import geopandas as gpd
 import numpy as np
 import xarray as xr
-from hydromt._io import _open_timeseries_from_table
 from hydromt.gis import GeoDataArray
+from hydromt.io import open_timeseries_from_table
 from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -167,7 +167,7 @@ of the config.
             usecols = [0]
             usecols = np.append(usecols, np.arange(count, count + len(gdf.index)))
             count += len(gdf.index)
-            da_ts = _open_timeseries_from_table(
+            da_ts = open_timeseries_from_table(
                 fn, name=f"{header}_{col['map']}", usecols=usecols
             )
             da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
@@ -178,10 +178,10 @@ of the config.
             usecols = np.append(usecols, np.arange(count, count + 1))
             count += 1
             try:
-                da_ts = _open_timeseries_from_table(fn, name=header, usecols=usecols)
+                da_ts = open_timeseries_from_table(fn, name=header, usecols=usecols)
             except Exception:
                 colnames = ["time", "0"]
-                da_ts = _open_timeseries_from_table(
+                da_ts = open_timeseries_from_table(
                     fn,
                     name=header,
                     usecols=usecols,
