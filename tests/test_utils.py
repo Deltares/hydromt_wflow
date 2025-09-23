@@ -103,15 +103,15 @@ def test_convert_to_wflow_v1_sbm_with_exceptions():
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
-    theta_s = wflow.config.data["input"]["vertical"].pop("theta_s")
-    theta_r = wflow.config.data["input"]["vertical"].pop("theta_r")
-    g_ttm = wflow.config.data["input"]["vertical"].pop("g_ttm")
-    kv = wflow.config.data["input"]["vertical"].pop("kv_0")
+    theta_s = wflow.config.remove("input.vertical.theta_s")
+    theta_r = wflow.config.remove("input.vertical.theta_r")
+    g_ttm = wflow.config.remove("input.vertical.g_ttm")
+    kv = wflow.config.remove("input.vertical.kv_0")
 
-    wflow.config.data["input"]["vertical"]["θₛ"] = theta_s
-    wflow.config.data["input"]["vertical"]["θᵣ"] = theta_r
-    wflow.config.data["input"]["vertical"]["g_tt"] = g_ttm
-    wflow.config.data["input"]["vertical"]["kv₀"] = kv
+    wflow.config.set("input.vertical.θₛ", theta_s)
+    wflow.config.set("input.vertical.θᵣ", theta_r)
+    wflow.config.set("input.vertical. g_tt", g_ttm)
+    wflow.config.set("input.vertical.kv₀", kv)
 
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
