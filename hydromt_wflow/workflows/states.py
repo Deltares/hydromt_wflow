@@ -36,7 +36,7 @@ def prepare_cold_states(
     * **land_instantaneous_h**: land water level [m]
     * **land_instantaneous_q** or **land_instantaneous_qx**+**land_instantaneous_qy**:
       overland flow for kinwave [m3/s] or overland flow in x/y directions for
-      local-inertial [m3/s]
+      local_inertial [m3/s]
 
     If reservoirs, also adds:
 
@@ -124,8 +124,8 @@ def prepare_cold_states(
         "vegetation_water_depth",
         "land_instantaneous_h",
     ]
-    land_routing = config["model"].get("land_routing", "kinematic-wave")
-    if land_routing == "local-inertial":
+    land_routing = config["model"].get("land_routing", "kinematic_wave")
+    if land_routing == "local_inertial":
         zeromap.extend(["land_instantaneous_qx", "land_instantaneous_qy"])
         states_config[
             "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"

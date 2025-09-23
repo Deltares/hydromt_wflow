@@ -87,16 +87,16 @@ def test_wflow_config_component_remove(mock_model: MagicMock):
     # Update the config
     component._data = {
         "model": {
-            "river_routing": "kinematic-wave",
-            "land_routing": "kinematic-wave",
+            "river_routing": "kinematic_wave",
+            "land_routing": "kinematic_wave",
         },
         "time": "now",
     }
 
-    assert component.get_value("model.river_routing") == "kinematic-wave"
+    assert component.get_value("model.river_routing") == "kinematic_wave"
     # Remove a config entry
     popped = component.remove("model.river_routing")
-    assert popped == "kinematic-wave"
+    assert popped == "kinematic_wave"
 
     # Check if it is removed
     assert component.get_value("model.river_routing") is None

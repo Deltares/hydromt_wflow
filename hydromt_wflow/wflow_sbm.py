@@ -89,7 +89,7 @@ class WflowSbmModel(WflowBaseModel):
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
         elevtn_map: str = "land_elevation",
-        river_routing: str = "kinematic-wave",
+        river_routing: str = "kinematic_wave",
         connectivity: int = 8,
         output_names: dict = {
             "river_location__mask": "river_mask",
@@ -126,15 +126,15 @@ class WflowSbmModel(WflowBaseModel):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
-        If ``river_routing`` is set to "local-inertial", the bankfull elevation map
+        If ``river_routing`` is set to "local_inertial", the bankfull elevation map
         can be conditioned based on the average cell elevation ("land_elevation")
         or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
-        local-inertial land routing (see :py:meth:`setup_floodplains`)
+        local_inertial land routing (see :py:meth:`setup_floodplains`)
         the subgrid elevation will likely overestimate the floodplain storage capacity.
         Note that the same input elevation map should be used for river bankfull
-        elevation and land elevation when using local-inertial land routing.
+        elevation and land elevation when using local_inertial land routing.
 
         Adds model layers:
 
@@ -175,8 +175,8 @@ class WflowSbmModel(WflowBaseModel):
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see :py:meth:`hydromt.workflows.river_depth` for details, by default
             "powlaw"
-        river_routing : {'kinematic-wave', 'local-inertial'}
-            Routing methodology to be used, by default "kinematic-wave".
+        river_routing : {'kinematic_wave', 'local_inertial'}
+            Routing methodology to be used, by default "kinematic_wave".
         smooth_len : float, optional
             Length [m] over which to smooth the output river width and depth,
             by default 5e3
@@ -212,7 +212,7 @@ class WflowSbmModel(WflowBaseModel):
             output_names=output_names,
         )
 
-        routing_options = ["kinematic-wave", "local-inertial"]
+        routing_options = ["kinematic_wave", "local_inertial"]
         if river_routing not in routing_options:
             raise ValueError(
                 f'river_routing="{river_routing}" unknown. '
@@ -222,7 +222,7 @@ class WflowSbmModel(WflowBaseModel):
         logger.info(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
 
-        if river_routing == "local-inertial":
+        if river_routing == "local_inertial":
             postfix = {
                 "land_elevation": "_avg",
                 "meta_subgrid_elevation": "_subgrid",
@@ -344,7 +344,7 @@ class WflowSbmModel(WflowBaseModel):
 
         If ``floodplain_type`` is set to "2d", this component adds
         a hydrologically conditioned elevation (river_bank_elevation) map for
-        land routing (local-inertial). For this options, landcells need to be
+        land routing (local_inertial). For this options, landcells need to be
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
@@ -353,10 +353,10 @@ class WflowSbmModel(WflowBaseModel):
         the floodplain storage capacity.
 
         Additionally, note that the same input elevation map should be used for river
-        bankfull elevation and land elevation when using local-inertial land routing.
+        bankfull elevation and land elevation when using local_inertial land routing.
 
         Requires :py:meth:`setup_rivers` to be executed beforehand
-        (with ``river_routing`` set to "local-inertial").
+        (with ``river_routing`` set to "local_inertial").
 
         Adds model layers:
 
@@ -398,7 +398,7 @@ class WflowSbmModel(WflowBaseModel):
         pyflwdir.FlwdirRaster.dem_adjust
         setup_rivers
         """
-        if self.get_config("model.river_routing") != "local-inertial":
+        if self.get_config("model.river_routing") != "local_inertial":
             raise ValueError(
                 "Floodplains (1d or 2d) are currently only supported with \
 local inertial river routing"
@@ -417,7 +417,7 @@ local inertial river routing"
         # Adjust settings based on floodplain_type selection
         if floodplain_type == "1d":
             floodplain_1d = True
-            land_routing = "kinematic-wave"
+            land_routing = "kinematic_wave"
 
             if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
                 logger.warning("This method requires pyflwdir >= 0.5.6")
@@ -475,7 +475,7 @@ setting new flood_depth dimensions"
 
         elif floodplain_type == "2d":
             floodplain_1d = False
-            land_routing = "local-inertial"
+            land_routing = "local_inertial"
 
             if elevtn_map not in self.staticmaps.data:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
@@ -536,7 +536,7 @@ setting new flood_depth dimensions"
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 "land_instantaneous_q",
             )
-            # Remove local-inertial land states
+            # Remove local_inertial land states
             self.config.remove(
                 "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 errors="ignore",
@@ -556,7 +556,7 @@ setting new flood_depth dimensions"
                 errors="ignore",
             )
         else:
-            # Add local-inertial land routing states
+            # Add local_inertial land routing states
             self.set_config(
                 "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qx",
@@ -565,7 +565,7 @@ setting new flood_depth dimensions"
                 "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qy",
             )
-            # Remove kinematic-wave and 1d floodplain states
+            # Remove kinematic_wave and 1d floodplain states
             self.config.remove(
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 errors="ignore",
@@ -3712,7 +3712,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * **land_instantaneous_h**: land water level [m]
         * **land_instantaneous_q** or **land_instantaneous_qx**+
           **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
-          overland flow in x/y directions for local-inertial [m3/s]
+          overland flow in x/y directions for local_inertial [m3/s]
 
         If reservoirs, also adds:
 

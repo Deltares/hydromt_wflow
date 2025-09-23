@@ -158,6 +158,16 @@ def _convert_to_wflow_v1(
                 continue
             set_config(config_out, f"model.{new_config_var}", value)
 
+    # Routing options were renamed
+    routing_rename = {
+        "kinematic-wave": "kinematic_wave",
+        "local-inertial": "local_inertial",
+    }
+    for key in ["river_routing", "land_routing"]:
+        routing_option = get_config(key=f"model.{key}", config=config, fallback=None)
+        if routing_option is not None:
+            set_config(config_out, f"model.{key}", routing_rename.get(routing_option))
+
     # State
     logger.info("Converting config state section")
     config_out["state"] = {
