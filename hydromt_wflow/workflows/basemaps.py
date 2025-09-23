@@ -10,7 +10,6 @@ import pyflwdir
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.gis import flw
-from hydromt.gis.raster_utils import _reggrid_area
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
@@ -252,8 +251,7 @@ parametrization of distributed hydrological models.
             )
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
-        ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
-        subare = _reggrid_area(ys, xs) / 1e6  # km2
+        subare = ds.raster.area_grid() / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
         ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging

@@ -55,10 +55,10 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     )
 
     # get ini file
-    opt = example_inis[model]
+    steps = example_inis[model]
 
     # Build model
-    mod1.build(steps=opt[2])
+    mod1.build(steps=steps)
 
     # Compare with model from examples folder
     # (need to read it again for proper geoms check)
