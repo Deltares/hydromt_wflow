@@ -103,22 +103,22 @@ def example_models(
 @pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
-    opt = read_workflow_yaml(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
-    opt = read_workflow_yaml(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
-    opt = read_workflow_yaml(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture

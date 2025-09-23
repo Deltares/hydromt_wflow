@@ -10,7 +10,7 @@ import pyflwdir
 import xarray as xr
 from hydromt import stats
 from hydromt.gis import flw
-from hydromt.gis.raster_utils import _reggrid_area, cellres
+from hydromt.gis.raster_utils import cellres
 from hydromt.gis.vector_utils import nearest
 from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
@@ -584,8 +584,7 @@ def _precip(ds_like, flwdir, da_precip):
         / 1e3
     )  # [m/yr]
     precip = np.maximum(precip, 0)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    area = _reggrid_area(lat, lon)
+    area = ds_like.raster.area_grid()
     # 10 x average flow
     accu_precip = flwdir.accuflux(precip * area / (86400 * 365) * 10)  # [m3/s]
     return accu_precip
@@ -624,8 +623,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate):
     precip = precip / scaling_factor**2
 
     # derive cell areas (m2)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    areagrid = _reggrid_area(lat, lon) / 1e6
+    areagrid = ds_like.raster.area_grid() / 1e6
 
     # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])
