@@ -128,7 +128,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "hydromt_name": "glacstore",
     },
     "glacier_ttm": {
-        "wflow_v0": "vertical.g_ttm",
+        "wflow_v0": ["vertical.g_ttm", "vertical.g_tt"],
         "wflow_v1": "glacier_ice__melting_temperature_threshold",
     },
     "glacier_degree_day_coefficient": {
@@ -168,7 +168,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "hydromt_name": "wood_storage",
     },
     "vegetation_crop_factor": {
-        "wflow_v0": "vertical.kc",
+        "wflow_v0": ["vertical.kc", "vertical.etreftopot"],
         "wflow_v1": "vegetation__crop_factor",
     },
     "vegetation_feddes_alpha_h1": {
@@ -206,7 +206,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v1": "soil_surface_water__infiltration_reduction_parameter",
     },
     "soil_ksat_vertical": {
-        "wflow_v0": "vertical.kv_0",
+        "wflow_v0": ["vertical.kv_0", "vertical.kv₀"],
         "wflow_v1": "soil_surface_water__vertical_saturated_hydraulic_conductivity",
         "hydromt_name": "ksat_vertical",
     },
@@ -232,12 +232,12 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v1": None,
     },
     "soil_theta_r": {
-        "wflow_v0": "vertical.theta_r",
+        "wflow_v0": ["vertical.theta_r", "vertical.θᵣ"],
         "wflow_v1": "soil_water__residual_volume_fraction",
         "hydromt_name": "theta_r",
     },
     "soil_theta_s": {
-        "wflow_v0": "vertical.theta_s",
+        "wflow_v0": ["vertical.theta_s", "vertical.θₛ"],
         "wflow_v1": "soil_water__saturated_volume_fraction",
         "hydromt_name": "theta_s",
     },
@@ -1043,7 +1043,7 @@ def _create_hydromt_wflow_mapping(
         for (staticmap_name, hydromt_name) in mapping_inv.items()
     }
 
-    # Get a mapping of staticmap_name: wflow_variable
+    # # Get a mapping of staticmap_name: wflow_variable
     mapping_wflow = {
         staticmap_name: wflow_var for wflow_var, staticmap_name in wflow_names.items()
     }

@@ -6,7 +6,7 @@ from typing import Optional
 import geopandas as gpd
 import numpy as np
 import xarray as xr
-from hydromt import raster
+from hydromt.gis import raster_utils
 from hydromt.model.processes.grid import grid_from_constant, grid_from_geodataframe
 
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -59,7 +59,7 @@ def create_grid_from_bbox(
         )
     )
     coords = {y_name: ycoords, x_name: xcoords}
-    grid = raster.full(
+    grid = raster_utils.full(
         coords=coords,
         nodata=np.nan,
         dtype=np.float32,

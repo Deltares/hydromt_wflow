@@ -55,6 +55,42 @@ def _solve_var_name(var: str | dict, path: str, add: list):
         yield from _solve_var_name(item, path, add + [key])
 
 
+def _create_v0_to_v1_var_mapping(wflow_vars: dict) -> dict:
+    output_dict = {}
+    for value in wflow_vars.values():
+        if isinstance(value["wflow_v0"], list):
+            for var in value["wflow_v0"]:
+                output_dict[var] = value["wflow_v1"]
+        else:
+            output_dict[value["wflow_v0"]] = value["wflow_v1"]
+    return output_dict
+
+
+def _set_input_vars(
+    wflow_v0_var: str,
+    wflow_v1_var: str | None,
+    config_in: dict,
+    config_out: dict,
+    input_options: dict,
+    input_variables: dict,
+    forcing_variables: list[str],
+    cyclic_variables: list[str],
+) -> dict:
+    name = get_config(key=f"input.{wflow_v0_var}", config=config_in, fallback=None)
+    if name is not None and wflow_v1_var is not None:
+        if wflow_v0_var in input_options.keys():
+            return config_out
+        elif wflow_v0_var in input_variables:
+            config_out["input"][wflow_v1_var] = name
+        elif wflow_v0_var in forcing_variables:
+            config_out["input"]["forcing"][wflow_v1_var] = name
+        elif wflow_v0_var in cyclic_variables:
+            config_out["input"]["cyclic"][wflow_v1_var] = name
+        else:
+            config_out["input"]["static"][wflow_v1_var] = name
+    return config_out
+
+
 def _convert_to_wflow_v1(
     config: dict,
     wflow_vars: dict,
@@ -89,7 +125,7 @@ def _convert_to_wflow_v1(
     config_out: dict
         The converted config.
     """
-    WFLOW_CONVERSION = {v["wflow_v0"]: v["wflow_v1"] for v in wflow_vars.values()}
+    WFLOW_CONVERSION = _create_v0_to_v1_var_mapping(wflow_vars)
     for k, v in states_vars.items():
         WFLOW_CONVERSION[v["wflow_v0"]] = v["wflow_v1"]
     # Add a few extra output variables that are supported by the conversion
@@ -153,14 +189,10 @@ def _convert_to_wflow_v1(
                 for elem in new_config_var:
                     set_config(config_out, f"model.{elem}", value)
                 continue
+            elif new_config_var is None:
+                # This option was moved to cross_options
+                continue
             set_config(config_out, f"model.{new_config_var}", value)
-
-    # Cross options
-    for opt_old, opt_new in cross_options.items():
-        value = get_config(key=opt_old, config=config)
-        if value is None:
-            continue
-        set_config(config_out, opt_new, value)
 
     # State
     logger.info("Converting config state section")
@@ -202,23 +234,40 @@ def _convert_to_wflow_v1(
     config_out["input"]["cyclic"] = {}
     config_out["input"]["static"] = {}
     for key, variables in wflow_vars.items():
-        name = get_config(
-            key=f"input.{variables['wflow_v0']}", config=config, fallback=None
-        )
-        if variables["wflow_v0"] == "vertical.g_ttm" and name is None:
-            # this change is probably too recent for most models
-            name = get_config(key="input.vertical.g_tt", config=config, fallback=None)
-        if name is not None and variables["wflow_v1"] is not None:
-            if variables["wflow_v0"] in input_options.keys():
-                continue
-            elif variables["wflow_v0"] in input_variables:
-                config_out["input"][variables["wflow_v1"]] = name
-            elif variables["wflow_v0"] in forcing_variables:
-                config_out["input"]["forcing"][variables["wflow_v1"]] = name
-            elif variables["wflow_v0"] in cyclic_variables:
-                config_out["input"]["cyclic"][variables["wflow_v1"]] = name
-            else:
-                config_out["input"]["static"][variables["wflow_v1"]] = name
+        if isinstance(variables["wflow_v0"], list):
+            for wflow_v0_var in variables["wflow_v0"]:
+                config_out = _set_input_vars(
+                    wflow_v0_var=wflow_v0_var,
+                    wflow_v1_var=variables["wflow_v1"],
+                    config_in=config,
+                    config_out=config_out,
+                    input_options=input_options,
+                    input_variables=input_variables,
+                    forcing_variables=forcing_variables,
+                    cyclic_variables=cyclic_variables,
+                )
+        else:
+            config_out = _set_input_vars(
+                wflow_v0_var=variables["wflow_v0"],
+                wflow_v1_var=variables["wflow_v1"],
+                config_in=config,
+                config_out=config_out,
+                input_options=input_options,
+                input_variables=input_variables,
+                forcing_variables=forcing_variables,
+                cyclic_variables=cyclic_variables,
+            )
+
+    # Cross options
+    for opt_old, opt_new in cross_options.items():
+        value = get_config(key=opt_old, config=config)
+        if value is None:
+            continue
+        # Ensure that it is set either as a value or as a map
+        elif isinstance(value, str):
+            set_config(config_out, opt_new, value)
+        else:
+            set_config(config_out, f"{opt_new}.value", value)
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
@@ -373,6 +422,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
         "water_demand.paddy": "water_demand.paddy__flag",
         "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
         "constanthead": "constanthead__flag",
+        "riverlength_bc": None,  # moved to cross_options
     }
 
     # Options in input section that were renamed
@@ -394,6 +444,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
     # Wflow entries that cross main headers (i.e. [input, state, model, output])
     cross_options = {
         "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
+        "model.riverlength_bc": "input.static.model_boundary_condition~river__length",
     }
 
     config_out = _convert_to_wflow_v1(
