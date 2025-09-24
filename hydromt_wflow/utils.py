@@ -1,35 +1,126 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, dirname, join
+from functools import reduce
+from os.path import abspath, join
 from pathlib import Path
-from typing import Any, Callable, Dict, Union, cast
+from typing import Any, Callable, Union
 
 import geopandas as gpd
 import numpy as np
 import xarray as xr
+from hydromt.gis import GeoDataArray
 from hydromt.io import open_timeseries_from_table
-from hydromt.vector import GeoDataArray
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.model.processes.grid import grid_from_constant
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATADIR = join(dirname(abspath(__file__)), "data")
+DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
-    "read_csv_results",
     "get_config",
     "set_config",
     "get_grid_from_config",
+    "read_csv_output",
 ]
 
 
-def read_csv_results(
-    fn: Path | str, config: Dict, maps: xr.Dataset
-) -> Dict[str, GeoDataArray]:
-    """Read wflow results csv timeseries and parse to dictionary.
+def get_config(
+    config: dict,
+    key: str,
+    root: Path | None = None,
+    fallback: Any | None = None,
+    abs_path: bool = False,
+):
+    """
+    Get a config value at key.
 
-    Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
+    Parameters
+    ----------
+    config : dict
+        The config settings.
+    key : str
+        keys are string with '.' indicating a new level: ('key1.key2')
+    root: Path, optional
+        The model root.
+    fallback: Any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+        NOTE: this assumes the config is located in model root!
+
+    Returns
+    -------
+    value : Any
+        dictionary value
+
+    Examples
+    --------
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+
+    >> get_config(config, 'a')
+    >> 1
+
+    >> get_config(config, 'b.c.d')
+    >> 2
+
+    """
+    parts = key.split(".")
+    num_parts = len(parts)
+    current = config
+    value = fallback
+    for i, part in enumerate(parts):
+        if i < num_parts - 1:
+            current = current.get(part, {})
+        else:
+            value = current.get(part, fallback)
+
+    if abs_path and isinstance(value, (str, Path)):
+        value = Path(value)
+        if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
+            value = Path(abspath(join(root, value)))
+
+    return value
+
+
+def set_config(config: dict, key: str, value: Any):
+    """
+    Update the config toml at key(s) with values.
+
+    Parameters.
+    ----------
+    config : dict
+        The config settings.
+    key : str
+        key is a string,  with '.' indicating a new level: ('key1.key2').
+
+    Examples
+    --------
+    .. code-block:: ipython
+        >> config
+        >> {'a': 1, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    """
+    if not isinstance(key, str):
+        raise TypeError("key must be string")
+    keys = key.split(".")
+    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
+
+
+def read_csv_output(
+    fn: Path | str, config: dict, maps: xr.Dataset
+) -> dict[str, GeoDataArray]:
+    """Read wflow output csv timeseries and parse to dictionary.
+
+    Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
     coordinates of the station or of the representative point of the subcatch/area. The
     variable name in the ``GeoDataArray`` corresponds to the csv header attribute or
@@ -38,7 +129,7 @@ def read_csv_results(
     Parameters
     ----------
     fn: str
-        Path to the wflow csv results file.
+        Path to the wflow csv output file.
     config: dict
         wflow.toml configuration.
     maps: xr.Dataset
@@ -52,15 +143,21 @@ of the config.
     """
     # Count items by csv.column
     count = 1
-    csv_dict = dict()
+    csv_dict = {}
     # Loop over csv.column
     for col in config["output"]["csv"].get("column"):
         header = col["header"]
+        logger.debug(f"Reading csv column '{header}'")
         # Column based on map
         if "map" in col.keys():
             # Read the corresponding map and derive the different locations
             # The centroid of the geometry is used as coordinates for the timeseries
             map_name = config["input"].get(f"{col['map']}")
+            if map_name not in maps:
+                logger.warning(
+                    f"Map '{map_name}' not found in staticmaps. Skip reading."
+                )
+                return {}
             da = maps[map_name]
             gdf = da.raster.vectorize()
             gdf.geometry = gdf.geometry.representative_point()
@@ -187,66 +284,9 @@ of the config.
     return csv_dict
 
 
-def get_config(
-    *args,
-    config: Dict = {},
-    fallback=None,
-    root: Path | None = None,
-    abs_path: bool = False,
-):
-    """
-    Get a config value at key(s).
-
-    Copy of hydromt.Model.get_config method to parse config outside of Model functions.
-
-    See Also
-    --------
-    hydromt.Model.get_config
-
-    Parameters
-    ----------
-    args : tuple or string
-        keys can given by multiple args: ('key1', 'key2')
-        or a string with '.' indicating a new level: ('key1.key2')
-    config : dict, optional
-        config dict to get the values from.
-    fallback: any, optional
-        fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-
-    Returns
-    -------
-    value : any type
-        dictionary value
-    """
-    keys = list(args)
-
-    if len(keys) == 1 and "." in keys[0]:
-        keys = keys[0].split(".") + keys[1:]
-    branch = config.copy()  # reads config at first call
-    for key in keys[:-1]:
-        branch = branch.get(key, {})
-        if not isinstance(branch, dict):
-            branch = {}
-            break
-
-    value = branch.get(keys[-1], fallback)
-    if abs_path and isinstance(value, str):
-        value = Path(value)
-        if not value.is_absolute():
-            if root is None:
-                raise ValueError(
-                    "root path is required to get absolute path from relative path"
-                )
-            value = Path(abspath(join(root, value)))
-    return value
-
-
 def get_grid_from_config(
     var_name: str,
-    config: Dict = {},
+    config: dict = {},
     grid: xr.Dataset | None = None,
     root: Path | None = None,
     abs_path: bool = False,
@@ -289,34 +329,17 @@ def get_grid_from_config(
     """
     # get config value
     # try with input only
+    var_name = get_wflow_var_fullname(var_name, config)
     var = get_config(
-        f"input.{var_name}",
+        key=var_name,
         config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
     )
     if var is None:
-        # try with input.static
-        var = get_config(
-            f"input.static.{var_name}",
-            config=config,
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
-    if var is None:
         # try with input.static.var.value
         var = config["input"]["static"].get(f"{var_name}.value", None)
-    if var is None:
-        # try with input.cyclic
-        var = get_config(
-            f"input.cyclic.{var_name}",
-            config=config,
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
     if var is None:
         raise ValueError(f"variable {var_name} not found in config.")
 
@@ -341,7 +364,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config("netcdf.variable.name", config=var)
+            var_name = get_config(key="netcdf.variable.name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset
@@ -350,6 +373,34 @@ def get_grid_from_config(
             da = grid[var_name] * scale + offset
 
     return da
+
+
+def get_wflow_var_fullname(input_var: str, config: dict) -> str:
+    """Get the full variable name for a Wflow variable."""
+    # Check if the variable is in the input section
+    if get_config(config, f"input.{input_var}") is not None:
+        return f"input.{input_var}"
+    # Check if the variable is in the static section
+    if get_config(config, f"input.static.{input_var}") is not None:
+        return f"input.static.{input_var}"
+    # Check if the variable is in the cyclic section
+    if get_config(config, f"input.cyclic.{input_var}") is not None:
+        return f"input.cyclic.{input_var}"
+    # Check if the variable is in the forcing section
+    if get_config(config, f"input.forcing.{input_var}") is not None:
+        return f"input.forcing.{input_var}"
+    # If not found, return the original variable name
+    return input_var
+
+
+def _mask_data_array(data_array: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:
+    """Mask the data array based on the mask."""
+    # If the data is boolean, we set it to False where the mask is False
+    if data_array.dtype == np.bool:
+        return data_array.where(mask, False)
+    # Otherwise we set it to nodata where the mask is False
+    else:
+        return data_array.where(mask, data_array.raster.nodata)
 
 
 def mask_raster_from_layer(
@@ -370,35 +421,27 @@ def mask_raster_from_layer(
     ----------
         data (xr.Dataset, xr.DataArray):
             The grid data containing the data that should be masked
-        layer_name (string):
-            mask that the data will be masked to. Values can be boolean or
-            numeric. Places where this layer is different than the rater nodata will be
-            masked in the other data variables
+        mask (xr.DataArray):
+            mask that the data will be masked to. Values can be boolean or numeric.
+            Places where this layer is different than the raster nodata will be
+            masked in the other data.
 
     Returns
     -------
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
-    # Reproject data to match mask's grid if shapes differ
+    # Skip masking if different grid
     if data.sizes != mask.sizes:
-        data = data.raster.reproject_like(mask)
+        logger.warning("Skipping masking due to different grid sizes.")
+        return data
 
     mask = mask != mask.raster.nodata
-    # Need to duplicate or else data should have a name ie we duplicate functionality
-    # of GridModel.set_grid
+
     if isinstance(data, xr.DataArray):
-        # nodata is required for all but boolean fields
-        if data.dtype != "bool":
-            data = data.where(mask, data.raster.nodata)
-        else:
-            data = data.where(mask, False)
+        data = _mask_data_array(data, mask)
     else:
         for var in data.data_vars:
-            # nodata is required for all but boolean fields
-            if data[var].dtype != "bool":
-                data[var] = data[var].where(mask, data[var].raster.nodata)
-            else:
-                data[var] = data[var].where(mask, False)
+            data[var] = _mask_data_array(data[var], mask)
 
     return data
 
@@ -461,39 +504,3 @@ def planar_operation_in_utm(
         return result.to_crs(original_crs)
     else:
         raise TypeError("Operation must return a GeoSeries or GeoDataFrame.")
-
-
-def set_config(config, key: str, value: Any):
-    """Update the config dictionary at key(s) with values.
-
-    Parameters
-    ----------
-    key : str
-        a string with '.' indicating a new level: 'key1.key2' will translate
-        to {"key1":{"key2": value}}
-    value: Any
-        the value to set the config to
-
-    Examples
-    --------
-    ::
-
-        >> self.set({'a': 1, 'b': {'c': {'d': 2}}})
-        >> self.data
-            {'a': 1, 'b': {'c': {'d': 2}}}
-        >> self.set_value('a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
-
-        >> self.set_value('b.d.e', 24)
-        >> {'a': 99, 'b': {'c': {'d': 24}}}
-    """
-    parts = key.split(".")
-    num_parts = len(parts)
-    current = cast(Dict[str, Any], config)
-    for i, part in enumerate(parts):
-        if part not in current or not isinstance(current[part], dict):
-            current[part] = {}
-        if i < num_parts - 1:
-            current = current[part]
-        else:
-            current[part] = value

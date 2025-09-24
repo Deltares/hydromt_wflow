@@ -23,7 +23,6 @@ from distutils.dir_util import copy_tree
 import hydromt_wflow
 
 
-
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
 
@@ -53,7 +52,7 @@ doc_version = bare_version[: bare_version.find("dev") - 1]
 # # -- Copy notebooks to include in docs -------
 if os.path.isdir("_examples"):
     remove_dir_content("_examples")
-os.makedirs("_examples")
+os.makedirs("_examples", exist_ok=True)
 copy_tree("../examples", "_examples")
 
 # -- General configuration ------------------------------------------------
@@ -173,7 +172,7 @@ html_context = {
     "github_url": "https://github.com",  # or your GitHub Enterprise interprise
     "github_user": "Deltares",
     "github_repo": "hydromt_wflow",
-    "github_version": "main",  # FIXME
+    "github_version": "main",
     "doc_path": "docs",
     "default_mode": "light",
 }
@@ -267,11 +266,11 @@ texinfo_documents = [
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    # "numpy": ("https://numpy.org/doc/stable", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
     "scipy": ("https://docs.scipy.org/doc/scipy", None),
-    # "numba": ("https://numba.pydata.org/numba-doc/latest", None),
-    # "matplotlib": ("https://matplotlib.org/stable/", None),
-    # "dask": ("https://docs.dask.org/en/latest", None),
+    "numba": ("https://numba.readthedocs.io/en/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "dask": ("https://docs.dask.org/en/latest", None),
     "rasterio": ("https://rasterio.readthedocs.io/en/latest", None),
     "geopandas": ("https://geopandas.org/en/stable", None),
     "xarray": ("https://xarray.pydata.org/en/stable", None),
@@ -294,9 +293,10 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = 'always'
+nbsphinx_execute = "always"
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',
-    'https://doi.org/10.1029/2018JG004881' # wiley blocks headless requests so this will be repored as broken
+    'https://doi.org/10.1029/2018JG004881', # wiley blocks headless requests so this will be repored as broken
+    r'https://deltares.github.io/hydromt_wflow/.*'
 ]

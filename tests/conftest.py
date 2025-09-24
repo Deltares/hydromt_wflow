@@ -1,8 +1,9 @@
 """add global fixtures."""
 
-import logging
 import platform
 from os.path import abspath, dirname, join
+from pathlib import Path
+from typing import Callable
 
 import geopandas as gpd
 import numpy as np
@@ -10,10 +11,12 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.cli.cli_utils import parse_config
+from hydromt.io import read_workflow_yaml
+from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel
+from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -23,38 +26,72 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
+# This is the recommended by pandas and will become default behaviour in pandas 3.0.
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
+# https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+pd.options.mode.copy_on_write = True
+
+
+## Cached data and models
+@pytest.fixture(scope="session")
+def build_data() -> Path:
+    build_dir = fetch_data("artifact-data")
+    assert build_dir.is_dir()
+    assert Path(build_dir, "era5.nc").is_file()
+    return build_dir
+
+
+@pytest.fixture(scope="session")
+def build_data_catalog(build_data) -> Path:
+    p = Path(build_data, "data_catalog.yml")
+    assert p.is_file()
+    return p
+
 
 @pytest.fixture
 def example_wflow_model():
-    logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
         data_libs=[
             "artifact_data",
             join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
         ],
-        logger=logger,
     )
     return mod
 
 
 @pytest.fixture
-def example_sediment_model():
-    logger = logging.getLogger(__name__)
+def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowSbmModel]:
+    def factory(
+        root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
+        mode: str = "r",
+        data_libs: list[str] = [
+            "artifact_data",
+            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
+        ],
+    ) -> WflowSbmModel:
+        return WflowSbmModel(root=root, mode=mode, data_libs=data_libs)
+
+    return factory
+
+
+@pytest.fixture
+def example_sediment_model() -> WflowSedimentModel:
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
         root=root,
         mode="r",
         data_libs=["artifact_data"],
-        logger=logger,
     )
     return mod
 
 
 @pytest.fixture
-def example_models(example_wflow_model, example_sediment_model):
+def example_models(
+    example_wflow_model: WflowSbmModel, example_sediment_model: WflowSedimentModel
+):
     models = {
         "wflow": example_wflow_model,
         "wflow_sediment": example_sediment_model,
@@ -66,22 +103,22 @@ def example_models(example_wflow_model, example_sediment_model):
 @pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
-    opt = parse_config(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
-    opt = parse_config(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
-    opt = parse_config(config)
-    return opt
+    _, _, steps = read_workflow_yaml(config)
+    return steps
 
 
 @pytest.fixture
@@ -95,29 +132,26 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_results():
+def example_wflow_outputs() -> WflowSbmModel:
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn)
+    mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 
 @pytest.fixture
-def clipped_wflow_model():
+def clipped_wflow_model(build_data_catalog) -> WflowSbmModel:
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod = WflowModel(
+    mod = WflowSbmModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=[build_data_catalog],
     )
     return mod
 
 
 @pytest.fixture
-def floodplain1d_testdata():
+def floodplain1d_testdata() -> xr.Dataset:
     data = xr.load_dataset(
         join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
@@ -132,7 +166,7 @@ def floodplain1d_testdata():
 
 
 @pytest.fixture
-def globcover_gdf():
+def globcover_gdf() -> gpd.GeoDataFrame:
     cat = DataCatalog("artifact_data")
     globcover = cat.get_rasterdataset("globcover_2009")
     globcover_gdf = globcover.raster.vectorize()
@@ -141,7 +175,7 @@ def globcover_gdf():
 
 
 @pytest.fixture
-def planted_forest_testdata():
+def planted_forest_testdata() -> gpd.GeoDataFrame:
     bbox1 = [12.38, 46.12, 12.42, 46.16]
     bbox2 = [12.21, 46.07, 12.26, 46.11]
     gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
@@ -150,7 +184,7 @@ def planted_forest_testdata():
 
 
 @pytest.fixture
-def rivers1d():
+def rivers1d() -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     data = gpd.read_file(
         join(dirname(abspath(__file__)), "..", "examples", "data", "rivers.geojson"),
@@ -159,7 +193,7 @@ def rivers1d():
 
 
 @pytest.fixture
-def rivers1d_projected():
+def rivers1d_projected() -> gpd.GeoDataFrame:
     data = gpd.read_file(
         join(dirname(abspath(__file__)), "data", "1d-river-3857.geojson"),
     )
@@ -167,7 +201,7 @@ def rivers1d_projected():
 
 
 @pytest.fixture
-def df_precip_stations():
+def df_precip_stations() -> pd.DataFrame:
     np.random.seed(42)
     time = pd.date_range(
         start="2010-02-01T00:00:00", end="2010-09-01T00:00:00", freq="D"
@@ -180,7 +214,7 @@ def df_precip_stations():
 
 
 @pytest.fixture
-def gdf_precip_stations():
+def gdf_precip_stations() -> gpd.GeoDataFrame:
     geometry = [
         # inside Piave basin
         Point(12.6, 46.6),
@@ -201,9 +235,12 @@ def gdf_precip_stations():
 
 
 @pytest.fixture
-def da_pet(example_wflow_model):
+def da_pet(example_wflow_model: WflowSbmModel) -> xr.DataArray:
     da = example_wflow_model.data_catalog.get_rasterdataset(
-        "era5", geom=example_wflow_model.region, buffer=2, variables=["temp"]
+        "era5",
+        geom=example_wflow_model.region,
+        buffer=2,
+        variables=["temp"],
     )
     da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle
     da.name = "pet"
@@ -213,7 +250,7 @@ def da_pet(example_wflow_model):
 
 
 @pytest.fixture
-def demda():
+def demda() -> xr.DataArray:
     np.random.seed(11)
     da = xr.DataArray(
         data=np.random.rand(15, 10),
@@ -223,4 +260,69 @@ def demda():
     )
     # NOTE epsg 3785 is deprecated https://epsg.io/3785
     da.raster.set_crs(3857)
+    return da
+
+
+@pytest.fixture
+def reservoir_rating() -> dict[str, pd.DataFrame]:
+    """Reservoir rating curves for testing purposes."""
+    rating = {
+        "reservoir_sh_169986": pd.DataFrame(
+            {
+                "H": [100, 101, 102, 103, 104, 105],
+                "S": [0, 1000, 1500, 2000, 3000, 5000],
+            }
+        ),
+        "reservoir_hq_169986": pd.DataFrame(
+            {
+                "H": [102, 103, 104, 105],
+                "1": [0, 1, 2.5, 4],
+            }
+        ),
+    }
+    # repeat column 1 of "reservoir_hq_169986" 365 time (1 column per day of year)
+    rating["reservoir_hq_169986"] = pd.concat(
+        [rating["reservoir_hq_169986"]] + [rating["reservoir_hq_169986"]["1"]] * 364,
+        axis=1,
+    )
+    rating["reservoir_hq_169986"].columns = ["H"] + [str(i) for i in range(1, 366)]
+
+    # Copy for reservoir id 3367
+    rating["reservoir_sh_3367"] = rating["reservoir_sh_169986"].copy()
+    rating["reservoir_hq_3367"] = rating["reservoir_hq_169986"].copy()
+
+    return rating
+
+
+@pytest.fixture
+def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
+    """Mock rasterdataset for testing purposes."""
+    ds = mocker.create_autospec(xr.Dataset, instance=True)
+
+    mock_raster = mocker.Mock()
+    mock_raster.crs.is_geographic = True
+    mock_raster.res = (1 / 120.0, 1 / 120.0)
+    mock_raster.clip_geom.return_value = ds
+    mock_raster.geometry_mask.return_value = xr.DataArray(
+        np.array([[1, 0], [0, 1]]), dims=("y", "x")
+    )
+    ds.raster = mock_raster
+    ds.coords = {}
+    ds.__getitem__.side_effect = lambda key: ds.coords.get(key)
+
+    return ds
+
+
+@pytest.fixture
+def static_layer() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((2, 2)),
+        coords={
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["lat", "lon"],
+    )
+    da.raster.set_crs(4326)
+    da.raster.set_nodata(-9999)
     return da

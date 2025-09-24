@@ -1,0 +1,7 @@
+steps:
+  - setup_gauges:
+      gauges_fn : test_stations.csv
+      basename: test-rain
+      snap_to_river: False
+      gauge_toml_header: ['P-station']
+      gauge_toml_param : ['atmosphere_water__precipitation_volume_flux']

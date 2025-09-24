@@ -8,6 +8,38 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+TODO: merge with the Wflow.jl v1 pre-release notes below when we are ready for hydromt_wflow v1.0.0
+
+Added
+-----
+- config component ``WflowConfigComponent``: represents the Wflow configuration TOML file.
+- staticmaps component ``WflowStaticMapsComponent``: represents Wflow static and cyclic data (used to be grid).
+- forcing component ``WflowForcingComponent``: represents Wflow input forcing data.
+- states component ``WflowStatesComponent``: represents Wflow input states data.
+- geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data.
+- output_grid ``WflowOutputGridComponent``, output_scalar ``WflowOutputScalarComponent`` and output_csv ``WflowOutputCsvComponent`` components: represent Wflow outputs (used to be results).
+- **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
+
+Changed
+-------
+- Increased minimum python version to 3.11 according to https://scientific-python.org/specs/spec-0000/
+- Model root is now a ``ModelRoot`` class. To access the root path, use ``wflow.root.path``.
+- Model components like config, forcing are now ``ModelComponent`` classes.
+  To access the inherent data objects (dictionary, xarray.Dataset etc.) of the components, the ``data`` property is now used.
+  Eg wflow.config.data, wflow.staticmaps.data
+- The names of some of the model components have changed: ``grid`` to ``staticmaps``.
+- **setup_config**: the method now explicitly uses a dictionary with the options to add/update.
+- **utils.read_csv_results** has been renamed to **utils.read_csv_output**.
+- Reverted the use of TOMLkit dependency
+- Renamed ``WflowModel`` to ``WflowSbmModel``. This also affects the cli command ``hydromt <build/update> wflow``, which now becomes ``hydromt <build/update> wflow_sbm``.
+- Split ``WflowModel`` into ``WflowBaseModel`` containing all generic parts of all wflow models, like components and some setup functions, and ``WflowSbmModel``, containing the specific parts for the wflow_sbm concept.
+- ``WflowSedimentModel`` and ``WflowSbmModel`` both inherit from ``WflowBaseModel`` and extend it for their specific use cases.
+- The old ``WflowModel.setup_rivers`` has been split into three parts: ``WflowBaseModel.setup_rivers``, ``WflowSbmModel.setup_rivers`` and ``WflowSbmModel.setup_river_roughness``. Where the first contains the generic river setup logic, the second Sbm-specific implementations, and the third contains manning roughness implementations.
+- Clipping a model is now done by calling a single **clip** method. This function can be called with the ``hydromt update`` cli command.
+
+
+Unreleased
+==========
 Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.
 
 Added
@@ -64,7 +96,7 @@ Added
 Changed
 -------
 - Support for Wflow.jl >= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).  PR #364
-- All default names in staticmpas.nc and states have been redefined and harmonized. PR #422
+- All default names in staticmaps.nc and states have been redefined and harmonized. PR #422
 - Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422
 - ``Wflow._config`` is no longer a dictionary but a ``tomlkit.TOMLDocument`` to ensure structure of existing toml files are preserved upon write.
   Due to this change we discourage users from modifying the config structure by hand, and instead rely on ``Wflow.set_config`` to avoid issues. (#387)
@@ -91,7 +123,7 @@ Deprecated
 - **setup_soilmaps**: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334
 
 Removed
-----------
+-------
 - Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
 
 

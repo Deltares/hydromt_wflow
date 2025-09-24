@@ -1,78 +1,86 @@
-setup_config:
-  output.netcdf_grid.path: output.nc
-  output.netcdf_grid.compressionlevel: 1
-  output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
+steps:
+  - setup_config:
+      data:
+        output.netcdf_grid.path: output.nc
+        output.netcdf_grid.compressionlevel: 1
+        output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
 
-setup_basemaps:
-  res: 0.016666666666666666
-  hydrography_fn: merit_hydro
-  basin_index_fn: merit_hydro_index
-  upscale_method: ihu
+  - setup_basemaps:
+      res: 0.016666666666666666
+      hydrography_fn: merit_hydro
+      basin_index_fn: merit_hydro_index
+      upscale_method: ihu
+      region:
+        subbasin: [12.2051, 45.8331]
+        strord: 4
+        bounds: [11.70, 45.35, 12.95, 46.70]
 
-setup_rivers:
-  hydrography_fn: merit_hydro
-  river_geom_fn: hydro_rivers_lin
-  river_upa: 30
-  rivdph_method: powlaw
-  min_rivdph: 1
-  min_rivwth: 30
-  slope_len: 2000
-  smooth_len: 5000
+  - setup_rivers:
+      hydrography_fn: merit_hydro
+      river_geom_fn: hydro_rivers_lin
+      river_upa: 30
+      rivdph_method: powlaw
+      min_rivdph: 1
+      min_rivwth: 30
+      slope_len: 2000
+      smooth_len: 5000
 
-setup_reservoirs_simple_control:
-  reservoirs_fn: hydro_reservoirs
-  min_area: 0.0
+  - setup_river_roughness:
 
-setup_reservoirs_no_control:
-  reservoirs_fn: hydro_lakes
-  min_area: 5.0
+  - setup_reservoirs_simple_control:
+      reservoirs_fn: hydro_reservoirs
+      min_area: 0.0
 
-setup_glaciers:
-  glaciers_fn: rgi
-  min_area: 0.0
+  - setup_reservoirs_no_control:
+      reservoirs_fn: hydro_lakes
+      min_area: 5.0
 
-setup_lulcmaps:
-  lulc_fn: globcover_2009
-  lulc_mapping_fn: globcover_mapping_default
+  - setup_glaciers:
+      glaciers_fn: rgi
+      min_area: 0.0
 
-setup_laimaps:
-  lai_fn: modis_lai
+  - setup_lulcmaps:
+      lulc_fn: globcover_2009
+      lulc_mapping_fn: globcover_mapping_default
 
-setup_soilmaps:
-  soil_fn: soilgrids
-  ptf_ksatver: brakensiek
+  - setup_laimaps:
+      lai_fn: modis_lai
 
-setup_outlets:
-  river_only: True
+  - setup_soilmaps:
+      soil_fn: soilgrids
+      ptf_ksatver: brakensiek
 
-setup_gauges:
-  gauges_fn: grdc
-  snap_to_river: True
-  derive_subcatch: False
+  - setup_outlets:
+      river_only: True
 
-setup_constant_pars:
-  "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio": 100
-  "snowpack__degree-day_coefficient": 3.75653
-  "soil_surface_water__infiltration_reduction_parameter": 0.038
-  "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio": 0.11
-  "soil~compacted_surface_water__infiltration_capacity": 5
-  "soil_water_sat-zone_bottom__max_leakage_volume_flux": 0
-  "soil_root~wet__sigmoid_function_shape_parameter": -500
-  "atmosphere_air__snowfall_temperature_threshold": 0
-  "atmosphere_air__snowfall_temperature_interval": 2
-  "snowpack__melting_temperature_threshold": 0
-  "snowpack__liquid_water_holding_capacity": 0.1
-  "glacier_ice__degree-day_coefficient": 5.3
-  "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction": 0.002
-  "glacier_ice__melting_temperature_threshold": 1.3
+  - setup_gauges:
+      gauges_fn: grdc
+      snap_to_river: True
+      derive_subcatch: False
 
-setup_precip_forcing:
-  precip_fn: era5
+  - setup_constant_pars:
+      "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio": 100
+      "snowpack__degree-day_coefficient": 3.75653
+      "soil_surface_water__infiltration_reduction_parameter": 0.038
+      "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio": 0.11
+      "soil~compacted_surface_water__infiltration_capacity": 5
+      "soil_water_sat-zone_bottom__max_leakage_volume_flux": 0
+      "soil_root~wet__sigmoid_function_shape_parameter": -500
+      "atmosphere_air__snowfall_temperature_threshold": 0
+      "atmosphere_air__snowfall_temperature_interval": 2
+      "snowpack__melting_temperature_threshold": 0
+      "snowpack__liquid_water_holding_capacity": 0.1
+      "glacier_ice__degree-day_coefficient": 5.3
+      "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction": 0.002
+      "glacier_ice__melting_temperature_threshold": 1.3
 
-setup_temp_pet_forcing:
-  temp_pet_fn: era5
-  press_correction: True
-  temp_correction: True
-  dem_forcing_fn: era5_orography
-  pet_method: debruin
-  skip_pet: False
+  - setup_precip_forcing:
+      precip_fn: era5
+
+  - setup_temp_pet_forcing:
+      temp_pet_fn: era5
+      press_correction: True
+      temp_correction: True
+      dem_forcing_fn: era5_orography
+      pet_method: debruin
+      skip_pet: False
