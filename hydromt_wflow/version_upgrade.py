@@ -87,6 +87,9 @@ def _set_input_vars(
         elif wflow_v0_var in cyclic_variables:
             config_out["input"]["cyclic"][wflow_v1_var] = name
         else:
+            if isinstance(name, dict) and "netcdf" in name.keys():
+                name["netcdf_variable_name"] = name["netcdf"]["variable"]["name"]
+                del name["netcdf"]
             config_out["input"]["static"][wflow_v1_var] = name
     return config_out
 
