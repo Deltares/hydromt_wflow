@@ -219,6 +219,10 @@ class WflowBaseModel(Model):
         * **netcdf.variable** config: netcdf timeseries to save based on mapname \
             locations
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_gauges`
+
         Parameters
         ----------
         mapname : str
@@ -506,6 +510,10 @@ skipping adding gauge specific outputs to the toml."
         * **river_slope** map: river slope [m/m]
         * **river_depth** map: river depth [m] (if ``rivdph_method`` is not None)
         * **rivers** geom: river vector based on wflow_river mask
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -796,6 +804,9 @@ and will soon be removed. '
             Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -931,6 +942,10 @@ and will soon be removed. '
             Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         lulc_fn : str, gpd.GeoDataFrame
@@ -1037,6 +1052,10 @@ and will soon be removed. '
 
         * **outlets** map: IDs map from catchment outlets [-]
         * **outlets** geom: polygon of catchment outlets
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -1160,6 +1179,10 @@ and will soon be removed. '
         * **gauges_source** geom: polygon of gauges from source
         * **subcatchment_source** geom: polygon of subcatchment based on \
 gauge locations [-] (if derive_subcatch)
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -1396,6 +1419,10 @@ gauge locations [-] (if derive_subcatch)
 
         * **param_name** map: constant parameter map.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         dtype: str
@@ -1515,6 +1542,10 @@ one variable and variables list is not provided."
         Adds model layer:
 
         * **col2raster** map:  output area data map
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------

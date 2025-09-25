@@ -97,6 +97,10 @@ class WflowSedimentModel(WflowBaseModel):
             * **river_slope** map: river slope [m/m]
             * **rivers** geom: river vector based on river_mask
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         hydrography_fn : str, Path, xarray.Dataset
@@ -316,6 +320,10 @@ class WflowSedimentModel(WflowBaseModel):
         * **meta_reservoirs** geom: polygon with reservoirs and parameters
         * **reservoirs** geom: polygon with all reservoirs as in the model
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
+
         Parameters
         ----------
         reservoirs_fn : str
@@ -479,6 +487,10 @@ class WflowSedimentModel(WflowBaseModel):
             * **land_water_fraction** map: The fraction of water covered area per
                 grid cell [-]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         lulc_fn : str, xarray.DataArray
@@ -597,6 +609,10 @@ class WflowSedimentModel(WflowBaseModel):
                 per grid cell [-]
             * **land_water_fraction** map: The fraction of water covered area per grid
               cell [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -767,6 +783,10 @@ class WflowSedimentModel(WflowBaseModel):
             * **land_govers_n** map: Govers exponent for overland flow transport
                 capacity [-]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
 
         Parameters
         ----------
@@ -824,6 +844,10 @@ class WflowSedimentModel(WflowBaseModel):
 
         * **outlets** map: IDs map from catchment outlets [-]
         * **outlets** geom: polygon of catchment outlets
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -886,6 +910,10 @@ class WflowSedimentModel(WflowBaseModel):
         - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
         - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration"]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         See Also
         --------

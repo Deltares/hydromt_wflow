@@ -146,6 +146,10 @@ class WflowSbmModel(WflowBaseModel):
         * **rivers** geom: river vector based on wflow_river mask
         * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         hydrography_fn : str, Path, xarray.Dataset
@@ -254,10 +258,13 @@ class WflowSbmModel(WflowBaseModel):
     ):
         """Set river Manning roughness coefficient for SBM.
 
-        THIS FUNCTION SHOULD BE RUN AFTER ``setup_basemaps`` AND ``setup_rivers``.
-
         Adds model layers:
         - **river_manning_n** map: river Manning roughness coefficient [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -364,6 +371,10 @@ class WflowSbmModel(WflowBaseModel):
             third dimension [m3] (for 1D floodplains)
         * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
           (for 2D floodplains)
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -654,6 +665,10 @@ setting new flood_depth dimensions"
           weirs) and wflow parameters.
         * **reservoirs** geom: polygon with all reservoirs as in the model
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
+
         Parameters
         ----------
         reservoirs_fn : str, Path, gpd.GeoDataFrame
@@ -939,6 +954,10 @@ setting new flood_depth dimensions"
                 reservoirs and parameters
             * **reservoirs** geom: polygon with all reservoirs as in the model
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
+
         Parameters
         ----------
         reservoirs_fn : str
@@ -1097,6 +1116,10 @@ setting new flood_depth dimensions"
         * **glacier_fraction** map: area fraction of glacier per cell [-]
         * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         glaciers_fn :
@@ -1202,8 +1225,6 @@ setting new flood_depth dimensions"
     ):
         """Set up landuse maps and parameters including for paddy fields.
 
-        THIS FUNCTION SHOULD BE RUN AFTER setup_soilmaps.
-
         Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
         parameters based on literature. The data is remapped at its original resolution
         and then resampled to the model resolution using the average value, unless noted
@@ -1281,6 +1302,10 @@ setting new flood_depth dimensions"
             distribution, a map for each of the wflow_sbm soil layers (updated based
             on the newly specified layers)
 
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_soilmaps`
 
         Parameters
         ----------
@@ -1511,6 +1536,10 @@ setting new flood_depth dimensions"
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         lai_fn : str, xarray.DataArray
@@ -1603,6 +1632,10 @@ setting new flood_depth dimensions"
         * **vegetation_leaf_area_index** map: Leaf Area Index climatology [-]
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
 
         Parameters
         ----------
@@ -1716,6 +1749,13 @@ the missing with data from downstream catchments.
         * **meta_rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
 [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
 different return periods RP. Only if rootzone_storage is set to True!
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_precip_forcing`
+        * :py:meth:`~WflowBaseModel.setup_temp_pet_forcing`
+        * :py:meth:`~WflowBaseModel.setup_soilmaps`
+        * :py:meth:`~WflowBaseModel.setup_laimaps`
 
 
         Parameters
@@ -1939,6 +1979,10 @@ a map for each of the wflow_sbm soil layers (n in total)
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
@@ -1994,6 +2038,10 @@ a map for each of the wflow_sbm soil layers (n in total)
         This predetermined map contains (preferably) 'calibrated' values of \
 the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
 or created by a third party/ individual.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2061,6 +2109,11 @@ using 'variable' argument."
         * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \
         vegetation characteristics [mm/d]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_soilmaps`
+        * :py:meth:`~WflowBaseModel.setup_laimaps`
+
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
@@ -2123,6 +2176,10 @@ using 'variable' argument."
         the water areas, the priority_basins flag can be used to decide if these basins
         should be merged with the closest downstream basin or with any large enough
         basin in the same water area.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
 
         Parameters
         ----------
@@ -2191,6 +2248,10 @@ using 'variable' argument."
 
         * **demand_surface_water_ratio**: fraction of water allocated from surface water
           [0-1]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2313,6 +2374,10 @@ using 'variable' argument."
         * **demand_domestic_gross**: gross domestic water demand [mm/day]
         * **demand_domestic_net**: net domestic water demand [mm/day]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         domestic_fn : str | xr.Dataset
@@ -2418,6 +2483,10 @@ using 'variable' argument."
         * **demand_domestic_gross**: gross domestic water demand [mm/day]
         * **demand_domestic_net**: net domestic water demand [mm/day]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         population_fn : str | xr.Dataset
@@ -2515,6 +2584,10 @@ using 'variable' argument."
 
         * **{var}_gross**: gross water demand [mm/day]
         * **{var}_net**: net water demand [mm/day]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2631,6 +2704,11 @@ using 'variable' argument."
           whether irrigation is allowed (1) or not (0) [-] for paddy areas
         * **demand_paddy_irrigation_trigger**: Map with monthly values, indicating
           whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
+        * :py:meth:`~WflowBaseModel.setup_laimaps`
 
         Parameters
         ----------
@@ -2818,6 +2896,11 @@ using 'variable' argument."
         * **demand_nonpaddy_irrigation_trigger**: Map with monthly values, indicating
           whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
+        * :py:meth:`~WflowBaseModel.setup_laimaps`
+
         Parameters
         ----------
         irrigated_area_fn: str, Path, geopandas.GeoDataFrame
@@ -3004,6 +3087,10 @@ using 'variable' argument."
         * **gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
+
         Parameters
         ----------
         river1d_fn : str, Path, gpd.GeoDataFrame
@@ -3157,6 +3244,10 @@ using 'variable' argument."
 
         * **precip**: precipitation [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         precip_fn : str, xarray.DataArray
@@ -3239,7 +3330,12 @@ using 'variable' argument."
 
         * **precip**: precipitation [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Supported interpolation methods:
+
         * uniform: Applies spatially uniform precipitation to the model. \
         Only works when `precip_fn` contains a single timeseries.
         * nearest: Nearest-neighbour interpolation, also works with a single station.
@@ -3436,6 +3532,10 @@ using 'variable' argument."
 
         * **pet**: reference evapotranspiration [mm]
         * **temp**: temperature [°C]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3642,6 +3742,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         * **pet**: reference evapotranspiration [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
         Parameters
         ----------
         pet_fn: str, xr.DataArray
@@ -3725,6 +3829,15 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         If paddy, also adds:
 
         * **demand_paddy_h**: water on the paddy fields [mm]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_soilmaps`
+        * :py:meth:`~WflowBaseModel.setup_constant_pars`
+        * :py:meth:`~WflowBaseModel.setup_lakes`
+        * :py:meth:`~WflowBaseModel.setup_reservoirs`
+        * :py:meth:`~WflowBaseModel.setup_glaciers`
+        * :py:meth:`~WflowBaseModel.setup_irrigation`
 
         Parameters
         ----------
