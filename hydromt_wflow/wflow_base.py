@@ -728,20 +728,20 @@ and will soon be removed. '
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: dict = {
             "landuse": None,
-            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "soil_compacted_fraction": "compacted_soil__area_fraction",
             "vegetation_root_depth": "vegetation_root__depth",
-            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
             "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
-            "land_water_fraction": "land~water-covered__area_fraction",
+            "land_water_fraction": "land_water_covered__area_fraction",
             "vegetation_crop_factor": "vegetation__crop_factor",
-            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
-            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
-            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
         },
         output_names_suffix: str | None = None,
     ):
@@ -861,20 +861,20 @@ and will soon be removed. '
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: dict = {
             "landuse": None,
-            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "soil_compacted_fraction": "compacted_soil__area_fraction",
             "vegetation_root_depth": "vegetation_root__depth",
-            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
             "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
-            "land_water_fraction": "land~water-covered__area_fraction",
+            "land_water_fraction": "land_water_covered__area_fraction",
             "vegetation_crop_factor": "vegetation__crop_factor",
-            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
-            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
-            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
         },
         lulc_res: float | int | None = None,
         all_touched: bool = False,

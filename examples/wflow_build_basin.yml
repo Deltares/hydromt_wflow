@@ -93,17 +93,17 @@ steps:
       skip_pet: False         # if True, only temperature is prepared.
 
   - setup_constant_pars:
-      "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio": 100
-      "snowpack__degree-day_coefficient": 3.75653
+      "subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio": 100
+      "snowpack__degree_day_coefficient": 3.75653
       "soil_surface_water__infiltration_reduction_parameter": 0.038
-      "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio": 0.11
-      "soil~compacted_surface_water__infiltration_capacity": 5
-      "soil_water_sat-zone_bottom__max_leakage_volume_flux": 0
-      "soil_root~wet__sigmoid_function_shape_parameter": -500
+      "vegetation_canopy_water__mean_evaporation_to_mean_precipitation_ratio": 0.11
+      "compacted_soil_surface_water__infiltration_capacity": 5
+      "soil_water_saturated_zone_bottom__max_leakage_volume_flux": 0
+      "soil_wet_root__sigmoid_function_shape_parameter": -500
       "atmosphere_air__snowfall_temperature_threshold": 0
       "atmosphere_air__snowfall_temperature_interval": 2
       "snowpack__melting_temperature_threshold": 0
       "snowpack__liquid_water_holding_capacity": 0.1
-      "glacier_ice__degree-day_coefficient": 5.3
-      "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction": 0.002
+      "glacier_ice__degree_day_coefficient": 5.3
+      "glacier_firn_accumulation__snowpack_dry_snow_leq_depth_fraction": 0.002
       "glacier_ice__melting_temperature_threshold": 1.3

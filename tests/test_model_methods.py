@@ -201,7 +201,7 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     # Confirm config flags
     assert mod.get_config("model.glacier__flag") is True
     assert (
-        mod.get_config("state.variables.glacier_ice__leq-depth") == "glacier_leq_depth"
+        mod.get_config("state.variables.glacier_ice__leq_depth") == "glacier_leq_depth"
     )
 
 
@@ -451,7 +451,7 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
 
     assert "lai_from_vito_mapping" in example_wflow_model.staticmaps.data
     assert (
-        example_wflow_model.get_config("input.cyclic.vegetation__leaf-area_index")
+        example_wflow_model.get_config("input.cyclic.vegetation__leaf_area_index")
         == "lai_from_vito_mapping"
     )
 
@@ -845,7 +845,7 @@ def test_setup_floodplains_1d(
     assert example_wflow_model.get_config("model.land_routing") == "kinematic_wave"
     assert (
         example_wflow_model.get_config(
-            "input.static.floodplain_water__sum_of_volume-per-depth"
+            "input.static.floodplain_water__sum_of_volume_per_depth"
         )
         == "floodplain_volume"
     )
