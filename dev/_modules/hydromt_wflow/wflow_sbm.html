@@ -554,7 +554,7 @@
         <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
         <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;land_elevation&quot;</span><span class="p">,</span>
-        <span class="n">river_routing</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span>
+        <span class="n">river_routing</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kinematic_wave&quot;</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;river_location__mask&quot;</span><span class="p">:</span> <span class="s2">&quot;river_mask&quot;</span><span class="p">,</span>
@@ -591,15 +591,15 @@
 <span class="sd">        (default = 0.27) and hp (default = 0.30) parameters. For other methods see</span>
 <span class="sd">        :py:meth:`hydromt.workflows.river_depth`.</span>
 
-<span class="sd">        If ``river_routing`` is set to &quot;local-inertial&quot;, the bankfull elevation map</span>
+<span class="sd">        If ``river_routing`` is set to &quot;local_inertial&quot;, the bankfull elevation map</span>
 <span class="sd">        can be conditioned based on the average cell elevation (&quot;land_elevation&quot;)</span>
 <span class="sd">        or subgrid outlet pixel elevation (&quot;meta_subgrid_elevation&quot;).</span>
 <span class="sd">        The subgrid elevation might provide a better representation</span>
 <span class="sd">        of the river elevation profile, however in combination with</span>
-<span class="sd">        local-inertial land routing (see :py:meth:`setup_floodplains`)</span>
+<span class="sd">        local_inertial land routing (see :py:meth:`setup_floodplains`)</span>
 <span class="sd">        the subgrid elevation will likely overestimate the floodplain storage capacity.</span>
 <span class="sd">        Note that the same input elevation map should be used for river bankfull</span>
-<span class="sd">        elevation and land elevation when using local-inertial land routing.</span>
+<span class="sd">        elevation and land elevation when using local_inertial land routing.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -644,8 +644,8 @@
 <span class="sd">        rivdph_method : {&#39;gvf&#39;, &#39;manning&#39;, &#39;powlaw&#39;}</span>
 <span class="sd">            see :py:meth:`hydromt.workflows.river_depth` for details, by default</span>
 <span class="sd">            &quot;powlaw&quot;</span>
-<span class="sd">        river_routing : {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
-<span class="sd">            Routing methodology to be used, by default &quot;kinematic-wave&quot;.</span>
+<span class="sd">        river_routing : {&#39;kinematic_wave&#39;, &#39;local_inertial&#39;}</span>
+<span class="sd">            Routing methodology to be used, by default &quot;kinematic_wave&quot;.</span>
 <span class="sd">        smooth_len : float, optional</span>
 <span class="sd">            Length [m] over which to smooth the output river width and depth,</span>
 <span class="sd">            by default 5e3</span>
@@ -681,7 +681,7 @@
             <span class="n">output_names</span><span class="o">=</span><span class="n">output_names</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">routing_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">]</span>
+        <span class="n">routing_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kinematic_wave&quot;</span><span class="p">,</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">river_routing</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">routing_options</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot; unknown. &#39;</span>
@@ -691,7 +691,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">river_routing</span> <span class="o">==</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">river_routing</span> <span class="o">==</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
             <span class="n">postfix</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;land_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;_avg&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;meta_subgrid_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;_subgrid&quot;</span><span class="p">,</span>
@@ -800,7 +800,7 @@
         <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;land_elevation&quot;</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;floodplain_water__sum_of_volume-per-depth&quot;</span><span class="p">:</span> <span class="s2">&quot;floodplain_volume&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;floodplain_water__sum_of_volume_per_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;floodplain_volume&quot;</span><span class="p">,</span>
             <span class="s2">&quot;river_bank_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bank_elevation_avg_D4&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
@@ -819,7 +819,7 @@
 
 <span class="sd">        If ``floodplain_type`` is set to &quot;2d&quot;, this component adds</span>
 <span class="sd">        a hydrologically conditioned elevation (river_bank_elevation) map for</span>
-<span class="sd">        land routing (local-inertial). For this options, landcells need to be</span>
+<span class="sd">        land routing (local_inertial). For this options, landcells need to be</span>
 <span class="sd">        conditioned to D4 flow directions otherwise pits may remain in the land cells.</span>
 
 <span class="sd">        The conditioned elevation can be based on the average cell elevation</span>
@@ -828,10 +828,10 @@
 <span class="sd">        the floodplain storage capacity.</span>
 
 <span class="sd">        Additionally, note that the same input elevation map should be used for river</span>
-<span class="sd">        bankfull elevation and land elevation when using local-inertial land routing.</span>
+<span class="sd">        bankfull elevation and land elevation when using local_inertial land routing.</span>
 
 <span class="sd">        Requires :py:meth:`setup_rivers` to be executed beforehand</span>
-<span class="sd">        (with ``river_routing`` set to &quot;local-inertial&quot;).</span>
+<span class="sd">        (with ``river_routing`` set to &quot;local_inertial&quot;).</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -877,13 +877,13 @@
 <span class="sd">        pyflwdir.FlwdirRaster.dem_adjust</span>
 <span class="sd">        setup_rivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Floodplains (1d or 2d) are currently only supported with </span><span class="se">\</span>
 <span class="s2">local inertial river routing&quot;</span>
             <span class="p">)</span>
         <span class="c1"># update self._MAPS and self._WFLOW_NAMES with user defined output names</span>
-        <span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;floodplain_water__sum_of_volume-per-depth&quot;</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="s2">&quot;floodplain_water__sum_of_volume_per_depth&quot;</span>
         <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">output_names</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">var</span><span class="p">:</span> <span class="n">output_names</span><span class="p">[</span><span class="n">var</span><span class="p">]})</span>
 
@@ -896,7 +896,7 @@
         <span class="c1"># Adjust settings based on floodplain_type selection</span>
         <span class="k">if</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;1d&quot;</span><span class="p">:</span>
             <span class="n">floodplain_1d</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span>
+            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;kinematic_wave&quot;</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pyflwdir</span><span class="o">.</span><span class="n">FlwdirRaster</span><span class="p">,</span> <span class="s2">&quot;ucat_volume&quot;</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This method requires pyflwdir &gt;= 0.5.6&quot;</span><span class="p">)</span>
@@ -954,7 +954,7 @@
 
         <span class="k">elif</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;2d&quot;</span><span class="p">:</span>
             <span class="n">floodplain_1d</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;local-inertial&quot;</span>
+            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;local_inertial&quot;</span>
 
             <span class="k">if</span> <span class="n">elevtn_map</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">elevtn_map</span><span class="si">}</span><span class="s1">&quot; not found in grid&#39;</span><span class="p">)</span>
@@ -1015,7 +1015,7 @@
                 <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_q&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># Remove local-inertial land states</span>
+            <span class="c1"># Remove local_inertial land states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
@@ -1035,7 +1035,7 @@
                 <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Add local-inertial land routing states</span>
+            <span class="c1"># Add local_inertial land routing states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_qx&quot;</span><span class="p">,</span>
@@ -1044,7 +1044,7 @@
                 <span class="s2">&quot;state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_qy&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># Remove kinematic-wave and 1d floodplain states</span>
+            <span class="c1"># Remove kinematic_wave and 1d floodplain states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
@@ -1079,12 +1079,12 @@
             <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water_surface__initial_elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_initial_depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_water_flow_threshold-level__elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water_flow_threshold_level__elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outflow_threshold&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;reservoir_water__rating_curve_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_b&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__rating_curve_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_e&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__rating_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__storage_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir~lower_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_lower_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs_no_control&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -1355,10 +1355,10 @@
             <span class="s2">&quot;reservoir_water__rating_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__storage_curve_type_count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water__max_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_volume&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_water~min-target__volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;reservoir_water~full-target__volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;reservoir_water_demand~required~downstream__volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;reservoir_water_release-below-spillway__max_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water__target_min_volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_min_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water__target_full_volume_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_target_full_fraction&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water_demand__required_downstream_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_demand&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;reservoir_water_release_below_spillway__max_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_max_release&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs_simple_control&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -1573,7 +1573,7 @@
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;glacier_surface__area_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;glacier_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;glacier_ice__initial_leq-depth&quot;</span><span class="p">:</span> <span class="s2">&quot;glacier_initial_leq_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;glacier_ice__initial_leq_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;glacier_initial_leq_depth&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;glaciers&quot;</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1653,7 +1653,7 @@
         <span class="c1"># update config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.glacier__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.variables.glacier_ice__leq-depth&quot;</span><span class="p">,</span> <span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.variables.glacier_ice__leq_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">)</span>
         <span class="c1"># update geoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span></div>
 
@@ -1680,20 +1680,20 @@
         <span class="p">],</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light-extinction_coefficient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light_extinction_coefficient&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land_manning_n&quot;</span><span class="p">:</span> <span class="s2">&quot;land_surface_water_flow__manning_n_parameter&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific-leaf_storage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific_leaf_storage&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_wood_water__storage_capacity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__crop_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h4&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">paddy_waterlevels</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;demand_paddy_h_min&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
@@ -1726,7 +1726,7 @@
 
 <span class="sd">        The different values for the minimum/optimal/maximum water levels for paddy</span>
 <span class="sd">        fields will be added as constant values in the toml file, through the</span>
-<span class="sd">        ``land~irrigated-paddy__min_depth.value = 20`` interface.</span>
+<span class="sd">        ``irrigated_paddy__min_depth.value = 20`` interface.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1982,7 +1982,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">.value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="c1"># Update the states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-                <span class="s2">&quot;state.variables.land_surface_water~paddy__depth&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_h&quot;</span>
+                <span class="s2">&quot;state.variables.paddy_surface_water__depth&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_h&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No paddy fields found, skipping updating soil parameters&quot;</span><span class="p">)</span></div>
@@ -2061,7 +2061,7 @@
 <span class="sd">        buffer : int, optional</span>
 <span class="sd">            Buffer in pixels around the region to read the data, by default 2.</span>
 <span class="sd">        output_name : str</span>
-<span class="sd">            Name of the output vegetation__leaf-area_index map.</span>
+<span class="sd">            Name of the output vegetation__leaf_area_index map.</span>
 <span class="sd">            By default &quot;vegetation_leaf_area_index&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># retrieve data for region</span>
@@ -2134,7 +2134,7 @@
 <span class="sd">            months (1,2,3,...,12).</span>
 <span class="sd">            This table can be created using the :py:meth:`setup_laimaps` method.</span>
 <span class="sd">        output_name : str</span>
-<span class="sd">            Name of the output vegetation__leaf-area_index map.</span>
+<span class="sd">            Name of the output vegetation__leaf_area_index map.</span>
 <span class="sd">            By default &quot;vegetation_leaf_area_index&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LAI maps from LULC data using LULC-LAI mapping table.&quot;</span><span class="p">)</span>
@@ -2411,7 +2411,7 @@
             <span class="s2">&quot;soil_surface_water__vertical_saturated_hydraulic_conductivity&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_ksat_vertical&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;soil__thickness&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_thickness&quot;</span><span class="p">,</span>
             <span class="s2">&quot;soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_f&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;soil_layer_water__brooks-corey_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_layer_water__brooks_corey_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2551,7 +2551,7 @@
 <span class="sd">            to the name of the ksat_fn DataArray.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing KsatHorFrac parameter map.&quot;</span><span class="p">)</span>
-        <span class="n">wflow_var</span> <span class="o">=</span> <span class="s2">&quot;subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio&quot;</span>  <span class="c1"># noqa: E501</span>
+        <span class="n">wflow_var</span> <span class="o">=</span> <span class="s2">&quot;subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio&quot;</span>  <span class="c1"># noqa: E501</span>
         <span class="n">dain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">ksat_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
@@ -2856,8 +2856,8 @@
         <span class="n">population_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">domestic_fn_original_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;land~domestic__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_gross&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~domestic__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_net&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;domestic__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_gross&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;domestic__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_net&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2975,8 +2975,8 @@
         <span class="n">domestic_gross_per_capita</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">domestic_net_per_capita</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;land~domestic__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_gross&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~domestic__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_net&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;domestic__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_gross&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;domestic__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_domestic_net&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3072,10 +3072,10 @@
         <span class="p">],</span>
         <span class="n">resampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;land~industry__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_industry_gross&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~industry__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_industry_net&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~livestock__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_livestock_gross&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~livestock__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_livestock_net&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industry__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_industry_gross&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;industry__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_industry_net&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;livestock__gross_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_livestock_gross&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;livestock__net_water_demand_volume_flux&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_livestock_net&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create water demand maps from other sources (e.g. industry, livestock).</span>
@@ -3179,10 +3179,10 @@
         <span class="n">lai_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">lulcmap_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_landuse&quot;</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;land~irrigated-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;irrigated_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land~irrigated-non-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~irrigated-paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;land~irrigated-non-paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;irrigated_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;irrigated_non_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3373,10 +3373,10 @@
         <span class="n">area_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
         <span class="n">lai_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;land~irrigated-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;irrigated_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land~irrigated-non-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~irrigated-paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;land~irrigated-non-paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;irrigated_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;irrigated_non_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3746,7 +3746,7 @@
                 <span class="n">mapname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_river_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
                 <span class="n">header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Qlat&quot;</span><span class="p">],</span>
-                <span class="n">param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;river_water_inflow~lateral__volume_flow_rate&quot;</span><span class="p">],</span>
+                <span class="n">param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;river_water__lateral_inflow_volume_flow_rate&quot;</span><span class="p">],</span>
                 <span class="n">reducer</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">],</span>
             <span class="p">)</span></div>
 
@@ -4351,7 +4351,7 @@
 <span class="sd">        * **land_instantaneous_h**: land water level [m]</span>
 <span class="sd">        * **land_instantaneous_q** or **land_instantaneous_qx**+</span>
 <span class="sd">          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or</span>
-<span class="sd">          overland flow in x/y directions for local-inertial [m3/s]</span>
+<span class="sd">          overland flow in x/y directions for local_inertial [m3/s]</span>
 
 <span class="sd">        If reservoirs, also adds:</span>
 

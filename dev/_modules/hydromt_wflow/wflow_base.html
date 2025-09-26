@@ -1216,20 +1216,20 @@
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light-extinction_coefficient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light_extinction_coefficient&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land_manning_n&quot;</span><span class="p">:</span> <span class="s2">&quot;land_surface_water_flow__manning_n_parameter&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific-leaf_storage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific_leaf_storage&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_wood_water__storage_capacity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__crop_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h4&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">output_names_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1355,20 +1355,20 @@
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light-extinction_coefficient&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light_extinction_coefficient&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land_manning_n&quot;</span><span class="p">:</span> <span class="s2">&quot;land_surface_water_flow__manning_n_parameter&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific-leaf_storage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific_leaf_storage&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_wood_water__storage_capacity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__crop_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~3~low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critial_pressure_head_h~4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h4&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>

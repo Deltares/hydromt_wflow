@@ -624,15 +624,15 @@
         <span class="n">bedsed_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strord_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_streamorder&quot;</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;river_bottom-and-bank_sediment__median_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sediment_d50&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_clay_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_silt_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sand_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_gravel__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_gravel_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_a-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_a&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_b-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_b&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_c-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_c&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_d-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_d&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_bottom_and_bank_sediment__median_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sediment_d50&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom_and_bank_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_clay_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom_and_bank_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_silt_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom_and_bank_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sand_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom_and_bank_gravel__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_gravel_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_a_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_a&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_b_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_b&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_c_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_c&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_d_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_d&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate sediments based river bed characteristics maps.</span>
@@ -728,7 +728,7 @@
             <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
+            <span class="s2">&quot;reservoir_water_sediment__bedload_trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_natural_reservoirs&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -776,7 +776,7 @@
             <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
+            <span class="s2">&quot;reservoir_water_sediment__bedload_trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_reservoirs&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -933,9 +933,9 @@
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
         <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
@@ -1055,9 +1055,9 @@
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1240,8 +1240,8 @@
             <span class="s2">&quot;soil_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_clay_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;soil_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_silt_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;soil_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sand_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_aggregates~small__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sagg_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_aggregates~large__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_lagg_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_small_aggregates__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sagg_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_large_aggregates__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_lagg_fraction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;soil_erosion__rainfall_soil_detachability_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;erosion_soil_detachability&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;soil_erosion__usle_k_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;erosion_usle_k&quot;</span><span class="p">,</span>
             <span class="s2">&quot;land_surface_sediment__median_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sediment_d50&quot;</span><span class="p">,</span>
@@ -1324,7 +1324,7 @@
         <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
         <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;suspended_solids&quot;</span><span class="p">],</span>
         <span class="n">gauge_toml_param</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;river_water_sediment~suspended__mass_concentration&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_water_sediment__suspended_mass_concentration&quot;</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default gauge map based on basin outlets.</span>
@@ -1356,11 +1356,11 @@
 <span class="sd">            Save specific model parameters in csv section. This option defines</span>
 <span class="sd">            the header of the csv file.</span>
 <span class="sd">            By default saves suspended_solids (for</span>
-<span class="sd">            river_water_sediment~suspended__mass_concentration).</span>
+<span class="sd">            river_water_sediment__suspended_mass_concentration).</span>
 <span class="sd">        gauge_toml_param: list, optional</span>
 <span class="sd">            Save specific model parameters in csv section. This option defines</span>
 <span class="sd">            the wflow variable corresponding to the names in gauge_toml_header.</span>
-<span class="sd">            By default saves river_water_sediment~suspended__mass_concentration (for</span>
+<span class="sd">            By default saves river_water_sediment__suspended_mass_concentration (for</span>
 <span class="sd">            suspended_solids).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_outlets</span><span class="p">(</span>
@@ -1392,7 +1392,7 @@
         <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river_q&quot;</span><span class="p">,</span> <span class="s2">&quot;suspended_solids&quot;</span><span class="p">],</span>
         <span class="n">gauge_toml_param</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;river_water__volume_flow_rate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_water_sediment~suspended__mass_concentration&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_water_sediment__suspended_mass_concentration&quot;</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1406,7 +1406,7 @@
 
 <span class="sd">        - ``gauge_toml_header`` defaults to [&quot;river_q&quot;, &quot;suspended_solids&quot;]</span>
 <span class="sd">        - ``gauge_toml_param`` defaults to [&quot;river_water__volume_flow_rate&quot;,</span>
-<span class="sd">            &quot;river_water_sediment~suspended__mass_concentration&quot;]</span>
+<span class="sd">            &quot;river_water_sediment__suspended_mass_concentration&quot;]</span>
 
 <span class="sd">        Required setup methods:</span>
 
