@@ -26,84 +26,124 @@ setup methods are exposed. Click on
 a specific method see its documentation.
 
 .. list-table::
-    :widths: 20 55
+    :widths: 20 60 20
     :header-rows: 1
     :stub-columns: 1
 
     * - Method
       - Explanation
-    * - :py:func:`~WflowSbmModel.setup_config`
+      - Required Setup Method
+    * - :py:meth:`~WflowSbmModel.setup_config`
       - Update config with a dictionary
-    * - :py:func:`~WflowSbmModel.setup_basemaps`
+      -
+    * - :py:meth:`~WflowSbmModel.setup_basemaps`
       - This component sets the region of interest and res (resolution in degrees) of the model.
-    * - :py:func:`~WflowSbmModel.setup_rivers`
+      -
+    * - :py:meth:`~WflowSbmModel.setup_rivers`
       - This component sets the all river parameter maps.
-    * - :py:func:`~WflowSbmModel.setup_floodplains`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_river_roughness`
+      - Set river Manning roughness coefficient.
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_floodplains`
       - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
-    * - :py:func:`~WflowSbmModel.setup_reservoirs_no_control`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_reservoirs_no_control`
       - This component generates maps of uncontrolled reservoirs (lakes, weirs) areas and outlets as well as parameters with average reservoir area, depth a discharge values.
-    * - :py:func:`~WflowSbmModel.setup_reservoirs_simple_control`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_reservoirs_simple_control`
       - This component generates maps of controlled reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
-    * - :py:func:`~WflowSbmModel.setup_glaciers`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_glaciers`
       - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
-    * - :py:func:`~WflowSbmModel.setup_lulcmaps`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
-    * - :py:func:`~WflowSbmModel.setup_lulcmaps_from_vector`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_lulcmaps_from_vector`
       - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
-    * - :py:func:`~WflowSbmModel.setup_lulcmaps_with_paddy`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_lulcmaps_with_paddy`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data with paddy rice.
-    * - :py:func:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`
+    * - :py:meth:`~WflowSbmModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
-    * - :py:func:`~WflowSbmModel.setup_laimaps_from_lulc_mapping`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_laimaps_from_lulc_mapping`
       - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
-    * - :py:func:`~WflowSbmModel.setup_soilmaps`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_soilmaps`
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
-    * - :py:func:`~WflowSbmModel.setup_ksathorfrac`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_ksathorfrac`
       - This component prepares the saturated hydraulic conductivity horizontal ratio from an existing map.
-    * - :py:func:`~WflowSbmModel.setup_ksatver_vegetation`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_ksatver_vegetation`
       - This component prepares ksatver from soil and vegetation parameters.
-    * - :py:func:`~WflowSbmModel.setup_rootzoneclim`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent.
+    * - :py:meth:`~WflowSbmModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
-    * - :py:func:`~WflowSbmModel.setup_outlets`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
+    * - :py:meth:`~WflowSbmModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
-    * - :py:func:`~WflowSbmModel.setup_gauges`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
-    * - :py:func:`~WflowSbmModel.setup_areamap`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_areamap`
       -  Setup area map from vector data to save wflow outputs for specific area.
-    * - :py:func:`~WflowSbmModel.setup_config_output_timeseries`
-      - This method add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
-    * - :py:func:`~WflowSbmModel.setup_precip_forcing`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_config_output_timeseries`
+      - This method add new variable/column to the netcdf/csv output section of the toml based on a selected gauge/area map.
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
-    * - :py:func:`~WflowSbmModel.setup_precip_from_point_timeseries`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_precip_from_point_timeseries`
       -  Setup precipitation forcing from station data at model resolution.
-    * - :py:func:`~WflowSbmModel.setup_temp_pet_forcing`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_temp_pet_forcing`
       -  Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.
-    * - :py:func:`~WflowSbmModel.setup_pet_forcing`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_pet_forcing`
       -  Setup gridded reference evapotranspiration forcing at model resolution.
-    * - :py:func:`~WflowSbmModel.setup_constant_pars`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-    * - :py:func:`~WflowSbmModel.setup_allocation_areas`
+      -
+    * - :py:meth:`~WflowSbmModel.setup_allocation_areas`
       -  Create water demand allocation areas.
-    * - :py:func:`~WflowSbmModel.setup_allocation_surfacewaterfrac`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_allocation_surfacewaterfrac`
       -  Create fraction of surface water used for allocation of the water demands.
-    * - :py:func:`~WflowSbmModel.setup_domestic_demand`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_domestic_demand`
       -  Create domestic water demand from grid.
-    * - :py:func:`~WflowSbmModel.setup_domestic_demand_from_population`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_domestic_demand_from_population`
       -  Create domestic water demand using demand per capita and gridded population.
-    * - :py:func:`~WflowSbmModel.setup_other_demand`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_other_demand`
       -  Create other water demand (eg industry, livestock).
-    * - :py:func:`~WflowSbmModel.setup_irrigation`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_irrigation`
       -  Create irrigation areas and trigger for paddy and nonpaddy crops from a raster file.
-    * - :py:func:`~WflowSbmModel.setup_irrigation_from_vector`
+      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
+    * - :py:meth:`~WflowSbmModel.setup_irrigation_from_vector`
       -  Create irrigation areas and trigger for paddy and nonpaddy crops from a vector file.
-    * - :py:func:`~WflowSbmModel.setup_1dmodel_connection`
+      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
+    * - :py:meth:`~WflowSbmModel.setup_1dmodel_connection`
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
-    * - :py:func:`~WflowSbmModel.setup_grid_from_raster`
+      - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
-    * - :py:func:`~WflowSbmModel.setup_cold_states`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_cold_states`
       -  Setup wflow cold states based on data in staticmaps.
-    * - :py:func:`~WflowSbmModel.upgrade_to_v1_wflow`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_constant_pars`, :py:meth:`~WflowSbmModel.setup_reservoirs_no_control`, :py:meth:`~WflowSbmModel.setup_reservoirs_simple_control`, :py:meth:`~WflowSbmModel.setup_glaciers`, :py:meth:`~WflowSbmModel.setup_irrigation` or equivalent
+    * - :py:meth:`~WflowSbmModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
+      -
 
 
 .. _model_components:
