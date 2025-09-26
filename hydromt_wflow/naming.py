@@ -1027,8 +1027,8 @@ def _create_hydromt_wflow_mapping(
                     if "value" in new_name:
                         # Do not update
                         new_name = None
-                    elif "netcdf" in new_name:
-                        new_name = new_name["netcdf"]["variable"]["name"]
+                    elif "netcdf_variable_name" in new_name:
+                        new_name = new_name["netcdf_variable_name"]
                 if new_name is not None and old_name != new_name:
                     # Update the mapping with the new name
                     mapping_inv[new_name] = mapping_inv.get(old_name, old_name)

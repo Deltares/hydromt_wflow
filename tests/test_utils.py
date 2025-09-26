@@ -25,14 +25,14 @@ def test_grid_from_config(demda):
             "static": {
                 "slope": "slope",
                 "altitude": {
-                    "netcdf": {"variable": {"name": "slope"}},
+                    "netcdf_variable_name": "slope",
                     "scale": 10,
                 },
             },
             "cyclic": {
                 "subsurface_ksat_horizontal_ratio": {"value": 500},
                 "ksathorfrac2": {
-                    "netcdf": {"variable": {"name": "dem"}},
+                    "netcdf_variable_name": "dem",
                     "scale": 0,
                     "offset": 500,
                 },

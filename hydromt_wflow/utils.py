@@ -364,7 +364,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config(key="netcdf.variable.name", config=var)
+            var_name = get_config(key="netcdf_variable_name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset

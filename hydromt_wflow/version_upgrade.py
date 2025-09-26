@@ -78,6 +78,9 @@ def _set_input_vars(
 ) -> dict:
     name = get_config(key=f"input.{wflow_v0_var}", config=config_in, fallback=None)
     if name is not None and wflow_v1_var is not None:
+        if isinstance(name, dict) and "netcdf" in name.keys():
+            name["netcdf_variable_name"] = name["netcdf"]["variable"]["name"]
+            del name["netcdf"]
         if wflow_v0_var in input_options.keys():
             return config_out
         elif wflow_v0_var in input_variables:
