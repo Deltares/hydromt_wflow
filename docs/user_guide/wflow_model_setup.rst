@@ -43,7 +43,7 @@ a specific method see its documentation.
       - This component sets the all river parameter maps.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_river_rougness`
-      - Set river Manning roughness coefficient for SBM.
+      - Set river Manning roughness coefficient for sediment.
       - :py:meth:`~WflowSbmModel.setup_rivers`
     * - :py:meth:`~WflowSbmModel.setup_floodplains`
       - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
@@ -80,7 +80,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_ksatver_vegetation`
       - This component prepares ksatver from soil and vegetation parameters.
-      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent.
     * - :py:meth:`~WflowSbmModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
