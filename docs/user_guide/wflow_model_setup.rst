@@ -68,7 +68,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_laimaps_from_lulc_mapping`
       - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
-      - :py:meth:`~WflowSbmModel.setup_lulcmaps`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_soilmaps`
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
@@ -80,7 +80,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
     * - :py:meth:`~WflowSbmModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
-      - :py:meth:`~WflowSbmModel.setup_precip_forcing`, :py:meth:`~WflowSbmModel.setup_temp_pet_forcing`, :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
     * - :py:meth:`~WflowSbmModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
       - :py:meth:`~WflowSbmModel.setup_rivers`
@@ -91,7 +91,7 @@ a specific method see its documentation.
       -  Setup area map from vector data to save wflow outputs for specific area.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_config_output_timeseries`
-      - This method add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
+      - This method add new variable/column to the netcdf/csv output section of the toml based on a selected gauge/area map.
       - :py:meth:`~WflowSbmModel.setup_gauges`
     * - :py:meth:`~WflowSbmModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
@@ -107,7 +107,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-      - :py:meth:`~WflowSbmModel.setup_basemaps`
+      - None
     * - :py:meth:`~WflowSbmModel.setup_allocation_areas`
       -  Create water demand allocation areas.
       - :py:meth:`~WflowSbmModel.setup_rivers`
