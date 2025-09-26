@@ -221,7 +221,7 @@ class WflowBaseModel(Model):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_gauges`
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
 
         Parameters
         ----------
