@@ -148,7 +148,7 @@ class WflowSbmModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -263,8 +263,8 @@ class WflowSbmModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -277,8 +277,8 @@ class WflowSbmModel(WflowBaseModel):
 
         See Also
         --------
-        WflowBaseModel.setup_basemaps
-        WflowBaseModel.setup_rivers
+        WflowSbmModel.setup_basemaps
+        WflowSbmModel.setup_rivers
         """
         logger.info("Preparing river Manning roughness.")
 
@@ -374,7 +374,7 @@ class WflowSbmModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -667,7 +667,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -956,7 +956,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -1118,7 +1118,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -1305,7 +1305,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
 
         Parameters
         ----------
@@ -1538,7 +1538,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -1979,7 +1979,7 @@ a map for each of the wflow_sbm soil layers (n in total)
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2039,7 +2039,7 @@ or created by a third party/ individual.
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2109,8 +2109,8 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_soilmaps`
-        * :py:meth:`~WflowBaseModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps`
 
         Parameters
         ----------
@@ -2177,7 +2177,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -2249,7 +2249,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2374,7 +2374,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2483,7 +2483,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2585,7 +2585,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2705,8 +2705,8 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
-        * :py:meth:`~WflowBaseModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps`
 
         Parameters
         ----------
@@ -2896,8 +2896,8 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
-        * :py:meth:`~WflowBaseModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps`
 
         Parameters
         ----------
@@ -3087,7 +3087,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -3244,7 +3244,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3330,7 +3330,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Supported interpolation methods:
 
@@ -3533,7 +3533,7 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3742,7 +3742,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3830,12 +3830,12 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_soilmaps`
-        * :py:meth:`~WflowBaseModel.setup_constant_pars`
-        * :py:meth:`~WflowBaseModel.setup_lakes`
-        * :py:meth:`~WflowBaseModel.setup_reservoirs`
-        * :py:meth:`~WflowBaseModel.setup_glaciers`
-        * :py:meth:`~WflowBaseModel.setup_irrigation`
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_constant_pars`
+        * :py:meth:`~WflowSbmModel.setup_lakes`
+        * :py:meth:`~WflowSbmModel.setup_reservoirs`
+        * :py:meth:`~WflowSbmModel.setup_glaciers`
+        * :py:meth:`~WflowSbmModel.setup_irrigation`
 
         Parameters
         ----------

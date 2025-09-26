@@ -35,10 +35,10 @@ a specific method see its documentation.
       - Required Setup Method
     * - :py:meth:`~WflowSbmModel.setup_config`
       - Update config with a dictionary
-      - None
+      -
     * - :py:meth:`~WflowSbmModel.setup_basemaps`
       - This component sets the region of interest and res (resolution in degrees) of the model.
-      - None
+      -
     * - :py:meth:`~WflowSbmModel.setup_rivers`
       - This component sets the all river parameter maps.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
@@ -110,7 +110,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-      - None
+      -
     * - :py:meth:`~WflowSbmModel.setup_allocation_areas`
       -  Create water demand allocation areas.
       - :py:meth:`~WflowSbmModel.setup_rivers`
@@ -143,7 +143,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_constant_pars`, :py:meth:`~WflowSbmModel.setup_reservoirs_no_control`, :py:meth:`~WflowSbmModel.setup_reservoirs_simple_control`, :py:meth:`~WflowSbmModel.setup_glaciers`, :py:meth:`~WflowSbmModel.setup_irrigation` or equivalent
     * - :py:meth:`~WflowSbmModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
-      - None
+      -
 
 
 .. _model_components:

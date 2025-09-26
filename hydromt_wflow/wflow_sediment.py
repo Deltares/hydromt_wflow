@@ -99,7 +99,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
         Parameters
         ----------
@@ -276,7 +276,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         """
         self.setup_reservoirs(
@@ -327,7 +327,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         Parameters
         ----------
@@ -494,7 +494,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
         Parameters
         ----------
@@ -617,7 +617,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
         Parameters
         ----------
@@ -790,7 +790,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
 
         Parameters
@@ -852,7 +852,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         Parameters
         ----------
@@ -918,7 +918,7 @@ class WflowSedimentModel(WflowBaseModel):
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_rivers`
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         See Also
         --------

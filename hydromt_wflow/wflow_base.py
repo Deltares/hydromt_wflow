@@ -1419,10 +1419,6 @@ gauge locations [-] (if derive_subcatch)
 
         * **param_name** map: constant parameter map.
 
-        Required setup methods:
-
-        * :py:meth:`~WflowBaseModel.setup_basemaps`
-
         Parameters
         ----------
         dtype: str

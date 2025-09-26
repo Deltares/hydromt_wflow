@@ -33,10 +33,10 @@ a specific method see its documentation.
       - Required Setup Method
     * - :py:meth:`~WflowSedimentModel.setup_config`
       - Update config with a dictionary
-      - None
+      -
     * - :py:meth:`~WflowSedimentModel.setup_basemaps`
       - This component sets the region of interest and res (resolution in degrees) of the model.
-      - None
+      -
     * - :py:meth:`~WflowSedimentModel.setup_rivers`
       - This component sets the all river parameter maps.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
@@ -81,7 +81,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
-      - None
+      -
     * - :py:meth:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
@@ -90,7 +90,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
-      -  None
+      -
 
 
 .. _model_components_sed:
