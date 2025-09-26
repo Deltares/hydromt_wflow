@@ -42,8 +42,8 @@ a specific method see its documentation.
     * - :py:meth:`~WflowSbmModel.setup_rivers`
       - This component sets the all river parameter maps.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
-    * - :py:meth:`~WflowSbmModel.setup_river_rougness`
-      - Set river Manning roughness coefficient for sediment.
+    * - :py:meth:`~WflowSbmModel.setup_river_roughness`
+      - Set river Manning roughness coefficient.
       - :py:meth:`~WflowSbmModel.setup_rivers`
     * - :py:meth:`~WflowSbmModel.setup_floodplains`
       - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).

@@ -1753,7 +1753,7 @@ different return periods RP. Only if rootzone_storage is set to True!
         Required setup methods:
 
         * :py:meth:`~WflowSbmModel.setup_soilmaps`
-        * :py:meth:`~WflowSbmModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
 
         Parameters
@@ -2110,7 +2110,7 @@ using 'variable' argument."
         Required setup methods:
 
         * :py:meth:`~WflowSbmModel.setup_soilmaps`
-        * :py:meth:`~WflowSbmModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -2705,8 +2705,8 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowSbmModel.setup_lulcmaps`
-        * :py:meth:`~WflowSbmModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -2896,8 +2896,8 @@ using 'variable' argument."
 
         Required setup methods:
 
-        * :py:meth:`~WflowSbmModel.setup_lulcmaps`
-        * :py:meth:`~WflowSbmModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -3835,7 +3835,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * :py:meth:`~WflowSbmModel.setup_lakes`
         * :py:meth:`~WflowSbmModel.setup_reservoirs`
         * :py:meth:`~WflowSbmModel.setup_glaciers`
-        * :py:meth:`~WflowSbmModel.setup_irrigation`
+        * :py:meth:`~WflowSbmModel.setup_irrigation` or equivalent
 
         Parameters
         ----------
