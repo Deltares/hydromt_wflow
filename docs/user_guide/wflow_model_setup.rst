@@ -83,7 +83,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
     * - :py:meth:`~WflowSbmModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
-      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
     * - :py:meth:`~WflowSbmModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
       - :py:meth:`~WflowSbmModel.setup_rivers`
@@ -128,10 +128,10 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_irrigation`
       -  Create irrigation areas and trigger for paddy and nonpaddy crops from a raster file.
-      - :py:meth:`~WflowSbmModel.setup_lulcmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
     * - :py:meth:`~WflowSbmModel.setup_irrigation_from_vector`
       -  Create irrigation areas and trigger for paddy and nonpaddy crops from a vector file.
-      - :py:meth:`~WflowSbmModel.setup_lulcmaps`, :py:meth:`~WflowSbmModel.setup_laimaps`
+      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
     * - :py:meth:`~WflowSbmModel.setup_1dmodel_connection`
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
       - :py:meth:`~WflowSbmModel.setup_rivers`
@@ -140,7 +140,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_cold_states`
       -  Setup wflow cold states based on data in staticmaps.
-      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_constant_pars`, :py:meth:`~WflowSbmModel.setup_reservoirs_no_control`, :py:meth:`~WflowSbmModel.setup_reservoirs_simple_control`, :py:meth:`~WflowSbmModel.setup_glaciers`, :py:meth:`~WflowSbmModel.setup_irrigation`
+      - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_constant_pars`, :py:meth:`~WflowSbmModel.setup_reservoirs_no_control`, :py:meth:`~WflowSbmModel.setup_reservoirs_simple_control`, :py:meth:`~WflowSbmModel.setup_glaciers`, :py:meth:`~WflowSbmModel.setup_irrigation` or equivalent
     * - :py:meth:`~WflowSbmModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
       - None

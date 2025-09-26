@@ -45,7 +45,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_reservoirs`
       - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
@@ -72,16 +72,16 @@ a specific method see its documentation.
       - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+      - None
     * - :py:meth:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`

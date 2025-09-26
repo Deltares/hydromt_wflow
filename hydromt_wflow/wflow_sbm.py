@@ -1635,7 +1635,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_lulcmaps`
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -1752,10 +1752,8 @@ different return periods RP. Only if rootzone_storage is set to True!
 
         Required setup methods:
 
-        * :py:meth:`~WflowBaseModel.setup_precip_forcing`
-        * :py:meth:`~WflowBaseModel.setup_temp_pet_forcing`
-        * :py:meth:`~WflowBaseModel.setup_soilmaps`
-        * :py:meth:`~WflowBaseModel.setup_laimaps`
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps`
 
 
         Parameters
