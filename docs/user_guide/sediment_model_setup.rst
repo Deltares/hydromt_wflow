@@ -64,9 +64,6 @@ a specific method see its documentation.
     * - :py:meth:`~WflowSedimentModel.setup_soilmaps`
       - Setup sediments based soil parameter maps.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
-    * - :py:meth:`~WflowSedimentModel.setup_river_rougness`
-      - Set river Manning roughness coefficient for SBM.
-      - :py:meth:`~WflowSedimentModel.setup_rivers`
     * - :py:meth:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
       - :py:meth:`~WflowSedimentModel.setup_rivers`
@@ -81,10 +78,10 @@ a specific method see its documentation.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
-      -
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+      -
     * - :py:meth:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
