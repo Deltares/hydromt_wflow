@@ -29,8 +29,8 @@ path_output = "outstate/outstates.nc"
 
 [state.variables]
 vegetation_canopy_water__depth                     = "vegetation_water_depth"
-soil_water_sat-zone__depth                         = "soil_saturated_depth"
-soil_layer_water_unsat-zone__depth                 = "soil_unsaturated_depth"
+soil_water_saturated_zone__depth                   = "soil_saturated_depth"
+soil_layer_water_unsaturated_zone__depth           = "soil_unsaturated_depth"
 soil_surface__temperature                          = "soil_temp"
 snowpack_dry_snow__leq_depth                       = "snow_leq_depth"
 snowpack_liquid_water__depth                       = "snow_water_depth"
@@ -39,7 +39,7 @@ land_surface_water__instantaneous_depth            = "land_instantaneous_h"
 subsurface_water__volume_flow_rate                 = "subsurface_q"
 river_water__instantaneous_volume_flow_rate        = "river_instantaneous_q"
 river_water__instantaneous_depth                   = "river_instantaneous_h"
-glacier_ice__leq-depth = "glacier_leq_depth"
+glacier_ice__leq_depth                             = "glacier_leq_depth"
 
 [input]
 path_forcing = "inmaps.nc"
@@ -56,7 +56,6 @@ land_surface_water__potential_evaporation_volume_flux = "pet"
 atmosphere_air__temperature = "temp"
 
 [input.cyclic]
-vegetation__leaf-area_index = "vegetation_leaf_area_index"
 vegetation__leaf_area_index = "vegetation_leaf_area_index"
 
 [input.static]
