@@ -24,52 +24,73 @@ setup components are exposed. Click on
 a specific method see its documentation.
 
 .. list-table::
-    :widths: 20 55
+    :widths: 20 60 20
     :header-rows: 1
     :stub-columns: 1
 
     * - Method
       - Explanation
-    * - :py:func:`~WflowSedimentModel.setup_config`
+      - Required Setup Method
+    * - :py:meth:`~WflowSedimentModel.setup_config`
       - Update config with a dictionary
-    * - :py:func:`~WflowSedimentModel.setup_basemaps`
+      - None
+    * - :py:meth:`~WflowSedimentModel.setup_basemaps`
       - This component sets the region of interest and res (resolution in degrees) of the model.
-    * - :py:func:`~WflowSedimentModel.setup_rivers`
+      - None
+    * - :py:meth:`~WflowSedimentModel.setup_rivers`
       - This component sets the all river parameter maps.
-    * - :py:func:`~WflowSedimentModel.setup_natural_reservoirs`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_natural_reservoirs`
       - This component generates maps of lake (natural reservoirs) areas and outlets as well as parameters such as average area.
-    * - :py:func:`~WflowSedimentModel.setup_reservoirs`
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
+    * - :py:meth:`~WflowSedimentModel.setup_reservoirs`
       - This component generates maps of reservoir areas and outlets as well as parameters such as average area.
-    * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_lulcmaps`
       - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
-    * - :py:func:`~WflowSedimentModel.setup_lulcmaps_from_vector`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_lulcmaps_from_vector`
       - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
-    * - :py:func:`~WflowSedimentModel.setup_laimaps`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
-    * - :py:func:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`
       - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
-    * - :py:func:`~WflowSedimentModel.setup_canopymaps`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_canopymaps`
       - Setup sediments based canopy height maps.
-    * - :py:func:`~WflowSedimentModel.setup_soilmaps`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_soilmaps`
       - Setup sediments based soil parameter maps.
-    * - :py:func:`~WflowSedimentModel.setup_riverwidth`
-      - This component sets the river width parameter based on a power-lay relationship with a predictor.
-    * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_river_rougness`
+      - Set river Manning roughness coefficient for SBM.
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
+    * - :py:meth:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
-    * - :py:func:`~WflowSedimentModel.setup_outlets`
+      - :py:meth:`~WflowSedimentModel.setup_rivers`
+    * - :py:meth:`~WflowSedimentModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
-    * - :py:func:`~WflowSedimentModel.setup_gauges`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
-    * - :py:func:`~WflowSedimentModel.setup_areamap`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
-    * - :py:func:`~WflowSedimentModel.setup_config_output_timeseries`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
-    * - :py:func:`~WflowSedimentModel.setup_constant_pars`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-    * - :py:func:`~WflowSedimentModel.setup_grid_from_raster`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
-    * - :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
+      -  None
 
 
 .. _model_components_sed:
@@ -79,8 +100,8 @@ Model components
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`
 components contains which Wflow Sediment in- and output files. The files are read and written with the associated
-read- and write- methods, i.e. :py:func:`~hydromt_wflow.WflowSedimentModel.read_config`
-and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
+read- and write- methods, i.e. :py:meth:`~hydromt_wflow.WflowSedimentModel.read_config`
+and :py:meth:`~hydromt_wflow.WflowSedimentModel.write_config` for the
 :py:attr:`~hydromt_wflow.WflowSedimentModel.config`  component.
 
 
