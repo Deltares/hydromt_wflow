@@ -9,9 +9,9 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import stats
-from hydromt.gis import _gis_utils, flw
-from hydromt.gis._raster_utils import _reggrid_area
-from hydromt.gis._vector_utils import _nearest
+from hydromt.gis import flw
+from hydromt.gis.raster_utils import cellres
+from hydromt.gis.vector_utils import nearest
 from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
 
@@ -119,7 +119,7 @@ def river(
     xres, yres = ds_model.raster.res
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
-        xres, yres = _gis_utils._cellres(lat_avg, xres, yres)
+        xres, yres = cellres(lat_avg, xres, yres)
     rivlen = np.where(riv_mask.values, rivlen, -9999)
     # set mean length at most downstream (if channel_dir=down) or upstream
     # (if channel_dir=up) river lengths
@@ -251,13 +251,13 @@ def river_bathymetry(
         gdf_out = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(xs_out, ys_out), crs=ds_model.raster.crs
         )
-        idx_nn, dst_nn = _nearest(gdf_out, gdf_riv)
+        idx_nn, dst_nn = nearest(gdf_out, gdf_riv)
 
         # get valid river data within max half pixel distance
         xres, yres = ds_model.raster.res
         if ds_model.raster.crs.is_geographic:  # convert degree to meters
             lat_avg = ds_model.raster.ycoords.values.mean()
-            xres, yres = _gis_utils._cellres(lat_avg, xres, yres)
+            xres, yres = cellres(lat_avg, xres, yres)
         max_dist = np.mean(np.abs([xres, yres])) / 2.0
 
         nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
@@ -584,8 +584,7 @@ def _precip(ds_like, flwdir, da_precip):
         / 1e3
     )  # [m/yr]
     precip = np.maximum(precip, 0)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    area = _reggrid_area(lat, lon)
+    area = ds_like.raster.area_grid()
     # 10 x average flow
     accu_precip = flwdir.accuflux(precip * area / (86400 * 365) * 10)  # [m3/s]
     return accu_precip
@@ -624,8 +623,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate):
     precip = precip / scaling_factor**2
 
     # derive cell areas (m2)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    areagrid = _reggrid_area(lat, lon) / 1e6
+    areagrid = ds_like.raster.area_grid() / 1e6
 
     # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])

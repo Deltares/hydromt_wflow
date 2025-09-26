@@ -8,7 +8,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt._io import write_nc
+from hydromt.io import write_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
 
