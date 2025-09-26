@@ -95,7 +95,7 @@ a specific method see its documentation.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_config_output_timeseries`
       - This method add new variable/column to the netcdf/csv output section of the toml based on a selected gauge/area map.
-      - :py:meth:`~WflowSbmModel.setup_gauges`
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
