@@ -273,6 +273,11 @@ class WflowSedimentModel(WflowBaseModel):
 
         For a description of the parameters and functionality, see
         py:meth:`setup_reservoirs`.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_rivers`
+
         """
         self.setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
