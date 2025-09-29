@@ -20,6 +20,7 @@ from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_UNCONTROL_PARAMETERS,
     merge_reservoirs,
     merge_reservoirs_sediment,
+    set_rating_curve_layer_data_type,
 )
 
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -692,6 +693,8 @@ def convert_reservoirs_to_wflow_v1_sbm(
                 wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer_out]['wflow_v1']}"
             config_options[wflow_var_v1] = layer_out
 
+    # Ensure correct data types for rating curve
+    ds_res = set_rating_curve_layer_data_type(ds_res)
     return ds_res, variables_to_remove, config_options
 
 

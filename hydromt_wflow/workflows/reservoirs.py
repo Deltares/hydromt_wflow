@@ -24,6 +24,7 @@ __all__ = [
     "merge_reservoirs_sediment",
     "create_reservoirs_geoms",
     "create_reservoirs_geoms_sediment",
+    "set_rating_curve_layer_data_type",
 ]
 
 RESERVOIR_COMMON_PARAMETERS = [
@@ -1065,7 +1066,19 @@ def create_reservoirs_geoms(
     return gdf_reservoirs
 
 
-def set_rating_curve_layer_data_type(ds_res: xr.Dataset):
+def set_rating_curve_layer_data_type(ds_res: xr.Dataset) -> xr:
+    """Set reservoir rating curve layers to int data type.
+
+    Parameters
+    ----------
+    ds_res : xr.Dataset
+        Dataset containing the reservoir layers.
+
+    Returns
+    -------
+    xr
+        returns the dataset with the rating curve layers set to int data type.
+    """
     convert_to_int = [
         "reservoir_rating_curve",
         "reservoir_storage_curve",
@@ -1075,4 +1088,6 @@ def set_rating_curve_layer_data_type(ds_res: xr.Dataset):
     for var in convert_to_int:
         if var in ds_res:
             ds_res[var] = ds_res[var].astype(int)
+            if isinstance(ds_res[var]._FillValue, np.float32):
+                ds_res[var].attrs.update({"_FillValue": int(ds_res[var]._FillValue)})
     return ds_res
