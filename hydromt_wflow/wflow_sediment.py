@@ -97,6 +97,10 @@ class WflowSedimentModel(WflowBaseModel):
             * **river_slope** map: river slope [m/m]
             * **rivers** geom: river vector based on river_mask
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
+
         Parameters
         ----------
         hydrography_fn : str, Path, xarray.Dataset
@@ -152,15 +156,15 @@ class WflowSedimentModel(WflowBaseModel):
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         strord_name: str = "meta_streamorder",
         output_names: dict = {
-            "river_bottom-and-bank_sediment__median_diameter": "river_bed_sediment_d50",
-            "river_bottom-and-bank_clay__mass_fraction": "river_bed_clay_fraction",
-            "river_bottom-and-bank_silt__mass_fraction": "river_bed_silt_fraction",
-            "river_bottom-and-bank_sand__mass_fraction": "river_bed_sand_fraction",
-            "river_bottom-and-bank_gravel__mass_fraction": "river_bed_gravel_fraction",
-            "river_water_sediment__kodatie_transport_capacity_a-coefficient": "river_kodatie_a",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_b-coefficient": "river_kodatie_b",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_c-coefficient": "river_kodatie_c",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_d-coefficient": "river_kodatie_d",  # noqa: E501
+            "river_bottom_and_bank_sediment__median_diameter": "river_bed_sediment_d50",
+            "river_bottom_and_bank_clay__mass_fraction": "river_bed_clay_fraction",
+            "river_bottom_and_bank_silt__mass_fraction": "river_bed_silt_fraction",
+            "river_bottom_and_bank_sand__mass_fraction": "river_bed_sand_fraction",
+            "river_bottom_and_bank_gravel__mass_fraction": "river_bed_gravel_fraction",
+            "river_water_sediment__kodatie_transport_capacity_a_coefficient": "river_kodatie_a",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_b_coefficient": "river_kodatie_b",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_c_coefficient": "river_kodatie_c",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_d_coefficient": "river_kodatie_d",  # noqa: E501
         },
     ):
         """Generate sediments based river bed characteristics maps.
@@ -253,7 +257,7 @@ class WflowSedimentModel(WflowBaseModel):
             "reservoir_area__count": "reservoir_area_id",
             "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
-            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
+            "reservoir_water_sediment__bedload_trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "meta_natural_reservoirs",
         **kwargs,
@@ -269,6 +273,11 @@ class WflowSedimentModel(WflowBaseModel):
 
         For a description of the parameters and functionality, see
         py:meth:`setup_reservoirs`.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
+
         """
         self.setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
@@ -293,7 +302,7 @@ class WflowSedimentModel(WflowBaseModel):
             "reservoir_area__count": "reservoir_area_id",
             "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
-            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
+            "reservoir_water_sediment__bedload_trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "meta_reservoirs",
         **kwargs,
@@ -315,6 +324,10 @@ class WflowSedimentModel(WflowBaseModel):
           coefficient [-] (0 for natural lakes, 0-1 depending on the type of dam)
         * **meta_reservoirs** geom: polygon with reservoirs and parameters
         * **reservoirs** geom: polygon with all reservoirs as in the model
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         Parameters
         ----------
@@ -443,9 +456,9 @@ class WflowSedimentModel(WflowBaseModel):
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: dict = {
             "landuse": None,
-            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "soil_compacted_fraction": "compacted_soil__area_fraction",
             "erosion_usle_c": "soil_erosion__usle_c_factor",
-            "land_water_fraction": "land~water-covered__area_fraction",
+            "land_water_fraction": "land_water_covered__area_fraction",
         },
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
@@ -478,6 +491,10 @@ class WflowSedimentModel(WflowBaseModel):
                 per grid cell [-]
             * **land_water_fraction** map: The fraction of water covered area per
                 grid cell [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
         Parameters
         ----------
@@ -558,9 +575,9 @@ class WflowSedimentModel(WflowBaseModel):
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: dict = {
             "landuse": None,
-            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "soil_compacted_fraction": "compacted_soil__area_fraction",
             "erosion_usle_c": "soil_erosion__usle_c_factor",
-            "land_water_fraction": "land~water-covered__area_fraction",
+            "land_water_fraction": "land_water_covered__area_fraction",
         },
         lulc_res: float | int | None = None,
         all_touched: bool = False,
@@ -597,6 +614,10 @@ class WflowSedimentModel(WflowBaseModel):
                 per grid cell [-]
             * **land_water_fraction** map: The fraction of water covered area per grid
               cell [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
         Parameters
         ----------
@@ -733,8 +754,8 @@ class WflowSedimentModel(WflowBaseModel):
             "soil_clay__mass_fraction": "soil_clay_fraction",
             "soil_silt__mass_fraction": "soil_silt_fraction",
             "soil_sand__mass_fraction": "soil_sand_fraction",
-            "soil_aggregates~small__mass_fraction": "soil_sagg_fraction",
-            "soil_aggregates~large__mass_fraction": "soil_lagg_fraction",
+            "soil_small_aggregates__mass_fraction": "soil_sagg_fraction",
+            "soil_large_aggregates__mass_fraction": "soil_lagg_fraction",
             "soil_erosion__rainfall_soil_detachability_factor": "erosion_soil_detachability",  # noqa: E501
             "soil_erosion__usle_k_factor": "erosion_usle_k",
             "land_surface_sediment__median_diameter": "soil_sediment_d50",
@@ -766,6 +787,10 @@ class WflowSedimentModel(WflowBaseModel):
                 capacity [-]
             * **land_govers_n** map: Govers exponent for overland flow transport
                 capacity [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_basemaps`
 
 
         Parameters
@@ -810,7 +835,7 @@ class WflowSedimentModel(WflowBaseModel):
         toml_output: str = "csv",
         gauge_toml_header: list[str] = ["suspended_solids"],
         gauge_toml_param: list[str] = [
-            "river_water_sediment~suspended__mass_concentration",
+            "river_water_sediment__suspended_mass_concentration",
         ],
     ):
         """Set the default gauge map based on basin outlets.
@@ -825,6 +850,10 @@ class WflowSedimentModel(WflowBaseModel):
         * **outlets** map: IDs map from catchment outlets [-]
         * **outlets** geom: polygon of catchment outlets
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
+
         Parameters
         ----------
         river_only : bool, optional
@@ -838,11 +867,11 @@ class WflowSedimentModel(WflowBaseModel):
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
             By default saves suspended_solids (for
-            river_water_sediment~suspended__mass_concentration).
+            river_water_sediment__suspended_mass_concentration).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water_sediment~suspended__mass_concentration (for
+            By default saves river_water_sediment__suspended_mass_concentration (for
             suspended_solids).
         """
         super().setup_outlets(
@@ -871,7 +900,7 @@ class WflowSedimentModel(WflowBaseModel):
         gauge_toml_header: list[str] | None = ["river_q", "suspended_solids"],
         gauge_toml_param: list[str] | None = [
             "river_water__volume_flow_rate",
-            "river_water_sediment~suspended__mass_concentration",
+            "river_water_sediment__suspended_mass_concentration",
         ],
         **kwargs,
     ):
@@ -885,7 +914,11 @@ class WflowSedimentModel(WflowBaseModel):
 
         - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
         - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
-            "river_water_sediment~suspended__mass_concentration"]
+            "river_water_sediment__suspended_mass_concentration"]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSedimentModel.setup_rivers`
 
         See Also
         --------

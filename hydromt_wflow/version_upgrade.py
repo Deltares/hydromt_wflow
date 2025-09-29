@@ -194,6 +194,16 @@ def _convert_to_wflow_v1(
                 continue
             set_config(config_out, f"model.{new_config_var}", value)
 
+    # Routing options were renamed
+    routing_rename = {
+        "kinematic-wave": "kinematic_wave",
+        "local-inertial": "local_inertial",
+    }
+    for key in ["river_routing", "land_routing"]:
+        routing_option = get_config(key=f"model.{key}", config=config, fallback=None)
+        if routing_option is not None:
+            set_config(config_out, f"model.{key}", routing_rename.get(routing_option))
+
     # State
     logger.info("Converting config state section")
     config_out["state"] = {
@@ -358,29 +368,29 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
         "vertical.interception": "vegetation_canopy_water__interception_volume_flux",
         "vertical.actevap": "land_surface__evapotranspiration_volume_flux",
         "vertical.actinfilt": "soil_water__infiltration_volume_flux",
-        "vertical.excesswatersoil": "soil~compacted_surface_water__excess_volume_flux",
-        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa : E501
-        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa : E501
+        "vertical.excesswatersoil": "compacted_soil_surface_water__excess_volume_flux",
+        "vertical.excesswaterpath": "non_compacted_soil_surface_water__excess_volume_flux",  # noqa : E501
+        "vertical.exfiltustore": "soil_surface_water_unsaturated_zone__exfiltration_volume_flux",  # noqa : E501
         "vertical.exfiltsatwater": "land.soil.variables.exfiltsatwater",
-        "vertical.recharge": "soil_water_sat-zone_top__net_recharge_volume_flux",
-        "vertical.vwc_percroot": "soil_water_root-zone__volume_percentage",
+        "vertical.recharge": "soil_water_saturated_zone_top__net_recharge_volume_flux",
+        "vertical.vwc_percroot": "soil_water_root_zone__volume_percentage",
         "lateral.land.q_av": "land_surface_water__volume_flow_rate",
         "lateral.land.h_av": "land_surface_water__depth",
-        "lateral.land.to_river": "land_surface_water~to-river__volume_flow_rate",
-        "lateral.subsurface.to_river": "subsurface_water~to-river__volume_flow_rate",
-        "lateral.subsurface.drain.flux": "land_drain_water~to-subsurface__volume_flow_rate",  # noqa : E501
+        "lateral.land.to_river": "land_surface_water__to_river_volume_flow_rate",
+        "lateral.subsurface.to_river": "subsurface_water__to_river_volume_flow_rate",
+        "lateral.subsurface.drain.flux": "land_drain_water__to_subsurface_volume_flow_rate",  # noqa : E501
         "lateral.subsurface.flow.aquifer.head": "subsurface_water__hydraulic_head",
-        "lateral.subsurface.river.flux": "river_water~to-subsurface__volume_flow_rate",
-        "lateral.subsurface.recharge.rate": "subsurface_water_sat-zone_top__net_recharge_volume_flow_rate",  # noqa : E501
+        "lateral.subsurface.river.flux": "river_water__to_subsurface_volume_flow_rate",
+        "lateral.subsurface.recharge.rate": "subsurface_water_saturated_zone_top__net_recharge_volume_flow_rate",  # noqa : E501
         "lateral.river.q_av": "river_water__volume_flow_rate",
         "lateral.river.h_av": "river_water__depth",
         "lateral.river.volume": "river_water__instantaneous_volume",
-        "lateral.river.inwater": "river_water_inflow~lateral__volume_flow_rate",
+        "lateral.river.inwater": "river_water__lateral_inflow_volume_flow_rate",
         "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
-        "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa : E501
+        "lateral.river.reservoir.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",  # noqa : E501
         "lateral.river.lake.storage": "reservoir_water__instantaneous_volume",
-        "lateral.river.lake.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",
+        "lateral.river.lake.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",
     }
 
     # Options in model section that were renamed
@@ -444,7 +454,7 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
     # Wflow entries that cross main headers (i.e. [input, state, model, output])
     cross_options = {
         "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
-        "model.riverlength_bc": "input.static.model_boundary_condition~river__length",
+        "model.riverlength_bc": "input.static.model_boundary_condition_river__length",
     }
 
     config_out = _convert_to_wflow_v1(
@@ -476,14 +486,14 @@ def convert_to_wflow_v1_sediment(config: dict) -> dict:
     """
     additional_variables = {
         "vertical.soilloss": "soil_erosion__mass_flow_rate",
-        "lateral.river.SSconc": "river_water_sediment~suspended__mass_concentration",
-        "lateral.river.Bedconc": "river_water_sediment~bedload__mass_concentration",
+        "lateral.river.SSconc": "river_water_sediment__suspended_mass_concentration",
+        "lateral.river.Bedconc": "river_water_sediment__bedload_mass_concentration",
         "lateral.river.outsed": "land_surface_water_sediment__mass_flow_rate",
-        "lateral.land.inlandclay": "land_surface_water_clay~to-river__mass_flow_rate",
-        "lateral.land.inlandsilt": "land_surface_water_silt~to-river__mass_flow_rate",
-        "lateral.land.inlandsand": "land_surface_water_sand~to-river__mass_flow_rate",
-        "lateral.land.inlandsagg": "land_surface_water_aggregates~small~to-river__mass_flow_rate",  # noqa: E501
-        "lateral.land.inlandlagg": "land_surface_water_aggregates~large~to-river__mass_flow_rate",  # noqa: E501
+        "lateral.land.inlandclay": "land_surface_water_clay__to_river_mass_flow_rate",
+        "lateral.land.inlandsilt": "land_surface_water_silt__to_river_mass_flow_rate",
+        "lateral.land.inlandsand": "land_surface_water_sand__to_river_mass_flow_rate",
+        "lateral.land.inlandsagg": "land_surface_water_small_aggregates__to_river_mass_flow_rate",  # noqa: E501
+        "lateral.land.inlandlagg": "land_surface_water_large_aggregates__to_river_mass_flow_rate",  # noqa: E501
     }
 
     # Options in model section that were renamed
