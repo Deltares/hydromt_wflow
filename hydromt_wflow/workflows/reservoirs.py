@@ -1063,3 +1063,16 @@ def create_reservoirs_geoms(
     )
 
     return gdf_reservoirs
+
+
+def set_rating_curve_layer_data_type(ds_res: xr.Dataset):
+    convert_to_int = [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]
+
+    for var in convert_to_int:
+        if var in ds_res:
+            ds_res[var] = ds_res[var].astype(int)
+    return ds_res
