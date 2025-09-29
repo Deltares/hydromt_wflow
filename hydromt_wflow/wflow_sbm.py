@@ -16,7 +16,7 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import NoDataStrategy
+from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
 
 import hydromt_wflow.utils as utils
