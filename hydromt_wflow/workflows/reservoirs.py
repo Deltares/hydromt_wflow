@@ -2,6 +2,7 @@
 
 import json
 import logging
+import numbers
 from os.path import join
 from pathlib import Path
 
@@ -1087,7 +1088,11 @@ def set_rating_curve_layer_data_type(ds_res: xr.Dataset) -> xr:
 
     for var in convert_to_int:
         if var in ds_res:
+            if ds_res[var].isnull().any():
+                fill_value = -999
+                ds_res[var] = ds_res[var].fillna(fill_value)
             ds_res[var] = ds_res[var].astype(int)
-            if isinstance(ds_res[var]._FillValue, np.float32):
-                ds_res[var].attrs.update({"_FillValue": int(ds_res[var]._FillValue)})
+            if isinstance(ds_res[var]._FillValue, numbers.Real):
+                fill_value = int(ds_res[var]._FillValue)
+            ds_res[var].attrs.update({"_FillValue": fill_value})
     return ds_res
