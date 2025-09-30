@@ -31,7 +31,7 @@ WFLOW_VARS_IN_INPUT = [
     "river_location__mask",
     "reservoir_area__count",
     "reservoir_location__count",
-    "reservoir~lower_location__count",
+    "reservoir_lower_location__count",
 ]
 
 # Link between staticmap names, hydromt name (if any)
@@ -98,7 +98,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     # snow
     "snow_degree_day_coefficient": {
         "wflow_v0": "vertical.cfmax",
-        "wflow_v1": "snowpack__degree-day_coefficient",
+        "wflow_v1": "snowpack__degree_day_coefficient",
     },
     "snow_tt": {
         "wflow_v0": "vertical.tt",
@@ -124,7 +124,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "glacier_initial_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
-        "wflow_v1": "glacier_ice__initial_leq-depth",
+        "wflow_v1": "glacier_ice__initial_leq_depth",
         "hydromt_name": "glacstore",
     },
     "glacier_ttm": {
@@ -133,24 +133,24 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "glacier_degree_day_coefficient": {
         "wflow_v0": "vertical.g_cfmax",
-        "wflow_v1": "glacier_ice__degree-day_coefficient",
+        "wflow_v1": "glacier_ice__degree_day_coefficient",
     },
     "glacier_snow_to_ice_fraction": {
         "wflow_v0": "vertical.g_sifrac",
-        "wflow_v1": "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction",
+        "wflow_v1": "glacier_firn_accumulation__snowpack_dry_snow_leq_depth_fraction",
     },
     # vegetation
     "vegetation_gash_e_r": {
         "wflow_v0": "vertical.e_r",
-        "wflow_v1": "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio",  # noqa: E501
+        "wflow_v1": "vegetation_canopy_water__mean_evaporation_to_mean_precipitation_ratio",  # noqa: E501
     },
     "vegetation_kext": {
         "wflow_v0": "vertical.kext",
-        "wflow_v1": "vegetation_canopy__light-extinction_coefficient",
+        "wflow_v1": "vegetation_canopy__light_extinction_coefficient",
     },
     "vegetation_leaf_area_index": {
         "wflow_v0": "vertical.leaf_area_index",
-        "wflow_v1": "vegetation__leaf-area_index",
+        "wflow_v1": "vegetation__leaf_area_index",
         "hydromt_name": "LAI",
     },
     "vegetation_root_depth": {
@@ -159,7 +159,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "vegetation_leaf_storage": {
         "wflow_v0": "vertical.specific_leaf",
-        "wflow_v1": "vegetation__specific-leaf_storage",
+        "wflow_v1": "vegetation__specific_leaf_storage",
         "hydromt_name": "leaf_storage",
     },
     "vegetation_wood_storage": {
@@ -173,32 +173,32 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "vegetation_feddes_alpha_h1": {
         "wflow_v0": "vertical.alpha_h1",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
     },
     "vegetation_feddes_h1": {
         "wflow_v0": "vertical.h1",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~1",
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h1",
     },
     "vegetation_feddes_h2": {
         "wflow_v0": "vertical.h2",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~2",
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h2",
     },
     "vegetation_feddes_h3_high": {
         "wflow_v0": "vertical.h3_high",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~3~high",
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h3_high",
     },
     "vegetation_feddes_h3_low": {
         "wflow_v0": "vertical.h3_low",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~3~low",
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h3_low",
     },
     "vegetation_feddes_h4": {
         "wflow_v0": "vertical.h4",
-        "wflow_v1": "vegetation_root__feddes_critial_pressure_head_h~4",
+        "wflow_v1": "vegetation_root__feddes_critical_pressure_head_h4",
     },
     # soil
     "soil_brooks_corey_c": {
         "wflow_v0": "vertical.c",
-        "wflow_v1": "soil_layer_water__brooks-corey_exponent",
+        "wflow_v1": "soil_layer_water__brooks_corey_exponent",
         "hydromt_name": "soil_brooks_corey_c",
     },
     "soil_cf": {
@@ -216,7 +216,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "subsurface_ksat_horizontal_ratio": {
         "wflow_v0": "lateral.subsurface.ksathorfrac",
-        "wflow_v1": "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",  # noqa: E501
+        "wflow_v1": "subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio",  # noqa: E501
     },
     "soil_f": {
         "wflow_v0": "vertical.f",
@@ -225,7 +225,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_compacted_infiltration_capacity": {
         "wflow_v0": "vertical.infiltcappath",
-        "wflow_v1": "soil~compacted_surface_water__infiltration_capacity",
+        "wflow_v1": "compacted_soil_surface_water__infiltration_capacity",
     },
     "InfiltCapSoil": {
         "wflow_v0": "vertical.infiltcapsoil",
@@ -243,15 +243,15 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_max_leakage": {
         "wflow_v0": "vertical.maxleakage",
-        "wflow_v1": "soil_water_sat-zone_bottom__max_leakage_volume_flux",
+        "wflow_v1": "soil_water_saturated_zone_bottom__max_leakage_volume_flux",
     },
     "soil_compacted_fraction": {
         "wflow_v0": "vertical.pathfrac",
-        "wflow_v1": "soil~compacted__area_fraction",
+        "wflow_v1": "compacted_soil__area_fraction",
     },
     "soil_rootdistpar": {
         "wflow_v0": "vertical.rootdistpar",
-        "wflow_v1": "soil_root~wet__sigmoid_function_shape_parameter",
+        "wflow_v1": "soil_wet_root__sigmoid_function_shape_parameter",
     },
     "soil_thickness": {
         "wflow_v0": "vertical.soilthickness",
@@ -260,7 +260,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     # land
     "land_water_fraction": {
         "wflow_v0": "vertical.waterfrac",
-        "wflow_v1": "land~water-covered__area_fraction",
+        "wflow_v1": "land_water_covered__area_fraction",
     },
     "demand_allocation_area_id": {
         "wflow_v0": "vertical.allocation.areas",
@@ -273,53 +273,53 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "demand_domestic_gross": {
         "wflow_v0": "vertical.domestic.demand_gross",
-        "wflow_v1": "land~domestic__gross_water_demand_volume_flux",
+        "wflow_v1": "domestic__gross_water_demand_volume_flux",
         "hydromt_name": "domestic_gross",
     },
     "demand_domestic_net": {
         "wflow_v0": "vertical.domestic.demand_net",
-        "wflow_v1": "land~domestic__net_water_demand_volume_flux",
+        "wflow_v1": "domestic__net_water_demand_volume_flux",
         "hydromt_name": "domestic_net",
     },
     "demand_industry_gross": {
         "wflow_v0": "vertical.industry.demand_gross",
-        "wflow_v1": "land~industry__gross_water_demand_volume_flux",
+        "wflow_v1": "industry__gross_water_demand_volume_flux",
         "hydromt_name": "industry_gross",
     },
     "demand_industry_net": {
         "wflow_v0": "vertical.industry.demand_net",
-        "wflow_v1": "land~industry__net_water_demand_volume_flux",
+        "wflow_v1": "industry__net_water_demand_volume_flux",
         "hydromt_name": "industry_net",
     },
     "demand_livestock_gross": {
         "wflow_v0": "vertical.livestock.demand_gross",
-        "wflow_v1": "land~livestock__gross_water_demand_volume_flux",
+        "wflow_v1": "livestock__gross_water_demand_volume_flux",
         "hydromt_name": "livestock_gross",
     },
     "demand_livestock_net": {
         "wflow_v0": "vertical.livestock.demand_net",
-        "wflow_v1": "land~livestock__net_water_demand_volume_flux",
+        "wflow_v1": "livestock__net_water_demand_volume_flux",
         "hydromt_name": "livestock_net",
     },
     "demand_paddy_h_min": {
         "wflow_v0": "vertical.paddy.h_min",
-        "wflow_v1": "land~irrigated-paddy__min_depth",
+        "wflow_v1": "irrigated_paddy__min_depth",
     },
     "demand_paddy_h_opt": {
         "wflow_v0": "vertical.paddy.h_opt",
-        "wflow_v1": "land~irrigated-paddy__optimal_depth",
+        "wflow_v1": "irrigated_paddy__optimal_depth",
     },
     "demand_paddy_h_max": {
         "wflow_v0": "vertical.paddy.h_max",
-        "wflow_v1": "land~irrigated-paddy__max_depth",
+        "wflow_v1": "irrigated_paddy__max_depth",
     },
     "demand_paddy_irrigated_mask": {
         "wflow_v0": "vertical.paddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-paddy_area__count",
+        "wflow_v1": "irrigated_paddy_area__count",
     },
     "demand_paddy_irrigation_trigger": {
         "wflow_v0": "vertical.paddy.irrigation_trigger",
-        "wflow_v1": "land~irrigated-paddy__irrigation_trigger_flag",
+        "wflow_v1": "irrigated_paddy__irrigation_trigger_flag",
     },
     "demand_nonpaddy_irrigated_mask": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
@@ -327,7 +327,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "demand_nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",
-        "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
+        "wflow_v1": "irrigated_non_paddy__irrigation_trigger_flag",
     },
     # land surface water flow
     "land_manning_n": {
@@ -347,7 +347,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     # river
     "floodplain_volume": {
         "wflow_v0": "lateral.river.floodplain.volume",
-        "wflow_v1": "floodplain_water__sum_of_volume-per-depth",
+        "wflow_v1": "floodplain_water__sum_of_volume_per_depth",
         "hydromt_name": "floodplain_volume",
     },
     "floodplain_manning_n": {
@@ -361,7 +361,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "river_inflow": {
         "wflow_v0": "lateral.river.inflow",
-        "wflow_v1": "river_water_inflow~external__volume_flow_rate",
+        "wflow_v1": "river_water__external_inflow_volume_flow_rate",
     },
     "river_depth": {
         "wflow_v0": "lateral.river.bankfull_depth",
@@ -400,7 +400,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "reservoir_outflow_threshold": {
         "wflow_v0": "lateral.river.lake.threshold",
-        "wflow_v1": "reservoir_water_flow_threshold-level__elevation",
+        "wflow_v1": "reservoir_water_flow_threshold_level__elevation",
         "hydromt_name": "reservoir_outflow_threshold",
     },
     "reservoir_b": {
@@ -425,7 +425,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "reservoir_lower_id": {
         "wflow_v0": "lateral.river.lake.linkedlakelocs",
-        "wflow_v1": "reservoir~lower_location__count",
+        "wflow_v1": "reservoir_lower_location__count",
         "hydromt_name": "reservoir_lower_id",
     },
     # reservoirs
@@ -436,12 +436,12 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "reservoir_demand": {
         "wflow_v0": "lateral.river.reservoir.demand",
-        "wflow_v1": "reservoir_water_demand~required~downstream__volume_flow_rate",
+        "wflow_v1": "reservoir_water_demand__required_downstream_volume_flow_rate",
         "hydromt_name": "reservoir_demand",
     },
     "reservoir_max_release": {
         "wflow_v0": "lateral.river.reservoir.maxrelease",
-        "wflow_v1": "reservoir_water_release-below-spillway__max_volume_flow_rate",
+        "wflow_v1": "reservoir_water_release_below_spillway__max_volume_flow_rate",
         "hydromt_name": "reservoir_max_release",
     },
     "reservoir_max_volume": {
@@ -451,12 +451,12 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "reservoir_target_full_fraction": {
         "wflow_v0": "lateral.river.reservoir.targetfullfrac",
-        "wflow_v1": "reservoir_water~full-target__volume_fraction",
+        "wflow_v1": "reservoir_water__target_full_volume_fraction",
         "hydromt_name": "reservoir_target_full_fraction",
     },
     "reservoir_target_min_fraction": {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
-        "wflow_v1": "reservoir_water~min-target__volume_fraction",
+        "wflow_v1": "reservoir_water__target_min_volume_fraction",
         "hydromt_name": "reservoir_target_min_fraction",
     },
     # gwf
@@ -466,7 +466,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "groundwater_constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
-        "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
+        "wflow_v1": "model_constant_boundary_condition__hydraulic_head",
     },
     "groundwater_ksat_horizontal": {
         "wflow_v0": "lateral.subsurface.conductivity",
@@ -513,11 +513,11 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_saturated_depth": {
         "wflow_v0": "vertical.satwaterdepth",
-        "wflow_v1": "soil_water_sat-zone__depth",
+        "wflow_v1": "soil_water_saturated_zone__depth",
     },
     "soil_unsaturated_depth": {
         "wflow_v0": "vertical.ustorelayerdepth",
-        "wflow_v1": "soil_layer_water_unsat-zone__depth",
+        "wflow_v1": "soil_layer_water_unsaturated_zone__depth",
     },
     "soil_temp": {
         "wflow_v0": "vertical.tsoil",
@@ -525,15 +525,15 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     },
     "snow_leq_depth": {
         "wflow_v0": "vertical.snow",
-        "wflow_v1": "snowpack~dry__leq-depth",
+        "wflow_v1": "snowpack_dry_snow__leq_depth",
     },
     "snow_water_depth": {
         "wflow_v0": "vertical.snowwater",
-        "wflow_v1": "snowpack~liquid__depth",
+        "wflow_v1": "snowpack_liquid_water__depth",
     },
     "glacier_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
-        "wflow_v1": "glacier_ice__leq-depth",
+        "wflow_v1": "glacier_ice__leq_depth",
     },
     "land_instantaneous_q": {
         "wflow_v0": "lateral.land.q",
@@ -593,7 +593,7 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     },
     "demand_paddy_h": {
         "wflow_v0": "vertical.paddy.h",
-        "wflow_v1": "land_surface_water~paddy__depth",
+        "wflow_v1": "paddy_surface_water__depth",
     },
 }
 
@@ -696,7 +696,7 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     },
     "reservoir_trapping_efficiency": {
         "wflow_v0": "lateral.river.restrapeff",
-        "wflow_v1": "reservoir_water_sediment~bedload__trapping_efficiency",
+        "wflow_v1": "reservoir_water_sediment__bedload_trapping_efficiency",
         "hydromt_name": "reservoir_trapping_efficiency",
     },
     # soil erosion
@@ -724,11 +724,11 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_compacted_fraction": {
         "wflow_v0": "vertical.pathfrac",
-        "wflow_v1": "soil~compacted__area_fraction",
+        "wflow_v1": "compacted_soil__area_fraction",
     },
     "land_water_fraction": {
         "wflow_v0": None,
-        "wflow_v1": "land~water-covered__area_fraction",
+        "wflow_v1": "land_water_covered__area_fraction",
     },
     "erosion_soil_detachability": {
         "wflow_v0": "vertical.erosk",
@@ -771,11 +771,11 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_sagg_fraction": {
         "wflow_v0": None,
-        "wflow_v1": "soil_aggregates~small__mass_fraction",
+        "wflow_v1": "soil_small_aggregates__mass_fraction",
     },
     "soil_lagg_fraction": {
         "wflow_v0": None,
-        "wflow_v1": "soil_aggregates~large__mass_fraction",
+        "wflow_v1": "soil_large_aggregates__mass_fraction",
     },
     # land transport
     "land_govers_c": {
@@ -809,39 +809,39 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     },
     "river_kodatie_a": {
         "wflow_v0": None,
-        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_a-coefficient",
+        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_a_coefficient",
     },
     "river_kodatie_b": {
         "wflow_v0": None,
-        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_b-coefficient",
+        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_b_coefficient",
     },
     "river_kodatie_c": {
         "wflow_v0": None,
-        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_c-coefficient",
+        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_c_coefficient",
     },
     "river_kodatie_d": {
         "wflow_v0": None,
-        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_d-coefficient",
+        "wflow_v1": "river_water_sediment__kodatie_transport_capacity_d_coefficient",
     },
     "river_bed_sediment_d50": {
         "wflow_v0": "lateral.river.d50",
-        "wflow_v1": "river_bottom-and-bank_sediment__median_diameter",
+        "wflow_v1": "river_bottom_and_bank_sediment__median_diameter",
     },
     "river_bed_clay_fraction": {
         "wflow_v0": "lateral.river.fclayriv",
-        "wflow_v1": "river_bottom-and-bank_clay__mass_fraction",
+        "wflow_v1": "river_bottom_and_bank_clay__mass_fraction",
     },
     "river_bed_silt_fraction": {
         "wflow_v0": "lateral.river.fsiltriv",
-        "wflow_v1": "river_bottom-and-bank_silt__mass_fraction",
+        "wflow_v1": "river_bottom_and_bank_silt__mass_fraction",
     },
     "river_bed_sand_fraction": {
         "wflow_v0": "lateral.river.fsandriv",
-        "wflow_v1": "river_bottom-and-bank_sand__mass_fraction",
+        "wflow_v1": "river_bottom_and_bank_sand__mass_fraction",
     },
     "river_bed_gravel_fraction": {
         "wflow_v0": "lateral.river.fgravelriv",
-        "wflow_v1": "river_bottom-and-bank_gravel__mass_fraction",
+        "wflow_v1": "river_bottom_and_bank_gravel__mass_fraction",
     },
     "sediment_clay_dm": {
         "wflow_v0": None,
@@ -857,11 +857,11 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
     },
     "sediment_sagg_dm": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~small__mean_diameter",
+        "wflow_v1": "sediment_small_aggregates__mean_diameter",
     },
     "sediment_lagg_dm": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~large__mean_diameter",
+        "wflow_v1": "sediment_large_aggregates__mean_diameter",
     },
     "sediment_gravel_dm": {
         "wflow_v0": None,
@@ -896,27 +896,27 @@ WFLOW_SEDIMENT_STATES_NAMES: dict[str, dict[str, str | None]] = {
     },
     "river_lagg_load": {
         "wflow_v0": "lateral.river.laggload",
-        "wflow_v1": "river_water_aggregates~large__mass",
+        "wflow_v1": "river_water_large_aggregates__mass",
     },
     "river_bed_lagg_store": {
         "wflow_v0": "lateral.river.laggstore",
-        "wflow_v1": "river_bed_aggregates~large__mass",
+        "wflow_v1": "river_bed_large_aggregates__mass",
     },
     "river_lagg_flux": {
         "wflow_v0": "lateral.river.outlagg",
-        "wflow_v1": "river_water_aggregates~large__mass_flow_rate",
+        "wflow_v1": "river_water_large_aggregates__mass_flow_rate",
     },
     "river_sagg_load": {
         "wflow_v0": "lateral.river.saggload",
-        "wflow_v1": "river_water_aggregates~small__mass",
+        "wflow_v1": "river_water_small_aggregates__mass",
     },
     "river_bed_sagg_store": {
         "wflow_v0": "lateral.river.saggstore",
-        "wflow_v1": "river_bed_aggregates~small__mass",
+        "wflow_v1": "river_bed_small_aggregates__mass",
     },
     "river_sagg_flux": {
         "wflow_v0": "lateral.river.outsagg",
-        "wflow_v1": "river_water_aggregates~small__mass_flow_rate",
+        "wflow_v1": "river_water_small_aggregates__mass_flow_rate",
     },
     "river_sand_load": {
         "wflow_v0": "lateral.river.sandload",

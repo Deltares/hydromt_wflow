@@ -89,7 +89,7 @@ class WflowSbmModel(WflowBaseModel):
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
         elevtn_map: str = "land_elevation",
-        river_routing: str = "kinematic-wave",
+        river_routing: str = "kinematic_wave",
         connectivity: int = 8,
         output_names: dict = {
             "river_location__mask": "river_mask",
@@ -126,15 +126,15 @@ class WflowSbmModel(WflowBaseModel):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
-        If ``river_routing`` is set to "local-inertial", the bankfull elevation map
+        If ``river_routing`` is set to "local_inertial", the bankfull elevation map
         can be conditioned based on the average cell elevation ("land_elevation")
         or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
-        local-inertial land routing (see :py:meth:`setup_floodplains`)
+        local_inertial land routing (see :py:meth:`setup_floodplains`)
         the subgrid elevation will likely overestimate the floodplain storage capacity.
         Note that the same input elevation map should be used for river bankfull
-        elevation and land elevation when using local-inertial land routing.
+        elevation and land elevation when using local_inertial land routing.
 
         Adds model layers:
 
@@ -145,6 +145,10 @@ class WflowSbmModel(WflowBaseModel):
         * **river_slope** map: river slope [m/m]
         * **rivers** geom: river vector based on wflow_river mask
         * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -175,8 +179,8 @@ class WflowSbmModel(WflowBaseModel):
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see :py:meth:`hydromt.workflows.river_depth` for details, by default
             "powlaw"
-        river_routing : {'kinematic-wave', 'local-inertial'}
-            Routing methodology to be used, by default "kinematic-wave".
+        river_routing : {'kinematic_wave', 'local_inertial'}
+            Routing methodology to be used, by default "kinematic_wave".
         smooth_len : float, optional
             Length [m] over which to smooth the output river width and depth,
             by default 5e3
@@ -212,7 +216,7 @@ class WflowSbmModel(WflowBaseModel):
             output_names=output_names,
         )
 
-        routing_options = ["kinematic-wave", "local-inertial"]
+        routing_options = ["kinematic_wave", "local_inertial"]
         if river_routing not in routing_options:
             raise ValueError(
                 f'river_routing="{river_routing}" unknown. '
@@ -222,7 +226,7 @@ class WflowSbmModel(WflowBaseModel):
         logger.info(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
 
-        if river_routing == "local-inertial":
+        if river_routing == "local_inertial":
             postfix = {
                 "land_elevation": "_avg",
                 "meta_subgrid_elevation": "_subgrid",
@@ -254,10 +258,13 @@ class WflowSbmModel(WflowBaseModel):
     ):
         """Set river Manning roughness coefficient for SBM.
 
-        THIS FUNCTION SHOULD BE RUN AFTER ``setup_basemaps`` AND ``setup_rivers``.
-
         Adds model layers:
         - **river_manning_n** map: river Manning roughness coefficient [-]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -270,8 +277,8 @@ class WflowSbmModel(WflowBaseModel):
 
         See Also
         --------
-        WflowBaseModel.setup_basemaps
-        WflowBaseModel.setup_rivers
+        WflowSbmModel.setup_basemaps
+        WflowSbmModel.setup_rivers
         """
         logger.info("Preparing river Manning roughness.")
 
@@ -325,7 +332,7 @@ class WflowSbmModel(WflowBaseModel):
         elevtn_map: str = "land_elevation",
         connectivity: int = 4,
         output_names: dict = {
-            "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
+            "floodplain_water__sum_of_volume_per_depth": "floodplain_volume",
             "river_bank_elevation": "river_bank_elevation_avg_D4",
         },
     ):
@@ -344,7 +351,7 @@ class WflowSbmModel(WflowBaseModel):
 
         If ``floodplain_type`` is set to "2d", this component adds
         a hydrologically conditioned elevation (river_bank_elevation) map for
-        land routing (local-inertial). For this options, landcells need to be
+        land routing (local_inertial). For this options, landcells need to be
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
@@ -353,10 +360,10 @@ class WflowSbmModel(WflowBaseModel):
         the floodplain storage capacity.
 
         Additionally, note that the same input elevation map should be used for river
-        bankfull elevation and land elevation when using local-inertial land routing.
+        bankfull elevation and land elevation when using local_inertial land routing.
 
         Requires :py:meth:`setup_rivers` to be executed beforehand
-        (with ``river_routing`` set to "local-inertial").
+        (with ``river_routing`` set to "local_inertial").
 
         Adds model layers:
 
@@ -364,6 +371,10 @@ class WflowSbmModel(WflowBaseModel):
             third dimension [m3] (for 1D floodplains)
         * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
           (for 2D floodplains)
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -398,13 +409,13 @@ class WflowSbmModel(WflowBaseModel):
         pyflwdir.FlwdirRaster.dem_adjust
         setup_rivers
         """
-        if self.get_config("model.river_routing") != "local-inertial":
+        if self.get_config("model.river_routing") != "local_inertial":
             raise ValueError(
                 "Floodplains (1d or 2d) are currently only supported with \
 local inertial river routing"
             )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
-        var = "floodplain_water__sum_of_volume-per-depth"
+        var = "floodplain_water__sum_of_volume_per_depth"
         if var in output_names:
             self._update_naming({var: output_names[var]})
 
@@ -417,7 +428,7 @@ local inertial river routing"
         # Adjust settings based on floodplain_type selection
         if floodplain_type == "1d":
             floodplain_1d = True
-            land_routing = "kinematic-wave"
+            land_routing = "kinematic_wave"
 
             if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
                 logger.warning("This method requires pyflwdir >= 0.5.6")
@@ -475,7 +486,7 @@ setting new flood_depth dimensions"
 
         elif floodplain_type == "2d":
             floodplain_1d = False
-            land_routing = "local-inertial"
+            land_routing = "local_inertial"
 
             if elevtn_map not in self.staticmaps.data:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
@@ -536,7 +547,7 @@ setting new flood_depth dimensions"
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 "land_instantaneous_q",
             )
-            # Remove local-inertial land states
+            # Remove local_inertial land states
             self.config.remove(
                 "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 errors="ignore",
@@ -556,7 +567,7 @@ setting new flood_depth dimensions"
                 errors="ignore",
             )
         else:
-            # Add local-inertial land routing states
+            # Add local_inertial land routing states
             self.set_config(
                 "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qx",
@@ -565,7 +576,7 @@ setting new flood_depth dimensions"
                 "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qy",
             )
-            # Remove kinematic-wave and 1d floodplain states
+            # Remove kinematic_wave and 1d floodplain states
             self.config.remove(
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 errors="ignore",
@@ -597,12 +608,12 @@ setting new flood_depth dimensions"
             "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water_surface__initial_elevation": "reservoir_initial_depth",
-            "reservoir_water_flow_threshold-level__elevation": "reservoir_outflow_threshold",  # noqa: E501
+            "reservoir_water_flow_threshold_level__elevation": "reservoir_outflow_threshold",  # noqa: E501
             "reservoir_water__rating_curve_coefficient": "reservoir_b",
             "reservoir_water__rating_curve_exponent": "reservoir_e",
             "reservoir_water__rating_curve_type_count": "reservoir_rating_curve",
             "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
-            "reservoir~lower_location__count": "reservoir_lower_id",
+            "reservoir_lower_location__count": "reservoir_lower_id",
         },
         geom_name: str = "meta_reservoirs_no_control",
         **kwargs,
@@ -653,6 +664,10 @@ setting new flood_depth dimensions"
         * **meta_reservoirs_no_control** geom: polygon with reservoirs (e.g. lakes or
           weirs) and wflow parameters.
         * **reservoirs** geom: polygon with all reservoirs as in the model
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -866,10 +881,10 @@ setting new flood_depth dimensions"
             "reservoir_water__rating_curve_type_count": "reservoir_rating_curve",
             "reservoir_water__storage_curve_type_count": "reservoir_storage_curve",
             "reservoir_water__max_volume": "reservoir_max_volume",
-            "reservoir_water~min-target__volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
-            "reservoir_water~full-target__volume_fraction": "reservoir_target_full_fraction",  # noqa: E501
-            "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
-            "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
+            "reservoir_water__target_min_volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
+            "reservoir_water__target_full_volume_fraction": "reservoir_target_full_fraction",  # noqa: E501
+            "reservoir_water_demand__required_downstream_volume_flow_rate": "reservoir_demand",  # noqa: E501
+            "reservoir_water_release_below_spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
         geom_name: str = "meta_reservoirs_simple_control",
         **kwargs,
@@ -938,6 +953,10 @@ setting new flood_depth dimensions"
             * **meta_reservoirs_simple_control** geom: polygon with
                 reservoirs and parameters
             * **reservoirs** geom: polygon with all reservoirs as in the model
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -1077,7 +1096,7 @@ setting new flood_depth dimensions"
         min_area: float = 1.0,
         output_names: dict = {
             "glacier_surface__area_fraction": "glacier_fraction",
-            "glacier_ice__initial_leq-depth": "glacier_initial_leq_depth",
+            "glacier_ice__initial_leq_depth": "glacier_initial_leq_depth",
         },
         geom_name: str = "glaciers",
     ):
@@ -1096,6 +1115,10 @@ setting new flood_depth dimensions"
         * **meta_glacier_area_id** map: glacier IDs [-]
         * **glacier_fraction** map: area fraction of glacier per cell [-]
         * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -1153,7 +1176,7 @@ setting new flood_depth dimensions"
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier__flag", True)
-        self.set_config("state.variables.glacier_ice__leq-depth", "glacier_leq_depth")
+        self.set_config("state.variables.glacier_ice__leq_depth", "glacier_leq_depth")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
 
@@ -1177,20 +1200,20 @@ setting new flood_depth dimensions"
         ],
         lulc_vars: dict = {
             "landuse": None,
-            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "soil_compacted_fraction": "compacted_soil__area_fraction",
             "vegetation_root_depth": "vegetation_root__depth",
-            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
             "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
-            "land_water_fraction": "land~water-covered__area_fraction",
+            "land_water_fraction": "land_water_covered__area_fraction",
             "vegetation_crop_factor": "vegetation__crop_factor",
-            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
-            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
-            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
         },
         paddy_waterlevels: dict = {
             "demand_paddy_h_min": 20,
@@ -1201,8 +1224,6 @@ setting new flood_depth dimensions"
         output_names_suffix: str | None = None,
     ):
         """Set up landuse maps and parameters including for paddy fields.
-
-        THIS FUNCTION SHOULD BE RUN AFTER setup_soilmaps.
 
         Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
         parameters based on literature. The data is remapped at its original resolution
@@ -1225,7 +1246,7 @@ setting new flood_depth dimensions"
 
         The different values for the minimum/optimal/maximum water levels for paddy
         fields will be added as constant values in the toml file, through the
-        ``land~irrigated-paddy__min_depth.value = 20`` interface.
+        ``irrigated_paddy__min_depth.value = 20`` interface.
 
         Adds model layers:
 
@@ -1281,6 +1302,10 @@ setting new flood_depth dimensions"
             distribution, a map for each of the wflow_sbm soil layers (updated based
             on the newly specified layers)
 
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
 
         Parameters
         ----------
@@ -1477,7 +1502,7 @@ setting new flood_depth dimensions"
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
             self.set_config(
-                "state.variables.land_surface_water~paddy__depth", "demand_paddy_h"
+                "state.variables.paddy_surface_water__depth", "demand_paddy_h"
             )
         else:
             logger.info("No paddy fields found, skipping updating soil parameters")
@@ -1510,6 +1535,10 @@ setting new flood_depth dimensions"
         * **vegetation_leaf_area_index** map: Leaf Area Index climatology [-]
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -1549,7 +1578,7 @@ setting new flood_depth dimensions"
         buffer : int, optional
             Buffer in pixels around the region to read the data, by default 2.
         output_name : str
-            Name of the output vegetation__leaf-area_index map.
+            Name of the output vegetation__leaf_area_index map.
             By default "vegetation_leaf_area_index".
         """
         # retrieve data for region
@@ -1604,6 +1633,10 @@ setting new flood_depth dimensions"
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
         Parameters
         ----------
         lulc_fn : str, xarray.DataArray
@@ -1615,7 +1648,7 @@ setting new flood_depth dimensions"
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
         output_name : str
-            Name of the output vegetation__leaf-area_index map.
+            Name of the output vegetation__leaf_area_index map.
             By default "vegetation_leaf_area_index".
         """
         logger.info("Preparing LAI maps from LULC data using LULC-LAI mapping table.")
@@ -1716,6 +1749,11 @@ the missing with data from downstream catchments.
         * **meta_rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
 [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
 different return periods RP. Only if rootzone_storage is set to True!
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
 
         Parameters
@@ -1881,7 +1919,7 @@ Run setup_soilmaps first"
             "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical",  # noqa: E501
             "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
-            "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
+            "soil_layer_water__brooks_corey_exponent": "soil_brooks_corey_c",
         },
     ):
         """
@@ -1939,6 +1977,10 @@ a map for each of the wflow_sbm soil layers (n in total)
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
@@ -1995,6 +2037,10 @@ a map for each of the wflow_sbm soil layers (n in total)
 the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
 or created by a third party/ individual.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
         Parameters
         ----------
         ksat_fn : str, xr.DataArray
@@ -2010,7 +2056,7 @@ or created by a third party/ individual.
             to the name of the ksat_fn DataArray.
         """
         logger.info("Preparing KsatHorFrac parameter map.")
-        wflow_var = "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio"  # noqa: E501
+        wflow_var = "subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio"  # noqa: E501
         dain = self.data_catalog.get_rasterdataset(
             ksat_fn,
             geom=self.region,
@@ -2060,6 +2106,11 @@ using 'variable' argument."
 
         * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \
         vegetation characteristics [mm/d]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -2123,6 +2174,10 @@ using 'variable' argument."
         the water areas, the priority_basins flag can be used to decide if these basins
         should be merged with the closest downstream basin or with any large enough
         basin in the same water area.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------
@@ -2191,6 +2246,10 @@ using 'variable' argument."
 
         * **demand_surface_water_ratio**: fraction of water allocated from surface water
           [0-1]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2290,8 +2349,8 @@ using 'variable' argument."
         population_fn: str | xr.Dataset | None = None,
         domestic_fn_original_res: float | None = None,
         output_names: dict = {
-            "land~domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
-            "land~domestic__net_water_demand_volume_flux": "demand_domestic_net",
+            "domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
+            "domestic__net_water_demand_volume_flux": "demand_domestic_net",
         },
     ):
         """
@@ -2312,6 +2371,10 @@ using 'variable' argument."
 
         * **demand_domestic_gross**: gross domestic water demand [mm/day]
         * **demand_domestic_net**: net domestic water demand [mm/day]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2402,8 +2465,8 @@ using 'variable' argument."
         domestic_gross_per_capita: float | list[float],
         domestic_net_per_capita: float | list[float] | None = None,
         output_names: dict = {
-            "land~domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
-            "land~domestic__net_water_demand_volume_flux": "demand_domestic_net",
+            "domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
+            "domestic__net_water_demand_volume_flux": "demand_domestic_net",
         },
     ):
         """
@@ -2417,6 +2480,10 @@ using 'variable' argument."
 
         * **demand_domestic_gross**: gross domestic water demand [mm/day]
         * **demand_domestic_net**: net domestic water demand [mm/day]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2492,10 +2559,10 @@ using 'variable' argument."
         ],
         resampling_method: str = "average",
         output_names: dict = {
-            "land~industry__gross_water_demand_volume_flux": "demand_industry_gross",
-            "land~industry__net_water_demand_volume_flux": "demand_industry_net",
-            "land~livestock__gross_water_demand_volume_flux": "demand_livestock_gross",
-            "land~livestock__net_water_demand_volume_flux": "demand_livestock_net",
+            "industry__gross_water_demand_volume_flux": "demand_industry_gross",
+            "industry__net_water_demand_volume_flux": "demand_industry_net",
+            "livestock__gross_water_demand_volume_flux": "demand_livestock_gross",
+            "livestock__net_water_demand_volume_flux": "demand_livestock_net",
         },
     ):
         """Create water demand maps from other sources (e.g. industry, livestock).
@@ -2515,6 +2582,10 @@ using 'variable' argument."
 
         * **{var}_gross**: gross water demand [mm/day]
         * **{var}_net**: net water demand [mm/day]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -2592,10 +2663,10 @@ using 'variable' argument."
         lai_threshold: float = 0.2,
         lulcmap_name: str = "meta_landuse",
         output_names: dict = {
-            "land~irrigated-paddy_area__count": "demand_paddy_irrigated_mask",
+            "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
             "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
-            "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
-            "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
+            "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
+            "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
     ):
         """
@@ -2631,6 +2702,11 @@ using 'variable' argument."
           whether irrigation is allowed (1) or not (0) [-] for paddy areas
         * **demand_paddy_irrigation_trigger**: Map with monthly values, indicating
           whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -2778,10 +2854,10 @@ using 'variable' argument."
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: dict = {
-            "land~irrigated-paddy_area__count": "demand_paddy_irrigated_mask",
+            "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
             "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
-            "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
-            "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
+            "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
+            "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
     ):
         """
@@ -2817,6 +2893,11 @@ using 'variable' argument."
           whether irrigation is allowed (1) or not (0) [-] for paddy areas
         * **demand_nonpaddy_irrigation_trigger**: Map with monthly values, indicating
           whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
+        * :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent
 
         Parameters
         ----------
@@ -3004,6 +3085,10 @@ using 'variable' argument."
         * **gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
+
         Parameters
         ----------
         river1d_fn : str, Path, gpd.GeoDataFrame
@@ -3139,7 +3224,7 @@ using 'variable' argument."
                 mapname=f"subcatchment_river_{mapname}",
                 toml_output=toml_output,
                 header=["Qlat"],
-                param=["river_water_inflow~lateral__volume_flow_rate"],
+                param=["river_water__lateral_inflow_volume_flow_rate"],
                 reducer=["sum"],
             )
 
@@ -3156,6 +3241,10 @@ using 'variable' argument."
         Adds model layer:
 
         * **precip**: precipitation [mm]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3239,7 +3328,12 @@ using 'variable' argument."
 
         * **precip**: precipitation [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
         Supported interpolation methods:
+
         * uniform: Applies spatially uniform precipitation to the model. \
         Only works when `precip_fn` contains a single timeseries.
         * nearest: Nearest-neighbour interpolation, also works with a single station.
@@ -3436,6 +3530,10 @@ using 'variable' argument."
 
         * **pet**: reference evapotranspiration [mm]
         * **temp**: temperature [°C]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
 
         Parameters
         ----------
@@ -3642,6 +3740,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         * **pet**: reference evapotranspiration [mm]
 
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
         Parameters
         ----------
         pet_fn: str, xr.DataArray
@@ -3712,7 +3814,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * **land_instantaneous_h**: land water level [m]
         * **land_instantaneous_q** or **land_instantaneous_qx**+
           **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
-          overland flow in x/y directions for local-inertial [m3/s]
+          overland flow in x/y directions for local_inertial [m3/s]
 
         If reservoirs, also adds:
 
@@ -3725,6 +3827,15 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         If paddy, also adds:
 
         * **demand_paddy_h**: water on the paddy fields [mm]
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_soilmaps`
+        * :py:meth:`~WflowSbmModel.setup_constant_pars`
+        * :py:meth:`~WflowSbmModel.setup_lakes`
+        * :py:meth:`~WflowSbmModel.setup_reservoirs`
+        * :py:meth:`~WflowSbmModel.setup_glaciers`
+        * :py:meth:`~WflowSbmModel.setup_irrigation` or equivalent
 
         Parameters
         ----------

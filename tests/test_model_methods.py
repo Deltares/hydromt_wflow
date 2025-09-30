@@ -201,7 +201,7 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     # Confirm config flags
     assert mod.get_config("model.glacier__flag") is True
     assert (
-        mod.get_config("state.variables.glacier_ice__leq-depth") == "glacier_leq_depth"
+        mod.get_config("state.variables.glacier_ice__leq_depth") == "glacier_leq_depth"
     )
 
 
@@ -451,7 +451,7 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
 
     assert "lai_from_vito_mapping" in example_wflow_model.staticmaps.data
     assert (
-        example_wflow_model.get_config("input.cyclic.vegetation__leaf-area_index")
+        example_wflow_model.get_config("input.cyclic.vegetation__leaf_area_index")
         == "lai_from_vito_mapping"
     )
 
@@ -735,7 +735,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         min_rivwth=30,
         slope_len=2000,
         smooth_len=5000,
-        river_routing="local-inertial",
+        river_routing="local_inertial",
         elevtn_map=elevtn_map,
         output_names={},
     )
@@ -746,7 +746,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     }[elevtn_map]
 
     assert mapname in example_wflow_model.staticmaps.data
-    assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
+    assert example_wflow_model.get_config("model.river_routing") == "local_inertial"
     assert (
         example_wflow_model.get_config("input.static.river_bank_water__elevation")
         == mapname
@@ -789,7 +789,7 @@ def test_setup_rivers_depth(tmpdir: Path):
         min_rivwth=30,
         slope_len=2000,
         smooth_len=5000,
-        river_routing="local-inertial",
+        river_routing="local_inertial",
         elevtn_map="land_elevation",
     )
 
@@ -805,7 +805,7 @@ def test_setup_rivers_depth(tmpdir: Path):
         min_rivwth=30,
         slope_len=2000,
         smooth_len=5000,
-        river_routing="local-inertial",
+        river_routing="local_inertial",
         elevtn_map="meta_subgrid_elevation",
     )
 
@@ -829,7 +829,7 @@ def test_setup_floodplains_1d(
         min_rivwth=30,
         slope_len=2000,
         smooth_len=5000,
-        river_routing="local-inertial",
+        river_routing="local_inertial",
         elevtn_map="land_elevation",
     )
 
@@ -842,10 +842,10 @@ def test_setup_floodplains_1d(
 
     assert "floodplain_volume" in example_wflow_model.staticmaps.data
     assert example_wflow_model.get_config("model.floodplain_1d__flag") == True
-    assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
+    assert example_wflow_model.get_config("model.land_routing") == "kinematic_wave"
     assert (
         example_wflow_model.get_config(
-            "input.static.floodplain_water__sum_of_volume-per-depth"
+            "input.static.floodplain_water__sum_of_volume_per_depth"
         )
         == "floodplain_volume"
     )
@@ -894,7 +894,7 @@ def test_setup_floodplains_2d(
         min_rivwth=30,
         slope_len=2000,
         smooth_len=5000,
-        river_routing="local-inertial",
+        river_routing="local_inertial",
         elevtn_map="land_elevation",
         output_names={},
     )
@@ -910,7 +910,7 @@ def test_setup_floodplains_2d(
 
     assert f"{mapname}_D4" in example_wflow_model.staticmaps.data
     assert example_wflow_model.get_config("model.floodplain_1d__flag") == False
-    assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
+    assert example_wflow_model.get_config("model.land_routing") == "local_inertial"
     assert (
         example_wflow_model.get_config("input.static.river_bank_water__elevation")
         == f"{mapname}_D4"
