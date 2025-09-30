@@ -107,7 +107,7 @@
   </button>
   
   
-  <div class="col-lg-3 navbar-header-items__start">
+  <div class=" navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -134,9 +134,29 @@
     
   </div>
   
-  <div class="col-lg-9 navbar-header-items">
+  <div class=" navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -233,26 +253,6 @@
         </li>
 </ul></div>
       
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-      
     </div>
     
   </div>
@@ -292,6 +292,29 @@
     
     
       <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
         
           
           
@@ -380,26 +403,6 @@
           <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
 </ul></div>
-        
-          <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
         
       </div>
     
@@ -687,7 +690,7 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_riverbedsed<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-riverbedsed" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_riverbedsed">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverbedsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedsed_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strord_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'meta_streamorder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'river_bottom_and_bank_clay__mass_fraction':</span> <span class="pre">'river_bed_clay_fraction',</span> <span class="pre">'river_bottom_and_bank_gravel__mass_fraction':</span> <span class="pre">'river_bed_gravel_fraction',</span> <span class="pre">'river_bottom_and_bank_sand__mass_fraction':</span> <span class="pre">'river_bed_sand_fraction',</span> <span class="pre">'river_bottom_and_bank_sediment__median_diameter':</span> <span class="pre">'river_bed_sediment_d50',</span> <span class="pre">'river_bottom_and_bank_silt__mass_fraction':</span> <span class="pre">'river_bed_silt_fraction',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_a_coefficient':</span> <span class="pre">'river_kodatie_a',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_b_coefficient':</span> <span class="pre">'river_kodatie_b',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_c_coefficient':</span> <span class="pre">'river_kodatie_c',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_d_coefficient':</span> <span class="pre">'river_kodatie_d'}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_riverbedsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverbedsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedsed_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strord_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'meta_streamorder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'river_bottom_and_bank_clay__mass_fraction':</span> <span class="pre">'river_bed_clay_fraction',</span> <span class="pre">'river_bottom_and_bank_gravel__mass_fraction':</span> <span class="pre">'river_bed_gravel_fraction',</span> <span class="pre">'river_bottom_and_bank_sand__mass_fraction':</span> <span class="pre">'river_bed_sand_fraction',</span> <span class="pre">'river_bottom_and_bank_sediment__median_diameter':</span> <span class="pre">'river_bed_sediment_d50',</span> <span class="pre">'river_bottom_and_bank_silt__mass_fraction':</span> <span class="pre">'river_bed_silt_fraction',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_a_coefficient':</span> <span class="pre">'river_kodatie_a',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_b_coefficient':</span> <span class="pre">'river_kodatie_b',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_c_coefficient':</span> <span class="pre">'river_kodatie_c',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_d_coefficient':</span> <span class="pre">'river_kodatie_d'}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_riverbedsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="Link to this definition">#</a></dt>
 <dd><p>Generate sediments based river bed characteristics maps.</p>
 <p>Kodatie transport capacity coefficients can also be derived from such mapping
 table based on the mean sediment diameter of the river bed.</p>

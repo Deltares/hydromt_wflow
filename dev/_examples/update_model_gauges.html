@@ -110,7 +110,7 @@
   </button>
   
   
-  <div class="col-lg-3 navbar-header-items__start">
+  <div class=" navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -137,9 +137,29 @@
     
   </div>
   
-  <div class="col-lg-9 navbar-header-items">
+  <div class=" navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -236,26 +256,6 @@
         </li>
 </ul></div>
       
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-      
     </div>
     
   </div>
@@ -295,6 +295,29 @@
     
     
       <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
         
           
           
@@ -383,26 +406,6 @@
           <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
 </ul></div>
-        
-          <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
         
       </div>
     
@@ -654,56 +657,56 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-09-26 13:11:20,652 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
-2025-09-26 13:11:20,652 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2025-09-26 13:11:20,652 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:20,652 - hydromt.cli.main - main - INFO - User settings:
-2025-09-26 13:11:20,685 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
-2025-09-26 13:11:20,685 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-09-26 13:11:20,686 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-09-26 13:11:20,715 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-09-26 13:11:20,715 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-09-26 13:11:20,716 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-09-26 13:11:21,559 - hydromt.model.components.tables - tables - INFO - Reading model table files.
-2025-09-26 13:11:21,559 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:21,561 - hydromt.model.model - model - INFO - update: setup_gauges
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.basename=test-flow
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;precip&#39;]
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;]
-2025-09-26 13:11:21,562 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
-2025-09-26 13:11:21,568 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2025-09-26 13:11:21,573 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-flow gauge locations found within domain
-2025-09-26 13:11:23,025 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
-2025-09-26 13:11:23,025 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:23,026 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
-2025-09-26 13:11:23,080 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-09-26 13:11:23,107 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-09-26 13:11:23,109 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
-2025-09-26 13:11:23,111 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
-2025-09-26 13:11:23,113 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
-2025-09-26 13:11:23,131 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
-2025-09-26 13:11:23,132 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
-2025-09-26 13:11:23,166 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
-2025-09-26 13:11:23,169 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
-2025-09-26 13:11:23,172 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
-2025-09-26 13:11:23,174 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
-2025-09-26 13:11:23,178 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
-2025-09-26 13:11:23,180 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2025-09-26 13:11:23,183 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
-2025-09-26 13:11:23,198 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
-2025-09-26 13:11:23,198 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
-2025-09-26 13:11:23,216 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+2025-09-30 14:23:54,111 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
+2025-09-30 14:23:54,111 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-09-30 14:23:54,111 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:23:54,111 - hydromt.cli.main - main - INFO - User settings:
+2025-09-30 14:23:54,140 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
+2025-09-30 14:23:54,140 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-09-30 14:23:54,140 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-09-30 14:23:54,165 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-09-30 14:23:54,165 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-09-30 14:23:54,166 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-09-30 14:23:54,935 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-09-30 14:23:54,935 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - update: setup_gauges
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2025-09-30 14:23:54,937 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.basename=test-flow
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;precip&#39;]
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;]
+2025-09-30 14:23:54,938 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
+2025-09-30 14:23:54,944 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-09-30 14:23:54,949 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-flow gauge locations found within domain
+2025-09-30 14:23:56,179 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
+2025-09-30 14:23:56,180 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:23:56,181 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
+2025-09-30 14:23:56,233 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-09-30 14:23:56,260 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-09-30 14:23:56,262 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
+2025-09-30 14:23:56,265 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
+2025-09-30 14:23:56,267 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
+2025-09-30 14:23:56,284 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
+2025-09-30 14:23:56,286 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
+2025-09-30 14:23:56,318 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
+2025-09-30 14:23:56,322 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
+2025-09-30 14:23:56,325 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
+2025-09-30 14:23:56,327 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
+2025-09-30 14:23:56,330 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
+2025-09-30 14:23:56,332 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2025-09-30 14:23:56,336 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+2025-09-30 14:23:56,350 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2025-09-30 14:23:56,351 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
+2025-09-30 14:23:56,368 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -764,57 +767,57 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-09-26 13:11:26,953 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
-2025-09-26 13:11:26,953 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2025-09-26 13:11:26,953 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:26,953 - hydromt.cli.main - main - INFO - User settings:
-2025-09-26 13:11:26,988 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:26,989 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-09-26 13:11:26,989 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-09-26 13:11:27,018 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-09-26 13:11:27,019 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
-2025-09-26 13:11:27,793 - hydromt.model.model - model - INFO - update: setup_gauges
-2025-09-26 13:11:27,793 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=False
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.basename=test-rain
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;P-station&#39;]
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;atmosphere_water__precipitation_volume_flux&#39;]
-2025-09-26 13:11:27,794 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
-2025-09-26 13:11:27,884 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2025-09-26 13:11:27,889 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-rain gauge locations found within domain
-2025-09-26 13:11:28,620 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
-2025-09-26 13:11:28,620 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-09-26 13:11:28,620 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2025-09-26 13:11:28,623 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
-2025-09-26 13:11:28,680 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-09-26 13:11:28,708 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-09-26 13:11:28,710 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
-2025-09-26 13:11:28,713 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
-2025-09-26 13:11:28,715 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
-2025-09-26 13:11:28,716 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
-2025-09-26 13:11:28,734 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
-2025-09-26 13:11:28,735 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
-2025-09-26 13:11:28,770 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
-2025-09-26 13:11:28,774 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
-2025-09-26 13:11:28,777 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
-2025-09-26 13:11:28,779 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
-2025-09-26 13:11:28,782 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-rain.geojson.
-2025-09-26 13:11:28,793 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2025-09-26 13:11:28,793 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Netcdf forcing file `/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc` already exists and overwriting is not enabled. To overwrite netcdf forcing file: change name `input.path_forcing` in setup_config section of the build inifile or allow overwriting with `overwrite` flag. A default name will be generated.
-2025-09-26 13:11:28,796 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps_era5_era5d_debruin_None_2010_2010.nc
-2025-09-26 13:11:28,811 - hydromt.model.components.tables - tables - INFO - Reading model table files.
-2025-09-26 13:11:28,811 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
-2025-09-26 13:11:28,822 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
-2025-09-26 13:11:28,843 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+2025-09-30 14:23:59,733 - hydromt - log - INFO - HydroMT version: 1.2.0.dev0
+2025-09-30 14:23:59,733 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
+2025-09-30 14:23:59,733 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:23:59,733 - hydromt.cli.main - main - INFO - User settings:
+2025-09-30 14:23:59,763 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:23:59,763 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-09-30 14:23:59,763 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-09-30 14:23:59,788 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-09-30 14:23:59,788 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - update: setup_gauges
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=False
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.basename=test-rain
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;P-station&#39;]
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;atmosphere_water__precipitation_volume_flux&#39;]
+2025-09-30 14:24:00,471 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
+2025-09-30 14:24:00,550 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-09-30 14:24:00,555 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-rain gauge locations found within domain
+2025-09-30 14:24:01,146 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
+2025-09-30 14:24:01,146 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-09-30 14:24:01,146 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2025-09-30 14:24:01,148 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
+2025-09-30 14:24:01,201 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-09-30 14:24:01,228 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-09-30 14:24:01,230 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
+2025-09-30 14:24:01,232 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
+2025-09-30 14:24:01,234 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
+2025-09-30 14:24:01,236 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
+2025-09-30 14:24:01,254 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
+2025-09-30 14:24:01,256 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
+2025-09-30 14:24:01,292 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
+2025-09-30 14:24:01,296 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
+2025-09-30 14:24:01,298 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
+2025-09-30 14:24:01,301 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
+2025-09-30 14:24:01,304 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-rain.geojson.
+2025-09-30 14:24:01,313 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2025-09-30 14:24:01,314 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Netcdf forcing file `/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc` already exists and overwriting is not enabled. To overwrite netcdf forcing file: change name `input.path_forcing` in setup_config section of the build inifile or allow overwriting with `overwrite` flag. A default name will be generated.
+2025-09-30 14:24:01,317 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps_era5_era5d_debruin_None_2010_2010.nc
+2025-09-30 14:24:01,331 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-09-30 14:24:01,331 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2025-09-30 14:24:01,341 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
+2025-09-30 14:24:01,359 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
