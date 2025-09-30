@@ -29,6 +29,10 @@ class WflowTablesComponent(TablesComponent):
         static_maps_path = self.model.get_config("input.path_static")
         if static_maps_path is None:
             return None
+
         static_maps_folder = os.path.dirname(static_maps_path)
-        filename = f"{static_maps_folder or '.'}/{{name}}.csv"
+        if not static_maps_folder:
+            static_maps_folder = "."
+
+        filename = f"{static_maps_folder}/{{name}}.csv"
         return filename
