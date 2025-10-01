@@ -208,7 +208,7 @@ def test_equal_grid_data(
     missing_maps = []
     for name in maps:
         map0 = grid[name].fillna(0)
-        if name not in other_grid:
+        if name not in other_grid.data_vars:
             missing_maps.append(name)
             continue
         map1 = other_grid[name].fillna(0)
