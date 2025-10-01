@@ -433,6 +433,9 @@ skipping adding gauge specific outputs to the toml."
             ds_base["meta_subgrid_outlet_idx"] = da_outlet
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
+        if "mask" in ds_base.coords:
+            ds_base = ds_base.drop_vars("mask")
+
         self.set_grid(ds_base.rename(rmdict))
 
         # Add basin geometries after grid is set to avoid warning
