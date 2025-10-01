@@ -3480,6 +3480,12 @@ using 'variable' argument."
             resample_kwargs=dict(label="right", closed="right"),
         )
 
+        # Turn precip_fn into a string if needed
+        if isinstance(precip_fn, pd.DataFrame):
+            precip_fn = getattr(precip_fn, "name", None) or "unnamed_DataFrame"
+        elif isinstance(precip_fn, xr.Dataset):
+            precip_fn = precip_fn.name or "unnamed_Dataset"
+
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn})
         precip_out = precip_out.astype("float32")
