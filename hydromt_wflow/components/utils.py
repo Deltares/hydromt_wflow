@@ -172,6 +172,7 @@ def test_equal_grid_data(
     """
     errors: dict[str, str] = {}
     invalid_maps: dict[str, str] = {}
+    invalid_coords: dict[str, str] = {}
 
     # Check if grid is empty
     if len(grid) == 0:
@@ -247,6 +248,17 @@ def test_equal_grid_data(
                 diff = (map0.values - map1.values)[not_close].mean()
                 err = f"mean diff ({n_cells:d} cells): {diff:.4f}; {err}"
             invalid_maps[name] = err
+    for coord in grid.coords:
+        if coord in other_grid.coords:
+            try:
+                xr.testing.assert_identical(other_grid[coord], grid[coord])
+            except AssertionError:
+                invalid_coords[coord] = "not identical"
+            except KeyError:
+                invalid_coords[coord] = "not in grid"
+
+    if len(invalid_coords) > 0:
+        errors[f"{len(invalid_coords)} invalid coords"] = invalid_coords
 
     if len(missing_maps) > 0:
         errors["Other grid is missing maps"] = f"{', '.join(missing_maps)}"
