@@ -618,11 +618,11 @@ def convert_reservoirs_to_wflow_v1_sbm(
         )
         ds_res["reservoir_rating_curve"] = ds_res["reservoir_outlet_id"].where(
             res_mask_inv,
-            4.0,
+            4,
         )
         ds_res["reservoir_storage_curve"] = ds_res["reservoir_outlet_id"].where(
             res_mask_inv,
-            1.0,
+            1,
         )
         ds_res["reservoir_initial_depth"] = (
             ds_res["reservoir_target_full_fraction"]
