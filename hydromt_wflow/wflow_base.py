@@ -428,10 +428,10 @@ skipping adding gauge specific outputs to the toml."
         if "idx_out" in ds_base:
             ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
             # Set meta_subgrid as a data variable instead of coordinate
-            da_outlet = ds_base["meta_subgrid_outlet_idx"]
-            ds_base = ds_base.drop_vars("meta_subgrid_outlet_idx")
-            ds_base["meta_subgrid_outlet_idx"] = da_outlet
+            ds_base = ds_base.reset_coords("meta_subgrid_outlet_idx")
 
+        if "mask" in ds_base.coords:
+            ds_base = ds_base.drop_vars("mask")
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
 
