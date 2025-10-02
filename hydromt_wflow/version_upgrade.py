@@ -6,6 +6,7 @@ from pathlib import Path
 
 import xarray as xr
 
+from hydromt_wflow.components.tables import WflowTablesComponent
 from hydromt_wflow.naming import (
     WFLOW_NAMES,
     WFLOW_SEDIMENT_NAMES,
@@ -78,6 +79,9 @@ def _set_input_vars(
 ) -> dict:
     name = get_config(key=f"input.{wflow_v0_var}", config=config_in, fallback=None)
     if name is not None and wflow_v1_var is not None:
+        if isinstance(name, dict) and "netcdf" in name.keys():
+            name["netcdf_variable_name"] = name["netcdf"]["variable"]["name"]
+            del name["netcdf"]
         if wflow_v0_var in input_options.keys():
             return config_out
         elif wflow_v0_var in input_variables:
@@ -810,3 +814,12 @@ def convert_reservoirs_to_wflow_v1_sediment(
                 ds_res = ds_merge
 
     return ds_res, variables_to_remove, config_options
+
+
+def upgrade_lake_tables_to_reservoir_tables_v1(tables: WflowTablesComponent) -> None:
+    logger.info("Renaming lake_*.csv files to reservoir_*.csv files.")
+    for key in [t for t in tables.data.keys() if t.startswith("lake_")]:
+        data_table = tables.data.pop(key)
+        new_name = key.replace("lake_", "reservoir_")
+        tables.set(data_table, name=new_name)
+        logger.debug(f"Renamed table {key} to {new_name}.")
