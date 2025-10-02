@@ -486,6 +486,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.version_upgrade</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">convert_reservoirs_to_wflow_v1_sbm</span><span class="p">,</span>
     <span class="n">convert_to_wflow_v1_sbm</span><span class="p">,</span>
+    <span class="n">upgrade_lake_tables_to_reservoir_tables_v1</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.wflow_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowBaseModel</span>
 
@@ -4528,6 +4529,7 @@
         <span class="n">ds_res</span><span class="p">,</span> <span class="n">vars_to_remove</span><span class="p">,</span> <span class="n">config_opt</span> <span class="o">=</span> <span class="n">convert_reservoirs_to_wflow_v1_sbm</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">config_v0</span>
         <span class="p">)</span>
+        <span class="n">upgrade_lake_tables_to_reservoir_tables_v1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Remove older maps from grid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_remove</span><span class="p">)</span>

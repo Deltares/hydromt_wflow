@@ -564,29 +564,31 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-10-02 05:26:58,594 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
-2025-10-02 05:26:58,594 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm (r+).
-2025-10-02 05:26:58,594 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
-2025-10-02 05:26:58,594 - hydromt.cli.main - main - INFO - User settings:
-2025-10-02 05:26:58,627 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
-2025-10-02 05:26:58,627 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-10-02 05:26:58,627 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-10-02 05:26:58,656 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-10-02 05:26:58,657 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml.
-2025-10-02 05:26:59,306 - hydromt.model.model - model - INFO - update: upgrade_to_v1_wflow
-2025-10-02 05:26:59,306 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config to Wflow v1 format
-2025-10-02 05:26:59,306 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config general, time and model sections
-2025-10-02 05:26:59,306 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config state section
-2025-10-02 05:26:59,306 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config input section
-2025-10-02 05:26:59,306 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config output sections
-2025-10-02 05:26:59,307 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
-2025-10-02 05:26:59,364 - hydromt.model.model - model - INFO - update: write_grid
-2025-10-02 05:26:59,364 - hydromt.model.model - model - INFO - write_grid.filename=staticmaps_v1.nc
-2025-10-02 05:26:59,365 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/staticmaps_v1.nc.
-2025-10-02 05:26:59,447 - hydromt.model.model - model - INFO - update: write_config
-2025-10-02 05:26:59,447 - hydromt.model.model - model - INFO - write_config.filename=wflow_sbm_v1.toml
-2025-10-02 05:26:59,447 - hydromt.model.model - model - INFO - write_config.config_root=None
-2025-10-02 05:26:59,448 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v1.toml.
+2025-10-02 08:38:07,161 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
+2025-10-02 08:38:07,161 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm (r+).
+2025-10-02 08:38:07,161 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
+2025-10-02 08:38:07,161 - hydromt.cli.main - main - INFO - User settings:
+2025-10-02 08:38:07,195 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm
+2025-10-02 08:38:07,195 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-10-02 08:38:07,195 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-10-02 08:38:07,224 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-10-02 08:38:07,225 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v0x.toml.
+2025-10-02 08:38:07,876 - hydromt.model.model - model - INFO - update: upgrade_to_v1_wflow
+2025-10-02 08:38:07,876 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config to Wflow v1 format
+2025-10-02 08:38:07,876 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config general, time and model sections
+2025-10-02 08:38:07,876 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config state section
+2025-10-02 08:38:07,876 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config input section
+2025-10-02 08:38:07,876 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config output sections
+2025-10-02 08:38:07,877 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
+2025-10-02 08:38:07,911 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Renaming lake_*.csv files to reservoir_*.csv files.
+2025-10-02 08:38:07,911 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-10-02 08:38:07,934 - hydromt.model.model - model - INFO - update: write_grid
+2025-10-02 08:38:07,934 - hydromt.model.model - model - INFO - write_grid.filename=staticmaps_v1.nc
+2025-10-02 08:38:07,934 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/staticmaps_v1.nc.
+2025-10-02 08:38:08,016 - hydromt.model.model - model - INFO - update: write_config
+2025-10-02 08:38:08,016 - hydromt.model.model - model - INFO - write_config.filename=wflow_sbm_v1.toml
+2025-10-02 08:38:08,016 - hydromt.model.model - model - INFO - write_config.config_root=None
+2025-10-02 08:38:08,016 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sbm/wflow_sbm_v1.toml.
 </pre></div></div>
 </div>
 <p>And let’s see the results. Here is what our old TOML file looked like:</p>
@@ -1125,58 +1127,58 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-10-02 05:27:04,539 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
-2025-10-02 05:27:04,539 - hydromt.cli.main - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment (r+).
-2025-10-02 05:27:04,539 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
-2025-10-02 05:27:04,539 - hydromt.cli.main - main - INFO - User settings:
-2025-10-02 05:27:04,692 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-10-02 05:27:04,693 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2025-10-02 05:27:05,331 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
-2025-10-02 05:27:05,331 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
-2025-10-02 05:27:05,331 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-10-02 05:27:05,344 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-10-02 05:27:05,344 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml.
-2025-10-02 05:27:05,940 - hydromt.model.model - model - INFO - update: upgrade_to_v1_wflow
-2025-10-02 05:27:05,940 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.soil_fn=soilgrids
-2025-10-02 05:27:05,940 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.usle_k_method=renard
-2025-10-02 05:27:05,940 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.strord_name=wflow_streamorder
-2025-10-02 05:27:05,940 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config to Wflow v1 format
-2025-10-02 05:27:05,940 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config general, time and model sections
-2025-10-02 05:27:05,940 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config state section
-2025-10-02 05:27:05,940 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config input section
-2025-10-02 05:27:05,940 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config output sections
-2025-10-02 05:27:05,941 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
-2025-10-02 05:27:05,942 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
-2025-10-02 05:27:06,878 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
-2025-10-02 05:27:06,899 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
-2025-10-02 05:27:06,933 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
-2025-10-02 05:27:06,977 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
-2025-10-02 05:27:07,020 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
-2025-10-02 05:27:07,036 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
-2025-10-02 05:27:07,052 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
-2025-10-02 05:27:07,069 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
-2025-10-02 05:27:07,090 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
-2025-10-02 05:27:07,127 - hydromt.gis.raster - raster - WARNING - No numerical nodata value found, skipping set_nodata
-2025-10-02 05:27:07,129 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
-2025-10-02 05:27:07,144 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2025-10-02 05:27:07,144 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2025-10-02 05:27:07,152 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
-2025-10-02 05:27:07,156 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
-2025-10-02 05:27:07,160 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
-2025-10-02 05:27:07,165 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
-2025-10-02 05:27:07,169 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
-2025-10-02 05:27:07,173 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
-2025-10-02 05:27:07,178 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
-2025-10-02 05:27:07,182 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
-2025-10-02 05:27:07,186 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
-2025-10-02 05:27:07,203 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
-2025-10-02 05:27:07,223 - hydromt.model.model - model - INFO - update: write_grid
-2025-10-02 05:27:07,223 - hydromt.model.model - model - INFO - write_grid.filename=staticmaps_v1.nc
-2025-10-02 05:27:07,224 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v1.nc.
-2025-10-02 05:27:07,292 - hydromt.model.model - model - INFO - update: write_config
-2025-10-02 05:27:07,293 - hydromt.model.model - model - INFO - write_config.filename=wflow_sediment_v1.toml
-2025-10-02 05:27:07,293 - hydromt.model.model - model - INFO - write_config.config_root=None
-2025-10-02 05:27:07,293 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v1.toml.
+2025-10-02 08:38:13,112 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
+2025-10-02 08:38:13,112 - hydromt.cli.main - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment (r+).
+2025-10-02 08:38:13,112 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
+2025-10-02 08:38:13,112 - hydromt.cli.main - main - INFO - User settings:
+2025-10-02 08:38:13,246 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-10-02 08:38:13,246 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2025-10-02 08:38:13,886 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment
+2025-10-02 08:38:13,886 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.0.dev0).
+2025-10-02 08:38:13,886 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-10-02 08:38:13,899 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-10-02 08:38:13,899 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v0x.toml.
+2025-10-02 08:38:14,515 - hydromt.model.model - model - INFO - update: upgrade_to_v1_wflow
+2025-10-02 08:38:14,515 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.soil_fn=soilgrids
+2025-10-02 08:38:14,515 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.usle_k_method=renard
+2025-10-02 08:38:14,515 - hydromt.model.model - model - INFO - upgrade_to_v1_wflow.strord_name=wflow_streamorder
+2025-10-02 08:38:14,515 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config to Wflow v1 format
+2025-10-02 08:38:14,516 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config general, time and model sections
+2025-10-02 08:38:14,516 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config state section
+2025-10-02 08:38:14,516 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config input section
+2025-10-02 08:38:14,516 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Converting config output sections
+2025-10-02 08:38:14,516 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
+2025-10-02 08:38:14,518 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
+2025-10-02 08:38:15,476 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
+2025-10-02 08:38:15,498 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
+2025-10-02 08:38:15,532 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
+2025-10-02 08:38:15,578 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
+2025-10-02 08:38:15,619 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
+2025-10-02 08:38:15,634 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
+2025-10-02 08:38:15,649 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
+2025-10-02 08:38:15,667 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
+2025-10-02 08:38:15,688 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
+2025-10-02 08:38:15,726 - hydromt.gis.raster - raster - WARNING - No numerical nodata value found, skipping set_nodata
+2025-10-02 08:38:15,728 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
+2025-10-02 08:38:15,743 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2025-10-02 08:38:15,743 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2025-10-02 08:38:15,751 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
+2025-10-02 08:38:15,755 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
+2025-10-02 08:38:15,760 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
+2025-10-02 08:38:15,764 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
+2025-10-02 08:38:15,768 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
+2025-10-02 08:38:15,772 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
+2025-10-02 08:38:15,777 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
+2025-10-02 08:38:15,781 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
+2025-10-02 08:38:15,785 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
+2025-10-02 08:38:15,802 - hydromt.hydromt_wflow.version_upgrade - version_upgrade - INFO - Reservoirs/lakes found in the grid, converting to Wflow v1 format.
+2025-10-02 08:38:15,823 - hydromt.model.model - model - INFO - update: write_grid
+2025-10-02 08:38:15,823 - hydromt.model.model - model - INFO - write_grid.filename=staticmaps_v1.nc
+2025-10-02 08:38:15,823 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/staticmaps_v1.nc.
+2025-10-02 08:38:15,892 - hydromt.model.model - model - INFO - update: write_config
+2025-10-02 08:38:15,892 - hydromt.model.model - model - INFO - write_config.filename=wflow_sediment_v1.toml
+2025-10-02 08:38:15,892 - hydromt.model.model - model - INFO - write_config.config_root=None
+2025-10-02 08:38:15,892 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_upgrade/sediment/wflow_sediment_v1.toml.
 </pre></div></div>
 </div>
 <p>And let’s see the results. Here is what our old TOML file looked like:</p>
