@@ -418,8 +418,49 @@ build-test-models = { depends-on = [
   "build-test-model-sediment",
 ] }
 
-benchmark = { cmd = ["pytest", "--benchmark-only"] }
+build-example-model-piave-subbasin = { cmd = [
+  "hydromt",
+  "build",
+  "wflow_sbm",
+  "./examples/wflow_piave_subbasin",
+  "-i",
+  "./tests/data/wflow_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-d",
+  "./hydromt_wflow/data/parameters_data.yml",
+  "-vv",
+] }
+build-example-model-piave-sediment = { cmd = [
+  "hydromt",
+  "build",
+  "wflow_sediment",
+  "./examples/wflow_sediment_piave_subbasin",
+  "-i",
+  "./tests/data/wflow_sediment_piave_build_subbasin.yml",
+  "-d",
+  "artifact_data",
+  "-d",
+  "./hydromt_wflow/data/parameters_data.yml",
+  "-vv",
+] }
+build-example-model-piave-clip = { cmd = [
+  "hydromt",
+  "update",
+  "wflow_sbm",
+  "./examples/wflow_piave_subbasin",
+  "-o",
+  "./examples/wflow_piave_clip_bkp",
+  "-i",
+  "./tests/data/wflow_piave_clip.yml",
+] }
+build-example-model-piave = { depends-on = [
+  "build-example-model-piave-subbasin",
+  "build-example-model-piave-sediment",
+  "build-example-model-piave-clip",
+] }
 
+benchmark = { cmd = ["pytest", "--benchmark-only"] }
 benchmark-record = { cmd = [
   "pytest",
   "--benchmark-only",
