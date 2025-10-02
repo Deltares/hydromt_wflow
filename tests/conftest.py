@@ -155,7 +155,6 @@ def floodplain1d_testdata() -> xr.Dataset:
     data = xr.load_dataset(
         join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
-        mode="r",
     )
     # Rename testdata variables to match the model
     for var in data.data_vars:
