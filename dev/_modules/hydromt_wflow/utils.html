@@ -830,7 +830,7 @@
 
         <span class="c1"># else scale and offset</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;netcdf.variable.name&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;netcdf_variable_name&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">var</span><span class="p">)</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
             <span class="n">offset</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
             <span class="c1"># apply scale and offset</span>
