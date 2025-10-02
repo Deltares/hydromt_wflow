@@ -25,14 +25,14 @@ def test_grid_from_config(demda):
             "static": {
                 "slope": "slope",
                 "altitude": {
-                    "netcdf": {"variable": {"name": "slope"}},
+                    "netcdf_variable_name": "slope",
                     "scale": 10,
                 },
             },
             "cyclic": {
                 "subsurface_ksat_horizontal_ratio": {"value": 500},
                 "ksathorfrac2": {
-                    "netcdf": {"variable": {"name": "dem"}},
+                    "netcdf_variable_name": "dem",
                     "scale": 0,
                     "offset": 500,
                 },
@@ -162,8 +162,8 @@ def test_convert_to_wflow_v1_sediment():
     )
 
 
-def test_config_toml_overwrite(tmpdir: Path):
-    dummy_model = WflowSbmModel(root=tmpdir, mode="w")
+def test_config_toml_overwrite(tmp_path: Path):
+    dummy_model = WflowSbmModel(root=tmp_path, mode="w")
     dummy_model.config.read()
     dummy_model.config.set(
         "input.forcing.khorfrac.value",
@@ -179,3 +179,19 @@ def test_config_toml_overwrite(tmpdir: Path):
     dummy_model.config.set("path_log", "log_file.log")
     dummy_model.config.set("path_log", "log_file2.log")
     assert dummy_model.config.get_value("path_log") == "log_file2.log"
+
+
+def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
+    # Initialize wflow model
+    root = TESTDATADIR / "wflow_v0x" / "sbm_with_lake_files"
+    config_fn = "wflow_sbm_v0x.toml"
+
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
+
+    # Convert to v1
+    wflow.upgrade_to_v1_wflow()
+    wflow.set_root(tmp_path, mode="w")
+    wflow.write()
+
+    assert (tmp_path / "staticmaps" / "reservoir_hq_1.csv").is_file()
+    assert (tmp_path / "staticmaps" / "reservoir_hq_2.csv").is_file()

@@ -14,7 +14,8 @@ import pyflwdir
 import pyproj
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import ModeLike, NoDataStrategy
+from hydromt._typing import ModeLike
+from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
 

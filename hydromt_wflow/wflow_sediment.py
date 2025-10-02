@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import NoDataStrategy
+from hydromt.error import NoDataStrategy
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
