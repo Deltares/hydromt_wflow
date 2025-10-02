@@ -13,7 +13,7 @@ path_output = "outstate/outstates.nc"
 
 [input]
 path_forcing = "inmaps.nc"
-path_static = "staticmaps_v0x.nc"
+path_static = "staticmaps/staticmaps_v0x.nc"
 gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
@@ -53,6 +53,7 @@ glacierstore = "glacierstore"
 [input.vertical]
 alpha_h1 = "alpha_h1"
 altitude = "wflow_dem"
+c = "c"
 cf_soil = "cf_soil"
 cfmax = "Cfmax"
 e_r = "EoverR"
@@ -86,12 +87,6 @@ glacierfrac = "wflow_glacierfrac"
 g_cfmax = "G_Cfmax"
 g_ttm = "G_TTM"
 g_sifrac = "G_SIfrac"
-
-[input.vertical.c]
-netcdf.variable.name = "c"
-scale = [2.0, 1.5]
-offset = [0.0, 0.0]
-layer = [1, 2]
 
 [state.lateral.river]
 q = "q_river"
