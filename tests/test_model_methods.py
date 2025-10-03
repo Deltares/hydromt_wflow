@@ -269,7 +269,15 @@ def test_setup_reservoirs_no_control(
     assert (
         "meta_reservoir_max_storage" not in example_wflow_model.staticmaps.data
     )  # no Vol_max column in hydro_lakes
-
+    for reservoir_layer in [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]:
+        assert example_wflow_model.staticmaps.data[reservoir_layer].dtype == np.int64
+        assert isinstance(
+            example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, int
+        )
     # Write and read back
     new_root = join(tmpdir, "wflow_lake_test")
     example_wflow_model.set_root(new_root, mode="w")
