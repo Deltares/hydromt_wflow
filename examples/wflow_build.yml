@@ -52,7 +52,7 @@ steps:
 
   - setup_reservoirs_simple_control:
       reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
-      timeseries_fn: gww           # additionnal source for reservoir are timeseries to compute reservoirs, Either 'gww' using gwwapi or 'jrc' using hydroengine.
+      timeseries_fn: gww           # additional source for reservoir are timeseries to compute reservoirs, Either 'gww' using gwwapi or 'jrc' using hydroengine.
       min_area: 1.0           # minimum lake area to consider [km2]
 
   - setup_reservoirs_no_control:

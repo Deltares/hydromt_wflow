@@ -217,7 +217,7 @@ Copious amounts of new features and fixes!
 
 Added
 -----
-- If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`_
+- If applicable, basins geometry based on the higher resolution DEM is stored separately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`_
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
 - New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
@@ -272,7 +272,7 @@ Fixed
 - **setup_config_output_timeseries**: bugfix for reducer.
 - update hydromt configuration files from ini to yml format. PR #230
 - remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
-- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229
+- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found within the model region (same behavior as before) PR #229
 
 Deprecated
 ----------
@@ -330,7 +330,7 @@ Added
 - In **setup_lakes**: Support setting lake parameters from direct value in the lake_fn columns. `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
 - In **setup_lakes**: Option to prepare controlled lake parameter maxstorage (new in Wflow.jl 0.7.0).
 - New workflow **waterbodies.lakeattrs** to prepare lake parameters from lake_fn attribute and rating curve data.
-- New **tables** model property including read/write: dictionnary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
+- New **tables** model property including read/write: dictionary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
 - Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowModel. `PR #168 <https://github.com/Deltares/hydromt_wflow/pull/168>`_
 
 Changed
@@ -344,7 +344,7 @@ Fixed
 - Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
 - Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
 - fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
-- write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
+- write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missing (not needed)
 - write_forcing automatic adjustment of starttime and endtime based on forcing content
 - When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.
 - Remove deprecated basin_shape method `PR #183 <https://github.com/Deltares/hydromt_wflow/pull/183>`_
@@ -385,7 +385,7 @@ Fixed
 - bug in setup_gauges in update mode with crs.is_epsg_code #108
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
-- wrong defaults in wflow_build.ini teamplate in examples #116
+- wrong defaults in wflow_build.ini template in examples #116
 - temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms).
 - fix wrong default value for lai_fn in setup_laimaps #119
 
@@ -395,7 +395,7 @@ Deprecated
 v0.2.0 (5 August 2022)
 ======================
 We now use rioxarray to read raster data. We recommend reinstalling your hydromt and hydromt_wflow environment including the rioxarray package.
-This enables the writting of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
+This enables the writing of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
 Following an update in xarray, hydromt version should be >= 0.5.0.
 
 Fixed
@@ -407,7 +407,7 @@ Fixed
 
 Changed
 -------
-- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
+- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditioning has been applied for land cells.
 - uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
 - except for coordinates (incl *x_out* and *y_out*) all variables are saved with at most 32 bit depth
 - new dtype and nodata arguments in **setup_constant_pars**
@@ -444,7 +444,7 @@ Fixed
 -----
 - Calculation of lake_b parameter in setup_lakes.
 - Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.
-- When writting several forcing files instead of one, their time_units should be the same to get one Wflow run (time_units option in write_forcing)
+- When writing several forcing files instead of one, their time_units should be the same to get one Wflow run (time_units option in write_forcing)
 - Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges
 - Avoid duplicates in the toml csv column for gauges
 - Fill missing values in landslope with zeros within the basin mask
@@ -510,7 +510,7 @@ Documentation
 
 v0.1.1 (21 May 2021)
 ====================
-This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.
+This release adds more functionality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.
 
 Added
 -----
