@@ -170,7 +170,7 @@ html_theme_options = {
 }
 
 html_context = {
-    "github_url": "https://github.com",  # or your GitHub Enterprise interprise
+    "github_url": "https://github.com",  # or your GitHub Enterprise
     "github_user": "Deltares",
     "github_repo": "hydromt_wflow",
     "github_version": "main",
@@ -298,6 +298,6 @@ nbsphinx_execute = "always"
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',
-    'https://doi.org/10.1029/2018JG004881', # wiley blocks headless requests so this will be repored as broken
+    'https://doi.org/10.1029/2018JG004881', # wiley blocks headless requests so this will be reported as broken
     r'https://deltares.github.io/hydromt_wflow/.*'
 ]
