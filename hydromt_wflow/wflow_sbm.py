@@ -3484,7 +3484,7 @@ using 'variable' argument."
         if isinstance(precip_fn, pd.DataFrame):
             precip_fn_str = getattr(precip_fn, "name", None) or "unnamed_DataFrame"
         elif isinstance(precip_fn, xr.Dataset):
-            precip_fn_str = precip_fn.name or "unnamed_Dataset"
+            precip_fn_str = precip_fn.attrs.get("name", "unnamed_Dataset")
         else:
             precip_fn_str = precip_fn
 
@@ -3704,7 +3704,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                     getattr(temp_pet_fn, "name", None) or "unnamed_DataFrame"
                 )
             elif isinstance(temp_pet_fn, xr.Dataset):
-                temp_pet_fn_str = temp_pet_fn.name or "unnamed_Dataset"
+                temp_pet_fn.attrs.get("name", "unnamed_Dataset")
             else:
                 temp_pet_fn_str = temp_pet_fn
 
@@ -3733,7 +3733,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         if isinstance(temp_pet_fn, pd.DataFrame):
             temp_pet_fn_str = getattr(temp_pet_fn, "name", None) or "unnamed_DataFrame"
         elif isinstance(temp_pet_fn, xr.Dataset):
-            temp_pet_fn_str = temp_pet_fn.name or "unnamed_Dataset"
+            temp_pet_fn_str = temp_pet_fn.attrs.get("name", "unnamed_Dataset")
         else:
             temp_pet_fn_str = temp_pet_fn
 
