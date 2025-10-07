@@ -18,6 +18,7 @@ from hydromt_wflow.utils import get_config, set_config
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
+    RESERVOIR_LAYER_DTYPES,
     RESERVOIR_LAYERS_SEDIMENT,
     RESERVOIR_UNCONTROL_PARAMETERS,
     merge_reservoirs,
@@ -849,24 +850,27 @@ def _convert_layer_dtypes(
     ds: xr.Dataset
         The converted dataset.
     """
-    convert_to_int = [
-        "reservoir_rating_curve",
-        "reservoir_storage_curve",
-        "reservoir_lower_id",
-    ]
-    for layer in convert_to_int:
+    for layer, dtype in RESERVOIR_LAYER_DTYPES.items():
         if layer in ds_res:
             da = ds_res[layer]
+            match dtype:
+                case "int32":
+                    # Replace invalid float FillValues (e.g. -999.9) with integer ones
+                    nodata = da.raster.nodata
+                    if np.isnan(nodata) or not np.isfinite(nodata):
+                        nodata = -999
+                    else:
+                        nodata = int(nodata)
 
-            # Replace invalid float FillValues (e.g. -999.9) with integer ones
-            nodata = da.raster.nodata
-            if np.isnan(nodata) or not np.isfinite(nodata):
-                nodata = -999
-            else:
-                nodata = int(nodata)
-
-            # Cast values safely
-            da = da.fillna(nodata).astype("int32")
-            da.raster.set_nodata(nodata)
+                    # Cast values safely
+                    da = da.fillna(nodata).astype("int32")
+                    da.raster.set_nodata(nodata)
+                case "float32":
+                    pass  # no need to convert
+                case _:
+                    logger.warning(
+                        f"Unknown dtype {dtype} for layer {layer}. Skipping."
+                    )
+                    continue
             ds_res[layer] = da
     return ds_res

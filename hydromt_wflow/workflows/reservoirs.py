@@ -65,11 +65,26 @@ RESERVOIR_LAYERS_SEDIMENT = [
     "reservoir_trapping_efficiency",
 ]
 
-_RESERVOIR_INT_LAYERS = [
-    "reservoir_rating_curve",
-    "reservoir_storage_curve",
-    "reservoir_lower_id",
-]
+RESERVOIR_LAYER_DTYPES = {
+    # ints
+    "reservoir_outlet_id": "int32",
+    "reservoir_rating_curve": "int32",
+    "reservoir_storage_curve": "int32",
+    "reservoir_lower_id": "int32",
+    # floats
+    "reservoir_area": "float32",
+    "reservoir_area_id": "float32",
+    "reservoir_initial_depth": "float32",
+    "reservoir_max_volume": "float32",
+    "reservoir_target_min_fraction": "float32",
+    "reservoir_target_full_fraction": "float32",
+    "reservoir_demand": "float32",
+    "reservoir_max_release": "float32",
+    "reservoir_b": "float32",
+    "reservoir_e": "float32",
+    "reservoir_outflow_threshold": "float32",
+    "reservoir_trapping_efficiency": "float32",
+}
 
 
 def reservoir_id_maps(
@@ -951,7 +966,7 @@ def merge_reservoirs(
             )
             # Handle integer layers specifically
             # since np.nan can unintentionally force dtype to float
-            if layer in _RESERVOIR_INT_LAYERS:
+            if RESERVOIR_LAYER_DTYPES.get(layer) == "int32":
                 merged = merged.fillna(-999).astype("int32")
                 merged.raster.set_nodata(-999)
             else:
@@ -1000,7 +1015,7 @@ def merge_reservoirs_sediment(
             )
             # Handle integer layers specifically
             # since np.nan can unintentionally force dtype to float
-            if layer in _RESERVOIR_INT_LAYERS:
+            if RESERVOIR_LAYER_DTYPES.get(layer) == "int32":
                 merged = merged.fillna(-999).astype("int32")
                 merged.raster.set_nodata(-999)
             else:
