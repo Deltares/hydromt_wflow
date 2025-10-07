@@ -938,10 +938,13 @@ def merge_reservoirs(
 
         # if layer is in ds_like, merge it
         if layer in ds and layer in ds_like:
-            # merge the layer
-            ds_out[layer] = ds[layer].where(
-                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
+            # merge the layer, ignore nodata and negative values
+            merged = ds[layer].where(
+                (ds[layer] != ds[layer].raster.nodata) & (ds[layer] >= 0),
+                ds_like[layer],
             )
+            merged.raster.set_nodata(ds_like[layer].raster.nodata)
+            ds_out[layer] = merged
         # else we just keep ds[layer] as it is
 
     return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
@@ -979,10 +982,13 @@ def merge_reservoirs_sediment(
     for layer in RESERVOIR_LAYERS_SEDIMENT:
         # if layer is in ds_like, merge it
         if layer in ds and layer in ds_like:
-            # merge the layer
-            ds_out[layer] = ds[layer].where(
-                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
+            # merge the layer, ignore nodata and negative values
+            merged = ds[layer].where(
+                (ds[layer] != ds[layer].raster.nodata) & (ds[layer] >= 0),
+                ds_like[layer],
             )
+            merged.raster.set_nodata(ds_like[layer].raster.nodata)
+            ds_out[layer] = merged
         else:
             # all parameters for sediment should be in both
             logger.warning(
