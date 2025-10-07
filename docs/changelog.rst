@@ -37,7 +37,7 @@ Changed
 - The old ``WflowModel.setup_rivers`` has been split into three parts: ``WflowBaseModel.setup_rivers``, ``WflowSbmModel.setup_rivers`` and ``WflowSbmModel.setup_river_roughness``. Where the first contains the generic river setup logic, the second Sbm-specific implementations, and the third contains manning roughness implementations.
 - Clipping a model is now done by calling a single **clip** method. This function can be called with the ``hydromt update`` cli command.
 - **upgrade_to_v1_wflow**: Function now also updates any input variables that link to ``netcdf.variable.name`` to ``netcdf_variable_name``.
-
+- ``workflows.reservoirs.merge_reservoirs``: when merging reservoirs, the nodata value of the input reservoir maps is now preserved in the output map. PR #591
 
 Unreleased
 ==========
