@@ -65,6 +65,12 @@ RESERVOIR_LAYERS_SEDIMENT = [
     "reservoir_trapping_efficiency",
 ]
 
+_RESERVOIR_INT_LAYERS = [
+    "reservoir_rating_curve",
+    "reservoir_storage_curve",
+    "reservoir_lower_id",
+]
+
 
 def reservoir_id_maps(
     gdf: gpd.GeoDataFrame,
@@ -943,9 +949,14 @@ def merge_reservoirs(
                 (ds[layer] != ds[layer].raster.nodata) & (ds[layer] >= 0),
                 ds_like[layer],
             )
-            merged.raster.set_nodata(ds_like[layer].raster.nodata)
+            # Handle integer layers specifically
+            # since np.nan can unintentionally force dtype to float
+            if layer in _RESERVOIR_INT_LAYERS:
+                merged = merged.fillna(-999).astype("int32")
+                merged.raster.set_nodata(-999)
+            else:
+                merged.raster.set_nodata(ds_like[layer].raster.nodata)
             ds_out[layer] = merged
-        # else we just keep ds[layer] as it is
 
     return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
@@ -987,7 +998,13 @@ def merge_reservoirs_sediment(
                 (ds[layer] != ds[layer].raster.nodata) & (ds[layer] >= 0),
                 ds_like[layer],
             )
-            merged.raster.set_nodata(ds_like[layer].raster.nodata)
+            # Handle integer layers specifically
+            # since np.nan can unintentionally force dtype to float
+            if layer in _RESERVOIR_INT_LAYERS:
+                merged = merged.fillna(-999).astype("int32")
+                merged.raster.set_nodata(-999)
+            else:
+                merged.raster.set_nodata(ds_like[layer].raster.nodata)
             ds_out[layer] = merged
         else:
             # all parameters for sediment should be in both
