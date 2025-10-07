@@ -4,6 +4,7 @@ import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
 
+import numpy as np
 import xarray as xr
 
 from hydromt_wflow.components.tables import WflowTablesComponent
@@ -696,6 +697,10 @@ def convert_reservoirs_to_wflow_v1_sbm(
                 wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer_out]['wflow_v1']}"
             config_options[wflow_var_v1] = layer_out
 
+    # Convert dtypes to int where needed
+    if has_lakes or has_reservoirs:
+        ds_res = _convert_layer_dtypes(ds_res)
+
     return ds_res, variables_to_remove, config_options
 
 
@@ -813,6 +818,10 @@ def convert_reservoirs_to_wflow_v1_sediment(
             else:
                 ds_res = ds_merge
 
+    # Convert dtypes to int where needed
+    if has_lakes or has_reservoirs:
+        ds_res = _convert_layer_dtypes(ds_res)
+
     return ds_res, variables_to_remove, config_options
 
 
@@ -823,3 +832,41 @@ def upgrade_lake_tables_to_reservoir_tables_v1(tables: WflowTablesComponent) -> 
         new_name = key.replace("lake_", "reservoir_")
         tables.set(data_table, name=new_name)
         logger.debug(f"Renamed table {key} to {new_name}.")
+
+
+def _convert_layer_dtypes(
+    ds_res: xr.Dataset,
+) -> xr.Dataset:
+    """Convert the dtypes of the layers in the dataset to the expected ones.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        The dataset to convert.
+
+    Returns
+    -------
+    ds: xr.Dataset
+        The converted dataset.
+    """
+    convert_to_int = [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]
+    for layer in convert_to_int:
+        if layer in ds_res:
+            da = ds_res[layer]
+
+            # Replace invalid float FillValues (e.g. -999.9) with integer ones
+            nodata = da.raster.nodata
+            if np.isnan(nodata) or not np.isfinite(nodata):
+                nodata = -999
+            else:
+                nodata = int(nodata)
+
+            # Cast values safely
+            da = da.fillna(nodata).astype("int32")
+            da.raster.set_nodata(nodata)
+            ds_res[layer] = da
+    return ds_res
