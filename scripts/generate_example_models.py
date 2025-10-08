@@ -8,7 +8,7 @@ from hydromt_wflow import WflowSbmModel
 if __name__ == "__main__":
     repo_root = Path(__file__).parent.parent
     if os.name == "posix":
-        model_root = repo_root / "examples" / "linux_64" / "wflow-piave_subbasin"
+        model_root = repo_root / "examples" / "linux64" / "wflow_piave_subbasin"
     else:
         model_root = repo_root / "examples" / "wflow_piave_subbasin"
 
