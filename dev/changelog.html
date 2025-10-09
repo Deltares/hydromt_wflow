@@ -520,6 +520,7 @@ Eg wflow.config.data, wflow.staticmaps.data</p></li>
 <li><p>The old <code class="docutils literal notranslate"><span class="pre">WflowModel.setup_rivers</span></code> has been split into three parts: <code class="docutils literal notranslate"><span class="pre">WflowBaseModel.setup_rivers</span></code>, <code class="docutils literal notranslate"><span class="pre">WflowSbmModel.setup_rivers</span></code> and <code class="docutils literal notranslate"><span class="pre">WflowSbmModel.setup_river_roughness</span></code>. Where the first contains the generic river setup logic, the second Sbm-specific implementations, and the third contains manning roughness implementations.</p></li>
 <li><p>Clipping a model is now done by calling a single <strong>clip</strong> method. This function can be called with the <code class="docutils literal notranslate"><span class="pre">hydromt</span> <span class="pre">update</span></code> cli command.</p></li>
 <li><p><strong>upgrade_to_v1_wflow</strong>: Function now also updates any input variables that link to <code class="docutils literal notranslate"><span class="pre">netcdf.variable.name</span></code> to <code class="docutils literal notranslate"><span class="pre">netcdf_variable_name</span></code>.</p></li>
+<li><p>Update values used in example yamls to new defaults used in Wflow.jl (#589)</p></li>
 </ul>
 </section>
 </section>
@@ -736,7 +737,7 @@ The release also includes support for the paddy land use type and additional lan
 <section id="id20">
 <h3>Added<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>If applicable, basins geometry based on the higher resolution DEM is stored seperately under <strong>basins_highres</strong> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/266">PR #266</a></p></li>
+<li><p>If applicable, basins geometry based on the higher resolution DEM is stored separately under <strong>basins_highres</strong> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/266">PR #266</a></p></li>
 <li><p>New function <strong>setup_1dmodel_connection</strong> to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/210">PR #210</a></p></li>
 <li><p>New setup method for the <strong>KsatHorFrac</strong> parameter <strong>setup_ksathorfarc</strong> to up-downscale existing ksathorfrac maps. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/255">PR #255</a></p></li>
 <li><p>New function <strong>setup_pet_forcing</strong> to reproject existing pet data rather than computing from other meteo data. PR #257</p></li>
@@ -802,7 +803,7 @@ The release also includes support for the paddy land use type and additional lan
 <li><p><strong>setup_config_output_timeseries</strong>: bugfix for reducer.</p></li>
 <li><p>update hydromt configuration files from ini to yml format. PR #230</p></li>
 <li><p>remove or update calls to check if source in self.data_catalog <a class="reference external" href="https://github.com/Deltares/hydromt/issues/501">Issue #501</a></p></li>
-<li><p>Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229</p></li>
+<li><p>Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found within the model region (same behavior as before) PR #229</p></li>
 </ul>
 </section>
 <section id="id27">
@@ -872,7 +873,7 @@ The release also includes support for the paddy land use type and additional lan
 <li><p>In <strong>setup_lakes</strong>: Support setting lake parameters from direct value in the lake_fn columns. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/158">PR #158</a></p></li>
 <li><p>In <strong>setup_lakes</strong>: Option to prepare controlled lake parameter maxstorage (new in Wflow.jl 0.7.0).</p></li>
 <li><p>New workflow <strong>waterbodies.lakeattrs</strong> to prepare lake parameters from lake_fn attribute and rating curve data.</p></li>
-<li><p>New <strong>tables</strong> model property including read/write: dictionnary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/158">PR #158</a></p></li>
+<li><p>New <strong>tables</strong> model property including read/write: dictionary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/158">PR #158</a></p></li>
 <li><p>Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowModel. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/168">PR #168</a></p></li>
 </ul>
 </section>
@@ -890,7 +891,7 @@ The release also includes support for the paddy land use type and additional lan
 <li><p>Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/144">PR #144</a></p></li>
 <li><p>Bugfix with wrong indexing in the river method that could cause memory issues <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/147">PR #147</a></p></li>
 <li><p>fix error in <strong>setup_reservoirs</strong> when gdf contains no data in np.nanmax calculation for i.e. damheight #35</p></li>
-<li><p>write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)</p></li>
+<li><p>write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missing (not needed)</p></li>
 <li><p>write_forcing automatic adjustment of starttime and endtime based on forcing content</p></li>
 <li><p>When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.</p></li>
 <li><p>Remove deprecated basin_shape method <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/183">PR #183</a></p></li>
@@ -940,7 +941,7 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <li><p>bug in setup_gauges in update mode with crs.is_epsg_code #108</p></li>
 <li><p>bug in self.rivers if no staticgeoms and rivmsk is found #113</p></li>
 <li><p>bug in wflow_build_sediment.ini template in examples</p></li>
-<li><p>wrong defaults in wflow_build.ini teamplate in examples #116</p></li>
+<li><p>wrong defaults in wflow_build.ini template in examples #116</p></li>
 <li><p>temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms).</p></li>
 <li><p>fix wrong default value for lai_fn in setup_laimaps #119</p></li>
 </ul>
@@ -952,7 +953,7 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <section id="v0-2-0-5-august-2022">
 <h2>v0.2.0 (5 August 2022)<a class="headerlink" href="#v0-2-0-5-august-2022" title="Link to this heading">#</a></h2>
 <p>We now use rioxarray to read raster data. We recommend reinstalling your hydromt and hydromt_wflow environment including the rioxarray package.
-This enables the writting of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
+This enables the writing of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
 Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <section id="id43">
 <h3>Fixed<a class="headerlink" href="#id43" title="Link to this heading">#</a></h3>
@@ -966,7 +967,7 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <section id="id44">
 <h3>Changed<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.</p></li>
+<li><p>In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditioning has been applied for land cells.</p></li>
 <li><p>uint8 dtype <em>wflow_rivers</em> and <em>wflow_streamorder</em> maps</p></li>
 <li><p>except for coordinates (incl <em>x_out</em> and <em>y_out</em>) all variables are saved with at most 32 bit depth</p></li>
 <li><p>new dtype and nodata arguments in <strong>setup_constant_pars</strong></p></li>
@@ -1011,7 +1012,7 @@ Note that the new river width estimates are different and result in different mo
 <ul class="simple">
 <li><p>Calculation of lake_b parameter in setup_lakes.</p></li>
 <li><p>Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.</p></li>
-<li><p>When writting several forcing files instead of one, their time_units should be the same to get one Wflow run (time_units option in write_forcing)</p></li>
+<li><p>When writing several forcing files instead of one, their time_units should be the same to get one Wflow run (time_units option in write_forcing)</p></li>
 <li><p>Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges</p></li>
 <li><p>Avoid duplicates in the toml csv column for gauges</p></li>
 <li><p>Fill missing values in landslope with zeros within the basin mask</p></li>
@@ -1090,7 +1091,7 @@ Note that the new river width estimates are different and result in different mo
 </section>
 <section id="v0-1-1-21-may-2021">
 <h2>v0.1.1 (21 May 2021)<a class="headerlink" href="#v0-1-1-21-may-2021" title="Link to this heading">#</a></h2>
-<p>This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
+<p>This release adds more functionality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
 <section id="id56">
 <h3>Added<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
 <ul class="simple">
