@@ -582,7 +582,7 @@ def test_setup_rootzoneclim(example_wflow_model):
         start_hydro_year="Oct",
         start_field_capacity="Apr",
         time_tuple=("2005-01-01", "2015-12-31"),
-        time_tuple_fut=("2005-01-01", "2017-12-31"),
+        time_tuple_fut=("2005-01-01", "2015-12-31"),
         correct_cc_deficit=True,
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
@@ -597,7 +597,7 @@ def test_setup_rootzoneclim(example_wflow_model):
     ] == pytest.approx(82.44039441508069, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_fut_2"
-    ] == pytest.approx(104.96931418911882, abs=0.5)
+    ] == pytest.approx(106.03809681174451, abs=0.5)
 
 
 def test_setup_outlets(example_wflow_model):
