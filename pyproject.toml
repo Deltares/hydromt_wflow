@@ -329,30 +329,25 @@ build-example-model-full = { cmd = [
   "artifact_data",
   "-vv",
 ], cwd = "examples" }
+build-example-model-sbm = { cmd = [
+  "python",
+  "scripts/generate_example_models.py",
+  "sbm"
+] }
 build-example-model-sediment = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sediment",
-  "./wflow_test_sediment",
-  "-i",
-  "wflow_sediment_build.yml",
-  "-d",
-  "artifact_data",
-  "-vv",
-], cwd = "examples" }
+  "python",
+  "scripts/generate_example_models.py",
+  "sediment"
+]}
 build-example-model-clipped = { cmd = [
-  "hydromt",
-  "clip",
-  "wflow_sbm",
-  "wflow_piave_subbasin",
-  "./wflow_test_clip",
-  "{'subbasin': [12.3006, 46.4324], 'meta_streamorder': 4}",
-  "-vv",
-], cwd = "examples" }
-build-example-models = { depends-on = [
-  "build-example-model-full",
-  "build-example-model-sediment",
-  "build-example-model-clipped",
+  "python",
+  "scripts/generate_example_models.py",
+  "clip"
+]}
+build-example-models = {cmd = [
+  "python",
+  "scripts/generate_example_models.py",
+  "all"
 ] }
 
 # Testing
