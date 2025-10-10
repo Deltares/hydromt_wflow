@@ -3481,9 +3481,16 @@ using 'variable' argument."
             resample_kwargs=dict(label="right", closed="right"),
         )
 
+        # Turn precip_fn into a string if needed
+        if isinstance(precip_fn, pd.DataFrame):
+            precip_fn_str = getattr(precip_fn, "name", None) or "unnamed_DataFrame"
+        elif isinstance(precip_fn, xr.Dataset):
+            precip_fn_str = precip_fn.attrs.get("name", "unnamed_Dataset")
+        else:
+            precip_fn_str = precip_fn
+
         # Update meta attributes (used for default output filename later)
-        precip_out.attrs.update({"precip_fn": precip_fn})
-        precip_out = precip_out.astype("float32")
+        precip_out.attrs.update({"precip_fn": precip_fn_str})
         self.set_forcing(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
@@ -3678,6 +3685,14 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
+        # Turn temp_pet_fn into a string
+        if isinstance(temp_pet_fn, pd.DataFrame):
+            temp_pet_fn_str = getattr(temp_pet_fn, "name", None) or "unnamed_DataFrame"
+        elif isinstance(temp_pet_fn, xr.Dataset):
+            temp_pet_fn_str = temp_pet_fn.attrs.get("name", "unnamed_Dataset")
+        else:
+            temp_pet_fn_str = temp_pet_fn
+
         if not skip_pet:
             pet_out = hydromt.model.processes.meteo.pet(
                 ds[variables[1:]],
@@ -3693,7 +3708,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             )
             # Update meta attributes with setup opt
             opt_attr = {
-                "pet_fn": temp_pet_fn,
+                "pet_fn": temp_pet_fn_str,
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
@@ -3713,9 +3728,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             closed="right",
             conserve_mass=False,
         )
+
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
-            "temp_fn": temp_pet_fn,
+            "temp_fn": temp_pet_fn_str,
             "temp_correction": str(temp_correction),
         }
         temp_out.attrs.update(opt_attr)
