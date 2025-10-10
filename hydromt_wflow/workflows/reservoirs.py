@@ -907,6 +907,7 @@ def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     duplicate_id: str = "error",
+    id_layer: str = "reservoir_outlet_id",
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like.
@@ -924,6 +925,9 @@ def merge_reservoirs(
         Action to take if duplicate reservoir IDs are found when merging with
         existing reservoirs. Options are "error" to raise an error (default); "skip"
         to skip adding new reservoirs.
+    id_layer : str, optional
+        Name of the layer containing the reservoir IDs, by default
+        "reservoir_outlet_id".
 
     Returns
     -------
@@ -933,6 +937,14 @@ def merge_reservoirs(
     # Loop over layers to merge
     ds_out = ds.copy()
     for layer in RESERVOIR_LAYERS:
+        if "area_id" in layer:
+            # Set the mask in case the area_id map is selected (spatial coverage of the
+            # waterbody)
+            mask = ds[layer] > 0
+        else:
+            # Set the mask to the outlet_id map (point location of the waterbody)
+            mask = ds[id_layer] > 0
+
         # if layer is not in ds, skip it
         # NaN can be ok: e.g. natural lake does not have reservoir_demand
         if layer not in ds and layer in ds_like:
@@ -941,9 +953,9 @@ def merge_reservoirs(
         # if layer is in ds_like, merge it
         if layer in ds and layer in ds_like:
             # merge the layer
-            ds_out[layer] = ds[layer].where(
-                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
-            )
+            ds_out[layer] = ds[layer].where(mask, ds_like[layer])
+            # ensure the nodata value is set correctly
+            ds_out[layer].raster.set_nodata(ds_like[layer].raster.nodata)
         # else we just keep ds[layer] as it is
 
     return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)

@@ -38,6 +38,7 @@ Changed
 - Clipping a model is now done by calling a single **clip** method. This function can be called with the ``hydromt update`` cli command.
 - **upgrade_to_v1_wflow**: Function now also updates any input variables that link to ``netcdf.variable.name`` to ``netcdf_variable_name``.
 - Update values used in example yamls to new defaults used in Wflow.jl (#589)
+- Improve behavior of ``merge_reservoirs``, to merge values based on their ID rather than all non-missing pixels. (#597)
 
 
 Unreleased
