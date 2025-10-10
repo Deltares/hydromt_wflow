@@ -1377,6 +1377,7 @@
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">duplicate_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="n">id_layer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merge reservoir layers in ds to layers in ds_like.</span>
@@ -1394,6 +1395,9 @@
 <span class="sd">        Action to take if duplicate reservoir IDs are found when merging with</span>
 <span class="sd">        existing reservoirs. Options are &quot;error&quot; to raise an error (default); &quot;skip&quot;</span>
 <span class="sd">        to skip adding new reservoirs.</span>
+<span class="sd">    id_layer : str, optional</span>
+<span class="sd">        Name of the layer containing the reservoir IDs, by default</span>
+<span class="sd">        &quot;reservoir_outlet_id&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1403,6 +1407,14 @@
     <span class="c1"># Loop over layers to merge</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">RESERVOIR_LAYERS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;area_id&quot;</span> <span class="ow">in</span> <span class="n">layer</span><span class="p">:</span>
+            <span class="c1"># Set the mask in case the area_id map is selected (spatial coverage of the</span>
+            <span class="c1"># waterbody)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Set the mask to the outlet_id map (point location of the waterbody)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">id_layer</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
         <span class="c1"># if layer is not in ds, skip it</span>
         <span class="c1"># NaN can be ok: e.g. natural lake does not have reservoir_demand</span>
         <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
@@ -1411,9 +1423,9 @@
         <span class="c1"># if layer is in ds_like, merge it</span>
         <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
             <span class="c1"># merge the layer</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">])</span>
+            <span class="c1"># ensure the nodata value is set correctly</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
         <span class="c1"># else we just keep ds[layer] as it is</span>
 
     <span class="k">return</span> <span class="n">_check_duplicated_ids_in_merge</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">)</span></div>
