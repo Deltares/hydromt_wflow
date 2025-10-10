@@ -4,16 +4,16 @@ on:
   push:
     branches: [main, feat/migration-hydromt-core-v1 ]
     paths:
-      - hydromt_wflow/*
-      - tests/*
+      - hydromt_wflow/**/*
+      - tests/**/*
       - pixi.lock
       - pyproject.toml
       - .github/workflows/test.yml
   pull_request:
     branches: [main, feat/migration-hydromt-core-v1]
     paths:
-      - hydromt_wflow/*
-      - tests/*
+      - hydromt_wflow/**/*
+      - tests/**/*
       - pixi.lock
       - pyproject.toml
       - .github/workflows/test.yml
