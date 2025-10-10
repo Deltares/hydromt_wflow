@@ -4012,9 +4012,16 @@
             <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
         <span class="p">)</span>
 
+        <span class="c1"># Turn precip_fn into a string if needed</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precip_fn</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">precip_fn_str</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">precip_fn</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unnamed_DataFrame&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precip_fn</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="n">precip_fn_str</span> <span class="o">=</span> <span class="n">precip_fn</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;unnamed_Dataset&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">precip_fn_str</span> <span class="o">=</span> <span class="n">precip_fn</span>
+
         <span class="c1"># Update meta attributes (used for default output filename later)</span>
-        <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn</span><span class="p">})</span>
-        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">precip_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn_str</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span>
 
@@ -4212,6 +4219,14 @@
 
             <span class="n">temp_in</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="n">temp_in</span><span class="p">,</span> <span class="n">temp_max_in</span><span class="p">,</span> <span class="n">temp_min_in</span><span class="p">],</span> <span class="n">compat</span><span class="o">=</span><span class="s2">&quot;override&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Turn temp_pet_fn into a string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp_pet_fn</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">temp_pet_fn_str</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">temp_pet_fn</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unnamed_DataFrame&quot;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp_pet_fn</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="n">temp_pet_fn_str</span> <span class="o">=</span> <span class="n">temp_pet_fn</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;unnamed_Dataset&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">temp_pet_fn_str</span> <span class="o">=</span> <span class="n">temp_pet_fn</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_pet</span><span class="p">:</span>
             <span class="n">pet_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">meteo</span><span class="o">.</span><span class="n">pet</span><span class="p">(</span>
                 <span class="n">ds</span><span class="p">[</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span>
@@ -4227,7 +4242,7 @@
             <span class="p">)</span>
             <span class="c1"># Update meta attributes with setup opt</span>
             <span class="n">opt_attr</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;pet_fn&quot;</span><span class="p">:</span> <span class="n">temp_pet_fn</span><span class="p">,</span>
+                <span class="s2">&quot;pet_fn&quot;</span><span class="p">:</span> <span class="n">temp_pet_fn_str</span><span class="p">,</span>
                 <span class="s2">&quot;pet_method&quot;</span><span class="p">:</span> <span class="n">pet_method</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
@@ -4247,9 +4262,10 @@
             <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
             <span class="n">conserve_mass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
+
         <span class="c1"># Update meta attributes with setup opt (used for default naming later)</span>
         <span class="n">opt_attr</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;temp_fn&quot;</span><span class="p">:</span> <span class="n">temp_pet_fn</span><span class="p">,</span>
+            <span class="s2">&quot;temp_fn&quot;</span><span class="p">:</span> <span class="n">temp_pet_fn_str</span><span class="p">,</span>
             <span class="s2">&quot;temp_correction&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">temp_correction</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="n">temp_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
