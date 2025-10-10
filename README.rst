@@ -47,7 +47,7 @@ happy to discuss how it can be implemented for your model.
 
 Changelog
 ----------
-See the :doc:`full changelog <docs/changelog>` for a complete list of changes and release notes.
+See the :doc:`full changelog <changelog>` for a complete list of changes and release notes.
 
 
 .. _Hydromt: https://deltares.github.io/hydromt/latest/

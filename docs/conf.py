@@ -19,7 +19,6 @@
 import os
 import shutil
 import sys
-from distutils.dir_util import copy_tree
 import hydromt_wflow
 
 
@@ -50,10 +49,10 @@ doc_version = bare_version[: bare_version.find("dev") - 1]
 
 
 # # -- Copy notebooks to include in docs -------
-if os.path.isdir("_examples"):
-    remove_dir_content("_examples")
-os.makedirs("_examples", exist_ok=True)
-copy_tree("../examples", "_examples")
+# if os.path.isdir("_examples"):
+#     remove_dir_content("_examples")
+# os.makedirs("_examples", exist_ok=True)
+# copy_tree("../examples", "_examples")
 
 # -- General configuration ------------------------------------------------
 
@@ -99,7 +98,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_examples"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -109,6 +108,16 @@ todo_include_todos = False
 
 
 # -- Options for HTML output ----------------------------------------------
+add_module_names = False # don't show full path to function/class
+autosummary_imported_members = True
+autodoc_default_options = {
+    "members": True, # include all public members of a class
+    "undoc-members": True, # include members without docstrings
+    "imported-members": False, # exclude imported members
+    "special-members": False, # exclude special members like __init__, __len__, ...
+    "show-inheritance": True, # show base classes
+    'ignore-module-all': False, # respect __all__ if present
+}
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -294,7 +303,7 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "always"
+nbsphinx_execute = "never"
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',

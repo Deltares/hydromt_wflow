@@ -9,7 +9,6 @@ List of examples
 For a static (non-interactive) view of the examples, follow one of the links below:
 
 .. dropdown:: **Build model from command line interface**
-   :open: False
 
    .. toctree::
       :maxdepth: 1
@@ -19,7 +18,6 @@ For a static (non-interactive) view of the examples, follow one of the links bel
       ../_examples/build_sediment
 
 .. dropdown:: **Update model from command line interface**
-   :open: False
 
    .. toctree::
       :maxdepth: 1
@@ -32,7 +30,6 @@ For a static (non-interactive) view of the examples, follow one of the links bel
       ../_examples/connect_to_1d_model
 
 .. dropdown:: **Pre-, Post-processing and visualization**
-   :open: False
 
    .. toctree::
       :maxdepth: 1
