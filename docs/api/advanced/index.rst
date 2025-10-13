@@ -13,10 +13,17 @@ custom preprocessing routines, or integrate HydroMT-Wflow components into other 
 
 The API is organized into the following sections:
 
-.. autosummary::
-   :toctree: ../../_generated
+- :ref:`Base model <api_base_model>`: Core classes and methods for defining and managing Wflow models.
+- :ref:`Model components <api_components>`: Classes and functions for handling specific model components like config, staticmaps, and forcing.
+- :ref:`Workflows <api_workflows>`: Predefined workflows for common tasks such as setting up basemaps, reservoirs, and calibration.
+- :ref:`Utilities <api_utils>`: Helper functions for data processing, file I/O, and other common operations.
 
-   WflowBaseModel
-   components
-   workflows
-   utils
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+
+   base-model
+   model-components
+   workflows/index
+   utilities

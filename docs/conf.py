@@ -66,10 +66,10 @@ doc_version = bare_version[: bare_version.find("dev") - 1]
 extensions = [
     "sphinx_design",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "IPython.sphinxext.ipython_directive",
@@ -109,15 +109,6 @@ todo_include_todos = False
 
 # -- Options for HTML output ----------------------------------------------
 add_module_names = False # don't show full path to function/class
-autosummary_imported_members = True
-autodoc_default_options = {
-    "members": True, # include all public members of a class
-    "undoc-members": True, # include members without docstrings
-    "imported-members": False, # exclude imported members
-    "special-members": False, # exclude special members like __init__, __len__, ...
-    "show-inheritance": True, # show base classes
-    'ignore-module-all': False, # respect __all__ if present
-}
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -138,8 +129,9 @@ autoclass_content = "both"
 html_static_path = ["_static"]
 html_css_files = ["theme-deltares.css"]
 html_theme_options = {
-    "show_nav_level": 2,
+    "show_nav_level": 1,
     "navbar_align": "left",
+    "collapse_navigation": True,
     "use_edit_page_button": True,
     "icon_links": [
         {

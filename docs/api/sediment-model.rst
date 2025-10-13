@@ -7,8 +7,11 @@ WflowSedimentModel
 ==================
 
 The ``WflowSedimentModel`` class extends Wflow functionality with sediment transport modeling.
-It extends :class:`~hydromt_wflow.WflowBaseModel` and includes all base functionalities,
-I/O routines, and setup utilities.
+
+.. note::
+   Note that this class inherits from :class:`~hydromt_wflow.WflowBaseModel` and thereby includes all base functionalities, I/O routines, and setup methods from the base model.
+   Also, note that some setup methods are overridden or extended to include sediment-specific parameters and data.
+   For a full list of inherited methods and attributes, see :ref:`WflowBaseModel <api_base_model>`.
 
 .. autosummary::
    :toctree: ../_generated
@@ -16,7 +19,7 @@ I/O routines, and setup utilities.
    WflowSedimentModel
 
 
-Setup components
+Setup methods
 ----------------
 
 .. autosummary::
@@ -48,9 +51,3 @@ Setup components
    :member-order: bysource
    :undoc-members:
    :show-inheritance:
-
-.. rubric:: Components
-
-.. currentmodule:: hydromt_wflow.components
-.. include:: advanced/components.rst
-   :start-line: 8

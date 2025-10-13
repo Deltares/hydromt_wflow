@@ -2,9 +2,9 @@
 
 .. _api_components:
 
-==================
-Wflow Components
-==================
+==========
+Components
+==========
 
 The ``hydromt_wflow.components`` module defines reusable data container classes
 that represent configuration, static maps, states, outputs, and other model data.

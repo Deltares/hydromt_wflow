@@ -7,8 +7,11 @@ WflowSbmModel
 =============
 
 The ``WflowSbmModel`` class represents the main hydrological model implementation.
-It extends :class:`~hydromt_wflow.WflowBaseModel` and includes all base functionalities,
-I/O routines, and setup utilities.
+
+.. note::
+   Note that this class inherits from :class:`~hydromt_wflow.WflowBaseModel` and thereby includes all base functionalities, I/O routines, and setup methods from the base model.
+   Also, note that some setup methods are overridden or extended to include soil-based-specific parameters and data.
+   For a full list of inherited methods and attributes, see :ref:`WflowBaseModel <api_base_model>`.
 
 .. autosummary::
    :toctree: ../_generated
@@ -65,9 +68,3 @@ Setup methods
    :member-order: bysource
    :undoc-members:
    :show-inheritance:
-
-.. rubric:: Components
-
-.. currentmodule:: hydromt_wflow.components
-.. include:: advanced/components.rst
-   :start-line: 8

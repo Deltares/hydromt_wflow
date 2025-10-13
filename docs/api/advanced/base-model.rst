@@ -1,6 +1,6 @@
 .. currentmodule:: hydromt_wflow
 
-.. _api_wflowbasemodel:
+.. _api_base_model:
 
 ==============
 WflowBaseModel
@@ -91,9 +91,3 @@ Setup methods
    :member-order: bysource
    :undoc-members:
    :show-inheritance:
-
-.. rubric:: Components
-
-.. currentmodule:: hydromt_wflow.components
-.. include:: advanced/components.rst
-   :start-line: 8
