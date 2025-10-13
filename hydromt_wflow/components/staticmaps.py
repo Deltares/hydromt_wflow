@@ -125,9 +125,6 @@ class WflowStaticmapsComponent(GridComponent):
         # Check for input dir
         p_input = Path(self.model.config.get_value("dir_input", fallback=""), p)
 
-        # Clean up data
-        self.data.drop_vars(["mask"], errors="ignore")
-
         # Supercharge with the base grid component write method
         super().write(
             str(p_input),
