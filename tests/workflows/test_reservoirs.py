@@ -23,6 +23,6 @@ def test_set_rating_curve_layer_data_type():
 
     assert ds["reservoir_rating_curve"].dtype == int
     assert ds2["reservoir_rating_curve"].dtype == int
-    assert ds["reservoir_rating_curve"].attrs["_FillValue"] == -999
+    assert ds["reservoir_rating_curve"].raster.nodata == -999
     assert ds2["reservoir_rating_curve"].attrs["_FillValue"] == -999
     assert ds["reservoir_rating_curve"][0, 0].values == -999
