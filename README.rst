@@ -49,10 +49,6 @@ Changelog
 ----------
 See the :doc:`full changelog <changelog>` for a complete list of changes and release notes.
 
-
-.. _Hydromt: https://deltares.github.io/hydromt/latest/
-.. _Wflow: https://github.com/Deltares/Wflow.jl
-
 .. _Hydromt: https://deltares.github.io/hydromt/latest/
 .. _Wflow: https://github.com/Deltares/Wflow.jl
 
