@@ -1694,8 +1694,8 @@ setting new flood_depth dimensions"
         LAI: bool = False,
         rootzone_storage: bool = False,
         correct_cc_deficit: bool = False,
-        time_tuple: tuple | None = None,
-        time_tuple_fut: tuple | None = None,
+        time_range: tuple | None = None,
+        time_range_fut: tuple | None = None,
         missing_days_threshold: int | None = 330,
         output_name_rootingdepth: str = "vegetation_root_depth_obs_20",
     ) -> None:
@@ -1807,7 +1807,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             cc_hist and cc_fut are the same. If the climate change scenario and
             hist period are bias-corrected, this should probably set to False.
             The default is False.
-        time_tuple: tuple, optional
+        time_range: tuple, optional
             Select which time period to read from all the forcing files.
             There should be some overlap between the time period available in the
             forcing files for the historical period and in the observed streamflow data.
@@ -1828,7 +1828,7 @@ the return_period argument.
             geom=self.region,
             buffer=2,
             variables=["pet", "precip"],
-            time_range=time_tuple,
+            time_range=time_range,
         )
         ds_cc_hist = None
         if forcing_cc_hist_fn is not None:
@@ -1837,7 +1837,7 @@ the return_period argument.
                 geom=self.region,
                 buffer=2,
                 variables=["pet", "precip"],
-                time_range=time_tuple,
+                time_range=time_range,
             )
         ds_cc_fut = None
         if forcing_cc_fut_fn is not None:
@@ -1846,11 +1846,11 @@ the return_period argument.
                 geom=self.region,
                 buffer=2,
                 variables=["pet", "precip"],
-                time_range=time_tuple_fut,
+                time_range=time_range_fut,
             )
         # observed streamflow data
         dsrun = self.data_catalog.get_geodataset(
-            run_fn, single_var_as_array=False, time_range=time_tuple
+            run_fn, single_var_as_array=False, time_range=time_range
         )
 
         # make sure dsrun overlaps with ds_obs, otherwise give error
