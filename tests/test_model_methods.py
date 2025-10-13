@@ -274,9 +274,9 @@ def test_setup_reservoirs_no_control(
         "reservoir_storage_curve",
         "reservoir_lower_id",
     ]:
-        assert example_wflow_model.staticmaps.data[reservoir_layer].dtype == np.int64
+        assert example_wflow_model.staticmaps.data[reservoir_layer].dtype == np.int32
         assert isinstance(
-            example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, int
+            example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, np.int32
         )
     # Write and read back
     new_root = join(tmpdir, "wflow_lake_test")
