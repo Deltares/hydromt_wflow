@@ -228,9 +228,7 @@ def prepare_cold_states(
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
         ] = "floodplain_instantaneous_q"
-        states_config["state.variables.floodplain_water__depth"] = (
-            "floodplain_h"
-        )
+        states_config["state.variables.floodplain_water__depth"] = "floodplain_h"
     for var in zeromap_riv:
         value = 0.0
         da_param = grid_from_constant(
@@ -255,9 +253,9 @@ def prepare_cold_states(
         rl.raster.set_nodata(nodata)
         ds_out["reservoir_water_level"] = rl
 
-        states_config[
-            "state.variables.reservoir_water_surface__elevation"
-        ] = "reservoir_water_level"
+        states_config["state.variables.reservoir_water_surface__elevation"] = (
+            "reservoir_water_level"
+        )
 
     # glacier
     if config["model"].get("glacier__flag", False):

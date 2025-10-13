@@ -584,9 +584,9 @@ def convert_reservoirs_to_wflow_v1_sbm(
         )
         # config options will need to be updated with the standard names
         config_options["model.reservoir__flag"] = True
-        config_options[
-            "state.variables.reservoir_water_surface__elevation"
-        ] = "reservoir_water_level"
+        config_options["state.variables.reservoir_water_surface__elevation"] = (
+            "reservoir_water_level"
+        )
 
     # Start with the reservoir layers
     if has_reservoirs:

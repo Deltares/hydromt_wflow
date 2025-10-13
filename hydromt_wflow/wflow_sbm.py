@@ -3938,9 +3938,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             "state.variables.reservoir_water_surface__elevation",
             fallback="reservoir_water_level",
         )
-        reservoir_states = {
-            reservoir_state: "reservoir_water_surface__elevation"
-        }
+        reservoir_states = {reservoir_state: "reservoir_water_surface__elevation"}
 
         super().clip(
             region,
