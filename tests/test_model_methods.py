@@ -868,9 +868,9 @@ def test_setup_floodplains_1d(
 
     assert (
         example_wflow_model.get_config(
-            "state.variables.floodplain_water__instantaneous_depth"
+            "state.variables.floodplain_water__depth"
         )
-        == "floodplain_instantaneous_h"
+        == "floodplain_h"
     )
 
     assert (
