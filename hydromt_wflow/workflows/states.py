@@ -31,16 +31,16 @@ def prepare_cold_states(
     * **snow_water_depth**: liquid water content in the snow pack [mm]
     * **vegetation_water_depth**: canopy storage [mm]
     * **river_instantaneous_q**: river discharge [m3/s]
-    * **river_instantaneous_h**: river water level [m]
+    * **river_h**: river water level [m]
     * **subsurface_q**: subsurface flow [m3/d]
-    * **land_instantaneous_h**: land water level [m]
+    * **land_h**: land water level [m]
     * **land_instantaneous_q** or **land_instantaneous_qx**+**land_instantaneous_qy**:
       overland flow for kinwave [m3/s] or overland flow in x/y directions for
       local_inertial [m3/s]
 
     If reservoirs, also adds:
 
-    * **reservoir_instantaneous_water_level**: reservoir water level [m]
+    * **reservoir_water_level**: reservoir water level [m]
 
     If glaciers, also adds:
 
@@ -111,9 +111,9 @@ def prepare_cold_states(
         "state.variables.snowpack_liquid_water__depth": "snow_water_depth",
         "state.variables.vegetation_canopy_water__depth": "vegetation_water_depth",
         "state.variables.subsurface_water__volume_flow_rate": "subsurface_q",
-        "state.variables.land_surface_water__instantaneous_depth": "land_instantaneous_h",  # noqa: E501
+        "state.variables.land_surface_water__depth": "land_h",
         "state.variables.river_water__instantaneous_volume_flow_rate": "river_instantaneous_q",  # noqa: E501
-        "state.variables.river_water__instantaneous_depth": "river_instantaneous_h",
+        "state.variables.river_water__depth": "river_h",
     }
 
     # Map with constant values or zeros for basin
@@ -122,7 +122,7 @@ def prepare_cold_states(
         "snow_leq_depth",
         "snow_water_depth",
         "vegetation_water_depth",
-        "land_instantaneous_h",
+        "land_h",
     ]
     land_routing = config["model"].get("land_routing", "kinematic_wave")
     if land_routing == "local_inertial":
@@ -221,16 +221,14 @@ def prepare_cold_states(
     ds_out["subsurface_q"] = ssf
 
     # River
-    zeromap_riv = ["river_instantaneous_q", "river_instantaneous_h"]
+    zeromap_riv = ["river_instantaneous_q", "river_h"]
     # 1D floodplain
     if config["model"].get("floodplain_1d__flag", False):
-        zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_instantaneous_h"])
+        zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_h"])
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
         ] = "floodplain_instantaneous_q"
-        states_config["state.variables.floodplain_water__instantaneous_depth"] = (
-            "floodplain_instantaneous_h"
-        )
+        states_config["state.variables.floodplain_water__depth"] = "floodplain_h"
     for var in zeromap_riv:
         value = 0.0
         da_param = grid_from_constant(
@@ -253,11 +251,11 @@ def prepare_cold_states(
         )
         rl = rl.where(rl != rl.raster.nodata, nodata)
         rl.raster.set_nodata(nodata)
-        ds_out["reservoir_instantaneous_water_level"] = rl
+        ds_out["reservoir_water_level"] = rl
 
-        states_config[
-            "state.variables.reservoir_water_surface__instantaneous_elevation"
-        ] = "reservoir_instantaneous_water_level"
+        states_config["state.variables.reservoir_water_surface__elevation"] = (
+            "reservoir_water_level"
+        )
 
     # glacier
     if config["model"].get("glacier__flag", False):

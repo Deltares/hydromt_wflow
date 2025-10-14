@@ -34,11 +34,11 @@ snowpack_dry_snow__leq_depth = "snow"
 snowpack_liquid_water__depth = "snowwater"
 glacier_ice__leq_depth = "glacierstore"
 land_surface_water__instantaneous_volume_flow_rate = "q_land"
-land_surface_water__instantaneous_depth = "h_land"
+land_surface_water__depth = "h_land"
 subsurface_water__volume_flow_rate = "ssf"
 river_water__instantaneous_volume_flow_rate = "q_river"
-river_water__instantaneous_depth = "h_river"
-reservoir_water_surface__instantaneous_elevation = "reservoir_instantaneous_water_level"
+river_water__depth = "h_river"
+reservoir_water_surface__elevation = "reservoir_water_level"
 
 [input]
 path_forcing = "inmaps.nc"
@@ -123,7 +123,7 @@ compressionlevel = 1
 
 [output.netcdf_grid.variables]
 river_water__volume_flow_rate = "q_river"
-land_surface_water__instantaneous_depth = "h_land"
+land_surface_water__depth = "h_land"
 
 [output.netcdf_scalar]
 path = "output_scalar.nc"
@@ -135,7 +135,7 @@ parameter = "river_water__instantaneous_volume_flow_rate"
 [[output.netcdf_scalar.variable]]
 name = "lake-volume"
 map = "reservoir_location__count"
-parameter = "reservoir_water__instantaneous_volume"
+parameter = "reservoir_water__volume"
 
 [[output.netcdf_scalar.variable]]
 name = "temp_coord"
@@ -156,7 +156,7 @@ reducer = "maximum"
 [[output.csv.column]]
 header = "res-volume"
 index = 1
-parameter = "reservoir_water__instantaneous_volume"
+parameter = "reservoir_water__volume"
 
 [[output.csv.column]]
 header = "temp_bycoord"
@@ -180,7 +180,7 @@ parameter = "river_water__volume_flow_rate"
 [[output.csv.column]]
 header = "lake-volume"
 map = "reservoir_location__count"
-parameter = "reservoir_water__instantaneous_volume"
+parameter = "reservoir_water__volume"
 
 [[output.csv.column]]
 header = "P"
