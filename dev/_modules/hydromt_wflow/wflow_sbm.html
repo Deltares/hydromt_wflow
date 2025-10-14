@@ -1012,8 +1012,8 @@
                 <span class="s2">&quot;floodplain_instantaneous_q&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-                <span class="s2">&quot;state.variables.floodplain_water__instantaneous_depth&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;floodplain_instantaneous_h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state.variables.floodplain_water__depth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;floodplain_h&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
@@ -1058,7 +1058,7 @@
                 <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
-                <span class="s2">&quot;state.variables.floodplain_water__instantaneous_depth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state.variables.floodplain_water__depth&quot;</span><span class="p">,</span>
                 <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="c1"># Remove from output.netcdf_grid section</span>
@@ -1326,8 +1326,8 @@
         <span class="c1"># Reservoir settings in the toml to update</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
@@ -1558,8 +1558,8 @@
         <span class="c1"># update toml</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]:</span>
@@ -4366,16 +4366,16 @@
 <span class="sd">        * **snow_water_depth**: liquid water content in the snow pack [mm]</span>
 <span class="sd">        * **vegetation_water_depth**: canopy storage [mm]</span>
 <span class="sd">        * **river_instantaneous_q**: river discharge [m3/s]</span>
-<span class="sd">        * **river_instantaneous_h**: river water level [m]</span>
+<span class="sd">        * **river_h**: river water level [m]</span>
 <span class="sd">        * **subsurface_q**: subsurface flow [m3/d]</span>
-<span class="sd">        * **land_instantaneous_h**: land water level [m]</span>
-<span class="sd">        * **land_instantaneous_q** or **land_instantaneous_qx**+</span>
+<span class="sd">        * **land_h**: land water level [m]</span>
+<span class="sd">        * **land_instantaneous_q** or **land_instantaneous_qx** +</span>
 <span class="sd">          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or</span>
 <span class="sd">          overland flow in x/y directions for local_inertial [m3/s]</span>
 
 <span class="sd">        If reservoirs, also adds:</span>
 
-<span class="sd">        * **reservoir_instantaneous_water_level**: reservoir water level [m]</span>
+<span class="sd">        * **reservoir_water_level**: reservoir water level [m]</span>
 
 <span class="sd">        If glaciers, also adds:</span>
 
@@ -4478,12 +4478,10 @@
         <span class="c1"># Reservoir states that will be removed if no reservoirs after clipping</span>
         <span class="c1"># key: states name,  value: wflow state variable name</span>
         <span class="n">reservoir_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-            <span class="s2">&quot;state.variables.reservoir_water_surface__instantaneous_elevation&quot;</span><span class="p">,</span>
-            <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;reservoir_instantaneous_water_level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">reservoir_states</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">reservoir_state</span><span class="p">:</span> <span class="s2">&quot;reservoir_water_surface__instantaneous_elevation&quot;</span>
-        <span class="p">}</span>
+        <span class="n">reservoir_states</span> <span class="o">=</span> <span class="p">{</span><span class="n">reservoir_state</span><span class="p">:</span> <span class="s2">&quot;reservoir_water_surface__elevation&quot;</span><span class="p">}</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
             <span class="n">region</span><span class="p">,</span>
