@@ -39,6 +39,7 @@ Changed
 - **upgrade_to_v1_wflow**: Function now also updates any input variables that link to ``netcdf.variable.name`` to ``netcdf_variable_name``.
 - Update values used in example yamls to new defaults used in Wflow.jl (#589)
 - Improve behavior of ``merge_reservoirs``, to merge values based on their ID rather than all non-missing pixels. (#597)
+- Rename standard names to no longer use "instantaneous" in the name (#601)
 
 
 Unreleased

@@ -547,9 +547,9 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "lateral.land.qy",
         "wflow_v1": "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
     },
-    "land_instantaneous_h": {
+    "land_h": {
         "wflow_v0": "lateral.land.h",
-        "wflow_v1": "land_surface_water__instantaneous_depth",
+        "wflow_v1": "land_surface_water__depth",
     },
     "h_av_land": {
         "wflow_v0": "lateral.land.h_av",
@@ -567,9 +567,9 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "lateral.river.q",
         "wflow_v1": "river_water__instantaneous_volume_flow_rate",
     },
-    "river_instantaneous_h": {
+    "river_h": {
         "wflow_v0": "lateral.river.h",
-        "wflow_v1": "river_water__instantaneous_depth",
+        "wflow_v1": "river_water__depth",
     },
     "h_av_river": {
         "wflow_v0": "lateral.river.h_av",
@@ -579,15 +579,15 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "lateral.river.floodplain.q",
         "wflow_v1": "floodplain_water__instantaneous_volume_flow_rate",
     },
-    "floodplain_instantaneous_h": {
+    "floodplain_h": {
         "wflow_v0": "lateral.river.floodplain.h",
-        "wflow_v1": "floodplain_water__instantaneous_depth",
+        "wflow_v1": "floodplain_water__depth",
     },
-    "lake_instantaneous_water_level": {
+    "lake_water_level": {
         "wflow_v0": "lateral.river.lake.waterlevel",
-        "wflow_v1": "reservoir_water_surface__instantaneous_elevation",
+        "wflow_v1": "reservoir_water_surface__elevation",
     },
-    "reservoir_instantaneous_volume": {
+    "reservoir_volume": {
         "wflow_v0": "lateral.river.reservoir.volume",
         "wflow_v1": None,
     },
