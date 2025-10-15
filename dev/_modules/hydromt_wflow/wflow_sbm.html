@@ -2183,8 +2183,8 @@
         <span class="n">LAI</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">rootzone_storage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">correct_cc_deficit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">time_tuple</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">time_tuple_fut</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_range_fut</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">missing_days_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">330</span><span class="p">,</span>
         <span class="n">output_name_rootingdepth</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vegetation_root_depth_obs_20&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2296,7 +2296,7 @@
 <span class="sd">            cc_hist and cc_fut are the same. If the climate change scenario and</span>
 <span class="sd">            hist period are bias-corrected, this should probably set to False.</span>
 <span class="sd">            The default is False.</span>
-<span class="sd">        time_tuple: tuple, optional</span>
+<span class="sd">        time_range: tuple, optional</span>
 <span class="sd">            Select which time period to read from all the forcing files.</span>
 <span class="sd">            There should be some overlap between the time period available in the</span>
 <span class="sd">            forcing files for the historical period and in the observed streamflow data.</span>
@@ -2317,7 +2317,7 @@
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
             <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
-            <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span><span class="p">,</span>
+            <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">ds_cc_hist</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">forcing_cc_hist_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2326,7 +2326,7 @@
                 <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
                 <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
-                <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span><span class="p">,</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">ds_cc_fut</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">forcing_cc_fut_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2335,11 +2335,11 @@
                 <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
                 <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
-                <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple_fut</span><span class="p">,</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="n">time_range_fut</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="c1"># observed streamflow data</span>
         <span class="n">dsrun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
-            <span class="n">run_fn</span><span class="p">,</span> <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span>
+            <span class="n">run_fn</span><span class="p">,</span> <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span>
         <span class="p">)</span>
 
         <span class="c1"># make sure dsrun overlaps with ds_obs, otherwise give error</span>
@@ -3807,7 +3807,7 @@
             <span class="n">precip_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
             <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+            <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
             <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="n">precip</span> <span class="o">=</span> <span class="n">precip</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
@@ -3935,14 +3935,14 @@
                 <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
                 <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
                 <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span>
-                <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
                 <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Read timeseries</span>
             <span class="n">df_precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
                 <span class="n">precip_fn</span><span class="p">,</span>
-                <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="c1"># Get locs</span>
             <span class="k">if</span> <span class="n">interp_type</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
@@ -4169,7 +4169,7 @@
             <span class="n">temp_pet_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
             <span class="n">buffer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+            <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
             <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># always return dataset</span>
         <span class="p">)</span>

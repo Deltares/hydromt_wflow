@@ -901,7 +901,15 @@
         <span class="c1"># rename idx_out coords</span>
         <span class="k">if</span> <span class="s2">&quot;idx_out&quot;</span> <span class="ow">in</span> <span class="n">ds_base</span><span class="p">:</span>
             <span class="n">ds_base</span> <span class="o">=</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;idx_out&quot;</span><span class="p">:</span> <span class="s2">&quot;meta_subgrid_outlet_idx&quot;</span><span class="p">})</span>
+            <span class="c1"># Set meta_subgrid as a data variable instead of coordinate</span>
+            <span class="n">da_outlet</span> <span class="o">=</span> <span class="n">ds_base</span><span class="p">[</span><span class="s2">&quot;meta_subgrid_outlet_idx&quot;</span><span class="p">]</span>
+            <span class="n">ds_base</span> <span class="o">=</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;meta_subgrid_outlet_idx&quot;</span><span class="p">)</span>
+            <span class="n">ds_base</span><span class="p">[</span><span class="s2">&quot;meta_subgrid_outlet_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_outlet</span>
+
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="k">if</span> <span class="s2">&quot;mask&quot;</span> <span class="ow">in</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
+            <span class="n">ds_base</span> <span class="o">=</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;mask&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_base</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
         <span class="c1"># Add basin geometries after grid is set to avoid warning</span>
@@ -2575,7 +2583,8 @@
 <span class="sd">        decimals : int, optional</span>
 <span class="sd">            Number of decimals to use when writing the forcing data. Default is ``2``.</span>
 <span class="sd">        overwrite : bool, optional</span>
-<span class="sd">            Whether to overwrite existing files. Default is ``False``.</span>
+<span class="sd">            Whether to overwrite existing files. Default is ``False`` unless the model</span>
+<span class="sd">            is in w+ mode (FORCED_WRITE).</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments passed to ``write_nc``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2586,7 +2595,7 @@
             <span class="n">time_chunk</span><span class="o">=</span><span class="n">time_chunk</span><span class="p">,</span>
             <span class="n">time_units</span><span class="o">=</span><span class="n">time_units</span><span class="p">,</span>
             <span class="n">decimals</span><span class="o">=</span><span class="n">decimals</span><span class="p">,</span>
-            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;w+&quot;</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 

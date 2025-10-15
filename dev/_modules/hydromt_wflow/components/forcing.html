@@ -600,11 +600,13 @@
 <span class="sd">            Number of decimals to use when writing the forcing data.</span>
 <span class="sd">            By default 2.</span>
 <span class="sd">        overwrite : bool, optional</span>
-<span class="sd">            Whether to overwrite existing files. By default False.</span>
+<span class="sd">            Whether to overwrite existing files. Default is ``False`` unless the model</span>
+<span class="sd">            is in w+ mode (FORCED_WRITE).</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments to be passed to the `write_nc` method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_assert_write_mode</span><span class="p">()</span>
+        <span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;w+&quot;</span>
 
         <span class="c1"># Dont write if data is empty</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_is_empty</span><span class="p">():</span>

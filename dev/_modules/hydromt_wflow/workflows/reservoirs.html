@@ -750,7 +750,7 @@
         <span class="n">ds_reservoirs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
-
+    <span class="n">ds_reservoirs</span> <span class="o">=</span> <span class="n">set_rating_curve_layer_data_type</span><span class="p">(</span><span class="n">ds_reservoirs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds_reservoirs</span><span class="p">,</span> <span class="n">gdf</span></div>
 
 
@@ -1316,6 +1316,7 @@
         <span class="p">)</span>
         <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_reservoir</span>
 
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">set_rating_curve_layer_data_type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">rating_curves</span></div>
 
 
@@ -1427,7 +1428,7 @@
             <span class="c1"># ensure the nodata value is set correctly</span>
             <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
         <span class="c1"># else we just keep ds[layer] as it is</span>
-
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">set_rating_curve_layer_data_type</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_check_duplicated_ids_in_merge</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">)</span></div>
 
 
@@ -1557,6 +1558,37 @@
 
     <span class="k">return</span> <span class="n">gdf_reservoirs</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_rating_curve_layer_data_type</span><span class="p">(</span><span class="n">ds_res</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set reservoir rating curve layers to int data type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_res : xr.Dataset</span>
+<span class="sd">        Dataset containing the reservoir layers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr</span>
+<span class="sd">        returns the dataset with the rating curve layers set to int data type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">convert_to_int</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;reservoir_rating_curve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reservoir_storage_curve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reservoir_lower_id&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">convert_to_int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="p">:</span>
+            <span class="n">fill_value</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+            <span class="n">fill_value_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fill_value</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">fill_value</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mi">999</span>
+            <span class="c1"># replace NaN with fill_value_new</span>
+            <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_value_new</span><span class="p">)</span>
+            <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">!=</span> <span class="n">fill_value</span><span class="p">,</span> <span class="n">fill_value_new</span><span class="p">)</span>
+            <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">ds_res</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">fill_value_new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_res</span>
 </pre></div>
 
                 </article>
