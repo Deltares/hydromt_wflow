@@ -23,10 +23,6 @@ def build_model(
     workflow_yaml: Path,
 ) -> None:
     """Build example Wflow SBM model."""
-    # Remove staticmaps and inmaps.nc files if exists
-    # files = [model_root / "staticmaps.nc", model_root / "inmaps.nc"]
-    # remove_files(files)
-
     param_path = repo_root / "hydromt_wflow" / "data" / "parameters_data.yml"
 
     mod = model(
@@ -36,15 +32,6 @@ def build_model(
     )
     _, _, steps = read_workflow_yaml(workflow_yaml.as_posix())
     mod.build(steps=steps)
-
-    # # Remove files that should not be committed
-    # files = [
-    #     "hydromt_data.yml",
-    #     "inmaps_era5_era5d_debruin_None_2010_2010.nc",  # Probably bug
-    #     "reservoir_accuracy.csv",
-    #     "reservoir_timeseries_None.csv",  # Probably bug
-    # ]
-    # remove_files([model_root / f for f in files])
 
 
 def clip_model(examples_dir: Path) -> None:

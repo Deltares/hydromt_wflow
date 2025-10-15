@@ -24,7 +24,6 @@ __all__ = [
     "merge_reservoirs_sediment",
     "create_reservoirs_geoms",
     "create_reservoirs_geoms_sediment",
-    "set_rating_curve_layer_data_type",
 ]
 
 RESERVOIR_COMMON_PARAMETERS = [
