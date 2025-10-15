@@ -2177,7 +2177,7 @@ one variable and variables list is not provided."
             Mode to open the model root folder, by default 'w'.
             Can be 'r' for read-only or 'r+' for read-write.
         """
-        self.root.set(root, mode=mode)
+        self.root.set(Path(root), mode=mode)
 
     def get_config(
         self,
