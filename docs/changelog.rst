@@ -6,9 +6,16 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
+v1.0.0rc2
 ==========
-TODO: merge with the Wflow.jl v1 pre-release notes below when we are ready for hydromt_wflow v1.0.0
+In v1.0.0rc2, lakes and reservoirs were merged into a single structure in Wflow.jl, prompting updates to related functions and parameters. Several new model components were introduced,
+including those for configuration, static maps, forcing, states, geoms, and various output types. The minimum supported Python version was raised to 3.11.
+The model root is now managed by a ModelRoot class, and model components such as config and forcing are now ModelComponent classes, with their data accessed via a data property.
+Component and method names were updated for clarity, including renaming "grid" to "staticmaps" and splitting or renaming several setup methods. The process for clipping a model was simplified to a single clip method.
+Reservoir handling was enhanced, allowing overwriting or adding reservoirs, and a combined staticgeom for all reservoirs is now created. The release also included various bug fixes,
+such as improved handling in upgrade_to_v1_wflow, correct addition of states in setup_floodplains, and better clipping and snapping of 1D rivers.
+The use of the tomlkit dependency was reverted, and the standard naming conventions were updated. Finally, the workflows.waterbodies module was renamed to workflows.reservoirs,
+and the release included documentation improvements and updates to example configurations.
 
 Added
 -----
@@ -19,6 +26,8 @@ Added
 - geoms component ``WflowGeomsComponent``: represents Wflow staticgeoms data.
 - output_grid ``WflowOutputGridComponent``, output_scalar ``WflowOutputScalarComponent`` and output_csv ``WflowOutputCsvComponent`` components: represent Wflow outputs (used to be results).
 - **write_geoms**: added function arguments ``to_wgs84``  to convert the geometry to WGS84 before writing it to file. PR #432
+- Reservoirs can now overwrite or be added to existing ones in the model. PR #515
+- Create a combined staticgeom for all reservoirs "reservoirs.geojson". PR #515
 
 Changed
 -------
@@ -41,19 +50,6 @@ Changed
 - Update values used in example yamls to new defaults used in Wflow.jl (#589)
 - Improve behavior of ``merge_reservoirs``, to merge values based on their ID rather than all non-missing pixels. (#597)
 - Rename standard names to no longer use "instantaneous" in the name (#601)
-
-
-Unreleased
-==========
-Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.
-
-Added
------
-- Reservoirs can now overwrite or be added to existing ones in the model. PR #515
-- Create a combined staticgeom for all reservoirs "reservoirs.geojson". PR #515
-
-Changed
--------
 - **setup_reservoirs** has been renamed to **setup_reservoirs_simple_control** for sbm. The default output geom is meta_reservoirs_simple_control.geojson. PR #515
 - **setup_lakes** has been renamed to **setup_reservoirs_no_control** for sbm. Arguments of the functions have been updated as well. The default output geom is meta_reservoirs_no_control.geojson. PR #515
 - **setup_lakes** has been renamed to **setup_natural_reservoirs** for sediment. Arguments of the functions have been updated as well. The default output geom is meta_natural_reservoirs.geojson. PR #515
@@ -67,9 +63,6 @@ Fixed
 - Fix wflow build config example in the docs. PR #486
 - Fix crop_factor and water_frac values for grassland in CORINE. PR #523
 - included ``floodplain_water_flow__manning_n_parameter`` in naming script (#529)
-
-Deprecated
-----------
 
 Removed
 -------
