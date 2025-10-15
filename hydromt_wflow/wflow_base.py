@@ -14,10 +14,10 @@ import pyflwdir
 import pyproj
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import ModeLike
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
+from hydromt.typing import ModeLike
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
@@ -2177,7 +2177,7 @@ one variable and variables list is not provided."
             Mode to open the model root folder, by default 'w'.
             Can be 'r' for read-only or 'r+' for read-write.
         """
-        self.root.set(root, mode=mode)
+        self.root.set(Path(root), mode=mode)
 
     def get_config(
         self,
