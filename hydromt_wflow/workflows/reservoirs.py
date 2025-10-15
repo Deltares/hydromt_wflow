@@ -1101,9 +1101,7 @@ def set_rating_curve_layer_data_type(ds_res: xr.Dataset) -> xr:
     for var in convert_to_int:
         if var in ds_res:
             fill_value = ds_res[var].raster.nodata
-            fill_value_new = (
-                int(fill_value) if fill_value != np.nan else -999
-            )  # check my null/nan statement
+            fill_value_new = int(fill_value) if not np.isnan(fill_value) else -999
             # replace NaN with fill_value_new
             ds_res[var] = ds_res[var].fillna(fill_value_new)
             ds_res[var] = ds_res[var].where(ds_res[var] != fill_value, fill_value_new)

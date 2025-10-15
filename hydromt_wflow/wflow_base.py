@@ -2046,7 +2046,8 @@ one variable and variables list is not provided."
         decimals : int, optional
             Number of decimals to use when writing the forcing data. Default is ``2``.
         overwrite : bool, optional
-            Whether to overwrite existing files. Default is ``False``.
+            Whether to overwrite existing files. Default is ``False`` unless the model
+            is in w+ mode (FORCED_WRITE).
         **kwargs : dict
             Additional keyword arguments passed to ``write_nc``.
         """
@@ -2057,7 +2058,7 @@ one variable and variables list is not provided."
             time_chunk=time_chunk,
             time_units=time_units,
             decimals=decimals,
-            overwrite=overwrite,
+            overwrite=overwrite or self.root.mode.value == "w+",
             **kwargs,
         )
 

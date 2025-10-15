@@ -837,9 +837,6 @@ setting new flood_depth dimensions"
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_reservoirs.data_vars}
-        ds_reservoirs = workflows.reservoirs.set_rating_curve_layer_data_type(
-            ds_reservoirs
-        )
         self.set_grid(ds_reservoirs.rename(rmdict))
         # write reservoirs with attr tables to static geoms.
         self.set_geoms(gdf_reservoirs, name=geom_name)
