@@ -37,6 +37,7 @@ Changed
 - The old ``WflowModel.setup_rivers`` has been split into three parts: ``WflowBaseModel.setup_rivers``, ``WflowSbmModel.setup_rivers`` and ``WflowSbmModel.setup_river_roughness``. Where the first contains the generic river setup logic, the second Sbm-specific implementations, and the third contains manning roughness implementations.
 - Clipping a model is now done by calling a single **clip** method. This function can be called with the ``hydromt update`` cli command.
 - **upgrade_to_v1_wflow**: Function now also updates any input variables that link to ``netcdf.variable.name`` to ``netcdf_variable_name``.
+- Existing forcing file is now overwritten if the model is in w+ mode (build with --fo).(#598)
 - Update values used in example yamls to new defaults used in Wflow.jl (#589)
 - Improve behavior of ``merge_reservoirs``, to merge values based on their ID rather than all non-missing pixels. (#597)
 - Rename standard names to no longer use "instantaneous" in the name (#601)
