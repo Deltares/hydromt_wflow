@@ -73,6 +73,7 @@ def test_wflow_staticmaps_component_set_cyclic(
     assert "layer2" in component.data.data_vars
     assert "time_365" in component.data.dims
     assert len(component.data.time_365) == 365
+    assert "time_365" in component.data["layer2"].coords
 
     # Set the data in the component
     component.set(cyclic_layer * 2, "layer3")
