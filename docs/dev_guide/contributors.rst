@@ -11,9 +11,9 @@ Contributors
 * Willem van Verseveld `@verseve <https://github.com/verseve>`_
 * Brendan Dalmijn `@dalmijn <https://github.com/dalmijn>`_
 * Joost Buitink `@JoostBuitink <https://github.com/JoostBuitink>`_
-* Sebas `@shartgring <https://github.com/shartgring>`_
-* Ruben
-* Julian Hofer `@Hofer-Julian <https://github.com/Hofer-Julian>`_
+* Sebastian Hartgring `@shartgring <https://github.com/shartgring>`_
+* Ruben Imhoff `@RubenImhoff <https://github.com/RubenImhoff>`_
+* Jurian Beunk `@jurianbeunk <https://github.com/jurianbeunk>`_
 * Ali Meshgi `@alimeshgi <https://github.com/alimeshgi>`_
 * Anaïs Couasnon `@couasnonanais <https://github.com/couasnonanais>`_
 * Sam Vente `@savente93 <https://github.com/savente93>`_
