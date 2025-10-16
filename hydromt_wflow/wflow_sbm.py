@@ -256,6 +256,7 @@ class WflowSbmModel(WflowBaseModel):
         rivman_mapping_fn: str | Path | pd.DataFrame | None = None,
         strord_name: str = "meta_streamorder",
         output_name: str = "river_manning_n",
+        landuse_resample_method: dict | None = None,
     ):
         """Set river Manning roughness coefficient for SBM.
 
@@ -275,6 +276,13 @@ class WflowSbmModel(WflowBaseModel):
             Name of the stream order map.
         output_names : dict
             Mapping of output variable names.
+        landuse_resample_method : dict, optional
+            Dictionary with resampling method per variable. By default the following
+            dictionary is used:
+            {   "landuse": "nearest",
+                "lai": "average",
+                "vegetation_feddes_alpha_h1": "mode",}
+            If a variable is not in the dictionary, the average method is used.
 
         See Also
         --------
@@ -315,6 +323,7 @@ class WflowSbmModel(WflowBaseModel):
             da=strord,
             ds_like=self.staticmaps.data,
             df=df,
+            resample_method=landuse_resample_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
         self.set_grid(ds_nriver.rename(rmdict))
@@ -1223,6 +1232,7 @@ setting new flood_depth dimensions"
         },
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
+        resample_method: dict | None = None,
     ):
         """Set up landuse maps and parameters including for paddy fields.
 
@@ -1362,6 +1372,13 @@ setting new flood_depth dimensions"
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameter
             soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
+        resample_method : dict, optional
+            Dictionary with resampling method per variable. By default the following
+            dictionary is used:
+            {   "landuse": "nearest",
+                "lai": "average",
+                "vegetation_feddes_alpha_h1": "mode",}
+            If a variable is not in the dictionary, the average method is used.
         """
         logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -1444,6 +1461,7 @@ setting new flood_depth dimensions"
             ds_like=self.staticmaps.data,
             df=df_mapping,
             params=list(lulc_vars.keys()),
+            resample_method=resample_method,
         )
         self.set_grid(landuse_maps.rename(rmdict))
         # update config

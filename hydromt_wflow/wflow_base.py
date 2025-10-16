@@ -761,6 +761,7 @@ and will soon be removed. '
             "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
         },
         output_names_suffix: str | None = None,
+        resample_method: dict | None = None,
     ):
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
@@ -834,6 +835,13 @@ and will soon be removed. '
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
+        reseample_method : dict, optional
+            Dictionary with resampling method per variable. By default the following
+            dictionary is used:
+            {   "landuse": "nearest",
+                "lai": "average",
+                "vegetation_feddes_alpha_h1": "mode",}
+            If a variable is not in the dictionary, the average method is used.
         """
         output_names = {
             v: f"{k}_{output_names_suffix}" if output_names_suffix else k
@@ -868,6 +876,7 @@ and will soon be removed. '
             ds_like=self.staticmaps.data,
             df=df_map,
             params=list(lulc_vars.keys()),
+            resample_method=resample_method,
         )
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
@@ -901,6 +910,7 @@ and will soon be removed. '
         buffer: int = 1000,
         save_raster_lulc: bool = False,
         output_names_suffix: str | None = None,
+        resample_method: dict | None = None,
     ):
         """
         Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -987,6 +997,13 @@ and will soon be removed. '
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
+        reseample_method : dict, optional
+            Dictionary with resampling method per variable. By default the following
+            dictionary is used:
+            {   "landuse": "nearest",
+                "lai": "average",
+                "vegetation_feddes_alpha_h1": "mode",}
+            If a variable is not in the dictionary, the average method is used.
 
         See Also
         --------
@@ -1037,6 +1054,7 @@ and will soon be removed. '
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
+            resample_method=resample_method,
         )
         self.set_grid(ds_lulc_maps.rename(rmdict))
         # update config variable names
