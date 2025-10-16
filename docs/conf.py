@@ -283,7 +283,7 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "always"
+nbsphinx_execute = "auto" # "never" or "always" or "auto", where "auto" means execute if no outputs are present
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',

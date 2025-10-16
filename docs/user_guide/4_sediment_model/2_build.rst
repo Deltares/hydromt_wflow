@@ -31,10 +31,10 @@ Note that the order in which the components are listed in the configuration file
 - `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
 
 Below is an example configuration file that can be used to build a complete Wflow Sediment model
-:download:`.yml file <../_examples/wflow_sediment_build.yml>`. Each section corresponds
+:download:`.yml file <../../_examples/wflow_sediment_build.yml>`. Each section corresponds
 to a model component with the same name.
 
-.. literalinclude:: ../_examples/wflow_sediment_build.yml
+.. literalinclude:: ../../_examples/wflow_sediment_build.yml
    :language: yaml
 
 Selecting data
@@ -59,7 +59,7 @@ Extending a Wflow (SBM) model with a Wflow Sediment model
 ---------------------------------------------------------
 If you already have a Wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
 Wflow Sediment model from scratch. You can instead ``update`` the Wflow model with the additional components needed by Wflow Sediment.
-These components are available in a template :download:`.yml file <../_examples/wflow_extend_sediment.yml>` and shown below. The corresponding
+These components are available in a template :download:`.yml file <../../_examples/wflow_extend_sediment.yml>` and shown below. The corresponding
 command line would be:
 
 .. code-block:: console
@@ -67,12 +67,12 @@ command line would be:
     activate hydromt-wflow
     hydromt update wflow_sediment path/to/wflow_model_to_extend -o path/to/wflow_sediment_model -i wflow_extend_sediment.yml -d data_sources.yml -vvv
 
-.. literalinclude:: ../_examples/wflow_extend_sediment.yml
+.. literalinclude:: ../../_examples/wflow_extend_sediment.yml
    :language: yaml
 
 .. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
 
-.. .. toctree::
-..     :hidden:
+.. toctree::
+    :hidden:
 
-..     Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>
+    Example: Build Wflow Sediment model <../../_examples/build_sediment.ipynb>

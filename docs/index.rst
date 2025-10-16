@@ -5,6 +5,6 @@
    :hidden:
 
    getting_started/intro.rst
-   user_guide/intro.rst
+   user_guide/index.rst
    api/index.rst
    dev_guide/intro.rst

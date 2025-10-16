@@ -25,6 +25,9 @@ Two Wflow Model classes are currently available:
    :maxdepth: 2
    :hidden:
 
-   wflow.rst
-   sediment.rst
-   process_analyze.rst
+   1_getting_started_hydromt/index.rst
+   2_sbm_model/index.rst
+   3_pre_and_post_processing/index.rst
+   4_sediment_model/index.rst
+   5_setup_methods/index.rst
+   6_migration_guide/index.rst

@@ -41,7 +41,7 @@ See the following model API:
 * :py:func:`~WflowSbmModel.clip`
 
 
-.. .. toctree::
+.. toctree::
     :hidden:
 
-    Example Clip Wflow model <../_examples/clip_model.ipynb>
+    Example Clip Wflow model <../../_examples/clip_model.ipynb>

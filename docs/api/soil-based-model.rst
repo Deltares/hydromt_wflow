@@ -68,3 +68,4 @@ Setup methods
    :member-order: bysource
    :undoc-members:
    :show-inheritance:
+   :no-index:

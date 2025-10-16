@@ -1,6 +1,9 @@
 =====================================
 Working with the Wflow Sediment model
 =====================================
+
+
+
 With the Hydromt-Wflow plugin, you can easily work with Wflow Sediment models.
 This plugin contains as well relevant functions for setting up or adjusting Wflow Sediment models:
 
@@ -13,7 +16,7 @@ This plugin contains as well relevant functions for setting up or adjusting Wflo
     :maxdepth: 2
     :hidden:
 
-    sediment_model_setup.rst
-    sediment_build.rst
-    sediment_update.rst
-    sediment_clip.rst
+    1_methods_components.rst
+    2_build.rst
+    3_update.rst
+    4_clip.rst
