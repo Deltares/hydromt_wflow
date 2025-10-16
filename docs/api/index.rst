@@ -11,8 +11,7 @@ Wflow models. The API is divided into the following sections:
 
 - :ref:`Soil-based model <api_wflowsbmmodel>`: Class for building and managing soil-based Wflow models.
 - :ref:`Sediment model <api_wflowsedimentmodel>`: Class for building and managing sediment transport models.
-
-For more in-depth information, scientific motivations and advanced usage, see the :ref:`Advanced API <api_reference_advanced>` section.
+- :ref:`Advanced API <api_reference_advanced>`: In-depth information, scientific motivations and advanced usage.
 
 .. toctree::
    :hidden:

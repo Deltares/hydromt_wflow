@@ -16,25 +16,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+from pathlib import Path
 import shutil
 import sys
 import hydromt_wflow
 
 
-here = os.path.dirname(__file__)
-sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
-
-
-def remove_dir_content(path: str) -> None:
-    for root, dirs, files in os.walk(path):
-        for f in files:
-            os.unlink(os.path.join(root, f))
-        for d in dirs:
-            shutil.rmtree(os.path.join(root, d))
-    if os.path.isdir(path):
-        shutil.rmtree(path)
-
+PROJECT_ROOT = Path(__file__).parents[1].resolve()
+sys.path.insert(0, PROJECT_ROOT.as_posix())
 
 # -- Project information -----------------------------------------------------
 
@@ -47,12 +36,11 @@ version = hydromt_wflow.__version__
 bare_version = hydromt_wflow.__version__
 doc_version = bare_version[: bare_version.find("dev") - 1]
 
-
 # # -- Copy notebooks to include in docs -------
-# if os.path.isdir("_examples"):
-#     remove_dir_content("_examples")
-# os.makedirs("_examples", exist_ok=True)
-# copy_tree("../examples", "_examples")
+examples_src = PROJECT_ROOT / "examples"
+examples_docs = PROJECT_ROOT / "docs" / "_examples"
+shutil.rmtree(examples_docs, ignore_errors=True)
+shutil.copytree(examples_src, examples_docs)
 
 # -- General configuration ------------------------------------------------
 
@@ -98,7 +86,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_examples"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -295,7 +283,7 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "never"
+nbsphinx_execute = "always"
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',
