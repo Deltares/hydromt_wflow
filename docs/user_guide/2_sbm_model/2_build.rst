@@ -25,7 +25,7 @@ for a proper implementation of this model are:
 The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
 is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
 If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
-You can find some examples on how to do this in the `example notebook <../_examples/prepare_ldd.ipynb>`_.
+You can find some examples on how to do this in the `example notebook <../../_examples/prepare_ldd.ipynb>`_.
 
 .. _model_config:
 
@@ -41,10 +41,10 @@ Note that the order in which the components are listed in the configuration file
 - `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (reservoirs, riverwidth, gauges)
 
 Below is an example configuration file that can be used to build a complete Wflow model
-:download:`.yml file <../_examples/wflow_build.yml>`. Each section corresponds
+:download:`.yml file <../../_examples/wflow_build.yml>`. Each section corresponds
 to a model component with the same name.
 
-.. literalinclude:: ../_examples/wflow_build.yml
+.. literalinclude:: ../../_examples/wflow_build.yml
    :language: yaml
 
 Selecting data

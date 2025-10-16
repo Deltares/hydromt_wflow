@@ -16,26 +16,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
+from pathlib import Path
 import shutil
 import sys
-from distutils.dir_util import copy_tree
 import hydromt_wflow
 
 
-here = os.path.dirname(__file__)
-sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
-
-
-def remove_dir_content(path: str) -> None:
-    for root, dirs, files in os.walk(path):
-        for f in files:
-            os.unlink(os.path.join(root, f))
-        for d in dirs:
-            shutil.rmtree(os.path.join(root, d))
-    if os.path.isdir(path):
-        shutil.rmtree(path)
-
+PROJECT_ROOT = Path(__file__).parents[1].resolve()
+sys.path.insert(0, PROJECT_ROOT.as_posix())
 
 # -- Project information -----------------------------------------------------
 
@@ -48,12 +36,11 @@ version = hydromt_wflow.__version__
 bare_version = hydromt_wflow.__version__
 doc_version = bare_version[: bare_version.find("dev") - 1]
 
-
 # # -- Copy notebooks to include in docs -------
-if os.path.isdir("_examples"):
-    remove_dir_content("_examples")
-os.makedirs("_examples", exist_ok=True)
-copy_tree("../examples", "_examples")
+examples_src = PROJECT_ROOT / "examples"
+examples_docs = PROJECT_ROOT / "docs" / "_examples"
+shutil.rmtree(examples_docs, ignore_errors=True)
+shutil.copytree(examples_src, examples_docs)
 
 # -- General configuration ------------------------------------------------
 
@@ -67,10 +54,10 @@ copy_tree("../examples", "_examples")
 extensions = [
     "sphinx_design",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosummary",
     "sphinx.ext.githubpages",
     "sphinx.ext.intersphinx",
     "IPython.sphinxext.ipython_directive",
@@ -109,6 +96,7 @@ todo_include_todos = False
 
 
 # -- Options for HTML output ----------------------------------------------
+add_module_names = False # don't show full path to function/class
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -129,8 +117,9 @@ autoclass_content = "both"
 html_static_path = ["_static"]
 html_css_files = ["theme-deltares.css"]
 html_theme_options = {
-    "show_nav_level": 2,
+    "show_nav_level": 1,
     "navbar_align": "left",
+    "collapse_navigation": True,
     "use_edit_page_button": True,
     "icon_links": [
         {
@@ -294,7 +283,7 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "always"
+nbsphinx_execute = "auto" # "never" or "always" or "auto", where "auto" means execute if no outputs are present
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',
