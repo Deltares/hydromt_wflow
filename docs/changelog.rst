@@ -6,6 +6,23 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+- Fixed cyclic data layer not having coordinates after setting the data in the ``WflowStaticMapsComponent``.
+
+Removed
+-------
+
+
 v1.0.0rc2
 ==========
 In v1.0.0rc2, lakes and reservoirs were merged into a single structure in Wflow.jl, prompting updates to related functions and parameters. Several new model components were introduced,
