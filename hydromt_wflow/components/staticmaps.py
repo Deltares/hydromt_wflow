@@ -207,6 +207,9 @@ class WflowStaticmapsComponent(GridComponent):
 
             if tname != "time":
                 data = data.rename_dims({"time": tname})
+                data[name] = data[name].assign_coords(
+                    {tname: np.arange(1, data.sizes[tname] + 1)}
+                )
         if "layer" in data.dims and "layer" in self.data:
             if len(data["layer"]) != len(self.data["layer"]):
                 vars_to_drop = [
