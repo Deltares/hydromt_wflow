@@ -541,8 +541,8 @@ setting new flood_depth dimensions"
                 "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.variables.floodplain_water__instantaneous_depth",
-                "floodplain_instantaneous_h",
+                "state.variables.floodplain_water__depth",
+                "floodplain_h",
             )
             self.set_config(
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
@@ -587,7 +587,7 @@ setting new flood_depth dimensions"
                 errors="ignore",
             )
             self.config.remove(
-                "state.variables.floodplain_water__instantaneous_depth",
+                "state.variables.floodplain_water__depth",
                 errors="ignore",
             )
             # Remove from output.netcdf_grid section
@@ -852,8 +852,8 @@ setting new flood_depth dimensions"
         # Reservoir settings in the toml to update
         self.set_config("model.reservoir__flag", True)
         self.set_config(
-            "state.variables.reservoir_water_surface__instantaneous_elevation",
-            "reservoir_instantaneous_water_level",
+            "state.variables.reservoir_water_surface__elevation",
+            "reservoir_water_level",
         )
 
         for dvar in ds_reservoirs.data_vars:
@@ -1081,8 +1081,8 @@ setting new flood_depth dimensions"
         # update toml
         self.set_config("model.reservoir__flag", True)
         self.set_config(
-            "state.variables.reservoir_water_surface__instantaneous_elevation",
-            "reservoir_instantaneous_water_level",
+            "state.variables.reservoir_water_surface__elevation",
+            "reservoir_water_level",
         )
         for dvar in ds_res.data_vars:
             if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:
@@ -1691,8 +1691,8 @@ setting new flood_depth dimensions"
         LAI: bool = False,
         rootzone_storage: bool = False,
         correct_cc_deficit: bool = False,
-        time_tuple: tuple | None = None,
-        time_tuple_fut: tuple | None = None,
+        time_range: tuple | None = None,
+        time_range_fut: tuple | None = None,
         missing_days_threshold: int | None = 330,
         output_name_rootingdepth: str = "vegetation_root_depth_obs_20",
     ) -> None:
@@ -1804,7 +1804,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             cc_hist and cc_fut are the same. If the climate change scenario and
             hist period are bias-corrected, this should probably set to False.
             The default is False.
-        time_tuple: tuple, optional
+        time_range: tuple, optional
             Select which time period to read from all the forcing files.
             There should be some overlap between the time period available in the
             forcing files for the historical period and in the observed streamflow data.
@@ -1825,7 +1825,7 @@ the return_period argument.
             geom=self.region,
             buffer=2,
             variables=["pet", "precip"],
-            time_tuple=time_tuple,
+            time_range=time_range,
         )
         ds_cc_hist = None
         if forcing_cc_hist_fn is not None:
@@ -1834,7 +1834,7 @@ the return_period argument.
                 geom=self.region,
                 buffer=2,
                 variables=["pet", "precip"],
-                time_tuple=time_tuple,
+                time_range=time_range,
             )
         ds_cc_fut = None
         if forcing_cc_fut_fn is not None:
@@ -1843,11 +1843,11 @@ the return_period argument.
                 geom=self.region,
                 buffer=2,
                 variables=["pet", "precip"],
-                time_tuple=time_tuple_fut,
+                time_range=time_range_fut,
             )
         # observed streamflow data
         dsrun = self.data_catalog.get_geodataset(
-            run_fn, single_var_as_array=False, time_tuple=time_tuple
+            run_fn, single_var_as_array=False, time_range=time_range
         )
 
         # make sure dsrun overlaps with ds_obs, otherwise give error
@@ -3279,7 +3279,7 @@ using 'variable' argument."
             precip_fn,
             geom=self.region,
             buffer=2,
-            time_tuple=(starttime, endtime),
+            time_range=(starttime, endtime),
             variables=["precip"],
         )
         precip = precip.astype("float32")
@@ -3404,14 +3404,14 @@ using 'variable' argument."
                 geom=self.region,
                 buffer=buffer,
                 variables=["precip"],
-                time_tuple=(starttime, endtime),
+                time_range=(starttime, endtime),
                 single_var_as_array=True,
             )
         else:
             # Read timeseries
             df_precip = self.data_catalog.get_dataframe(
                 precip_fn,
-                time_tuple=(starttime, endtime),
+                time_range=(starttime, endtime),
             )
             # Get locs
             if interp_type == "uniform":
@@ -3635,7 +3635,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             temp_pet_fn,
             geom=self.region,
             buffer=1,
-            time_tuple=(starttime, endtime),
+            time_range=(starttime, endtime),
             variables=variables,
             single_var_as_array=False,  # always return dataset
         )
@@ -3826,16 +3826,16 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * **snow_water_depth**: liquid water content in the snow pack [mm]
         * **vegetation_water_depth**: canopy storage [mm]
         * **river_instantaneous_q**: river discharge [m3/s]
-        * **river_instantaneous_h**: river water level [m]
+        * **river_h**: river water level [m]
         * **subsurface_q**: subsurface flow [m3/d]
-        * **land_instantaneous_h**: land water level [m]
-        * **land_instantaneous_q** or **land_instantaneous_qx**+
+        * **land_h**: land water level [m]
+        * **land_instantaneous_q** or **land_instantaneous_qx** +
           **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local_inertial [m3/s]
 
         If reservoirs, also adds:
 
-        * **reservoir_instantaneous_water_level**: reservoir water level [m]
+        * **reservoir_water_level**: reservoir water level [m]
 
         If glaciers, also adds:
 
@@ -3935,12 +3935,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         # Reservoir states that will be removed if no reservoirs after clipping
         # key: states name,  value: wflow state variable name
         reservoir_state = self.get_config(
-            "state.variables.reservoir_water_surface__instantaneous_elevation",
-            fallback="reservoir_instantaneous_water_level",
+            "state.variables.reservoir_water_surface__elevation",
+            fallback="reservoir_water_level",
         )
-        reservoir_states = {
-            reservoir_state: "reservoir_water_surface__instantaneous_elevation"
-        }
+        reservoir_states = {reservoir_state: "reservoir_water_surface__elevation"}
 
         super().clip(
             region,

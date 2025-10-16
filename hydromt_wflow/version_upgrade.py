@@ -21,6 +21,7 @@ from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_UNCONTROL_PARAMETERS,
     merge_reservoirs,
     merge_reservoirs_sediment,
+    set_rating_curve_layer_data_type,
 )
 
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -388,12 +389,12 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
         "lateral.subsurface.recharge.rate": "subsurface_water_saturated_zone_top__net_recharge_volume_flow_rate",  # noqa : E501
         "lateral.river.q_av": "river_water__volume_flow_rate",
         "lateral.river.h_av": "river_water__depth",
-        "lateral.river.volume": "river_water__instantaneous_volume",
+        "lateral.river.volume": "river_water__volume",
         "lateral.river.inwater": "river_water__lateral_inflow_volume_flow_rate",
-        "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
-        "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
+        "lateral.river.floodplain.volume": "floodplain_water__volume",
+        "lateral.river.reservoir.volume": "reservoir_water__volume",
         "lateral.river.reservoir.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",  # noqa : E501
-        "lateral.river.lake.storage": "reservoir_water__instantaneous_volume",
+        "lateral.river.lake.storage": "reservoir_water__volume",
         "lateral.river.lake.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",
     }
 
@@ -584,9 +585,9 @@ def convert_reservoirs_to_wflow_v1_sbm(
         )
         # config options will need to be updated with the standard names
         config_options["model.reservoir__flag"] = True
-        config_options[
-            "state.variables.reservoir_water_surface__instantaneous_elevation"
-        ] = "reservoir_instantaneous_water_level"
+        config_options["state.variables.reservoir_water_surface__elevation"] = (
+            "reservoir_water_level"
+        )
 
     # Start with the reservoir layers
     if has_reservoirs:
@@ -696,6 +697,8 @@ def convert_reservoirs_to_wflow_v1_sbm(
                 wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer_out]['wflow_v1']}"
             config_options[wflow_var_v1] = layer_out
 
+    # Ensure correct data types for rating curve
+    ds_res = set_rating_curve_layer_data_type(ds_res)
     return ds_res, variables_to_remove, config_options
 
 

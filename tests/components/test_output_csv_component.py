@@ -116,7 +116,8 @@ def test_wflow_output_csv_component_read_logging(
 
     # Missing map in staticmaps
     mock_model.staticmaps.drop_vars("gauges_grdc")
-    with caplog.at_level(logging.DEBUG):
+
+    with caplog.at_level(logging.DEBUG, logger="hydromt.hydromt_wflow.utils"):
         # Read the data
         component.read()
 

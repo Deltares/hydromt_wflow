@@ -284,7 +284,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         ds_reservoirs[name] = ds_reservoirs.raster.rasterize(
             gdf_points, col_name=name, dtype="float32", nodata=-999
         )
-
+    ds_reservoirs = set_rating_curve_layer_data_type(ds_reservoirs)
     return ds_reservoirs, gdf
 
 
@@ -847,6 +847,7 @@ def reservoir_parameters(
         )
         ds[name] = da_reservoir
 
+    ds = set_rating_curve_layer_data_type(ds)
     return ds, gdf, rating_curves
 
 
@@ -955,7 +956,7 @@ def merge_reservoirs(
             # ensure the nodata value is set correctly
             ds_out[layer].raster.set_nodata(ds_like[layer].raster.nodata)
         # else we just keep ds[layer] as it is
-
+    ds_out = set_rating_curve_layer_data_type(ds_out)
     return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
 
@@ -1075,3 +1076,34 @@ def create_reservoirs_geoms(
     )
 
     return gdf_reservoirs
+
+
+def set_rating_curve_layer_data_type(ds_res: xr.Dataset) -> xr:
+    """Set reservoir rating curve layers to int data type.
+
+    Parameters
+    ----------
+    ds_res : xr.Dataset
+        Dataset containing the reservoir layers.
+
+    Returns
+    -------
+    xr
+        returns the dataset with the rating curve layers set to int data type.
+    """
+    convert_to_int = [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]
+
+    for var in convert_to_int:
+        if var in ds_res:
+            fill_value = ds_res[var].raster.nodata
+            fill_value_new = int(fill_value) if not np.isnan(fill_value) else -999
+            # replace NaN with fill_value_new
+            ds_res[var] = ds_res[var].fillna(fill_value_new)
+            ds_res[var] = ds_res[var].where(ds_res[var] != fill_value, fill_value_new)
+            ds_res[var] = ds_res[var].astype(np.int32)
+            ds_res[var].raster.set_nodata(fill_value_new)
+    return ds_res

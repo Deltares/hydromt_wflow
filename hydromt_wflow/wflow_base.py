@@ -14,10 +14,10 @@ import pyflwdir
 import pyproj
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt._typing import ModeLike
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
+from hydromt.typing import ModeLike
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
@@ -427,7 +427,15 @@ skipping adding gauge specific outputs to the toml."
         # rename idx_out coords
         if "idx_out" in ds_base:
             ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
+            # Set meta_subgrid as a data variable instead of coordinate
+            da_outlet = ds_base["meta_subgrid_outlet_idx"]
+            ds_base = ds_base.drop_vars("meta_subgrid_outlet_idx")
+            ds_base["meta_subgrid_outlet_idx"] = da_outlet
+
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
+        if "mask" in ds_base.coords:
+            ds_base = ds_base.drop_vars("mask")
+
         self.set_grid(ds_base.rename(rmdict))
 
         # Add basin geometries after grid is set to avoid warning
@@ -2038,7 +2046,8 @@ one variable and variables list is not provided."
         decimals : int, optional
             Number of decimals to use when writing the forcing data. Default is ``2``.
         overwrite : bool, optional
-            Whether to overwrite existing files. Default is ``False``.
+            Whether to overwrite existing files. Default is ``False`` unless the model
+            is in w+ mode (FORCED_WRITE).
         **kwargs : dict
             Additional keyword arguments passed to ``write_nc``.
         """
@@ -2049,7 +2058,7 @@ one variable and variables list is not provided."
             time_chunk=time_chunk,
             time_units=time_units,
             decimals=decimals,
-            overwrite=overwrite,
+            overwrite=overwrite or self.root.mode.value == "w+",
             **kwargs,
         )
 
@@ -2168,7 +2177,7 @@ one variable and variables list is not provided."
             Mode to open the model root folder, by default 'w'.
             Can be 'r' for read-only or 'r+' for read-write.
         """
-        self.root.set(root, mode=mode)
+        self.root.set(Path(root), mode=mode)
 
     def get_config(
         self,

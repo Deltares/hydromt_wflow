@@ -134,11 +134,13 @@ class WflowForcingComponent(GridComponent):
             Number of decimals to use when writing the forcing data.
             By default 2.
         overwrite : bool, optional
-            Whether to overwrite existing files. By default False.
+            Whether to overwrite existing files. Default is ``False`` unless the model
+            is in w+ mode (FORCED_WRITE).
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
         self.root._assert_write_mode()
+        overwrite = overwrite or self.root.mode.value == "w+"
 
         # Dont write if data is empty
         if self._data_is_empty():

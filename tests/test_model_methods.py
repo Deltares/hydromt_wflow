@@ -269,7 +269,15 @@ def test_setup_reservoirs_no_control(
     assert (
         "meta_reservoir_max_storage" not in example_wflow_model.staticmaps.data
     )  # no Vol_max column in hydro_lakes
-
+    for reservoir_layer in [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]:
+        assert example_wflow_model.staticmaps.data[reservoir_layer].dtype == np.int32
+        assert isinstance(
+            example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, np.int32
+        )
     # Write and read back
     new_root = join(tmpdir, "wflow_lake_test")
     example_wflow_model.set_root(new_root, mode="w")
@@ -533,8 +541,8 @@ def test_setup_rootzoneclim(example_wflow_model):
         forcing_cc_fut_fn=ds_cc_fut,
         start_hydro_year="Oct",
         start_field_capacity="Apr",
-        time_tuple=("2005-01-01", "2020-12-31"),
-        time_tuple_fut=("2005-01-01", "2020-12-31"),
+        time_range=("2005-01-01", "2020-12-31"),
+        time_range_fut=("2005-01-01", "2020-12-31"),
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
         output_name_rootingdepth="vegetation_root_depth_obs_2",
@@ -573,8 +581,8 @@ def test_setup_rootzoneclim(example_wflow_model):
         LAI=True,
         start_hydro_year="Oct",
         start_field_capacity="Apr",
-        time_tuple=("2005-01-01", "2015-12-31"),
-        time_tuple_fut=("2005-01-01", "2017-12-31"),
+        time_range=("2005-01-01", "2015-12-31"),
+        time_range_fut=("2005-01-01", "2015-12-31"),
         correct_cc_deficit=True,
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
@@ -589,7 +597,7 @@ def test_setup_rootzoneclim(example_wflow_model):
     ] == pytest.approx(82.44039441508069, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_fut_2"
-    ] == pytest.approx(104.96931418911882, abs=0.5)
+    ] == pytest.approx(106.03809681174451, abs=0.5)
 
 
 def test_setup_outlets(example_wflow_model):
@@ -867,10 +875,8 @@ def test_setup_floodplains_1d(
     )
 
     assert (
-        example_wflow_model.get_config(
-            "state.variables.floodplain_water__instantaneous_depth"
-        )
-        == "floodplain_instantaneous_h"
+        example_wflow_model.get_config("state.variables.floodplain_water__depth")
+        == "floodplain_h"
     )
 
     assert (
