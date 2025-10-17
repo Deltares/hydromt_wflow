@@ -779,7 +779,9 @@ setting new flood_depth dimensions"
                     i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog.sources:
+                    if isfile(rating_fn) or self.data_catalog.contains_source(
+                        rating_fn
+                    ):
                         logger.info(
                             f"Preparing reservoir rating curve data from {rating_fn}"
                         )
