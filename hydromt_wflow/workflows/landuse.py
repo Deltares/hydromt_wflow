@@ -31,15 +31,15 @@ RESAMPLING = {
     "lai": "average",
     "vegetation_feddes_alpha_h1": "mode",
 }
-DTYPES = {"landuse": np.int16, "vegetation_feddes_alpha_h1": np.int16}
 
 
 def landuse(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[list] = None,
-):
+    params: list | None = None,
+    resample_method: dict | None = None,
+) -> xr.Dataset:
     """Return landuse map and related parameter maps.
 
     The parameter maps are prepared based on landuse map and
@@ -51,6 +51,13 @@ def landuse(
         DataArray containing LULC classes.
     ds_like : xarray.DataArray
         Dataset at model resolution.
+    df : pd.DataFrame
+        Mapping table with landuse values.
+    params : list of str, optional
+        List of parameters, by default None (all parameters in df).
+    resample_method : dict, optional
+        Dictionary with resampling methods per parameter. If not provided, the default
+        methods in the RESAMPLING dictionary will be used.
 
     Returns
     -------
@@ -73,7 +80,7 @@ def landuse(
     da = da.raster.interpolate_na(method="nearest")
     # apply for each parameter
     for param in params:
-        method = RESAMPLING.get(param, "average")
+        method = _get_resample_method(param, resample_method)
         values = df[param].values
         nodata = values[-1]  # NOTE values is set in last row
         d = dict(zip(keys, values))  # NOTE global param in reclass method
@@ -93,11 +100,12 @@ def landuse_from_vector(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[list] = None,
+    params: list | None = None,
     lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
-    lulc_out: Optional[str] = None,
+    lulc_out: str | None = None,
+    resample_method: dict | None = None,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -129,6 +137,9 @@ def landuse_from_vector(
         1000.
     lulc_out : str, optional
         Path to save the rasterised original landuse map to file, by default None.
+    resample_method : dict, optional
+        Dictionary with resampling methods per parameter. If not provided, the default
+        methods in the RESAMPLING dictionary will be used.
 
     Returns
     -------
@@ -174,12 +185,14 @@ def landuse_from_vector(
         da.raster.to_raster(lulc_out)
 
     # derive the landuse maps
-    ds_out = landuse(da, ds_like, df, params=params)
+    ds_out = landuse(da, ds_like, df, params=params, resample_method=resample_method)
 
     return ds_out
 
 
-def lai(da: xr.DataArray, ds_like: xr.Dataset):
+def lai(
+    da: xr.DataArray, ds_like: xr.Dataset, resample_method: dict | None = None
+) -> xr.DataArray:
     """Return climatology of Leaf Area Index (LAI).
 
     The following maps are calculated:
@@ -191,6 +204,9 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset):
         LAI array containing LAI values.
     ds_like : xarray.DataArray
         Dataset at model resolution.
+    resample_method : dict, optional
+        Dictionary with resampling methods per parameter. If not provided, the default
+        methods in the RESAMPLING dictionary will be used.
 
     Returns
     -------
@@ -201,6 +217,7 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset):
         da = da["LAI"]
     elif not isinstance(da, xr.DataArray):
         raise ValueError("lai method requires a DataArray or Dataset with LAI array")
+    method = _get_resample_method(da.name, resample_method)
     method = RESAMPLING.get(da.name, "average")
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
@@ -362,6 +379,7 @@ def lai_from_lulc_mapping(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
+    resample_method: Optional[dict] = None,
 ) -> xr.Dataset:
     """
     Derive LAI values from a landuse map and a mapping table.
@@ -375,6 +393,9 @@ def lai_from_lulc_mapping(
     df : pd.DataFrame
         Mapping table with LAI values per landuse class. One column for each month and
         one line per landuse class.
+    resample_method : dict, optional
+        Dictionary with resampling methods per parameter. If not provided, the default
+        methods in the RESAMPLING dictionary will be used.
 
     Returns
     -------
@@ -385,10 +406,7 @@ def lai_from_lulc_mapping(
     df.columns = [int(col) if str(col).isdigit() else col for col in df.columns]
     # Map the monthly LAI values to the landuse map
     ds_lai = landuse(
-        da=da,
-        ds_like=ds_like,
-        df=df,
-        params=months,
+        da=da, ds_like=ds_like, df=df, params=months, resample_method=resample_method
     )
     # Re-organise the dataset to have a time dimension
     da_lai = ds_lai.to_array(dim="time", name="LAI")
@@ -516,3 +534,15 @@ def add_planted_forest_to_landuse(
     )
 
     return usle_c
+
+
+def _get_resample_method(
+    param: str,
+    resample_method: Optional[dict] = None,
+    default_method: Optional[str] = "average",
+) -> str:
+    if resample_method:
+        method = resample_method.get(param, RESAMPLING.get(param, default_method))
+    else:
+        method = RESAMPLING.get(param, default_method)
+    return method

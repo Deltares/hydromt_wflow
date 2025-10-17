@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- The ``resample_method`` argument has been added to the ``setup_lulcmaps``, ``setup_lulcmaps_with_paddy``, ``setup_lulcmaps_from_vector``, and ``setup_river_roughness`` methods to allow users to specify the resampling method for each variable when reprojecting land use data. PR #430
 
 Changed
 -------
