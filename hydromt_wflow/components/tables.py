@@ -26,7 +26,7 @@ class WflowTablesComponent(TablesComponent):
         super().write(filename=filename, **kwargs)
 
     def _generate_filename_from_staticmaps(self) -> str | None:
-        static_maps_path = self.model.get_config("input.path_static")
+        static_maps_path = self.model.config.get_value("input.path_static")
         if static_maps_path is None:
             return None
 

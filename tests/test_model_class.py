@@ -100,7 +100,7 @@ def test_model_clip(
 
     # Clip workflow, based on example model
     example_wflow_model.read()
-    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.root.set(destination, mode="w")
     example_wflow_model.clip(region)
     example_wflow_model.write()
 
@@ -136,13 +136,13 @@ def test_model_clip_reservoir(
     clip_model.read()
 
     for name, tbl in reservoir_rating.items():
-        clip_model.set_tables(tbl, name=name)
+        clip_model.tables.set(tbl, name=name)
     assert len(clip_model.tables.data) == 4
     assert "reservoir_sh_169986" in clip_model.tables.data
     assert "reservoir_hq_3367" in clip_model.tables.data
 
     # Clip
-    clip_model.set_root(destination, mode="w")
+    clip_model.root.set(destination, mode="w")
     clip_model.clip(region)
     assert len(clip_model.tables.data) == 2
     assert "reservoir_sh_169986" in clip_model.tables.data
@@ -164,7 +164,7 @@ def test_sediment_model_clip(
 
     # Clip workflow, based on example model
     example_sediment_model.read()
-    example_sediment_model.set_root(destination, mode="w")
+    example_sediment_model.root.set(destination, mode="w")
     example_sediment_model.clip(region)
 
     # Check extent of the clipped model
@@ -174,7 +174,7 @@ def test_sediment_model_clip(
     assert "reservoirs" in example_sediment_model.geoms.data
     assert len(example_sediment_model.geoms.data["reservoirs"]) == 1
     assert "reservoir_area_id" in example_sediment_model.staticmaps.data
-    assert example_sediment_model.get_config("model.reservoir__flag") is True
+    assert example_sediment_model.config.get_value("model.reservoir__flag") is True
 
 
 def test_model_inverse_clip(example_wflow_model: WflowSbmModel):
@@ -218,7 +218,7 @@ def test_model_outputs(example_wflow_outputs):
     assert "Q" in wflow.output_scalar.data
 
     # Check the csv output
-    assert len(wflow.output_csv.data) == len(wflow.get_config("output.csv.column"))
+    assert len(wflow.output_csv.data) == len(wflow.config.get_value("output.csv.column"))
 
     # Checks for the csv columns
     # Q for gauges_grdc

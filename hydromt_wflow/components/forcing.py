@@ -259,11 +259,11 @@ class WflowForcingComponent(GridComponent):
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
         # Set back to the config
-        self.model.set_config("input.path_forcing", filepath.as_posix())
-        self.model.set_config(
+        self.model.config.set("input.path_forcing", filepath.as_posix())
+        self.model.config.set(
             "time.starttime", start_time.strftime("%Y-%m-%dT%H:%M:%S")
         )
-        self.model.set_config("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
+        self.model.config.set("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
 
         return
 

@@ -28,7 +28,7 @@ def test_setup_basemaps(tmpdir: Path):
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
     mod = WflowSbmModel(
-        root=str(tmpdir.join("wflow_base")),
+        root=tmpdir.join("wflow_base"),
         mode="w",
         data_libs=["artifact_data"],
     )
@@ -79,7 +79,7 @@ def test_setup_grid(example_wflow_model):
     )
     assert "elevtn" in example_wflow_model.staticmaps.data
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "input.static.land_surface_water_flow__ground_elevation"
         )
         == "elevtn"
@@ -155,7 +155,7 @@ def test_projected_crs(tmpdir: Path):
     assert mod.staticmaps.data.raster.crs == 3857
     # 95 quantile is class 190 ie urban
     assert (mod.staticmaps.data["meta_landuse"] == 190).count().values == 338
-    assert mod.get_config("model.cell_length_in_meter__flag") == True
+    assert mod.config.get_value("model.cell_length_in_meter__flag") == True
 
 
 @pytest.mark.parametrize("glacier_fn", ["glaciers_4326", "glaciers_3857"])
@@ -199,9 +199,10 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
     assert mod.staticmaps.data["meta_glacier_area_id"].max().item() == 1
 
     # Confirm config flags
-    assert mod.get_config("model.glacier__flag") is True
+    assert mod.config.get_value("model.glacier__flag") is True
     assert (
-        mod.get_config("state.variables.glacier_ice__leq_depth") == "glacier_leq_depth"
+        mod.config.get_value("state.variables.glacier_ice__leq_depth")
+        == "glacier_leq_depth"
     )
 
 
@@ -279,15 +280,15 @@ def test_setup_reservoirs_no_control(
             example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, np.int32
         )
     # Write and read back
-    new_root = join(tmpdir, "wflow_lake_test")
-    example_wflow_model.set_root(new_root, mode="w")
-    example_wflow_model.write_tables()
+    new_root = tmpdir / "wflow_lake_test"
+    example_wflow_model.root.set(new_root, mode="w")
+    example_wflow_model.tables.write()
 
     test_table = example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"]
 
     example_wflow_model.tables.data.clear()
-    example_wflow_model.set_root(new_root, mode="r")
-    example_wflow_model.read_tables()
+    example_wflow_model.root.set(new_root, mode="r")
+    example_wflow_model.tables.read()
 
     assert example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"].equals(test_table)
 
@@ -301,7 +302,7 @@ def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
 
     # Update model (reservoirs only)
     destination = str(tmpdir.join(model))
-    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.root.set(destination, mode="w")
 
     config = {
         "setup_reservoirs_simple_control": {
@@ -373,7 +374,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     da.name = "subsurface_ksat_horizontal_ratio"
     # Set the output directory
     destination = str(tmpdir.join(model))
-    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.root.set(destination, mode="w")
 
     # Build the map
     example_wflow_model.setup_ksathorfrac(
@@ -459,7 +460,7 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
 
     assert "lai_from_vito_mapping" in example_wflow_model.staticmaps.data
     assert (
-        example_wflow_model.get_config("input.cyclic.vegetation__leaf_area_index")
+        example_wflow_model.config.get_value("input.cyclic.vegetation__leaf_area_index")
         == "lai_from_vito_mapping"
     )
 
@@ -558,7 +559,7 @@ def test_setup_rootzoneclim(example_wflow_model):
     assert "meta_rootzone_storage_cc_fut_15" in example_wflow_model.staticmaps.data
 
     assert (
-        example_wflow_model.get_config("input.static.vegetation_root__depth")
+        example_wflow_model.config.get_value("input.static.vegetation_root__depth")
         == "vegetation_root_depth_obs_2"
     )
 
@@ -604,7 +605,7 @@ def test_setup_outlets(example_wflow_model):
     # Update subcatchment ID
     new_subcatch = example_wflow_model.staticmaps.data["subcatchment"].copy()
     new_subcatch = new_subcatch.where(new_subcatch == new_subcatch.raster.nodata, 1001)
-    example_wflow_model.set_grid(new_subcatch, "subcatchment")
+    example_wflow_model.staticmaps.set(new_subcatch, "subcatchment")
 
     # Derive outlets
     example_wflow_model.setup_outlets()
@@ -754,9 +755,11 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     }[elevtn_map]
 
     assert mapname in example_wflow_model.staticmaps.data
-    assert example_wflow_model.get_config("model.river_routing") == "local_inertial"
     assert (
-        example_wflow_model.get_config("input.static.river_bank_water__elevation")
+        example_wflow_model.config.get_value("model.river_routing") == "local_inertial"
+    )
+    assert (
+        example_wflow_model.config.get_value("input.static.river_bank_water__elevation")
         == mapname
     )
     assert (
@@ -849,10 +852,12 @@ def test_setup_floodplains_1d(
     )
 
     assert "floodplain_volume" in example_wflow_model.staticmaps.data
-    assert example_wflow_model.get_config("model.floodplain_1d__flag") == True
-    assert example_wflow_model.get_config("model.land_routing") == "kinematic_wave"
+    assert example_wflow_model.config.get_value("model.floodplain_1d__flag") == True
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value("model.land_routing") == "kinematic_wave"
+    )
+    assert (
+        example_wflow_model.config.get_value(
             "input.static.floodplain_water__sum_of_volume_per_depth"
         )
         == "floodplain_volume"
@@ -868,19 +873,19 @@ def test_setup_floodplains_1d(
 
     # Check states in config
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
         )
         == "floodplain_instantaneous_q"
     )
 
     assert (
-        example_wflow_model.get_config("state.variables.floodplain_water__depth")
+        example_wflow_model.config.get_value("state.variables.floodplain_water__depth")
         == "floodplain_h"
     )
 
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "state.variables.land_surface_water__instantaneous_volume_flow_rate"
         )
         == "land_instantaneous_q"
@@ -915,14 +920,16 @@ def test_setup_floodplains_2d(
     }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.staticmaps.data
-    assert example_wflow_model.get_config("model.floodplain_1d__flag") == False
-    assert example_wflow_model.get_config("model.land_routing") == "local_inertial"
+    assert example_wflow_model.config.get_value("model.floodplain_1d__flag") == False
     assert (
-        example_wflow_model.get_config("input.static.river_bank_water__elevation")
+        example_wflow_model.config.get_value("model.land_routing") == "local_inertial"
+    )
+    assert (
+        example_wflow_model.config.get_value("input.static.river_bank_water__elevation")
         == f"{mapname}_D4"
     )
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "input.static.land_surface_water_flow__ground_elevation"
         )
         == elevtn_map
@@ -934,13 +941,13 @@ def test_setup_floodplains_2d(
 
     # Check states in config
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
         )
         == "land_instantaneous_qx"
     )
     assert (
-        example_wflow_model.get_config(
+        example_wflow_model.config.get_value(
             "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
         )
         == "land_instantaneous_qy"
@@ -1183,7 +1190,7 @@ def test_setup_lulc_vector(
 def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.set_root(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(Path(tmpdir), mode="w")
 
     layers = [50, 100, 50, 200, 800]
 
@@ -1256,7 +1263,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
 def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Read the data and set new root
     example_wflow_model.read()
-    example_wflow_model.set_root(
+    example_wflow_model.root.set(
         Path(
             tmpdir,
         ),
@@ -1285,7 +1292,7 @@ def test_setup_allocation_surfacewaterfrac(
 ):
     # Read the data and set new root
     example_wflow_model.read()
-    example_wflow_model.set_root(
+    example_wflow_model.root.set(
         Path(
             tmpdir,
         ),
@@ -1342,7 +1349,7 @@ def test_setup_allocation_surfacewaterfrac(
 def test_setup_non_irrigation(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.set_root(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(Path(tmpdir), mode="w")
 
     # Use the method
     example_wflow_model.setup_domestic_demand(
@@ -1451,7 +1458,7 @@ def test_setup_irrigation_nopaddy(
 ):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.set_root(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(Path(tmpdir), mode="w")
 
     # Use the method
     example_wflow_model.setup_irrigation(
@@ -1518,7 +1525,7 @@ def test_setup_irrigation_nopaddy(
 def test_setup_irrigation_withpaddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.set_root(
+    example_wflow_model.root.set(
         Path(
             tmpdir,
         ),
@@ -1574,14 +1581,14 @@ def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmpdir: Path):
     )
 
     # test write
-    example_wflow_model.set_root(str(tmpdir.join("wflow_cold_states")), mode="w")
-    example_wflow_model.write_states()
+    example_wflow_model.root.set(tmpdir / "wflow_cold_states", mode="w")
+    example_wflow_model.states.write()
 
-    assert tmpdir.join("wflow_cold_states", "instate", "instates.nc").exists()
+    assert (tmpdir / "wflow_cold_states" / "instate" / "instates.nc").exists()
 
     # test read
-    example_wflow_model.set_root(str(tmpdir.join("wflow_cold_states")), mode="r+")
-    example_wflow_model.read_states()
+    example_wflow_model.root.set(tmpdir / "wflow_cold_states", mode="r+")
+    example_wflow_model.states.read()
 
     xrt.assert_equal(
         xr.merge(states.values(), compat="override"),

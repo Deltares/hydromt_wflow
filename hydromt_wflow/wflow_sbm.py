@@ -225,7 +225,7 @@ class WflowSbmModel(WflowBaseModel):
             )
 
         logger.info(f'Update wflow config model.river_routing="{river_routing}"')
-        self.set_config("model.river_routing", river_routing)
+        self.config.set("model.river_routing", river_routing)
 
         if river_routing == "local_inertial":
             postfix = {
@@ -247,7 +247,7 @@ class WflowSbmModel(WflowBaseModel):
                 connectivity=connectivity,
                 river_d8=True,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.staticmaps.set(ds_out)
             self._update_config_variable_name(name)
 
     @hydromt_step
@@ -317,7 +317,7 @@ class WflowSbmModel(WflowBaseModel):
             df=df,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
-        self.set_grid(ds_nriver.rename(rmdict))
+        self.staticmaps.set(ds_nriver.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_nriver.rename(rmdict).data_vars)
 
@@ -410,7 +410,7 @@ class WflowSbmModel(WflowBaseModel):
         pyflwdir.FlwdirRaster.dem_adjust
         setup_rivers
         """
-        if self.get_config("model.river_routing") != "local_inertial":
+        if self.config.get_value("model.river_routing") != "local_inertial":
             raise ValueError(
                 "Floodplains (1d or 2d) are currently only supported with \
 local inertial river routing"
@@ -482,7 +482,7 @@ setting new flood_depth dimensions"
                 self._grid = self._grid.drop_dims("flood_depth")
 
             da_fldpln.name = self._MAPS["floodplain_volume"]
-            self.set_grid(da_fldpln)
+            self.staticmaps.set(da_fldpln)
             self._update_config_variable_name(da_fldpln.name)
 
         elif floodplain_type == "2d":
@@ -518,11 +518,11 @@ setting new flood_depth dimensions"
                 connectivity=connectivity,
                 river_d8=True,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.staticmaps.set(ds_out)
             # Update the bankfull elevation map
-            self.set_config("input.static.river_bank_water__elevation", name)
+            self.config.set("input.static.river_bank_water__elevation", name)
             # In this case river_bank_elevation is also used for the ground elevation?
-            self.set_config(
+            self.config.set(
                 "input.static.land_surface_water_flow__ground_elevation", elevtn_map
             )
 
@@ -530,21 +530,21 @@ setting new flood_depth dimensions"
         logger.info(
             f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
         )
-        self.set_config("model.floodplain_1d__flag", floodplain_1d)
+        self.config.set("model.floodplain_1d__flag", floodplain_1d)
         logger.info(f'Update wflow config model.land_routing="{land_routing}"')
-        self.set_config("model.land_routing", land_routing)
+        self.config.set("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
             # Add states
-            self.set_config(
+            self.config.set(
                 "state.variables.floodplain_water__instantaneous_volume_flow_rate",
                 "floodplain_instantaneous_q",
             )
-            self.set_config(
+            self.config.set(
                 "state.variables.floodplain_water__depth",
                 "floodplain_h",
             )
-            self.set_config(
+            self.config.set(
                 "state.variables.land_surface_water__instantaneous_volume_flow_rate",
                 "land_instantaneous_q",
             )
@@ -569,11 +569,11 @@ setting new flood_depth dimensions"
             )
         else:
             # Add local_inertial land routing states
-            self.set_config(
+            self.config.set(
                 "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qx",
             )
-            self.set_config(
+            self.config.set(
                 "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
                 "land_instantaneous_qy",
             )
@@ -839,21 +839,21 @@ setting new flood_depth dimensions"
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_reservoirs.data_vars}
-        self.set_grid(ds_reservoirs.rename(rmdict))
+        self.staticmaps.set(ds_reservoirs.rename(rmdict))
         # write reservoirs with attr tables to static geoms.
-        self.set_geoms(gdf_reservoirs, name=geom_name)
+        self.geoms.set(gdf_reservoirs, name=geom_name)
         # Prepare a combined geoms of all reservoirs
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
             ds_reservoirs.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="reservoirs")
+        self.geoms.set(gdf_res_all, name="reservoirs")
         # add the tables
         for k, v in rating_curves.items():
-            self.set_tables(v, name=k)
+            self.tables.set(v, name=k)
 
         # Reservoir settings in the toml to update
-        self.set_config("model.reservoir__flag", True)
-        self.set_config(
+        self.config.set("model.reservoir__flag", True)
+        self.config.set(
             "state.variables.reservoir_water_surface__elevation",
             "reservoir_water_level",
         )
@@ -1070,19 +1070,19 @@ setting new flood_depth dimensions"
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.staticmaps.set(ds_res.rename(rmdict))
 
         # write reservoirs with param values to geoms
-        self.set_geoms(gdf_res, name=geom_name)
+        self.geoms.set(gdf_res, name=geom_name)
         # Prepare a combined geoms of all reservoirs
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms(
             ds_res.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="reservoirs")
+        self.geoms.set(gdf_res_all, name="reservoirs")
 
         # update toml
-        self.set_config("model.reservoir__flag", True)
-        self.set_config(
+        self.config.set("model.reservoir__flag", True)
+        self.config.set(
             "state.variables.reservoir_water_surface__elevation",
             "reservoir_water_level",
         )
@@ -1175,13 +1175,13 @@ setting new flood_depth dimensions"
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
-        self.set_grid(ds_glac.rename(rmdict))
+        self.staticmaps.set(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
-        self.set_config("model.glacier__flag", True)
-        self.set_config("state.variables.glacier_ice__leq_depth", "glacier_leq_depth")
+        self.config.set("model.glacier__flag", True)
+        self.config.set("state.variables.glacier_ice__leq_depth", "glacier_leq_depth")
         # update geoms
-        self.set_geoms(gdf_org, name=geom_name)
+        self.geoms.set(gdf_org, name=geom_name)
 
     @hydromt_step
     def setup_lulcmaps_with_paddy(
@@ -1447,7 +1447,7 @@ setting new flood_depth dimensions"
             df=df_mapping,
             params=list(lulc_vars.keys()),
         )
-        self.set_grid(landuse_maps.rename(rmdict))
+        self.staticmaps.set(landuse_maps.rename(rmdict))
         # update config
         self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
 
@@ -1455,7 +1455,7 @@ setting new flood_depth dimensions"
         # Get paddy pixels at model resolution
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
-            if self.get_config("model.soil_layer__thickness") == len(
+            if self.config.get_value("model.soil_layer__thickness") == len(
                 wflow_thicknesslayers
             ):
                 logger.info(
@@ -1488,23 +1488,23 @@ setting new flood_depth dimensions"
                 wflow_layers=wflow_thicknesslayers,
                 target_conductivity=target_conductivity,
             )
-            self.set_grid(
+            self.staticmaps.set(
                 soil_maps["soil_ksat_vertical_factor"],
                 name=self._MAPS["soil_ksat_vertical_factor"],
             )
             self._update_config_variable_name(self._MAPS["soil_ksat_vertical_factor"])
             if "soil_brooks_corey_c" in soil_maps:
-                self.set_grid(
+                self.staticmaps.set(
                     soil_maps["soil_brooks_corey_c"],
                     name=self._MAPS["soil_brooks_corey_c"],
                 )
                 self._update_config_variable_name(self._MAPS["soil_brooks_corey_c"])
-                self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
+                self.config.set("model.soil_layer__thickness", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
-                self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
+                self.config.set(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
-            self.set_config(
+            self.config.set(
                 "state.variables.paddy_surface_water__depth", "demand_paddy_h"
             )
         else:
@@ -1617,7 +1617,7 @@ setting new flood_depth dimensions"
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self.staticmaps.set(da_lai.rename(rmdict), name=self._MAPS["LAI"])
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     @hydromt_step
@@ -1674,7 +1674,7 @@ setting new flood_depth dimensions"
             df=df_lai_mapping,
         )
         # Add to grid
-        self.set_grid(da_lai, name=self._MAPS["LAI"])
+        self.staticmaps.set(da_lai, name=self._MAPS["LAI"])
         # Add to config
         self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
@@ -1904,11 +1904,11 @@ Run setup_soilmaps first"
         dsout = dsout.where(self.staticmaps.data[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
-        self.set_grid(dsout)
-        self.set_geoms(gdf, name="rootzone_storage")
+        self.staticmaps.set(dsout)
+        self.geoms.set(gdf, name="rootzone_storage")
 
         # update config
-        self.set_config("input.static.vegetation_root__depth", output_name_rootingdepth)
+        self.config.set("input.static.vegetation_root__depth", output_name_rootingdepth)
 
     @hydromt_step
     def setup_soilmaps(
@@ -2020,10 +2020,10 @@ a map for each of the wflow_sbm soil layers (n in total)
             wflow_layers=wflow_thicknesslayers,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout.rename(rmdict))
+        self.staticmaps.set(dsout.rename(rmdict))
 
         # Update the toml file
-        self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
+        self.config.set("model.soil_layer__thickness", wflow_thicknesslayers)
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     @hydromt_step
@@ -2086,7 +2086,7 @@ using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout)
+        self.staticmaps.set(daout)
         self._update_config_variable_name(daout.name)
 
     @hydromt_step
@@ -2149,7 +2149,7 @@ using 'variable' argument."
         )
         self._update_naming({wflow_var: output_name})
         # add to grid
-        self.set_grid(ksatver_vegetation, output_name)
+        self.staticmaps.set(ksatver_vegetation, output_name)
         # update config file
         self._update_config_variable_name(output_name)
 
@@ -2215,11 +2215,11 @@ using 'variable' argument."
             priority_basins=priority_basins,
             minimum_area=minimum_area,
         )
-        self.set_grid(da_alloc, name=output_name)
+        self.staticmaps.set(da_alloc, name=output_name)
         # Update the config
-        self.set_config("input.static.land_water_allocation_area__count", output_name)
+        self.config.set("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
-        self.set_geoms(gdf_alloc, name=output_name)
+        self.geoms.set(gdf_alloc, name=output_name)
 
     @hydromt_step
     def setup_allocation_surfacewaterfrac(
@@ -2340,10 +2340,10 @@ using 'variable' argument."
         # Update the settings toml
         wflow_var = "land_surface_water__withdrawal_fraction"
         self._update_naming({wflow_var: output_name})
-        self.set_config(f"input.static.{wflow_var}", output_name)
+        self.config.set(f"input.static.{wflow_var}", output_name)
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name=output_name)
+        self.staticmaps.set(w_frac, name=output_name)
 
     @hydromt_step
     def setup_domestic_demand(
@@ -2452,12 +2452,12 @@ using 'variable' argument."
         )
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.staticmaps.set(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="meta_population")
+            self.staticmaps.set(pop, name="meta_population")
 
         # Update toml
-        self.set_config("model.water_demand.domestic__flag", True)
+        self.config.set("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -2541,12 +2541,12 @@ using 'variable' argument."
 
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.staticmaps.set(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="meta_population")
+            self.staticmaps.set(popu_scaled, name="meta_population")
 
         # Update toml
-        self.set_config("model.water_demand.domestic__flag", True)
+        self.config.set("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -2643,15 +2643,15 @@ using 'variable' argument."
             ds_method=resampling_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in demand.data_vars}
-        self.set_grid(demand.rename(rmdict))
+        self.staticmaps.set(demand.rename(rmdict))
 
         # Update the settings toml
         if "domestic_gross" in demand.data_vars:
-            self.set_config("model.water_demand.domestic__flag", True)
+            self.config.set("model.water_demand.domestic__flag", True)
         if "industry_gross" in demand.data_vars:
-            self.set_config("model.water_demand.industry__flag", True)
+            self.config.set("model.water_demand.industry__flag", True)
         if "livestock_gross" in demand.data_vars:
-            self.set_config("model.water_demand.livestock__flag", True)
+            self.config.set("model.water_demand.livestock__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)
 
@@ -2795,8 +2795,8 @@ using 'variable' argument."
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
-            self.set_config("model.water_demand.paddy__flag", True)
+            self.staticmaps.set(ds_paddy.rename(rmdict))
+            self.config.set("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "demand_paddy_irrigated_mask", "demand_paddy_irrigated_mask"
@@ -2811,7 +2811,7 @@ using 'variable' argument."
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy__flag", False)
+            self.config.set("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["demand_nonpaddy_irrigated_mask"]
@@ -2828,9 +2828,9 @@ using 'variable' argument."
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.staticmaps.set(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy__flag", True)
+            self.config.set("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigated_mask"
@@ -2846,7 +2846,7 @@ using 'variable' argument."
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy__flag", False)
+            self.config.set("model.water_demand.nonpaddy__flag", False)
 
     @hydromt_step
     def setup_irrigation_from_vector(
@@ -2978,9 +2978,9 @@ using 'variable' argument."
                 ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
-            self.set_grid(ds_paddy.rename(rmdict))
+            self.staticmaps.set(ds_paddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.paddy__flag", True)
+            self.config.set("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "demand_paddy_irrigated_mask", "demand_paddy_irrigated_mask"
@@ -2995,7 +2995,7 @@ using 'variable' argument."
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy__flag", False)
+            self.config.set("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["demand_nonpaddy_irrigated_mask"]
@@ -3012,9 +3012,9 @@ using 'variable' argument."
                 ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
-            self.set_grid(ds_nonpaddy.rename(rmdict))
+            self.staticmaps.set(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy__flag", True)
+            self.config.set("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigated_mask"
@@ -3030,7 +3030,7 @@ using 'variable' argument."
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy__flag", False)
+            self.config.set("model.water_demand.nonpaddy__flag", False)
 
     @hydromt_step
     def setup_1dmodel_connection(
@@ -3166,7 +3166,7 @@ using 'variable' argument."
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
+            self.staticmaps.set(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             centroid = utils.planar_operation_in_utm(
@@ -3176,7 +3176,7 @@ using 'variable' argument."
             gdf_tributary["value"] = gdf_tributary["value"].astype(
                 ds_out["gauges"].dtype
             )
-            self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
+            self.geoms.set(gdf_tributary, name=f"gauges_{mapname}")
 
             # Add a check that all gauges are on the river
             if (
@@ -3207,19 +3207,19 @@ using 'variable' argument."
                 )
 
         # Derive subcatchment map
-        self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
+        self.staticmaps.set(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
-        self.set_geoms(gdf_subcatch, name=f"subcatchment_{mapname}")
+        self.geoms.set(gdf_subcatch, name=f"subcatchment_{mapname}")
 
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
+        self.staticmaps.set(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
         )
-        self.set_geoms(gdf_subcatch_riv, name=f"subcatchment_riv_{mapname}")
+        self.geoms.set(gdf_subcatch_riv, name=f"subcatchment_riv_{mapname}")
 
         # Update toml
         if update_toml:
@@ -3272,9 +3272,9 @@ using 'variable' argument."
             Additional arguments passed to the forcing function.
             See hydromt.model.processes.meteo.precip for more details.
         """
-        starttime = self.get_config("time.starttime")
-        endtime = self.get_config("time.endtime")
-        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        freq = pd.to_timedelta(self.config.get_value("time.timestepsecs"), unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
@@ -3311,7 +3311,7 @@ using 'variable' argument."
         precip_out.attrs.update({"precip_fn": precip_fn})
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
     @hydromt_step
@@ -3387,9 +3387,9 @@ using 'variable' argument."
         hydromt_wflow.workflows.forcing.spatial_interpolation
         `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
         """
-        starttime = self.get_config("time.starttime")
-        endtime = self.get_config("time.endtime")
-        timestep = self.get_config("time.timestepsecs")
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        timestep = self.config.get_value("time.timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
@@ -3493,12 +3493,12 @@ using 'variable' argument."
 
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn_str})
-        self.set_forcing(precip_out.where(mask), name="precip")
+        self.forcing.set(precip_out.where(mask), name="precip")
         self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
         # Add to geoms
         gdf_stations = da_precip.vector.to_gdf().to_crs(self.crs)
-        self.set_geoms(gdf_stations, name="stations_precipitation")
+        self.geoms.set(gdf_stations, name="stations_precipitation")
 
     @hydromt_step
     def setup_temp_pet_forcing(
@@ -3598,9 +3598,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        starttime = self.get_config("time.starttime")
-        endtime = self.get_config("time.endtime")
-        timestep = self.get_config("time.timestepsecs")
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        timestep = self.config.get_value("time.timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
@@ -3714,7 +3714,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
-            self.set_forcing(pet_out.where(mask), name="pet")
+            self.forcing.set(pet_out.where(mask), name="pet")
             self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
         # make sure only temp is written to netcdf
@@ -3743,7 +3743,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 method=fillna_method,
                 fill_value="extrapolate",
             )
-        self.set_forcing(temp_out.where(mask), name="temp")
+        self.forcing.set(temp_out.where(mask), name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step
@@ -3777,9 +3777,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         """
         logger.info("Preparing potential evapotranspiration forcing maps.")
 
-        starttime = self.get_config("time.starttime")
-        endtime = self.get_config("time.endtime")
-        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        freq = pd.to_timedelta(self.config.get_value("time.timestepsecs"), unit="s")
 
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
@@ -3800,7 +3800,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
-        self.set_forcing(pet_out, name="pet")
+        self.forcing.set(pet_out, name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     @hydromt_step
@@ -3873,10 +3873,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         self.set_states(states)
 
         # Update config to read the states
-        self.set_config("model.cold_start__flag", False)
+        self.config.set("model.cold_start__flag", False)
         # Update states variables names in config
         for option in states_config:
-            self.set_config(option, states_config[option])
+            self.config.set(option, states_config[option])
 
     @hydromt_step
     def clip(
@@ -3913,7 +3913,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             :py:meth:`~hydromt.raster.Raster.clip_geom`
         """
         # Reservoir maps that will be removed if no reservoirs after clipping
-        # key: staticmaps name,  value: wflow intput variable name
+        # key: staticmaps name,  value: wflow input variable name
         reservoir_maps = [
             self._MAPS["reservoir_area_id"],
             self._MAPS["reservoir_outlet_id"],
@@ -3936,7 +3936,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         # Reservoir states that will be removed if no reservoirs after clipping
         # key: states name,  value: wflow state variable name
-        reservoir_state = self.get_config(
+        reservoir_state = self.config.get_value(
             "state.variables.reservoir_water_surface__elevation",
             fallback="reservoir_water_level",
         )
@@ -3972,7 +3972,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             # Clear and add
             self.tables._data = {}
             for k in keys_to_keep:
-                self.set_tables(old_tables[k], name=k)
+                self.tables.set(old_tables[k], name=k)
 
     @hydromt_step
     def upgrade_to_v1_wflow(self):
@@ -3993,7 +3993,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
             self.config._data = tomllib.load(file)
         for option in config_out:
-            self.set_config(option, config_out[option])
+            self.config.set(option, config_out[option])
 
         # Merge lakes and reservoirs layers
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
@@ -4004,7 +4004,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             # Remove older maps from grid
             self.staticmaps.drop_vars(vars_to_remove)
             # Add new reservoir maps to grid
-            self.set_grid(ds_res)
+            self.staticmaps.set(ds_res)
             # Update the config with the new names
             for option in config_opt:
-                self.set_config(option, config_opt[option])
+                self.config.set(option, config_opt[option])
