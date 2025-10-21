@@ -1,3 +1,5 @@
+.. _data_catalog:
+
 Data Catalog
 ============
 
@@ -8,6 +10,6 @@ You can explore the guides below for detailed instructions and examples.
    :hidden:
    :maxdepth: 1
 
-   Prepare your own <https://deltares.github.io/hydromt/stable/guides/advanced_user/data_prepare_cat.html>
+   Prepare your a data catalog <https://deltares.github.io/hydromt/stable/guides/advanced_user/data_prepare_cat.html>
    Supported data types <https://deltares.github.io/hydromt/stable/guides/advanced_user/data_types.html>
    Predefined catalogs <https://deltares.github.io/hydromt/stable/guides/user_guide/data_existing_cat.html>

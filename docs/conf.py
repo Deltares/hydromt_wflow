@@ -104,8 +104,10 @@ add_module_names = False # don't show full path to function/class
 html_theme = "pydata_sphinx_theme"
 html_logo = "_static/hydromt-icon.svg"
 html_favicon = "_static/hydromt-icon.svg"
-autodoc_member_order = "bysource"  # overwrite default alphabetical sort
-autoclass_content = "both"
+autodoc_default_options = {
+    "member-order": "bysource",  # `alphabetical`, `groupwise` or `bysource` -- order of documented members
+    "autoclass-content": "init", # `init`, `class` or `both` -- include docstring from __init__, class or both
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -117,9 +119,8 @@ autoclass_content = "both"
 html_static_path = ["_static"]
 html_css_files = ["theme-deltares.css"]
 html_theme_options = {
-    "show_nav_level": 1,
+    "show_nav_level": 1, # Expand navigation to level 1 at load time
     "navbar_align": "left",
-    "collapse_navigation": True,
     "use_edit_page_button": True,
     "icon_links": [
         {
@@ -283,7 +284,7 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "auto" # "never" or "always" or "auto", where "auto" means execute if no outputs are present
+nbsphinx_execute = "never" # "never" or "always" or "auto", where "auto" means execute if no outputs are present
 nbsphinx_timeout = 300
 linkcheck_ignore = [
     r'https://localhost:\d+/',

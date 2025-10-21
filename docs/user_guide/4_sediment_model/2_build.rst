@@ -9,7 +9,13 @@ data libraries are set, you can build a model by using:
 .. code-block:: console
 
     activate hydromt-wflow
-    hydromt build wflow_sediment path/to/built_model -r "{'basin': [x, y]}" -i wflow_sediment_build.yml -d data_sources.yml -vvv
+    hydromt build wflow_sediment path/to/built_model -i wflow_sediment_build.yml -d data_sources.yml -vvv
+
+.. Note::
+  From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or \-\-region flag.
+  The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
+  From HydroMT version 1.0 onwards, the region argument has been moved to ``setup_basemaps`` function arguments and is no longer available via cli.
+
 
 The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of the Wflow Sediment model are:

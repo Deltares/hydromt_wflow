@@ -7,9 +7,10 @@ Installation Guide
 Installation
 ============
 
-There are various ways in which one can install hydrom_wflow in a python environment, the main being:
+There are various ways in which one can install hydromt_wflow in a python environment, the main being:
 
 **Choosing an installation method**
+
 While both Conda and Pixi provide robust ways to install HydroMT-Wflow, your choice depends on your workflow and environment needs.
 
 Conda is a well-established package manager, ideal if you want direct control over environment creation and dependency resolution.
@@ -17,7 +18,7 @@ It is widely used in scientific computing and works well when integrating HydroM
 Use this if you are already familiar with Conda environments or need tighter control over package versions.
 
 Pixi is a project-based environment manager that simplifies dependency handling and environment reproducibility.
-It is our recommended option for new projects because it handles both Conda and PyPI dependencies in a streamlined way and ensures consistency across installations.
+It is our recommended option for developers or if you would like to update the code because it handles both Conda and PyPI dependencies in a streamlined way and ensures consistency across installations.
 Pixi is especially useful if you want to encapsulate HydroMT-Wflow and its dependencies within a project environment without manually managing Conda channels or environments.
 
 Choose Conda if you want flexibility and integration with existing workflows, and Pixi if you prefer a streamlined project-oriented installation with minimal manual configuration.

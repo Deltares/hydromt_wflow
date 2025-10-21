@@ -91,9 +91,10 @@ Dependencies
 ------------
 HydroMT-Wflow builds on the HydroMT core and relies on several excellent open-source packages for geospatial and scientific computing, including:
 
-- **Core libraries:** `xarray`, `numpy`, `pandas`, `scipy`, `numba`, `dask`, `bottleneck`, `cftime`
+- **Core Scientific & Data libraries:** `hydromt`, `xarray`, `numpy`, `pandas`, `scipy`, `numba`, `dask`, `bottleneck`, `cftime`, `gwwapi`, `hydroengine`, `pyflwdir`,
 - **Geospatial libraries:** `geopandas`, `shapely`, `rasterio`, `rioxarray`, `pyproj`, `pyogrio`, `cligj`
-- **Hydrology & modeling tools:** `pyflwdir`, `hydromt`
-- **Configuration & utilities:** `attrs`, `click`, `click-plugins`, `pydantic`, `pydantic-core`, `pyyaml`, `fsspec`, `pooch`, `typing-inspection`, `importlib-metadata`
-- **System & support libraries:** `colorama`, `six`, `packaging`, `platformdirs`, `partd`, `toolz`, `tomli`, `tomli-w`
-- **Other dependencies:** `affine`, `annotated-types`, `certifi`, `charset-normalizer`, `cloudpickle`, `crc32c`, `donfig`, `idna`, `llvmlite`, `locket`, `mercantile`, `netcdf4`, `numcodecs`, `pystac`, `pyparsing`, `python-dateutil`, `pytz`, `requests`, `typing-extensions`, `tzdata`, `universal-pathlib`, `urllib3`, `xmltodict`, `zarr`, `zipp`
+- **Configuration, Validation & CLI Tools:** `attrs`, `click`, `click-plugins`, `pydantic`, `pydantic-core`, `pyyaml`, `typing-inspection`, `importlib-metadata`
+- **File IO, Storage & Networking:** `fsspec`, `netcdf4`, `tomli`, `tomli-w`, `requests`, `universal-pathlib`, `urllib3`, `pooch`, `pyet`, `wradlib`
+- **Utilities & Support libraries:** `colorama`, `six`, `packaging`, `platformdirs`, `partd`, `toolz`
+- **Other dependencies:** `affine`, `annotated-types`, `certifi`, `charset-normalizer`, `cloudpickle`, `crc32c`, `donfig`, `idna`, `llvmlite`, `locket`, `mercantile`, `numcodecs`, `pystac`, `pyparsing`, `python-dateutil`, `pytz`, `typing-extensions`, `tzdata`, `xmltodict`, `zarr`, `zipp`
+- **Examples & Visualization:** `cartopy`, `jupyterlab`, `nbconvert`, `notebook`

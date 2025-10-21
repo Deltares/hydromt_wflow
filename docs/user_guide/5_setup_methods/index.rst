@@ -8,12 +8,17 @@ In addition, this section will include illustrative figures and relevant literat
 
 .. note::
 
-   The setup methods form the bridge between data preparation and model initialization.
-   Understanding the rationale behind each setup method will help in applying HydroMT-Wflow to different hydrological contexts effectively.
+   The setup methods form the bridge between raw input data and model inputs and parameters.
+   Understanding the rationale behind each setup method will help in applying HydroMT-Wflow and understand how the model parameters were derived, what are the assumptions and uncertainties behind the methods.
+
+
+.. warning::
+
+   This section is under construction. More setup methods and detailed descriptions will be added soon.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Setup Methods
+   :caption: Technical description
    :glob:
 
    setup*

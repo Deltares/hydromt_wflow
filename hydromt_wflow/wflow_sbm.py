@@ -35,7 +35,11 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowSbmModel(WflowBaseModel):
-    """Read or Write a wflow model.
+    """Class to read, write, build, update wflow-SBM models.
+
+    This class provides methods to manipulate the wflow-SBM model components
+    and their data. It extends the :py:class:`hydromt_wflow.WflowBaseModel`
+    with specific methods for the setup of the wflow-SBM model schematisation.
 
     Parameters
     ----------
