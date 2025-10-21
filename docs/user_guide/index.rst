@@ -22,7 +22,7 @@ The user guide is organised through the following sections:
         :link: 2_sbm_model/index
         :link-type: doc
 
-        :octicon:`drop;10em`
+        :octicon:`file-directory-open-fill;10em`
         +++
         Wflow SBM
 
@@ -31,7 +31,7 @@ The user guide is organised through the following sections:
         :link: 3_sediment_model/index
         :link-type: doc
 
-        :octicon:`mountain;10em`
+        :octicon:`file-directory-open-fill;10em`
         +++
         Wflow Sediment
 
