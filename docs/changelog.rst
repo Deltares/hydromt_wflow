@@ -21,6 +21,7 @@ Fixed
 
 Removed
 -------
+- ``get_*``, ``set_*``, ``read_*``, and ``write_*`` functions on the model have been removed. Their equivalent on the corresponding component should be used instead. (#613)
 
 
 v1.0.0rc2
