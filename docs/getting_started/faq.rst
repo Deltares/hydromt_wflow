@@ -7,73 +7,78 @@ Frequently asked questions
 
 This page contains some FAQ / tips and tricks to work with HydroMT-Wflow.
 For more general questions on how to work with data or the HydroMT config and command line,
-you can visit the `HydroMT core FAQ page <https://deltares.github.io/hydromt/stable/overview/faq.html>`_
+you can visit the `HydroMT core FAQ page <https://deltares.github.io/hydromt/stable/overview/faq.html>`_.
 
 Building a Wflow model
 ----------------------
 
- | **Q**: Can I use other region arguments that ``basin`` or ``subbasin`` ?
+ | **Q**: Can I use other region arguments than ``basin`` or ``subbasin``?
 
 To build a Wflow model, it is strongly recommended to use the ``basin`` or ``subbasin`` when defining your region of interest.
-This ensures that all upstream contributing cells are well taken into account. Using other options might cause your Wflow model
-run crash. If you are sure of what you are doing, you can optionally use the ``geom`` option and provide an exact shapefile of the
-basin/subbasins you want to derive, that was prepared using the same DEM source that you intend to use in the :py:func:`~WflowSbmModel.setup_basemaps`
-method.
+This ensures that all upstream contributing cells are included. Using other options might cause your Wflow model run to fail.
+If you know exactly what you are doing, you can use the ``geom`` option and provide an exact shapefile of the
+basin or subbasins that was prepared using the same DEM source intended for :py:func:`~WflowSbmModel.setup_basemaps`.
 
- | **Q**: Can I derive several sub-basins at the same time using a bounding box or a geometry instead of a list of point coordinates?
+ | **Q**: How to make sure sub-basins will be properly derived by HydroMT?
 
-To derive subbasin with HydroMT, you also need to provide in your region options a snapping arguments so that HydroMT knows what type of
-subbasin you want to create. You can use either streamorder *strord* or upstream area *uparea* type of snapping:
+When deriving sub-basins, HydroMT needs to know how to snap outlet points to the stream network.
+You can specify a snapping argument such as stream order (*strord*) or upstream area (*uparea*) in the region definition:
 
-- "{'subbasin': [xmin, ymin, xmax, ymax], 'strord': 3}"
-- "{'subbasin': 'path/to/geomtry.shp', 'uparea': 100000}"
+- ``{'subbasin': [xmin, ymin, xmax, ymax], 'strord': 3}``
+- ``{'subbasin': 'path/to/geometry.shp', 'uparea': 100000}``
 
- | **Q**: Can I use a different dataset for precipitation and temperature forcing data?
+This ensures sub-basin delineation is consistent with the river network derived from your DEM.
 
-Yes, that is one of the reason why the two were separated into two separate methods: :py:func:`~WflowSbmModel.setup_precip_forcing` and
-:py:func:`~WflowSbmModel.setup_temp_pet_forcing`, you can just use a different data source for *precip_fn* and *temp_pet_fn* and HydroMT
-will do its resampling magic!
+ | **Q**: Can I use different datasets for precipitation, temperature, and PET forcing data?
 
+Yes. That's exactly why the methods were separated. You can use different sources for precipitation, temperature, and PET forcing:
+- :py:func:`~WflowSbmModel.setup_precip_forcing`
+- :py:func:`~WflowSbmModel.setup_temp_pet_forcing`
+- :py:func:`~WflowSbmModel.setup_pet_forcing`
 
- | **Q**: Can I add several gauges at the same time ?
+Each method allows specifying its own data source (e.g. *precip_fn*, *temp_pet_fn*, or *pet_fn*), and HydroMT will handle the resampling and temporal alignment automatically.
 
-Sure! HydroMT allows you to use several times the same method in your configuration file. For this, you just need to start
-enumerating the methods by adding a number to the end of the method name. For example:
+ | **Q**: Can I add several gauges at the same time?
+
+Yes. Since HydroMT v1, you can add multiple gauges directly in the configuration file using the **new list-based YAML format**.
+You no longer need to enumerate methods (e.g. *setup_gauges2*).
+The example below shows how to define multiple gauge sources:
 
 .. code-block:: yaml
 
     setup_gauges:
-      gauges_fn: my_gauges1
-
-    setup_gauges2:
-      gauges_fn: my_gauges2
+      - gauges_fn: my_gauges1
+      - gauges_fn: my_gauges2
 
 Updating a Wflow model
 ----------------------
 
- | **Q**: Is there an easy way to update reservoir parameters in my Wflow model ?
+ | **Q**: Is there an easy way to update reservoir parameters in my Wflow model?
 
-To easily update reservoir parameters, you can directly use the *meta_reservoirs_simple_control.geojson* and *meta_reservoirs_no_control.geojson* that are saved
-by HydroMT into the *staticgeoms* folder. Once you have updated the parameters with the new value, just use these geojson files as
-your new "local" input data!
+Yes. You can directly edit the ``meta_reservoirs_simple_control.geojson`` or ``meta_reservoirs_no_control.geojson`` files saved
+by HydroMT in the *staticgeoms* folder. Once you have updated the parameters, simply provide these edited GeoJSON files as your
+new local input data when rebuilding or updating your model.
 
- | **Q**: Can I select a specific Wflow TOML config file when updating my model ?
+ | **Q**: Can I select a specific Wflow TOML config file when updating my model?
 
-It is possible. In that case, you need to start your HydroMT configuration with a `global` section
-where you can specify which TOML file to use using the *config_fn* argument.
+Yes. You can define this in the ``global`` section of your HydroMT configuration file using the ``config_filename`` argument:
 
 .. code-block:: yaml
 
     global:
-      config_fn: path/to/my_wflow_config.toml
+      config_filename: path/to/my_wflow_config.toml
 
 Others
 ------
 
- | **Q**: Can I convert my old Wflow model to the new Wflow Julia version with HydroMT ?
+ | **Q**: Can I convert my old Wflow model to the new Wflow Julia version with HydroMT?
 
-Conversion from an old python Wflow model to Wflow Julia is not possible anymore since HydroMT Wflow version 1.0.
-You can use an older version to do so and check the required steps in the previous version of this documentation page.
+Conversion from old Python Wflow models to Wflow Julia is **no longer supported** since HydroMT-Wflow version 1.0.
+You can use an older HydroMT version for that task and follow the steps described in its documentation.
 
-We do support conversion of Wflow v0.x Julia models to Wflow v1.x Julia models using the :py:func:`~WflowSbmModel.upgrade_to_v1_wflow` method for SBM models and :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow` for Sediment models.
-See the corresponding example for more information: `Upgrade to Wflow.jl version 1 <../_examples/upgrade_to_wflow_v1.ipynb>`_
+HydroMT-Wflow **does** support upgrading Wflow Julia v0.x models to Wflow Julia v1.x using:
+- :py:func:`~WflowSbmModel.upgrade_to_v1_wflow` for SBM models, and
+- :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow` for sediment models.
+
+See the example notebook for details:
+`Upgrade to Wflow.jl version 1 <../_examples/upgrade_to_wflow_v1.ipynb>`_.
