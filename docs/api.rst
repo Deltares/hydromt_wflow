@@ -80,19 +80,6 @@ Attributes
    WflowBaseModel.basins
    WflowBaseModel.rivers
 
-Other general methods
----------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowBaseModel.set_config
-   WflowBaseModel.get_config
-   WflowBaseModel.set_forcing
-   WflowBaseModel.set_grid
-   WflowBaseModel.set_geoms
-   WflowBaseModel.set_states
-
 Setup methods
 -------------
 
