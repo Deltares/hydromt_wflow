@@ -23,7 +23,7 @@ If you do not yet have one installed, we recommend either:
 - `Miniforge (Mambaforge) <https://conda-forge.org/docs/>`_
 - `uv <https://docs.astral.sh/uv/>`_
 
-Both come preconfigured with the **conda-forge** channel, which provides free and open packages used by HydroMT.
+Both conda variants come preconfigured with the **conda-forge** channel, which provides free and open packages used by HydroMT.
 
 Installing HydroMT-Wflow
 ========================
@@ -31,7 +31,7 @@ Installing HydroMT-Wflow
 HydroMT-Wflow is available from both **PyPI** and **conda-forge**.
 The simplest and most flexible approach is to install it using **pip** inside a new environment.
 
-Basic installation using pip
+Installation using pip
 ----------------------------
 
 We recommend creating a clean environment to avoid dependency conflicts. For example:
@@ -43,6 +43,19 @@ We recommend creating a clean environment to avoid dependency conflicts. For exa
     $ pip install hydromt_wflow
 
 This will install HydroMT-Wflow along with HydroMT core and all required dependencies.
+
+Installation using uv
+---------------------
+
+`uv <https://docs.astral.sh/uv/>`_ is a fast drop-in replacement for pip and virtualenv.
+It creates lightweight virtual environments and installs dependencies using a lockfile-based resolver for reproducibility.
+
+To add HydroMT-Wflow to an existing uv environment:
+
+.. code-block:: console
+
+    $ uv add hydromt_wflow
+
 
 To verify the installation, you can list the installed HydroMT plugins:
 
@@ -79,18 +92,6 @@ To verify the installation, you can list the installed HydroMT plugins:
         Uri_resolver plugins:
             - convention (hydromt 1.3.0)
             - raster_tindex (hydromt 1.3.0)
-
-Installation using uv
----------------------
-
-`uv <https://docs.astral.sh/uv/>`_ is a fast drop-in replacement for pip and virtualenv.
-It creates lightweight virtual environments and installs dependencies using a lockfile-based resolver for reproducibility.
-
-To add HydroMT-Wflow to an existing uv environment:
-
-.. code-block:: console
-
-    $ uv add hydromt_wflow
 
 
 Installing optional dependencies
