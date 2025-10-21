@@ -218,7 +218,9 @@ def test_model_outputs(example_wflow_outputs):
     assert "Q" in wflow.output_scalar.data
 
     # Check the csv output
-    assert len(wflow.output_csv.data) == len(wflow.config.get_value("output.csv.column"))
+    assert len(wflow.output_csv.data) == len(
+        wflow.config.get_value("output.csv.column")
+    )
 
     # Checks for the csv columns
     # Q for gauges_grdc
