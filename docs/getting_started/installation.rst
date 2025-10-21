@@ -20,7 +20,7 @@ These tools simplify installing packages and managing isolated environments.
 If you do not yet have one installed, we recommend either:
 
 - `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_
-- `Miniforge (Mambaforge) <https://github.com/conda-forge/miniforge#mambaforge>`_
+- `Miniforge (Mambaforge) <https://conda-forge.org/docs/>`_
 - `uv <https://docs.astral.sh/uv/>`_
 
 Both come preconfigured with the **conda-forge** channel, which provides free and open packages used by HydroMT.
