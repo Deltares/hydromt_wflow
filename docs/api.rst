@@ -34,23 +34,6 @@ High level and I/O methods
    WflowBaseModel.read
    WflowBaseModel.write
 
-   WflowBaseModel.read_config
-   WflowBaseModel.write_config
-
-   WflowBaseModel.read_grid
-   WflowBaseModel.write_grid
-
-   WflowBaseModel.read_geoms
-   WflowBaseModel.write_geoms
-
-   WflowBaseModel.read_forcing
-   WflowBaseModel.write_forcing
-
-   WflowBaseModel.read_states
-   WflowBaseModel.write_states
-
-   WflowBaseModel.read_outputs
-
 
 Components
 ----------
@@ -79,19 +62,6 @@ Attributes
    WflowBaseModel.flwdir
    WflowBaseModel.basins
    WflowBaseModel.rivers
-
-Other general methods
----------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowBaseModel.set_config
-   WflowBaseModel.get_config
-   WflowBaseModel.set_forcing
-   WflowBaseModel.set_grid
-   WflowBaseModel.set_geoms
-   WflowBaseModel.set_states
 
 Setup methods
 -------------

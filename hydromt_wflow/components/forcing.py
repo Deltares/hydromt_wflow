@@ -8,6 +8,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import xarray as xr
+from hydromt import hydromt_step
 from hydromt.io import write_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
@@ -61,6 +62,7 @@ class WflowForcingComponent(GridComponent):
         )
 
     ## I/O methods
+    @hydromt_step
     def read(
         self,
         **kwargs,
@@ -92,6 +94,7 @@ class WflowForcingComponent(GridComponent):
             **kwargs,
         )
 
+    @hydromt_step
     def write(
         self,
         *,
@@ -259,11 +262,11 @@ class WflowForcingComponent(GridComponent):
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
         # Set back to the config
-        self.model.set_config("input.path_forcing", filepath.as_posix())
-        self.model.set_config(
+        self.model.config.set("input.path_forcing", filepath.as_posix())
+        self.model.config.set(
             "time.starttime", start_time.strftime("%Y-%m-%dT%H:%M:%S")
         )
-        self.model.set_config("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
+        self.model.config.set("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
 
         return
 

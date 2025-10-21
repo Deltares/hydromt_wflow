@@ -153,8 +153,8 @@ Model components
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSbmModel`
 components contains which Wflow in- and output files. The files are read and written with the associated
-read- and write- methods, i.e. :py:func:`~WflowSbmModel.read_config`
-and :py:func:`~WflowSbmModel.write_config` for the
+read- and write- methods, i.e. :py:func:`~WflowSbmModel.config.read`
+and :py:func:`~WflowSbmModel.config.write` for the
 :py:attr:`~WflowSbmModel.config` component.
 
 

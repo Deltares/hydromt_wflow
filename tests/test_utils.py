@@ -190,7 +190,7 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
 
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
-    wflow.set_root(tmp_path, mode="w")
+    wflow.root.set(tmp_path, mode="w")
     wflow.write()
 
     assert (tmp_path / "staticmaps" / "reservoir_hq_1.csv").is_file()
