@@ -46,24 +46,73 @@ Key format changes:
 
 For detailed information about the format changes, see this section in the HydroMT migration guide: `Changes to the data catalog yaml file format <https://deltares.github.io/hydromt/stable/guides/plugin_dev/migrating_to_v1.html#datacatalog>`_
 
-Removing Dictionary-like Catalog Access
----------------------------------------
+Main Changes for Python Users
+=============================
 
-Catalog access has changed from dictionary-style lookups to an explicit API.
-Update your code accordingly:
+In HydroMT-Wflow v1, the internal data structure and API were redesigned to improve consistency and maintainability.
+Most changes affect how model components (such as ``staticmaps`` and ``forcing``) are accessed and how model data is read and written.
 
-+------------------------------+------------------------------------------+
-| v0.x                         | v1                                       |
-+==============================+==========================================+
-| `catalog["name"]`            | `catalog.get_source("name")`             |
-+------------------------------+------------------------------------------+
-| `'name' in catalog`          | `catalog.contains_source("name")`        |
-+------------------------------+------------------------------------------+
-| `catalog.keys()`             | `catalog.get_source_names()`             |
-+------------------------------+------------------------------------------+
-| `catalog["name"] = data`     | `catalog.set_source("name", data)`       |
-+------------------------------+------------------------------------------+
+Component Changes
+-----------------
 
+The model components are now **dedicated classes** rather than raw data objects (e.g., ``xarray``, ``dict``, or ``geopandas``).
+Each component can be accessed via the ``model`` instance and exposes its underlying data through the ``.data`` property.
+
++--------------------------------+--------------------------------+
+| v0.x                           | v1                             |
++================================+================================+
+| ``model.grid``                 | ``model.staticmaps``           |
++--------------------------------+--------------------------------+
+| ``model.results``              | ``model.output_grid``          |
+|                                | ``model.output_scalar``        |
+|                                | ``model.output_csv``           |
++--------------------------------+--------------------------------+
+| ``model.<component>``          | ``model.<component>.data``     |
++--------------------------------+--------------------------------+
+| ``model.write_<component>()``  | ``model.<component>.write()``  |
++--------------------------------+--------------------------------+
+| ``model.read_<component>()``   | ``model.<component>.read()``   |
++--------------------------------+--------------------------------+
+| ``model.set_<component>()``    | ``model.<component>.set()``    |
++--------------------------------+--------------------------------+
+
+Example: Accessing Component Data
+---------------------------------
+
+Each component provides structured access to its data via the ``.data`` property.
+
+.. code-block:: python
+
+    from hydromt_wflow import WflowSbmModel
+
+    model = WflowSbmModel(root="path/to/model", mode="r")
+
+    # Access xarray.Dataset of static maps
+    staticmaps = model.staticmaps.data
+
+    # Access geometries (GeoDataFrames)
+    geoms = model.geoms.data
+
+    # Access forcing data (xarray.Dataset)
+    forcing = model.forcing.data
+
+Example: Writing Components
+---------------------------
+
+Read and write operations are now handled at the **component level**.
+
+.. code-block:: python
+
+    # Write configuration file
+    model.config.write()
+
+    # Write updated staticmaps to disk
+    model.staticmaps.write()
+
+    # Read forcing component explicitly
+    model.forcing.read()
+
+These changes provide a clearer and more modular interface, making it easier to manipulate model components independently.
 
 Migration to Wflow v1
 =====================
