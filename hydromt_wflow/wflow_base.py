@@ -1748,19 +1748,14 @@ one variable and variables list is not provided."
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if "staticmaps" in self.components:
-            self.staticmaps.write(filename=grid_filename)
-            self.staticmaps.write_region(
-                filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
-            )
-        if "geoms" in self.components:
-            self.geoms.write(folder=geoms_folder)
-        if "forcing" in self.components:
-            self.forcing.write(filename=forcing_filename)
-        if "tables" in self.components:
-            self.tables.write()
-        if "states" in self.components:
-            self.states.write(filename=states_filename)
+        self.staticmaps.write(filename=grid_filename)
+        self.staticmaps.write_region(
+            filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
+        )
+        self.geoms.write(folder=geoms_folder)
+        self.forcing.write(filename=forcing_filename)
+        self.tables.write()
+        self.states.write(filename=states_filename)
 
         # Write the config last as variables can get set in other write methods
         self.config.write(filename=config_filename)
