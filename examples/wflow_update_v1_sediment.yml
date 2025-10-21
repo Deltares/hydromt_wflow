@@ -5,8 +5,8 @@ steps:
   - upgrade_to_v1_wflow:
       soil_fn: soilgrids
 
-  - write_grid:
+  - staticmaps.write:
       filename: staticmaps_v1.nc
 
-  - write_config:
+  - config.write:
       filename: wflow_sediment_v1.toml

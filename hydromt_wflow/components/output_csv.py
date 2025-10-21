@@ -6,6 +6,7 @@ from pathlib import Path
 import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import DatasetsComponent
+from hydromt.model.steps import hydromt_step
 
 from hydromt_wflow import utils
 from hydromt_wflow.components.staticmaps import WflowStaticmapsComponent
@@ -54,6 +55,7 @@ class WflowOutputCsvComponent(DatasetsComponent):
         )
 
     ## I/O methods
+    @hydromt_step
     def read(self):
         """Read csv model output at root/dir_output/filename.
 

@@ -6,6 +6,7 @@ import geopandas as gpd
 from geopandas.testing import assert_geodataframe_equal
 from hydromt.model import Model
 from hydromt.model.components import GeomsComponent, ModelComponent
+from hydromt.model.steps import hydromt_step
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
@@ -50,6 +51,7 @@ class WflowGeomsComponent(GeomsComponent):
             region_filename=region_filename,
         )
 
+    @hydromt_step
     def read(
         self,
         folder: str = "staticgeoms",
@@ -74,6 +76,7 @@ class WflowGeomsComponent(GeomsComponent):
 
         super().read(filename=str(pattern))
 
+    @hydromt_step
     def write(
         self,
         folder: str = "staticgeoms",
