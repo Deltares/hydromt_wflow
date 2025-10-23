@@ -5952,7 +5952,7 @@ packages:
 - pypi: ./
   name: hydromt-wflow
   version: 1.0.0rc2
-  sha256: d80e11fb02332b6bd223424705974ed81760fd797768bf7f5a258a47a0afdbf8
+  sha256: 8cd6eae08bff6009019dfc54e7f36a7f9ffe864d04bdf707b0eebf9cf884a408
   requires_dist:
   - dask
   - geopandas>=0.10
@@ -5986,6 +5986,7 @@ packages:
   - pytest-mock ; extra == 'test'
   - pytest-timeout ; extra == 'test'
   - pytest-benchmark ; extra == 'test'
+  - hydromt-wflow[dev,docs,examples,extra,test] ; extra == 'full'
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-75.1-he02047a_0.conda

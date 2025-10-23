@@ -31,16 +31,16 @@ Installing HydroMT-Wflow
 HydroMT-Wflow is available from both **PyPI** and **conda-forge**.
 The simplest and most flexible approach is to install it using **pip** inside a new environment.
 
-Installation using pip
+Installation using uv / pip
 ----------------------------
 
 We recommend creating a clean environment to avoid dependency conflicts. For example:
 
 .. code-block:: console
 
-    $ conda create -n hydromt-wflow pip python=3.11
+    $ conda create -n hydromt-wflow uv python=3.11
     $ conda activate hydromt-wflow
-    $ pip install hydromt_wflow
+    $ uv pip install hydromt_wflow
 
 This will install HydroMT-Wflow along with HydroMT core and all required dependencies.
 
@@ -61,7 +61,7 @@ To verify the installation, you can list the installed HydroMT plugins:
 
 .. code-block:: console
 
-    $ hydromt --plugins
+    $ uv run hydromt --plugins
         Model plugins:
             - model (hydromt 1.3.0)
             - wflow_sbm (hydromt_wflow 1.0.0)
@@ -102,7 +102,7 @@ You can install these easily using pip's extras syntax:
 
 .. code-block:: console
 
-    $ pip install "hydromt_wflow[extra]"
+    $ uv pip install "hydromt_wflow[extra]"
 
 Or when using uv:
 
@@ -117,6 +117,8 @@ This will install optional packages such as:
 - **hydroengine** – enables integration with Google Earth Engine.
 - **wradlib** – provides radar rainfall processing and interpolation tools.
 - **pyet** – adds evapotranspiration computation support.
+
+For a list of all the optional dependency groups and their contents, have a look at the `pyproject.toml` file. Use `hydromt_wflow[full]` to install all optional dependencies.
 
 
 Installing via conda
@@ -134,7 +136,7 @@ You can install them afterwards with pip inside your conda environment:
 
 .. code-block:: console
 
-    (hydromt-wflow) $ pip install "hydromt_wflow[extra]"
+    (hydromt-wflow) $ uv pip install "hydromt_wflow[extra]"
 
 Developer installation
 ======================
