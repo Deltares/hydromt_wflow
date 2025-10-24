@@ -455,7 +455,7 @@ class WflowSedimentModel(WflowBaseModel):
         *,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
-        lulc_vars: list[workflows.LulcVarType] = [
+        lulc_vars: list[str] = [
             "landuse",
             "soil_compacted_fraction",
             "erosion_usle_c",
@@ -512,7 +512,24 @@ class WflowSedimentModel(WflowBaseModel):
         lulc_vars : list[str]
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            Allowed values are found in `workflows.LulcVarType`.
+            The following values are allowed:
+
+            * ``"landuse"``
+            * ``"vegetation_kext"``
+            * ``"land_manning_n"``
+            * ``"soil_compacted_fraction"``
+            * ``"vegetation_root_depth"``
+            * ``"vegetation_leaf_storage"``
+            * ``"vegetation_wood_storage"``
+            * ``"land_water_fraction"``
+            * ``"vegetation_crop_factor"``
+            * ``"vegetation_feddes_alpha_h1"``
+            * ``"vegetation_feddes_h1"``
+            * ``"vegetation_feddes_h2"``
+            * ``"vegetation_feddes_h3_high"``
+            * ``"vegetation_feddes_h3_low"``
+            * ``"vegetation_feddes_h4"``
+            * ``"erosion_usle_c"``
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
@@ -540,7 +557,6 @@ class WflowSedimentModel(WflowBaseModel):
         )
 
         # If available, improve USLE C map with planted forest data
-        # TODO: Test if this still works.
         if self._MAPS["usle_c"] in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
@@ -576,7 +592,7 @@ class WflowSedimentModel(WflowBaseModel):
         *,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
-        lulc_vars: list[workflows.LulcVarType] = [
+        lulc_vars: list[str] = [
             "landuse",
             "soil_compacted_fraction",
             "erosion_usle_c",
@@ -640,7 +656,24 @@ class WflowSedimentModel(WflowBaseModel):
         lulc_vars : list[str]
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            Allowed values are found in `workflows.LulcVarType`.
+            The following values are allowed:
+
+            * ``"landuse"``
+            * ``"vegetation_kext"``
+            * ``"land_manning_n"``
+            * ``"soil_compacted_fraction"``
+            * ``"vegetation_root_depth"``
+            * ``"vegetation_leaf_storage"``
+            * ``"vegetation_wood_storage"``
+            * ``"land_water_fraction"``
+            * ``"vegetation_crop_factor"``
+            * ``"vegetation_feddes_alpha_h1"``
+            * ``"vegetation_feddes_h1"``
+            * ``"vegetation_feddes_h2"``
+            * ``"vegetation_feddes_h3_high"``
+            * ``"vegetation_feddes_h3_low"``
+            * ``"vegetation_feddes_h4"``
+            * ``"erosion_usle_c"``
         all_touched : bool, optional
             If True, all pixels touched by the vector will be burned in the raster,
             by default False.
@@ -681,7 +714,6 @@ class WflowSedimentModel(WflowBaseModel):
         )
 
         # If available, improve USLE C map with planted forest data
-        # TODO: Test if this still works.
         if self._MAPS["usle_c"] in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(

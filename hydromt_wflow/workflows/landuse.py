@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Literal, Optional
+from typing import Optional
 
 import geopandas as gpd
 import numpy as np
@@ -24,7 +24,6 @@ __all__ = [
     "add_paddy_to_landuse",
     "add_planted_forest_to_landuse",
     "validate_lulc_vars",
-    "LulcVarType",
     "LULC_VARS_MAPPING",
 ]
 
@@ -34,25 +33,6 @@ _RESAMPLING = {
     "lai": "average",
     "vegetation_feddes_alpha_h1": "mode",
 }
-
-LulcVarType = Literal[
-    "landuse",
-    "vegetation_kext",
-    "land_manning_n",
-    "soil_compacted_fraction",
-    "vegetation_root_depth",
-    "vegetation_leaf_storage",
-    "vegetation_wood_storage",
-    "land_water_fraction",
-    "vegetation_crop_factor",
-    "vegetation_feddes_alpha_h1",
-    "vegetation_feddes_h1",
-    "vegetation_feddes_h2",
-    "vegetation_feddes_h3_high",
-    "vegetation_feddes_h3_low",
-    "vegetation_feddes_h4",
-    "erosion_usle_c",
-]
 
 LULC_VARS_MAPPING = {
     "landuse": None,
@@ -86,11 +66,11 @@ def validate_lulc_vars(lulc_vars: list[str]):
     ------
         ValueError: An error that indicates which values are not allowed for lulc_vars.
     """
-    invalid_vars = set(lulc_vars).difference(LulcVarType.__args__)
+    invalid_vars = set(lulc_vars).difference(LULC_VARS_MAPPING.keys())
     if invalid_vars:
         raise ValueError(
             f"Invalid lulc_vars: {invalid_vars}. "
-            f"Allowed values are: {list(LulcVarType.__args__)}."
+            f"Allowed values are: {list(LULC_VARS_MAPPING.keys())}."
         )
 
 
