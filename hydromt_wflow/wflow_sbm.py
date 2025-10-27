@@ -1033,10 +1033,7 @@ setting new flood_depth dimensions"
 
         # add parameters
         ds_res, gdf_res = workflows.reservoir_simple_control_parameters(
-            gdf=gdf_org,
-            ds_reservoirs=ds_res,
-            timeseries_fn=timeseries_fn,
-            output_folder=self.root.path,
+            gdf=gdf_org, ds_reservoirs=ds_res, timeseries_fn=timeseries_fn
         )
 
         # merge with existing reservoirs
