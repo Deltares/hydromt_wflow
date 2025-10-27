@@ -17,7 +17,6 @@ from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
-from hydromt.typing import ModeLike
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
@@ -249,25 +248,25 @@ class WflowBaseModel(Model):
         if toml_output == "csv" or toml_output == "netcdf_scalar":
             logger.info(f"Adding {param} to {toml_output} section of toml.")
             # Add map to the input section of config
-            self.set_config(f"input.{mapname}", mapname)
+            self.config.set(f"input.{mapname}", mapname)
             # Settings and add csv or netcdf sections if not already in config
             # csv
             if toml_output == "csv":
                 header_name = "header"
                 var_name = "column"
-                current_config = self.get_config("output.csv")
+                current_config = self.config.get_value("output.csv")
                 if current_config is None or len(current_config) == 0:
-                    self.set_config("output.csv.path", "output.csv")
+                    self.config.set("output.csv.path", "output.csv")
             # netcdf
             if toml_output == "netcdf_scalar":
                 header_name = "name"
                 var_name = "variable"
-                current_config = self.get_config("output.netcdf_scalar")
+                current_config = self.config.get_value("output.netcdf_scalar")
                 if current_config is None or len(current_config) == 0:
-                    self.set_config("output.netcdf_scalar.path", "output_scalar.nc")
+                    self.config.set("output.netcdf_scalar.path", "output_scalar.nc")
             # initialise column / variable section
-            if self.get_config(f"output.{toml_output}.{var_name}") is None:
-                self.set_config(f"output.{toml_output}.{var_name}", [])
+            if self.config.get_value(f"output.{toml_output}.{var_name}") is None:
+                self.config.set(f"output.{toml_output}.{var_name}", [])
 
             # Add new output column/variable to config
             for o in range(len(param)):
@@ -279,10 +278,10 @@ class WflowBaseModel(Model):
                 if reducer is not None:
                     gauge_toml_dict["reducer"] = reducer[o]
                 # If the gauge column/variable already exists skip writing twice
-                variables = self.get_config(f"output.{toml_output}.{var_name}")
+                variables = self.config.get_value(f"output.{toml_output}.{var_name}")
                 if gauge_toml_dict not in variables:
                     variables.append(gauge_toml_dict)
-                    self.set_config(f"output.{toml_output}.{var_name}", variables)
+                    self.config.set(f"output.{toml_output}.{var_name}", variables)
         else:
             logger.info(
                 f"toml_output set to {toml_output}, \
@@ -436,12 +435,12 @@ skipping adding gauge specific outputs to the toml."
         if "mask" in ds_base.coords:
             ds_base = ds_base.drop_vars("mask")
 
-        self.set_grid(ds_base.rename(rmdict))
+        self.staticmaps.set(ds_base.rename(rmdict))
 
         # Add basin geometries after grid is set to avoid warning
         logger.info("Adding basin shape to staticgeoms.")
         for name, _geom in geometries.items():
-            self.set_geoms(_geom, name=name)
+            self.geoms.set(_geom, name=name)
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -458,7 +457,7 @@ skipping adding gauge specific outputs to the toml."
             method="average",
         )
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
-        self.set_grid(ds_topo.rename(rmdict))
+        self.staticmaps.set(ds_topo.rename(rmdict))
 
         # update config
         # skip adding elevtn to config as it will only be used if floodplain 2d are on
@@ -467,7 +466,7 @@ skipping adding gauge specific outputs to the toml."
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
-            self.set_config("model.cell_length_in_meter__flag", True)
+            self.config.set("model.cell_length_in_meter__flag", True)
 
     @hydromt_step
     def setup_rivers(
@@ -598,7 +597,7 @@ skipping adding gauge specific outputs to the toml."
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
+        self.staticmaps.set(ds_riv[dvars].rename(rmdict))
         for dvar in dvars:
             if dvar == "rivmsk":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -622,7 +621,7 @@ skipping adding gauge specific outputs to the toml."
                 min_rivwth=min_rivwth,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
-            self.set_grid(ds_riv1.rename(rmdict))
+            self.staticmaps.set(ds_riv1.rename(rmdict))
             self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
         logger.debug("Adding rivers vector to geoms.")
@@ -735,7 +734,7 @@ and will soon be removed. '
             fit=fit,
             **kwargs,
         )
-        self.set_grid(da_rivwth, name=output_name)
+        self.staticmaps.set(da_rivwth, name=output_name)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
@@ -869,7 +868,7 @@ and will soon be removed. '
             df=df_map,
             params=list(lulc_vars.keys()),
         )
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.staticmaps.set(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
@@ -1038,7 +1037,7 @@ and will soon be removed. '
             buffer=buffer,
             lulc_out=lulc_out,
         )
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.staticmaps.set(ds_lulc_maps.rename(rmdict))
         # update config variable names
         self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
 
@@ -1085,7 +1084,7 @@ and will soon be removed. '
             By default saves river_water__volume_flow_rate (for river_q).
         """
         # read existing geoms; important to get the right basin when updating
-        # fix in set_geoms / set_geoms method
+        # fix in geoms.set / geoms.set method
         self.geoms
 
         logger.info("Gauges locations set based on river outlets.")
@@ -1106,13 +1105,13 @@ and will soon be removed. '
             ids=ids,
             flwdir=self.flwdir,
         )
-        self.set_grid(da_out, name="outlets")
+        self.staticmaps.set(da_out, name="outlets")
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
         )
         gdf["fid"] = ids_out.astype(np.int32)
-        self.set_geoms(gdf, name="outlets")
+        self.geoms.set(gdf, name="outlets")
 
         logger.info("Gauges map based on catchment river outlets added.")
         self.setup_config_output_timeseries(
@@ -1381,7 +1380,7 @@ gauge locations [-] (if derive_subcatch)
 
         # Add to grid
         mapname = f"gauges_{basename}"
-        self.set_grid(da, name=mapname)
+        self.staticmaps.set(da, name=mapname)
 
         # geoms
         points = gpd.points_from_xy(*self.staticmaps.data.raster.idx_to_xy(idxs))
@@ -1400,7 +1399,7 @@ gauge locations [-] (if derive_subcatch)
         df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
         gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
         # Add gdf_snapped to geoms
-        self.set_geoms(gdf_snapped, name=mapname)
+        self.geoms.set(gdf_snapped, name=mapname)
 
         # Add output timeseries for gauges in the toml
         self.setup_config_output_timeseries(
@@ -1416,9 +1415,9 @@ gauge locations [-] (if derive_subcatch)
                 self.staticmaps.data, self.flwdir, idxs=idxs, ids=ids
             )[0]
             mapname = self._MAPS["basins"] + "_" + basename
-            self.set_grid(da_basins, name=mapname)
+            self.staticmaps.set(da_basins, name=mapname)
             gdf_basins = self.staticmaps.data[mapname].raster.vectorize()
-            self.set_geoms(gdf_basins, name=mapname)
+            self.geoms.set(gdf_basins, name=mapname)
 
     @hydromt_step
     def setup_constant_pars(self, **kwargs):
@@ -1446,14 +1445,14 @@ gauge locations [-] (if derive_subcatch)
                     f"Please check the name."
                 )
             # check if param is already in toml and will be overwritten
-            if self.get_config(wflow_var) is not None:
+            if self.config.get_value(wflow_var) is not None:
                 logger.info(
                     f"Parameter {wflow_var} already in toml and will be overwritten."
                 )
             # remove from config
             self.config.data.pop(wflow_var, None)
             # Add to config
-            self.set_config(f"input.static.{wflow_var}.value", value)
+            self.config.set(f"input.static.{wflow_var}.value", value)
 
     @hydromt_step
     def setup_grid_from_raster(
@@ -1510,7 +1509,7 @@ gauge locations [-] (if derive_subcatch)
         # Reprojection
         ds_out = ds.raster.reproject_like(self.staticmaps.data, method=reproject_method)
         # Add to grid
-        self.set_grid(ds_out)
+        self.staticmaps.set(ds_out)
 
         # Update config
         if wflow_variables is not None:
@@ -1532,7 +1531,7 @@ one variable and variables list is not provided."
                 )
             else:
                 for i in range(len(variables)):
-                    self.set_config(f"input.static.{wflow_variables[i]}", variables[i])
+                    self.config.set(f"input.static.{wflow_variables[i]}", variables[i])
 
     @hydromt_step
     def setup_areamap(
@@ -1594,7 +1593,7 @@ one variable and variables list is not provided."
             self._update_config_variable_name(col2raster_name)
         else:
             col2raster_name = col2raster
-        self.set_grid(da_area.rename(col2raster_name))
+        self.staticmaps.set(da_area.rename(col2raster_name))
 
     ## WFLOW other step methods (clip and upgrade)
     @hydromt_step
@@ -1679,8 +1678,8 @@ one variable and variables list is not provided."
         for name, gdf in old_geoms.items():
             if name not in exclude_geoms:
                 logger.debug(f"Clipping geometry {name}..")
-                self.set_geoms(
-                    geometry=gdf.clip(self.basins, keep_geom_type=True),
+                self.geoms.set(
+                    geom=gdf.clip(self.basins, keep_geom_type=True),
                     name=name,
                 )
 
@@ -1749,22 +1748,17 @@ one variable and variables list is not provided."
             return
         self.write_data_catalog()
         _ = self.config.data  # try to read default if not yet set
-        if "staticmaps" in self.components:
-            self.write_grid(filename=grid_filename)
-            self.staticmaps.write_region(
-                filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
-            )
-        if "geoms" in self.components:
-            self.write_geoms(folder=geoms_folder)
-        if "forcing" in self.components:
-            self.write_forcing(filename=forcing_filename)
-        if "tables" in self.components:
-            self.write_tables()
-        if "states" in self.components:
-            self.write_states(filename=states_filename)
+        self.staticmaps.write(filename=grid_filename)
+        self.staticmaps.write_region(
+            filename=str(Path(geoms_folder) / "region.geojson"), to_wgs84=True
+        )
+        self.geoms.write(folder=geoms_folder)
+        self.forcing.write(filename=forcing_filename)
+        self.tables.write()
+        self.states.write(filename=states_filename)
 
         # Write the config last as variables can get set in other write methods
-        self.write_config(filename=config_filename)
+        self.config.write(filename=config_filename)
 
     @hydromt_step
     def read(
@@ -1789,317 +1783,12 @@ one variable and variables list is not provided."
             Name of the geoms folder relative to grid_filename (ie model
             root/dir_input). By default 'staticgeoms'.
         """
-        self.read_config(filename=config_filename)
-        self.read_grid()
-        self.read_geoms(folder=geoms_folder)
-        self.read_forcing()
-        self.read_states()
-        self.read_tables()
-
-    @hydromt_step
-    def read_config(
-        self,
-        filename: str | None = None,
-    ):
-        """
-        Read config from <root/filename>.
-
-        Parameters
-        ----------
-        filename : str, optional
-            Name of the config file. By default None to use the default name
-            wflow.toml.
-        """
-        # Call the component
-        self.config.read(filename)
-
-    @hydromt_step
-    def write_config(
-        self,
-        filename: str | None = None,
-        config_root: Path | str | None = None,
-    ):
-        """
-        Write the model ``config`` file to ``<config_root>/<config_fn>``.
-
-        Parameters
-        ----------
-        filename : str, optional
-            Name of the config file. Default is ``None``, which uses the
-            default name ``wflow.toml``.
-        config_root : str or Path, optional
-            Root folder to write the config file. If ``None`` (default),
-            the model root is used. Can be absolute or relative to the model root.
-        """
-        # Call the component
-        self.config.write(filename, config_root)
-
-    def read_grid(
-        self,
-        **kwargs,
-    ):
-        """Read grid model data.
-
-        Checks the path of the file in the config toml using both ``input.path_static``
-        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
-        root folder.
-        Key-word arguments are passed to :py:meth:`~hydromt._io.readers._read_nc`
-
-        Parameters
-        ----------
-        **kwargs : dict
-            Additional keyword arguments to be passed to the `read_nc` method.
-        """
-        # Call the component method
-        self.staticmaps.read(**kwargs)
-
-    @hydromt_step
-    def write_grid(
-        self,
-        filename: str | None = None,
-        **kwargs,
-    ):
-        """
-        Write grid to wflow static data file.
-
-        Checks the path of the file in the config toml using both ``input.path_static``
-        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
-        root folder.
-
-        If filename is supplied, the config will be updated.
-
-        Parameters
-        ----------
-        filename : Path, str, optional
-            Name or path to the outgoing staticmaps file (including extension).
-            This is the path/name relative to the root folder and if present the
-            ``dir_input`` folder. By default None.
-        **kwargs : dict
-            Additional keyword arguments to be passed to the `write_nc` method.
-        """
-        # Call the component write method
-        self.staticmaps.write(filename=filename, **kwargs)
-
-    def set_grid(
-        self,
-        data: xr.DataArray | xr.Dataset,
-        name: str | None = None,
-    ):
-        """Add data to grid.
-
-        All layers of grid must have identical spatial coordinates. If basin data is
-        available the grid will be masked to that upon setting.
-
-        The first fix is when data with a time axis is being added. Since Wflow.jl
-        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
-        the dimension name starts with "time". In this function, a check is done if a
-        time axis with that exact shape is already present in the grid object, and will
-        use that dimension (and its name) to set the data. If a time dimension does not
-        yet exist with that shape, it is created following the format
-        "time_{length_data}".
-
-        The other fix is that when the model is updated with a different number of
-        layers, this is not automatically updated correctly. With this fix, the old
-        layer dimension is removed (including all associated data), and the new data is
-        added with the correct "layer" dimension.
-
-        Parameters
-        ----------
-        data: xarray.DataArray or xarray.Dataset
-            new map layer to add to grid
-        name: str, optional
-            Name of new map layer, this is used to overwrite the name of a DataArray and
-            ignored if data is a Dataset
-        """
-        # Call the staticmaps set method
-        self.staticmaps.set(data, name=name)
-
-    @hydromt_step
-    def read_geoms(
-        self,
-        folder: str = "staticgeoms",
-    ):
-        """
-        Read static geometries and adds to ``geoms``.
-
-        If ``dir_input`` is set in the config, the path where all static geometries are
-        read, will be constructed as ``<model_root>/<dir_input>/<geoms_fn>``.
-        Where <dir_input> is relative to the model root. Depending on the config value
-        ``dir_input``, the path will be constructed differently.
-
-        Parameters
-        ----------
-        folder : str, optional
-            Folder name/path where the static geometries are stored relative to the
-            model root and ``dir_input`` if any. By default "staticgeoms".
-        """
-        self.geoms.read(folder=folder)
-
-    @hydromt_step
-    def write_geoms(
-        self,
-        folder: str = "staticgeoms",
-        precision: int | None = None,
-        to_wgs84: bool = False,
-        **kwargs: dict,
-    ):
-        """
-        Write geoms in GeoJSON format.
-
-        Checks the path of ``geoms_fn`` using both model root and
-        ``dir_input``. If not found uses the default path ``staticgeoms`` in the root
-        folder.
-
-        Parameters
-        ----------
-        folder : str, optional
-            Folder name/path where the static geometries are stored relative to the
-            model root and ``dir_input`` if any. By default "staticgeoms".
-        precision : int, optional
-            Decimal precision to write the geometries. By default None to use 1 decimal
-            for projected crs and 6 for non-projected crs.
-        to_wgs84 : bool, optional
-            If True, geometries are transformed to WGS84 before writing. By default
-            False, which means geometries are written in their original CRS.
-        """
-        # Call the component write method
-        self.geoms.write(
-            folder=folder,
-            to_wgs84=to_wgs84,
-            precision=precision,
-            **kwargs,
-        )
-
-    def set_geoms(self, geometry: gpd.GeoDataFrame | gpd.GeoSeries, name: str):
-        """
-        Set geometries to the model.
-
-        This is an inherited method from HydroMT-core's GeomsModel.set_geoms.
-        """
-        self.geoms.set(
-            geom=geometry,
-            name=name,
-        )
-
-    @hydromt_step
-    def read_forcing(
-        self,
-        **kwargs,
-    ):
-        """
-        Read forcing.
-
-        Checks the path of the file in the config toml using both ``input.path_forcing``
-        and ``dir_input``. If not found uses the default path ``inmaps.nc`` in the
-        root folder.
-
-        If several files are used using '*' in ``input.path_forcing``, all corresponding
-        files are read and merged into one xarray dataset before being split to one
-        xarray DataArray per forcing variable in the hydromt ``forcing`` dictionary.
-
-        Parameters
-        ----------
-        **kwargs : dict
-            Additional keyword arguments to be passed to the `read_nc` method.
-        """
-        self.forcing.read(**kwargs)
-
-    @hydromt_step
-    def write_forcing(
-        self,
-        filename: str | None = None,
-        output_frequency: str | None = None,
-        time_chunk: int = 1,
-        time_units="days since 1900-01-01T00:00:00",
-        decimals: int = 2,
-        overwrite: bool = False,
-        **kwargs,
-    ):
-        """
-        Write forcing at ``<root>/dir_input/<filename>`` in model-ready format.
-
-        If no ``filename`` path is provided and ``path_forcing`` from the
-        ``wflow.toml`` exists, the following default filenames are used:
-
-        * With downscaling:
-          ``inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc``
-
-        * Without downscaling:
-          ``inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc``
-
-        Parameters
-        ----------
-        filename : Path or str, optional
-            Path to save output NetCDF file. If ``None``, the name is read
-            from the ``wflow.toml`` file.
-        output_frequency : str, optional
-            Write several files for the forcing according to frequency. For example
-            ``'Y'`` for one file per year or ``'M'`` for one file per month.
-            By default writes a single file.
-            For more options see:
-            https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
-        time_chunk : int, optional
-            Chunk size on the time dimension when saving to disk. Default is ``1``.
-        time_units : str, optional
-            Common time units when writing several NetCDF forcing files.
-            Default is ``"days since 1900-01-01T00:00:00"``.
-        decimals : int, optional
-            Number of decimals to use when writing the forcing data. Default is ``2``.
-        overwrite : bool, optional
-            Whether to overwrite existing files. Default is ``False`` unless the model
-            is in w+ mode (FORCED_WRITE).
-        **kwargs : dict
-            Additional keyword arguments passed to ``write_nc``.
-        """
-        # Call the component
-        self.forcing.write(
-            filename=filename,
-            output_frequency=output_frequency,
-            time_chunk=time_chunk,
-            time_units=time_units,
-            decimals=decimals,
-            overwrite=overwrite or self.root.mode.value == "w+",
-            **kwargs,
-        )
-
-    def set_forcing(
-        self,
-        data: xr.DataArray | xr.Dataset,
-        name: str | None = None,
-    ):
-        """Add data for the forcing component."""
-        self.forcing.set(data=data, name=name)
-
-    @hydromt_step
-    def read_states(self):
-        """
-        Read states at <root/dir_input/state.path_input>.
-
-        Checks the path of the file in the config toml using both ``state.path_input``
-        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
-        in the root folder.
-        """
+        self.config.read(filename=config_filename)
+        self.staticmaps.read()
+        self.geoms.read(folder=geoms_folder)
+        self.forcing.read()
         self.states.read()
-
-    @hydromt_step
-    def write_states(self, filename: str | None = None):
-        """
-        Write states at <root/dir_input/state.path_input> in model ready format.
-
-        Checks the path of the file in the config toml using both ``state.path_input``
-        and ``dir_input``. If not found uses the default path ``instate/instates.nc``
-        in the root folder.
-        If filename is provided, it will be used and config ``state.path_input``
-        will be updated accordingly.
-
-        Parameters
-        ----------
-        filename : str, Path, optional
-            Name of the states file, relative to model root and ``dir_input`` if any.
-            By default None to use the name as defined in the model config file.
-        """
-        # Write
-        self.states.write(filename=filename)
+        self.tables.read()
 
     def set_states(
         self,
@@ -2140,154 +1829,6 @@ one variable and variables list is not provided."
         self.output_grid.read()
         self.output_scalar.read()
         self.output_csv.read()
-
-    @hydromt_step
-    def read_tables(self, **kwargs):
-        """Read table files at <root> and parse to dict of dataframes.
-
-        Parameters
-        ----------
-        **kwargs : dict
-            Additional keyword arguments to be passed to the `pd.read_csv` method
-
-        Returns
-        -------
-        None
-            The tables are read and stored in the `self.tables.data` attribute.
-        """
-        self.tables.read(float_precision="round_trip", **kwargs)
-
-    @hydromt_step
-    def write_tables(self):
-        """Write tables at <root>."""
-        self.tables.write()
-
-    def set_tables(self, df: pd.DataFrame, name: str):
-        """Add table <pandas.DataFrame> to model."""
-        self.tables.set(tables=df, name=name)
-
-    def set_root(self, root: Path | str, mode: ModeLike = "w"):
-        """Set the model root folder.
-
-        Parameters
-        ----------
-        root : Path, str
-            Path to the model root folder.
-        mode : str, optional
-            Mode to open the model root folder, by default 'w'.
-            Can be 'r' for read-only or 'r+' for read-write.
-        """
-        self.root.set(Path(root), mode=mode)
-
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
-
-        Parameters
-        ----------
-        args : tuple, str
-            keys can given by multiple args: ('key1', 'key2')
-            or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
-            fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-            NOTE: this assumes the config is located in model root!
-
-        Returns
-        -------
-        value : Any
-            dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
-        """
-        return self.config.get_value(
-            *args,
-            fallback=fallback,
-            abs_path=abs_path,
-        )
-
-    def set_config(self, *args):
-        """
-        Update the config toml at key(s) with values.
-
-        This function is made to maintain the structure of your toml file.
-        When adding keys it will look for the most specific header present in
-        the toml file and add it under that.
-
-        meaning that if you have a config toml that is empty and you run
-        ``wflow_model.set_config("input.forcing.scale", 1)``
-
-        it will result in the following file:
-
-        .. code-block:: toml
-
-            input.forcing.scale = 1
-
-
-        however if your toml file looks like this before:
-
-        .. code-block:: toml
-
-            [input.forcing]
-
-        (i.e. you have a header in there that has no keys)
-
-        then after the insertion it will look like this:
-
-        .. code-block:: toml
-
-            [input.forcing]
-            scale = 1
-
-
-        .. warning::
-
-            Due to limitations of the underlying library it is currently not possible to
-            create new headers (i.e. groups like ``input.forcing`` in the example above)
-            programmatically, and they will need to be added to the default config
-            toml document
-
-
-        Parameters
-        ----------
-        args : str, tuple, list
-            if tuple or list, minimal length of two
-            keys can given by multiple args: ('key1', 'key2', 'value')
-            or a string with '.' indicating a new level: ('key1.key2', 'value')
-
-        Examples
-        --------
-        .. code-block:: ipython
-
-            >> self.config
-            >> {'a': 1, 'b': {'c': {'d': 2}}}
-
-            >> self.set_config('a', 99)
-            >> {'a': 99, 'b': {'c': {'d': 2}}}
-
-            >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
-            >> {'a': 1, 'b': {'c': {'d': 99}}}
-        """
-        key = ".".join(args[:-1])
-        value = args[-1]
-        self.config.set(key, value)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -2334,7 +1875,7 @@ one variable and variables list is not provided."
                 # Get the name from the Wflow variable name
                 wflow_var = self._WFLOW_NAMES[var]
                 # Update the config variable name
-                self.set_config(f"{_prefix}.{wflow_var}", var)
+                self.config.set(f"{_prefix}.{wflow_var}", var)
             # else not a wflow variable
             # (spelling mistakes should have been checked in _update_naming)
 
@@ -2352,7 +1893,7 @@ one variable and variables list is not provided."
                 .set_index("value")
                 .sort_index()
             )
-            self.set_geoms(gdf, name="basins")
+            self.geoms.set(gdf, name="basins")
         else:
             logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
@@ -2385,7 +1926,7 @@ one variable and variables list is not provided."
                 feats = self.flwdir.streams(mask=rivmsk, strord=strord)
                 gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
-                self.set_geoms(gdf, name="rivers")
+                self.geoms.set(gdf, name="rivers")
         else:
             logger.warning("No river cells detected in the selected basin.")
             gdf = None

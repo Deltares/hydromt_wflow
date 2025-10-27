@@ -196,22 +196,6 @@ If you are using python, you can read and write the different model components u
    WflowSbmModel.read
    WflowSbmModel.write
 
-   WflowSbmModel.read_config
-   WflowSbmModel.write_config
-
-   WflowSbmModel.read_grid
-   WflowSbmModel.write_grid
-
-   WflowSbmModel.read_geoms
-   WflowSbmModel.write_geoms
-
-   WflowSbmModel.read_forcing
-   WflowSbmModel.write_forcing
-
-   WflowSbmModel.read_states
-   WflowSbmModel.write_states
-
-   WflowSbmModel.read_outputs
 
 Attributes
 ----------
@@ -226,23 +210,6 @@ Other useful model attributes if you are using python:
    WflowSbmModel.flwdir
    WflowSbmModel.basins
    WflowSbmModel.rivers
-
-Other general methods
----------------------
-
-If you are using python, you can also use the general methods below to set or get model components and their data.
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSbmModel.get_config
-   WflowSbmModel.set_config
-   WflowSbmModel.set_forcing
-   WflowSbmModel.set_grid
-   WflowSbmModel.set_geoms
-   WflowSbmModel.set_states
-   WflowSbmModel.set_tables
-   WflowSbmModel.set_flwdir
 
 
 .. autoclass:: hydromt_wflow.WflowSbmModel

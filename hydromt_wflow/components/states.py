@@ -6,6 +6,7 @@ from pathlib import Path
 import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import GridComponent, ModelComponent
+from hydromt.model.steps import hydromt_step
 
 from hydromt_wflow.components import utils
 
@@ -147,6 +148,7 @@ class WflowStatesComponent(GridComponent):
             self.set(ds_states)
 
     # I/O methods
+    @hydromt_step
     def read(self):
         """
         Read states at <root/dir_input/state.path_input>.
@@ -175,6 +177,7 @@ class WflowStatesComponent(GridComponent):
             mask_and_scale=False,
         )
 
+    @hydromt_step
     def write(self, filename: str | None = None):
         """
         Write states at <root/dir_input/state.path_input> in model ready format.

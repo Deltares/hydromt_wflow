@@ -242,7 +242,7 @@ class WflowSedimentModel(WflowBaseModel):
         )
 
         rmdict = {k: self._MAPS.get(k, k) for k in ds_riversed.data_vars}
-        self.set_grid(ds_riversed.rename(rmdict))
+        self.staticmaps.set(ds_riversed.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_riversed.rename(rmdict).data_vars)
 
@@ -430,18 +430,18 @@ class WflowSedimentModel(WflowBaseModel):
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.staticmaps.set(ds_res.rename(rmdict))
 
         # write reservoirs with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
+        self.geoms.set(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
         # Prepare a combined geoms of all reservoirs
         gdf_res_all = workflows.reservoirs.create_reservoirs_geoms_sediment(
             ds_res.rename(rmdict),
         )
-        self.set_geoms(gdf_res_all, name="reservoirs")
+        self.geoms.set(gdf_res_all, name="reservoirs")
 
         # Reservoir settings in the toml to update
-        self.set_config("model.reservoir__flag", True)
+        self.config.set("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -565,7 +565,7 @@ class WflowSedimentModel(WflowBaseModel):
             )
 
             # Add to grid
-            self.set_grid(usle_c, name=self._MAPS["usle_c"])
+            self.staticmaps.set(usle_c, name=self._MAPS["usle_c"])
 
     @hydromt_step
     def setup_lulcmaps_from_vector(
@@ -704,7 +704,7 @@ class WflowSedimentModel(WflowBaseModel):
             )
 
             # Add to grid
-            self.set_grid(usle_c, name=self._MAPS["usle_c"])
+            self.staticmaps.set(usle_c, name=self._MAPS["usle_c"])
 
     @hydromt_step
     def setup_canopymaps(
@@ -740,7 +740,7 @@ class WflowSedimentModel(WflowBaseModel):
         # update name
         wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_height"]]
         self._update_naming({wflow_var: output_name})
-        self.set_grid(dsout["vegetation_height"], name=output_name)
+        self.staticmaps.set(dsout["vegetation_height"], name=output_name)
         # update config
         self._update_config_variable_name(output_name)
 
@@ -825,7 +825,7 @@ class WflowSedimentModel(WflowBaseModel):
             add_aggregates=add_aggregates,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout.rename(rmdict))
+        self.staticmaps.set(dsout.rename(rmdict))
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     @hydromt_step
@@ -979,7 +979,7 @@ class WflowSedimentModel(WflowBaseModel):
             :py:meth:`~hydromt.raster.Raster.clip_geom`
         """
         # Reservoir maps that will be removed if no reservoirs after clipping
-        # key: staticmaps name,  value: wflow intput variable name
+        # key: staticmaps name,  value: wflow input variable name
         reservoir_maps = [
             self._MAPS["reservoir_area_id"],
             self._MAPS["reservoir_outlet_id"],
@@ -1038,7 +1038,7 @@ class WflowSedimentModel(WflowBaseModel):
         with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
             self.config._data = tomllib.load(file)
         for option in config_out:
-            self.set_config(option, config_out[option])
+            self.config.set(option, config_out[option])
 
         # Rerun setup_soilmaps
         self.setup_soilmaps(
@@ -1058,7 +1058,7 @@ class WflowSedimentModel(WflowBaseModel):
             # Remove older maps from grid
             self.staticmaps.drop_vars(vars_to_remove)
             # Add new reservoir maps to grid
-            self.set_grid(ds_res)
+            self.staticmaps.set(ds_res)
             # Update the config with the new names
             for option in config_opt:
-                self.set_config(option, config_opt[option])
+                self.config.set(option, config_opt[option])
