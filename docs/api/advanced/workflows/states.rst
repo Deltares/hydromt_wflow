@@ -8,7 +8,7 @@ States
 ======
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     prepare_cold_states

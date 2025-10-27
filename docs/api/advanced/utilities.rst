@@ -9,7 +9,7 @@ Utilities
 Low-level helper methods for reading and preparing model data.
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
    :nosignatures:
 
    get_config

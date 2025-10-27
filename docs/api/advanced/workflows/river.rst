@@ -7,7 +7,7 @@ River
 ========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     river

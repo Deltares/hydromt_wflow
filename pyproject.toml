@@ -208,31 +208,22 @@ docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
 clean = { depends-on = [
   "clean-bin",
   "clean-dist",
-  "clean-docs-build",
-  "clean-docs-example",
-  "clean-docs-gen",
+  "clean-docs",
 ] }
 clean-bin = { cmd = ["rm", "-rf", "bin"] }
 clean-dist = { cmd = ["rm", "-rf", "dist"] }
-clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
-clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
-clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
+
 clean-docs = { depends-on = [
   "clean-docs-build",
   "clean-docs-example",
   "clean-docs-gen",
 ] }
+clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
+clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
-check-links = { cmd = [
-  "sphinx-build",
-  "./docs",
-  "./docs/_build",
-  "-b",
-  "linkcheck",
-  "-W",
-] }
 generate-sbom = { cmd = [
   "sbom4python",
   "--module",
@@ -244,8 +235,31 @@ generate-sbom = { cmd = [
   "--format",
   "json",
 ] }
-
-docs-dummy = { cmd = [
+docs-check-links = { cmd = [
+  "sphinx-build",
+  "./docs",
+  "./docs/_build",
+  "-b",
+  "linkcheck",
+  "-W",
+] }
+docs-generate = { cmd = [
+  "sphinx-autogen",
+  "docs/**/*.rst",
+], depends-on = [
+  "clean-docs-gen",
+] }
+docs-build-html = { cmd = [
+  "sphinx-build",
+  "-M",
+  "html",
+  "docs",
+  "docs/_build",
+  "-W",
+  "-w",
+  "docs/_build/warnings.txt",
+], depends-on = ["docs-generate"] }
+docs-build-dummy = { cmd = [
   "sphinx-build",
   "./docs",
   "./docs/_build",
@@ -253,21 +267,11 @@ docs-dummy = { cmd = [
   "dummy",
   "-W",
 ], depends-on = [
-  "check-links",
+  "docs-generate",
 ] }
-docs-html = { cmd = [
-  "sphinx-build",
-  "-M",
-  "html",
-  "docs",
-  "docs/_build",
-  "-W",
-], depends-on = [
-  "check-links",
-] }
-doc = { depends-on = ["docs-html"] }
-docs = { depends-on = ["docs-html"] }
-docs-html-rebuild = { depends-on = ["clean-docs", "docs-html"] }
+doc = { depends-on = ["docs-build-html", "docs-check-links"] }
+docs = { depends-on = ["docs-build-html", "docs-check-links"] }
+docs-rebuild = { depends-on = ["clean-docs", "docs"] }
 serve = { cmd = [
   "python",
   "-m",

@@ -7,7 +7,7 @@ Gauges
 ========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     gauge_map_uparea

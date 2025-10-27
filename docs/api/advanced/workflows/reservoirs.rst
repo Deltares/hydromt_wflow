@@ -7,7 +7,7 @@ Reservoirs
 ===========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     reservoir_id_maps

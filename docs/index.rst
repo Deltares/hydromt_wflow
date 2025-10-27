@@ -2,6 +2,7 @@
 
 .. toctree::
    :titlesonly:
+   :includehidden:
    :hidden:
 
    getting_started/intro.rst

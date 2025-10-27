@@ -9,7 +9,7 @@ WflowBaseModel
 The ``WflowBaseModel`` class provides core methods and components shared by all Wflow models.
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
 
    WflowBaseModel
 
@@ -17,7 +17,7 @@ High level and I/O methods
 --------------------------
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
 
    WflowBaseModel.build
    WflowBaseModel.update
@@ -46,7 +46,7 @@ Attributes
 ----------
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
 
    WflowBaseModel.crs
    WflowBaseModel.root
@@ -58,7 +58,7 @@ Other general methods
 ---------------------
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
 
    WflowBaseModel.set_config
    WflowBaseModel.get_config
@@ -71,7 +71,7 @@ Setup methods
 -------------
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
 
    WflowBaseModel.setup_config
    WflowBaseModel.setup_config_output_timeseries

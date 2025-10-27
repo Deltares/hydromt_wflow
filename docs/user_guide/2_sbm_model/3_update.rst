@@ -33,8 +33,8 @@ To add or change one or more components of an existing Wflow model the ``update`
 .. toctree::
     :hidden:
 
-    Example Update Wflow model (landuse) <../../_examples/update_model_landuse.ipynb>
-    Example Update Wflow model (forcing) <../../_examples/update_model_forcing.ipynb>
-    Example Update Wflow model (gauges) <../../_examples/update_model_gauges.ipynb>
-    Example Update Wflow model with water demand <../../_examples/update_model_water_demand.ipynb>
-    Example Connect Wflow to a 1D river model <../../_examples/connect_to_1d_model.ipynb>
+    /_examples/update_model_landuse.ipynb
+    /_examples/update_model_forcing.ipynb
+    /_examples/update_model_gauges.ipynb
+    /_examples/update_model_water_demand.ipynb
+    /_examples/connect_to_1d_model.ipynb

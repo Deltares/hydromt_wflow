@@ -80,5 +80,10 @@ HydroMT-Wflow **does** support upgrading Wflow Julia v0.x models to Wflow Julia 
 - :py:func:`~WflowSbmModel.upgrade_to_v1_wflow` for SBM models, and
 - :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow` for sediment models.
 
-See the example notebook for details:
-`Upgrade to Wflow.jl version 1 <../_examples/upgrade_to_wflow_v1.ipynb>`_.
+See the example notebook for details: :ref:`here <example-upgrade_to_wflow_v1>`.
+
+.. toctree::
+   :titlesonly:
+   :hidden:
+
+   /_examples/upgrade_to_wflow_v1.ipynb

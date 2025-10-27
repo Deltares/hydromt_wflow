@@ -7,7 +7,7 @@ Soilparams
 ===========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     ksat_horizontal_ratio

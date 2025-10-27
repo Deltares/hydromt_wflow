@@ -27,7 +27,7 @@ The root YAML file now includes three main keys: `modeltype`, `global`, and `ste
 
 Functions are now explicitly mapped to model or component methods using the `<component>.<method>` syntax.
 
-For a complete example of the new configuration format, see the Wflow v1 YAML template: :download:`wflow_build.yml <../../_examples/wflow_build.yml>`.
+For a complete example of the new configuration format, see the Wflow v1 YAML template: :download:`wflow_build.yml </_examples/wflow_build.yml>`.
 
 For more information on the format changes, see this section in the HydroMT migration guide: `Changes to the yaml HydroMT configuration file format <https://deltares.github.io/hydromt/stable/guides/plugin_dev/migrating_to_v1.html#changes-to-the-yaml-hydromt-configuration-file-format>`_.
 
@@ -134,10 +134,10 @@ Where
 
 Template upgrade configuration files:
 
-- :download:`Wflow-SBM Upgrade yml <../../_examples/wflow_update_v1_sbm.yml>`
-- :download:`Wflow-Sediment Upgrade yml <../../_examples/wflow_update_v1_sediment.yml>`
+- :download:`Wflow-SBM Upgrade yml </_examples/wflow_update_v1_sbm.yml>`
+- :download:`Wflow-Sediment Upgrade yml </_examples/wflow_update_v1_sediment.yml>`
 
-An example migration workflow notebook, is available `here <../../_examples/upgrade_to_wflow_v1.ipynb>`_
+An example migration workflow notebook, is available :ref:`here <example-upgrade_to_wflow_v1>`.
 
 
 Summarized Migration Steps
@@ -154,4 +154,4 @@ Users migrating from earlier versions of HydroMT-Wflow should:
    :titlesonly:
    :hidden:
 
-   ../../_examples/upgrade_to_wflow_v1
+   /_examples/upgrade_to_wflow_v1.ipynb

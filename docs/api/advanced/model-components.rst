@@ -10,7 +10,7 @@ The ``hydromt_wflow.components`` module defines reusable data container classes
 that represent configuration, static maps, states, outputs, and other model data.
 
 .. autosummary::
-   :toctree: ../../_generated
+   :toctree: _generated
    :nosignatures:
 
    WflowConfigComponent

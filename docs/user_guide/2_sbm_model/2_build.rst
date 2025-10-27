@@ -25,7 +25,7 @@ for a proper implementation of this model are:
 The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
 is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
 If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
-You can find some examples on how to do this in the `example notebook <../../_examples/prepare_ldd.ipynb>`_.
+You can find some examples on how to do this in the notebook: :ref:`here <example-prepare_ldd>`.
 
 .. _model_config:
 
@@ -41,11 +41,13 @@ Note that the order in which the components are listed in the configuration file
 - `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (reservoirs, riverwidth, gauges)
 
 Below is an example configuration file that can be used to build a complete Wflow model
-:download:`.yml file <../../_examples/wflow_build.yml>`. Each section corresponds
+:download:`.yml file </_examples/wflow_build.yml>`. Each section corresponds
 to a model component with the same name.
 
-.. literalinclude:: ../../_examples/wflow_build.yml
+.. literalinclude:: /_examples/wflow_build.yml
    :language: yaml
+
+For an example of how to build a model using this configuration file, see the example notebook: :ref:`here <example-build_model>`.
 
 Selecting data
 --------------
@@ -65,7 +67,10 @@ are three ways for the user to select which data libraries to use:
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 
-.. .. toctree::
-..     :hidden:
 
-..     Example: Build Wflow model <../_examples/build_model.ipynb>
+.. toctree::
+    :hidden:
+    :titlesonly:
+
+    /_examples/prepare_ldd.ipynb
+    /_examples/build_model.ipynb

@@ -14,7 +14,7 @@ The ``WflowSbmModel`` class represents the main hydrological model implementatio
    To know more about this, see :ref:`WflowBaseModel <api_base_model>`.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel
 
@@ -27,7 +27,7 @@ Configuration
 Defines and manages model configuration, global parameters, and output settings.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_config
    WflowSbmModel.setup_config_output_timeseries
@@ -39,7 +39,7 @@ Topography and Rivers
 Prepares elevation maps, drainage networks, and river-related features used to simulate flow routing and floodplain processes.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_basemaps
    WflowSbmModel.setup_rivers
@@ -53,7 +53,7 @@ Reservoirs and Glaciers
 Adds reservoirs and glaciers, and defines their impact on hydrological storage and flow regulation.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_reservoirs_no_control
    WflowSbmModel.setup_reservoirs_simple_control
@@ -65,7 +65,7 @@ Land Use and Vegetation
 Defines land use and vegetation properties, including LULC and LAI maps, which influence evapotranspiration and interception processes.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_lulcmaps
    WflowSbmModel.setup_lulcmaps_from_vector
@@ -80,7 +80,7 @@ Soil
 Sets up soil-related data including soil maps and hydraulic properties.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_soilmaps
    WflowSbmModel.setup_ksathorfrac
@@ -92,7 +92,7 @@ Water Demands and Allocation
 Defines domestic, irrigation, and other water demand maps and allocation parameters.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_allocation_areas
    WflowSbmModel.setup_allocation_surfacewaterfrac
@@ -108,7 +108,7 @@ Forcing
 Sets up meteorological forcing inputs such as precipitation, temperature, and potential evapotranspiration.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_precip_forcing
    WflowSbmModel.setup_precip_from_point_timeseries
@@ -121,7 +121,7 @@ States
 Defines initial hydrological state variables such as soil moisture and groundwater storage.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_cold_states
 
@@ -131,7 +131,7 @@ Output Locations
 Defines outlets, gauges, and spatial masks used for reporting model results.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_outlets
    WflowSbmModel.setup_gauges
@@ -143,7 +143,7 @@ Other Setup Methods
 Additional high-level utilities to modify model geometry, link external models, or upgrade model versions.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.setup_grid_from_raster
    WflowSbmModel.setup_1dmodel_connection
@@ -188,7 +188,7 @@ I/O methods
 If you are using python, you can read and write the different model components using the methods below.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.build
    WflowSbmModel.update
@@ -219,7 +219,7 @@ Attributes
 Other useful model attributes if you are using python:
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.crs
    WflowSbmModel.root
@@ -233,7 +233,7 @@ Other general methods
 If you are using python, you can also use the general methods below to set or get model components and their data.
 
 .. autosummary::
-   :toctree: ../_generated
+   :toctree: _generated
 
    WflowSbmModel.get_config
    WflowSbmModel.set_config

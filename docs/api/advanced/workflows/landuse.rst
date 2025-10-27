@@ -7,7 +7,7 @@ Landuse
 ========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     landuse

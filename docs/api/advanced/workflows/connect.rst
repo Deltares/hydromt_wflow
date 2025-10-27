@@ -7,7 +7,7 @@ Connect
 ========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     wflow_1dmodel_connection

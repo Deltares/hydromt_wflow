@@ -7,7 +7,7 @@ Soilgrids
 ===========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     soilgrids

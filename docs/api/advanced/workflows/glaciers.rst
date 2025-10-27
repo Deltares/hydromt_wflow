@@ -7,7 +7,7 @@ Glaciers
 ========
 
 .. autosummary::
-    :toctree: ../../../_generated
+    :toctree: _generated
     :nosignatures:
 
     glaciermaps
