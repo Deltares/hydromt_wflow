@@ -879,7 +879,7 @@ and will soon be removed. '
             df=df_map,
             params=lulc_vars,
         )
-        self._rename_landuse_maps(ds_lulc_maps, lulc_vars, output_names_suffix)
+        self._set_landuse_on_staticmaps(ds_lulc_maps, lulc_vars, output_names_suffix)
 
     @hydromt_step
     def setup_lulcmaps_from_vector(
@@ -1059,7 +1059,7 @@ and will soon be removed. '
             lulc_out=lulc_out,
         )
 
-        self._rename_landuse_maps(ds_lulc_maps, lulc_vars, output_names_suffix)
+        self._set_landuse_on_staticmaps(ds_lulc_maps, lulc_vars, output_names_suffix)
 
     @hydromt_step
     def setup_outlets(
@@ -1969,7 +1969,7 @@ one variable and variables list is not provided."
             mask=(self.staticmaps.data[self._MAPS["basins"]] > 0),
         )
 
-    def _rename_landuse_maps(self, ds_lulc_maps, lulc_vars, output_names_suffix):
+    def _set_landuse_on_staticmaps(self, ds_lulc_maps, lulc_vars, output_names_suffix):
         # As landuse is not a wflow variable, we update the name manually
         rename_dict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
         if output_names_suffix is not None:

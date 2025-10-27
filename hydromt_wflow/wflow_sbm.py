@@ -1457,7 +1457,7 @@ setting new flood_depth dimensions"
             da=landuse, ds_like=self.staticmaps.data, df=df_mapping, params=lulc_vars
         )
 
-        self._rename_landuse_maps(landuse_maps, lulc_vars, output_names_suffix)
+        self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
 
         # Update soil parameters if there are paddies in the domain
         # Get paddy pixels at model resolution
