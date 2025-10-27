@@ -1341,7 +1341,6 @@ setting new flood_depth dimensions"
 
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
-
         wflow_thicknesslayers: list, optional
             List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]
         target_conductivity: list, optional
@@ -1351,23 +1350,12 @@ setting new flood_depth dimensions"
         lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            The following values are allowed:
-
-            * ``"landuse"``
-            * ``"vegetation_kext"``
-            * ``"land_manning_n"``
-            * ``"soil_compacted_fraction"``
-            * ``"vegetation_root_depth"``
-            * ``"vegetation_leaf_storage"``
-            * ``"vegetation_wood_storage"``
-            * ``"land_water_fraction"``
-            * ``"vegetation_crop_factor"``
-            * ``"vegetation_feddes_alpha_h1"``
-            * ``"vegetation_feddes_h1"``
-            * ``"vegetation_feddes_h2"``
-            * ``"vegetation_feddes_h3_high"``
-            * ``"vegetation_feddes_h3_low"``
-            * ``"vegetation_feddes_h4"``
+            Can be a subset of: ["landuse", "vegetation_kext", "land_manning_n",
+            "soil_compacted_fraction", "vegetation_root_depth",
+            "vegetation_leaf_storage", "vegetation_wood_storage", "land_water_fraction",
+            "vegetation_crop_factor", "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1", "vegetation_feddes_h2", "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low", "vegetation_feddes_h4"]
         paddy_waterlevels : dict, optional
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,

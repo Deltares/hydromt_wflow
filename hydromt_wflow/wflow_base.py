@@ -829,23 +829,12 @@ and will soon be removed. '
         lulc_vars : list[str]
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            The following values are allowed:
-
-            * ``"landuse"``
-            * ``"vegetation_kext"``
-            * ``"land_manning_n"``
-            * ``"soil_compacted_fraction"``
-            * ``"vegetation_root_depth"``
-            * ``"vegetation_leaf_storage"``
-            * ``"vegetation_wood_storage"``
-            * ``"land_water_fraction"``
-            * ``"vegetation_crop_factor"``
-            * ``"vegetation_feddes_alpha_h1"``
-            * ``"vegetation_feddes_h1"``
-            * ``"vegetation_feddes_h2"``
-            * ``"vegetation_feddes_h3_high"``
-            * ``"vegetation_feddes_h3_low"``
-            * ``"vegetation_feddes_h4"``
+            Can be a subset of: ["landuse", "vegetation_kext", "land_manning_n",
+            "soil_compacted_fraction", "vegetation_root_depth",
+            "vegetation_leaf_storage", "vegetation_wood_storage", "land_water_fraction",
+            "vegetation_crop_factor", "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1", "vegetation_feddes_h2", "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low", "vegetation_feddes_h4"]
         output_names_suffix : str, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
@@ -977,23 +966,12 @@ and will soon be removed. '
         lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            The following values are allowed:
-
-            * ``"landuse"``
-            * ``"vegetation_kext"``
-            * ``"land_manning_n"``
-            * ``"soil_compacted_fraction"``
-            * ``"vegetation_root_depth"``
-            * ``"vegetation_leaf_storage"``
-            * ``"vegetation_wood_storage"``
-            * ``"land_water_fraction"``
-            * ``"vegetation_crop_factor"``
-            * ``"vegetation_feddes_alpha_h1"``
-            * ``"vegetation_feddes_h1"``
-            * ``"vegetation_feddes_h2"``
-            * ``"vegetation_feddes_h3_high"``
-            * ``"vegetation_feddes_h3_low"``
-            * ``"vegetation_feddes_h4"``
+            Can be a subset of: ["landuse", "vegetation_kext", "land_manning_n",
+            "soil_compacted_fraction", "vegetation_root_depth",
+            "vegetation_leaf_storage", "vegetation_wood_storage", "land_water_fraction",
+            "vegetation_crop_factor", "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1", "vegetation_feddes_h2", "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low", "vegetation_feddes_h4"]
         lulc_res : float, int, None, optional
             Resolution of the intermediate rasterized landuse map. The unit (meter or
             degree) depends on the CRS of lulc_fn (projected or not). By default None,

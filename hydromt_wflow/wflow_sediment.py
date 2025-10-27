@@ -512,12 +512,8 @@ class WflowSedimentModel(WflowBaseModel):
         lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            The following values are allowed:
-
-            * ``"landuse"``
-            * ``"soil_compacted_fraction"``
-            * ``"erosion_usle_c"``
-            * ``"land_water_fraction"``
+            Can be a subset of: ["landuse", "soil_compacted_fraction", "erosion_usle_c",
+            "land_water_fraction"]
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
@@ -644,12 +640,8 @@ class WflowSedimentModel(WflowBaseModel):
         lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
-            The following values are allowed:
-
-            * ``"landuse"``
-            * ``"soil_compacted_fraction"``
-            * ``"erosion_usle_c"``
-            * ``"land_water_fraction"``
+            Can be a subset of: ["landuse", "soil_compacted_fraction", "erosion_usle_c",
+            "land_water_fraction"]
         lulc_res : float, int, None, optional
             Resolution of the intermediate rasterized landuse map. The unit (meter or
             degree) depends on the CRS of lulc_fn (projected or not). By default None,
