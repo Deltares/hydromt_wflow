@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 class WflowTablesComponent(TablesComponent):
     """Wflow specific tables component."""
 
-    def __init__(self, model: "Model", filename: str = "{name}.csv"):
+    def __init__(
+        self, model: "Model", filename: str = "reservoir_{{hq,sh}}_{name}.csv"
+    ):
         super().__init__(model, filename=filename)
 
     @hydromt_step
@@ -37,5 +39,5 @@ class WflowTablesComponent(TablesComponent):
         if not static_maps_folder:
             static_maps_folder = "."
 
-        filename = f"{static_maps_folder}/{{name}}.csv"
+        filename = str(static_maps_folder) + "/reservoir_{{hq,sh}}_{name}.csv"
         return filename
