@@ -290,7 +290,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
 def compute_reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
-    timeseries_fn: str = None,
+    timeseries_fn: str | None = None,
     perc_norm: int = 50,
     perc_min: int = 20,
     output_folder: str | Path | None = None,
@@ -701,7 +701,10 @@ please use one of [gww, jrc] or None."
     # Save accuracy information on reservoir parameters
     if output_folder is not None:
         df_plot.to_csv(join(output_folder, "reservoir_accuracy.csv"))
-        df_ts.to_csv(join(output_folder, f"reservoir_timeseries_{timeseries_fn}.csv"))
+        if timeseries_fn is not None:
+            df_ts.to_csv(
+                join(output_folder, f"reservoir_timeseries_{timeseries_fn}.csv")
+            )
 
     return df_out
 
