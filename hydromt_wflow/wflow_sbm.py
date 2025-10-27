@@ -1342,13 +1342,13 @@ setting new flood_depth dimensions"
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
 
-        wflow_thicknesslayers: list
+        wflow_thicknesslayers: list, optional
             List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]
-        target_conductivity: list
+        target_conductivity: list, optional
             List of target vertical conductivities [mm/day] for each layer in
             ``wflow_thicknesslayers``. Set value to `None` if no specific value is
             required, by default [None, None, 5, None, None].
-        lulc_vars : list[str]
+        lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
             The following values are allowed:
@@ -1368,11 +1368,11 @@ setting new flood_depth dimensions"
             * ``"vegetation_feddes_h3_high"``
             * ``"vegetation_feddes_h3_low"``
             * ``"vegetation_feddes_h4"``
-        paddy_waterlevels : dict
+        paddy_waterlevels : dict, optional
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
             "demand_paddy_h_max": 80}
-        save_high_resolution_lulc : bool
+        save_high_resolution_lulc : bool, optional
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
         output_names_suffix : str, optional

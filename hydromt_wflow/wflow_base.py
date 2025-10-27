@@ -969,12 +969,12 @@ and will soon be removed. '
             GeoDataFrame or name in data catalog / path to (vector) landuse map.
 
             * Required columns: 'landuse' [-]
-        lulc_mapping_fn : str, Path, pd.DataFrame
+        lulc_mapping_fn : str, Path, pd.DataFrame, None, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
             "esa_worldcover", "glmnco"}, a default mapping is used and this argument
             becomes optional.
-        lulc_vars : list[str]
+        lulc_vars : list[str], optional
             List of landuse parameters to prepare.
             The names are the columns of the mapping file.
             The following values are allowed:
@@ -994,7 +994,7 @@ and will soon be removed. '
             * ``"vegetation_feddes_h3_high"``
             * ``"vegetation_feddes_h3_low"``
             * ``"vegetation_feddes_h4"``
-        lulc_res : float, int, optional
+        lulc_res : float, int, None, optional
             Resolution of the intermediate rasterized landuse map. The unit (meter or
             degree) depends on the CRS of lulc_fn (projected or not). By default None,
             which uses the model resolution.
@@ -1007,7 +1007,7 @@ and will soon be removed. '
         save_raster_lulc : bool, optional
             If True, the (high) resolution rasterized landuse map will be saved to
             maps/landuse_raster.tif, by default False.
-        output_names_suffix : str, optional
+        output_names_suffix : str, None, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
