@@ -8,14 +8,6 @@ from hydromt.io.readers import read_workflow_yaml
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 
 
-def remove_files(files: list[Path]) -> None:
-    """Remove files if they exist."""
-    for file in files:
-        p = Path(file)
-        if p.exists():
-            p.unlink()
-
-
 def build_model(
     repo_root: Path,
     model_root: Path,
@@ -52,7 +44,7 @@ def clip_model(examples_dir: Path) -> None:
         mode="r",
     )
     model.read()
-    model.set_root(destination.as_posix(), mode="w")
+    model.root.set(destination.as_posix(), mode="w")
     model.clip(region)
     model.write()
 
