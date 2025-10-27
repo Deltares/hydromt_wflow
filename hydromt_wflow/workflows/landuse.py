@@ -29,7 +29,7 @@ __all__ = [
 
 
 _RESAMPLING = {
-    "landuse": "nearest",
+    "landuse": "mode",
     "lai": "average",
     "vegetation_feddes_alpha_h1": "mode",
 }
