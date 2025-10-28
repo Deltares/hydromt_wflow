@@ -2,7 +2,6 @@
 
 import json
 import logging
-from os.path import join
 from pathlib import Path
 
 import geopandas as gpd
@@ -207,7 +206,7 @@ def reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
     ds_reservoirs: xr.Dataset,
     timeseries_fn: str = None,
-    output_folder: str | Path | None = None,
+    output_folder: Path | None = None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -244,7 +243,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         will be retrieved.
         Currently available: ['jrc', 'gww']
         Defaults to Deltares' Global Water Watch database.
-    output_folder: str or Path, optional
+    output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
 
@@ -293,7 +292,7 @@ def compute_reservoir_simple_control_parameters(
     timeseries_fn: str | None = None,
     perc_norm: int = 50,
     perc_min: int = 20,
-    output_folder: str | Path | None = None,
+    output_folder: Path | None = None,
 ) -> pd.DataFrame:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -332,7 +331,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         Percentile for normal (operational) surface area
     perc_min: int, optional
         Percentile for minimal (operational) surface area
-    output_folder: str or Path, optional
+    output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
 
@@ -700,11 +699,10 @@ please use one of [gww, jrc] or None."
 
     # Save accuracy information on reservoir parameters
     if output_folder is not None:
-        df_plot.to_csv(join(output_folder, "reservoir_accuracy.csv"))
+        output_folder.mkdir(parents=True, exist_ok=True)
+        df_plot.to_csv(output_folder / "reservoir_accuracy.csv")
         if timeseries_fn is not None:
-            df_ts.to_csv(
-                join(output_folder, f"reservoir_timeseries_{timeseries_fn}.csv")
-            )
+            df_ts.to_csv(output_folder / f"reservoir_timeseries_{timeseries_fn}.csv")
 
     return df_out
 
