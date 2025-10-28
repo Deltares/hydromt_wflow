@@ -205,7 +205,7 @@ def reservoir_id_maps(
 def reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
     ds_reservoirs: xr.Dataset,
-    timeseries_fn: str = None,
+    timeseries_fn: str | None = None,
     output_folder: Path | None = None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Return reservoir attributes (see list below) needed for modelling.
