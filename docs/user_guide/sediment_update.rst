@@ -7,8 +7,8 @@ To add or change one or more components of an existing Wflow Sediment model the 
 **Steps in brief:**
 
 1) You have an **existing model** schematization. This model does not have to be complete.
-2) Prepare or use a pre-defined **data catalog** with all the required data sources, see `working with data <https://deltares.github.io/hydromt/latest/user_guide/data_main.html>`_.
-3) Prepare a **model configuration** with the methods that you want to use to add or change components of your model: see `model configuration <https://deltares.github.io/hydromt/latest/user_guide/model_config.html>`_.
+2) Prepare or use a pre-defined **data catalog** with all the required data sources, see `working with data <https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html>`_.
+3) Prepare a **model configuration** with the methods that you want to use to add or change components of your model: see `model configuration <https://deltares.github.io/hydromt/stable/guides/user_guide/model_workflow.html>`_.
 4) **Update** your model using the CLI or Python interface.
 
 .. code-block:: console
@@ -25,7 +25,7 @@ To add or change one or more components of an existing Wflow Sediment model the 
 
     By default all model data is written at the end of the update method. If your update however
     only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method
-    (e.g. `write_staticmaps`, `write_forcing`) to the .yml file and only these data will be written.
+    (e.g. `write_grid`, `write_forcing`) to the .yml file and only these data will be written.
 
     Note that the model config is often changed as part of the a model method and `write_config`
     should thus be added to the .yml file to keep the model data and config consistent.

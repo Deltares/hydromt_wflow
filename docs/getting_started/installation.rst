@@ -23,7 +23,7 @@ They are:
 - `pyet <https://github.com/pyet-org/pyet>`_ Provides processing functionalities of several methods to calculate evapotranspriation. Available in both conda-forge and pypi.
 - `gdal <https://gdal.org/en/stable/>`_ Provides many drivers and GIS transformations.  Only available through conda-forge.
 
-Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both.
+Since some dependencies are only available through conda-forge and some only through pypi, you will need a packange manager that can handle both.
 
 Installation
 ============
@@ -140,7 +140,7 @@ Installation using Conda
 
 .. warning::
 
-  Due to the changes Anaconda made to their `lisencing agreements in 2024 <https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service>`
+  Due to the changes Anaconda made to their `licencing agreements in 2024 <https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service>`
   using any packages from the anaconda channel (which is available by default in the main `conda` and `mamba` distributions) may require a paid license.
   Therefore we highly recommend you only use the free and community maintained `conda-forge` channel. While you can configure existing `conda` / `mamba`
   installations to do this correctly, we recommend that if you do not want to use pixi, that you use a `miniforge<https://github.com/conda-forge/miniforge>` distribution which has this correctly

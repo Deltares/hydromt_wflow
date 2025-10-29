@@ -1,11 +1,12 @@
 global:
-  config_fn: wflow_sediment_v0x.toml
+  config_filename: wflow_sediment_v0x.toml
 
-upgrade_to_v1_wflow:
-  soil_fn: soilgrids
+steps:
+  - upgrade_to_v1_wflow:
+      soil_fn: soilgrids
 
-write_grid:
-  fn_out: staticmaps_v1.nc
+  - staticmaps.write:
+      filename: staticmaps_v1.nc
 
-write_config:
-  config_name: wflow_sediment_v1.toml
+  - config.write:
+      filename: wflow_sediment_v1.toml

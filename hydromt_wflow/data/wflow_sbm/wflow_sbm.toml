@@ -12,12 +12,12 @@ loglevel = "info"
 
 [model]
 type                                    = "sbm"
-snow_gravitional_transport__flag        = true
+snow_gravitational_transport__flag      = true
 snow__flag                              = true
 cold_start__flag                        = true
 reservoir__flag                         = false
 glacier__flag                           = false
-kinematic_wave__adaptive_time_step_flag = true
+kinematic_wave__adaptive_time_step_flag = false
 river_kinematic_wave__time_step         = 900
 land_kinematic_wave__time_step          = 3600
 
@@ -27,16 +27,16 @@ path_output = "outstate/outstates.nc"
 
 [state.variables]
 vegetation_canopy_water__depth                     = "vegetation_water_depth"
-soil_water_sat-zone__depth                         = "soil_saturated_depth"
-soil_layer_water_unsat-zone__depth                 = "soil_unsaturated_depth"
+soil_water_saturated_zone__depth                   = "soil_saturated_depth"
+soil_layer_water_unsaturated_zone__depth           = "soil_unsaturated_depth"
 soil_surface__temperature                          = "soil_temp"
-"snowpack~dry__leq-depth"                          = "snow_leq_depth"
-"snowpack~liquid__depth"                           = "snow_water_depth"
+snowpack_dry_snow__leq_depth                       = "snow_leq_depth"
+snowpack_liquid_water__depth                       = "snow_water_depth"
 land_surface_water__instantaneous_volume_flow_rate = "land_instantaneous_q"
-land_surface_water__instantaneous_depth            = "land_instantaneous_h"
+land_surface_water__depth                          = "land_h"
 subsurface_water__volume_flow_rate                 = "subsurface_q"
 river_water__instantaneous_volume_flow_rate        = "river_instantaneous_q"
-river_water__instantaneous_depth                   = "river_instantaneous_h"
+river_water__depth                                 = "river_h"
 
 [input]
 path_forcing = "inmaps.nc"

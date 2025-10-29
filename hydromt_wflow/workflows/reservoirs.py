@@ -2,7 +2,6 @@
 
 import json
 import logging
-from os.path import join
 from pathlib import Path
 
 import geopandas as gpd
@@ -13,7 +12,7 @@ import xarray as xr
 
 from hydromt_wflow import utils
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = [
@@ -71,7 +70,6 @@ def reservoir_id_maps(
     ds_like: xr.Dataset,
     min_area: float = 0.0,
     uparea_name: str = "uparea",
-    logger=logger,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below).
 
@@ -207,9 +205,8 @@ def reservoir_id_maps(
 def reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
     ds_reservoirs: xr.Dataset,
-    timeseries_fn: str = None,
-    output_folder: str | Path | None = None,
-    logger=logger,
+    timeseries_fn: str | None = None,
+    output_folder: Path | None = None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -246,7 +243,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         will be retrieved.
         Currently available: ['jrc', 'gww']
         Defaults to Deltares' Global Water Watch database.
-    output_folder: str or Path, optional
+    output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
 
@@ -269,7 +266,6 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
             gdf=gdf,
             timeseries_fn=timeseries_fn,
             output_folder=output_folder,
-            logger=logger,
         )
 
     # create a geodf with id of reservoir and geometry at outflow location
@@ -287,17 +283,16 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         ds_reservoirs[name] = ds_reservoirs.raster.rasterize(
             gdf_points, col_name=name, dtype="float32", nodata=-999
         )
-
+    ds_reservoirs = set_rating_curve_layer_data_type(ds_reservoirs)
     return ds_reservoirs, gdf
 
 
 def compute_reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
-    timeseries_fn: str = None,
+    timeseries_fn: str | None = None,
     perc_norm: int = 50,
     perc_min: int = 20,
-    output_folder: str | Path | None = None,
-    logger=logger,
+    output_folder: Path | None = None,
 ) -> pd.DataFrame:
     """Return reservoir attributes (see list below) needed for modelling.
 
@@ -336,7 +331,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
         Percentile for normal (operational) surface area
     perc_min: int, optional
         Percentile for minimal (operational) surface area
-    output_folder: str or Path, optional
+    output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
 
@@ -534,7 +529,7 @@ please use one of [gww, jrc] or None."
 
     # Then compute from EO data and fill or replace the previous values
     # (if a valid source is provided)
-    gdf = gdf.fillna(value=np.nan).infer_objects(copy=False)
+    gdf = gdf.where(pd.notna(gdf), np.nan).infer_objects(copy=False)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
@@ -704,8 +699,10 @@ please use one of [gww, jrc] or None."
 
     # Save accuracy information on reservoir parameters
     if output_folder is not None:
-        df_plot.to_csv(join(output_folder, "reservoir_accuracy.csv"))
-        df_ts.to_csv(join(output_folder, f"reservoir_timeseries_{timeseries_fn}.csv"))
+        output_folder.mkdir(parents=True, exist_ok=True)
+        df_plot.to_csv(output_folder / "reservoir_accuracy.csv")
+        if timeseries_fn is not None:
+            df_ts.to_csv(output_folder / f"reservoir_timeseries_{timeseries_fn}.csv")
 
     return df_out
 
@@ -714,7 +711,6 @@ def reservoir_parameters(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
     rating_dict: dict = {},
-    logger=logger,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame, dict]:
     """
     Return (uncontrolled) reservoir attributes (see list below) needed for modelling.
@@ -852,13 +848,13 @@ def reservoir_parameters(
         )
         ds[name] = da_reservoir
 
+    ds = set_rating_curve_layer_data_type(ds)
     return ds, gdf, rating_curves
 
 
 def _check_duplicated_ids_in_merge(
     ds: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Check if reservoir IDs in ds are not duplicated in ds_like.
@@ -911,7 +907,7 @@ def merge_reservoirs(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
+    id_layer: str = "reservoir_outlet_id",
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like.
@@ -929,6 +925,9 @@ def merge_reservoirs(
         Action to take if duplicate reservoir IDs are found when merging with
         existing reservoirs. Options are "error" to raise an error (default); "skip"
         to skip adding new reservoirs.
+    id_layer : str, optional
+        Name of the layer containing the reservoir IDs, by default
+        "reservoir_outlet_id".
 
     Returns
     -------
@@ -938,6 +937,14 @@ def merge_reservoirs(
     # Loop over layers to merge
     ds_out = ds.copy()
     for layer in RESERVOIR_LAYERS:
+        if "area_id" in layer:
+            # Set the mask in case the area_id map is selected (spatial coverage of the
+            # waterbody)
+            mask = ds[layer] > 0
+        else:
+            # Set the mask to the outlet_id map (point location of the waterbody)
+            mask = ds[id_layer] > 0
+
         # if layer is not in ds, skip it
         # NaN can be ok: e.g. natural lake does not have reservoir_demand
         if layer not in ds and layer in ds_like:
@@ -946,21 +953,18 @@ def merge_reservoirs(
         # if layer is in ds_like, merge it
         if layer in ds and layer in ds_like:
             # merge the layer
-            ds_out[layer] = ds[layer].where(
-                ds[layer] != ds[layer].raster.nodata, ds_like[layer]
-            )
+            ds_out[layer] = ds[layer].where(mask, ds_like[layer])
+            # ensure the nodata value is set correctly
+            ds_out[layer].raster.set_nodata(ds_like[layer].raster.nodata)
         # else we just keep ds[layer] as it is
-
-    return _check_duplicated_ids_in_merge(
-        ds_out, duplicate_id=duplicate_id, logger=logger
-    )
+    ds_out = set_rating_curve_layer_data_type(ds_out)
+    return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
 
 def merge_reservoirs_sediment(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     duplicate_id: str = "error",
-    logger: logging.Logger = logger,
 ) -> xr.Dataset | None:
     """
     Merge reservoir layers in ds to layers in ds_like for wflow sediment.
@@ -1002,9 +1006,7 @@ def merge_reservoirs_sediment(
             )
             return None
 
-    return _check_duplicated_ids_in_merge(
-        ds_out, duplicate_id=duplicate_id, logger=logger
-    )
+    return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 
 
 def create_reservoirs_geoms_sediment(
@@ -1075,3 +1077,34 @@ def create_reservoirs_geoms(
     )
 
     return gdf_reservoirs
+
+
+def set_rating_curve_layer_data_type(ds_res: xr.Dataset) -> xr:
+    """Set reservoir rating curve layers to int data type.
+
+    Parameters
+    ----------
+    ds_res : xr.Dataset
+        Dataset containing the reservoir layers.
+
+    Returns
+    -------
+    xr
+        returns the dataset with the rating curve layers set to int data type.
+    """
+    convert_to_int = [
+        "reservoir_rating_curve",
+        "reservoir_storage_curve",
+        "reservoir_lower_id",
+    ]
+
+    for var in convert_to_int:
+        if var in ds_res:
+            fill_value = ds_res[var].raster.nodata
+            fill_value_new = int(fill_value) if not np.isnan(fill_value) else -999
+            # replace NaN with fill_value_new
+            ds_res[var] = ds_res[var].fillna(fill_value_new)
+            ds_res[var] = ds_res[var].where(ds_res[var] != fill_value, fill_value_new)
+            ds_res[var] = ds_res[var].astype(np.int32)
+            ds_res[var].raster.set_nodata(fill_value_new)
+    return ds_res

@@ -1,37 +1,126 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, dirname, join
+from functools import reduce
+from os.path import abspath, join
 from pathlib import Path
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Union
 
 import geopandas as gpd
 import numpy as np
-import tomlkit
 import xarray as xr
+from hydromt.gis import GeoDataArray
 from hydromt.io import open_timeseries_from_table
-from hydromt.vector import GeoDataArray
-from hydromt.workflows.grid import grid_from_constant
-from tomlkit.items import Key
+from hydromt.model.processes.grid import grid_from_constant
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATADIR = Path(join(dirname(abspath(__file__)), "data"))
+DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
     "get_config",
-    "get_grid_from_config",
-    "read_csv_results",
     "set_config",
+    "get_grid_from_config",
+    "read_csv_output",
 ]
 
 
-def read_csv_results(
-    fn: Path | str, config: Dict, maps: xr.Dataset
-) -> Dict[str, GeoDataArray]:
-    """Read wflow results csv timeseries and parse to dictionary.
+def get_config(
+    config: dict,
+    key: str,
+    root: Path | None = None,
+    fallback: Any | None = None,
+    abs_path: bool = False,
+):
+    """
+    Get a config value at key.
 
-    Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
+    Parameters
+    ----------
+    config : dict
+        The config settings.
+    key : str
+        keys are string with '.' indicating a new level: ('key1.key2')
+    root: Path, optional
+        The model root.
+    fallback: Any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+        NOTE: this assumes the config is located in model root!
+
+    Returns
+    -------
+    value : Any
+        dictionary value
+
+    Examples
+    --------
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+
+    >> get_config(config, 'a')
+    >> 1
+
+    >> get_config(config, 'b.c.d')
+    >> 2
+
+    """
+    parts = key.split(".")
+    num_parts = len(parts)
+    current = config
+    value = fallback
+    for i, part in enumerate(parts):
+        if i < num_parts - 1:
+            current = current.get(part, {})
+        else:
+            value = current.get(part, fallback)
+
+    if abs_path and isinstance(value, (str, Path)):
+        value = Path(value)
+        if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
+            value = Path(abspath(join(root, value)))
+
+    return value
+
+
+def set_config(config: dict, key: str, value: Any):
+    """
+    Update the config toml at key(s) with values.
+
+    Parameters.
+    ----------
+    config : dict
+        The config settings.
+    key : str
+        key is a string,  with '.' indicating a new level: ('key1.key2').
+
+    Examples
+    --------
+    .. code-block:: ipython
+        >> config
+        >> {'a': 1, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    """
+    if not isinstance(key, str):
+        raise TypeError("key must be string")
+    keys = key.split(".")
+    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
+
+
+def read_csv_output(
+    fn: Path | str, config: dict, maps: xr.Dataset
+) -> dict[str, GeoDataArray]:
+    """Read wflow output csv timeseries and parse to dictionary.
+
+    Parses the wflow csv output file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
     coordinates of the station or of the representative point of the subcatch/area. The
     variable name in the ``GeoDataArray`` corresponds to the csv header attribute or
@@ -40,7 +129,7 @@ def read_csv_results(
     Parameters
     ----------
     fn: str
-        Path to the wflow csv results file.
+        Path to the wflow csv output file.
     config: dict
         wflow.toml configuration.
     maps: xr.Dataset
@@ -54,15 +143,21 @@ of the config.
     """
     # Count items by csv.column
     count = 1
-    csv_dict = dict()
+    csv_dict = {}
     # Loop over csv.column
     for col in config["output"]["csv"].get("column"):
         header = col["header"]
+        logger.debug(f"Reading csv column '{header}'")
         # Column based on map
         if "map" in col.keys():
             # Read the corresponding map and derive the different locations
             # The centroid of the geometry is used as coordinates for the timeseries
             map_name = config["input"].get(f"{col['map']}")
+            if map_name not in maps:
+                logger.warning(
+                    f"Map '{map_name}' not found in staticmaps. Skip reading."
+                )
+                return {}
             da = maps[map_name]
             gdf = da.raster.vectorize()
             gdf.geometry = gdf.geometry.representative_point()
@@ -189,199 +284,9 @@ of the config.
     return csv_dict
 
 
-def get_config(
-    config: tomlkit.TOMLDocument,
-    *args,
-    root: Path | None = None,
-    fallback: Any | None = None,
-    abs_path: bool = False,
-):
-    """
-    Get a config value at key.
-
-    Parameters
-    ----------
-    args : tuple, str
-        keys can given by multiple args: ('key1', 'key2')
-        or a string with '.' indicating a new level: ('key1.key2')
-    fallback: Any, optional
-        fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-        NOTE: this assumes the config is located in model root!
-
-    Returns
-    -------
-    value : Any
-        dictionary value
-
-    Examples
-    --------
-    >> config = {'a': 1, 'b': {'c': {'d': 2}}
-
-    >> get_config(config, 'a')
-    >> 1
-
-    >> get_config(config, 'b', 'c', 'd') # identical to get_config(config, 'b.c.d')
-    >> 2
-
-    >> get_config(config, 'b.c') # # identical to get_config(config, 'b','c')
-    >> {'d': 2}
-    """
-    args = list(args)
-    if len(args) == 1 and "." in args[0]:
-        args = args[0].split(".") + args[1:]
-    branch = config  # reads config at first call
-    for key in args[:-1]:
-        branch = branch.get(key, {})
-        if not isinstance(branch, dict):
-            branch = dict()
-            break
-    value = branch.get(args[-1], fallback)
-    if abs_path and isinstance(value, str):
-        value = Path(value)
-        if not value.is_absolute():
-            value = Path(abspath(join(root, value)))
-
-    if isinstance(value, tomlkit.items.Item):
-        return value.unwrap()
-    elif value is None:
-        return fallback
-    else:
-        return value
-
-
-def set_config(config: tomlkit.TOMLDocument, *args):
-    """
-    Update the config toml at key(s) with values.
-
-    This function is made to maintain the structure of your toml file.
-    When adding keys it will look for the most specific header present in
-    the toml file and add it under that.
-
-    meaning that if you have a config toml that is empty and you run
-    ``set_config("input.forcing.scale", 1)``
-
-    it will result in the following file:
-
-    .. code-block:: toml
-
-        input.forcing.scale = 1
-
-
-    however if your toml file looks like this before:
-
-    .. code-block:: toml
-
-        [input.forcing]
-
-    (i.e. you have a header in there that has no keys)
-
-    then after the insertion it will look like this:
-
-    .. code-block:: toml
-
-        [input.forcing]
-        scale = 1
-
-
-    .. warning::
-
-        Due to limitations of the underlying library it is currently not possible to
-        create new headers (i.e. groups like ``input.forcing`` in the example above)
-        programmatically, and they will need to be added to the default config
-        toml document
-
-
-    .. warning::
-
-        Even though the underlying config object behaves like a dictionary, it is
-        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-        error scan easily be introduced if this structure is modified by hand.
-        Therefore we strongly discourage users from manually modying it, and
-        instead ask them to use this ``set_config`` function to avoid problems.
-
-    Parameters
-    ----------
-    config : tomlkit.TOMLDocument
-        The config settings in TOMLDocument object.
-    args : str, tuple, list
-        if tuple or list, minimal length of two
-        keys can given by multiple args: ('key1', 'key2', 'value')
-        or a string with '.' indicating a new level: ('key1.key2', 'value')
-
-    Examples
-    --------
-    .. code-block:: ipython
-
-        >> config
-        >> {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> set_config(config, 'a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
-
-        >> set_config(config, 'b', 'c', 'd', 99) # identical to \
-set_config(config, 'b.d.e', 99)
-        >> {'a': 1, 'b': {'c': {'d': 99}}}
-    """
-    if len(args) < 2:
-        raise TypeError("set_config() requires a least one key and one value.")
-    if not all([isinstance(part, str) for part in args[:-1]]):
-        raise TypeError("All but last argument for set_config must be str")
-
-    args = list(args)
-    value = args.pop(-1)
-    keys = [part for arg in args for part in arg.split(".")]
-
-    # if we try to set dictionaries as values directly tomlkit will mess up the
-    # key bookkeeping, resulting in invalid toml, so instead
-    # if we see a mapping, we go over it recursively
-    # and manually add all of its keys, because of cloning issues.
-    if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-        for key, inner_value in value.items():
-            set_config(config, *keys, key, inner_value)
-
-    # if the first key is not present
-    # we can just set the entire thing straight
-    if keys[0] not in config:
-        config.append(_tomlkit_key(keys), value)
-        return
-
-    # If there is only one key we also just set that directly as
-    # a string key instead of the dotted variant
-    if len(keys) == 1:
-        config.update({keys[0]: value})
-        return
-
-    current = config
-    for idx in range(len(keys)):
-        if idx != len(keys) - 1:
-            remaining_key = _tomlkit_key(keys[idx:])
-        else:
-            remaining_key = keys[idx]
-
-        if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-            break
-
-        current = current[keys[idx]]
-
-    # tomlkit's update function doesn't work properly
-    # so instead of updating we take the key out if it is in there
-    # and readd it afterwards
-    if remaining_key in current:
-        _ = current.pop(remaining_key)
-
-    current[remaining_key] = value
-
-
-def _tomlkit_key(keys: list) -> Key:
-    return tomlkit.key(keys[0] if len(keys) == 1 else keys)
-
-
 def get_grid_from_config(
     var_name: str,
-    config: Dict = {},
+    config: dict = {},
     grid: xr.Dataset | None = None,
     root: Path | None = None,
     abs_path: bool = False,
@@ -424,34 +329,17 @@ def get_grid_from_config(
     """
     # get config value
     # try with input only
+    var_name = get_wflow_var_fullname(var_name, config)
     var = get_config(
-        config,
-        f"input.{var_name}",
+        key=var_name,
+        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
     )
     if var is None:
-        # try with input.static
-        var = get_config(
-            config,
-            f"input.static.{var_name}",
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
-    if var is None:
         # try with input.static.var.value
         var = config["input"]["static"].get(f"{var_name}.value", None)
-    if var is None:
-        # try with input.cyclic
-        var = get_config(
-            config,
-            f"input.cyclic.{var_name}",
-            fallback=None,
-            root=root,
-            abs_path=abs_path,
-        )
     if var is None:
         raise ValueError(f"variable {var_name} not found in config.")
 
@@ -476,7 +364,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config(var, "netcdf.variable.name")
+            var_name = get_config(key="netcdf_variable_name", config=var)
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset
@@ -485,6 +373,34 @@ def get_grid_from_config(
             da = grid[var_name] * scale + offset
 
     return da
+
+
+def get_wflow_var_fullname(input_var: str, config: dict) -> str:
+    """Get the full variable name for a Wflow variable."""
+    # Check if the variable is in the input section
+    if get_config(config, f"input.{input_var}") is not None:
+        return f"input.{input_var}"
+    # Check if the variable is in the static section
+    if get_config(config, f"input.static.{input_var}") is not None:
+        return f"input.static.{input_var}"
+    # Check if the variable is in the cyclic section
+    if get_config(config, f"input.cyclic.{input_var}") is not None:
+        return f"input.cyclic.{input_var}"
+    # Check if the variable is in the forcing section
+    if get_config(config, f"input.forcing.{input_var}") is not None:
+        return f"input.forcing.{input_var}"
+    # If not found, return the original variable name
+    return input_var
+
+
+def _mask_data_array(data_array: xr.DataArray, mask: xr.DataArray) -> xr.DataArray:
+    """Mask the data array based on the mask."""
+    # If the data is boolean, we set it to False where the mask is False
+    if data_array.dtype == np.bool:
+        return data_array.where(mask, False)
+    # Otherwise we set it to nodata where the mask is False
+    else:
+        return data_array.where(mask, data_array.raster.nodata)
 
 
 def mask_raster_from_layer(
@@ -505,35 +421,27 @@ def mask_raster_from_layer(
     ----------
         data (xr.Dataset, xr.DataArray):
             The grid data containing the data that should be masked
-        layer_name (string):
-            mask that the data will be masked to. Values can be boolean or
-            numeric. Places where this layer is different than the rater nodata will be
-            masked in the other data variables
+        mask (xr.DataArray):
+            mask that the data will be masked to. Values can be boolean or numeric.
+            Places where this layer is different than the raster nodata will be
+            masked in the other data.
 
     Returns
     -------
         xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
-    # Reproject data to match mask's grid if shapes differ
+    # Skip masking if different grid
     if data.sizes != mask.sizes:
-        data = data.raster.reproject_like(mask)
+        logger.warning("Skipping masking due to different grid sizes.")
+        return data
 
     mask = mask != mask.raster.nodata
-    # Need to duplicate or else data should have a name ie we duplicate functionality
-    # of GridModel.set_grid
+
     if isinstance(data, xr.DataArray):
-        # nodata is required for all but boolean fields
-        if data.dtype != "bool":
-            data = data.where(mask, data.raster.nodata)
-        else:
-            data = data.where(mask, False)
+        data = _mask_data_array(data, mask)
     else:
         for var in data.data_vars:
-            # nodata is required for all but boolean fields
-            if data[var].dtype != "bool":
-                data[var] = data[var].where(mask, data[var].raster.nodata)
-            else:
-                data[var] = data[var].where(mask, False)
+            data[var] = _mask_data_array(data[var], mask)
 
     return data
 

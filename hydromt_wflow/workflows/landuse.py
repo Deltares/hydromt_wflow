@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import geopandas as gpd
 import numpy as np
@@ -12,7 +12,7 @@ from shapely.geometry import box
 
 from hydromt_wflow.workflows.demand import create_grid_from_bbox
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 __all__ = [
@@ -38,8 +38,7 @@ def landuse(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[List] = None,
-    logger=logger,
+    params: Optional[list] = None,
 ):
     """Return landuse map and related parameter maps.
 
@@ -94,12 +93,11 @@ def landuse_from_vector(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[List] = None,
+    params: Optional[list] = None,
     lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
     lulc_out: Optional[str] = None,
-    logger=logger,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -131,8 +129,6 @@ def landuse_from_vector(
         1000.
     lulc_out : str, optional
         Path to save the rasterised original landuse map to file, by default None.
-    logger : logging.Logger, optional
-        Logger object.
 
     Returns
     -------
@@ -178,12 +174,12 @@ def landuse_from_vector(
         da.raster.to_raster(lulc_out)
 
     # derive the landuse maps
-    ds_out = landuse(da, ds_like, df, params=params, logger=logger)
+    ds_out = landuse(da, ds_like, df, params=params)
 
     return ds_out
 
 
-def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
+def lai(da: xr.DataArray, ds_like: xr.Dataset):
     """Return climatology of Leaf Area Index (LAI).
 
     The following maps are calculated:
@@ -220,8 +216,7 @@ def create_lulc_lai_mapping_table(
     da_lulc: xr.DataArray,
     da_lai: xr.DataArray,
     sampling_method: str = "any",
-    lulc_zero_classes: List[int] = [],
-    logger=logger,
+    lulc_zero_classes: list[int] = [],
 ) -> pd.DataFrame:
     """
     Derive LAI values per landuse class.
@@ -367,7 +362,6 @@ def lai_from_lulc_mapping(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    logger=logger,
 ) -> xr.Dataset:
     """
     Derive LAI values from a landuse map and a mapping table.
@@ -381,8 +375,6 @@ def lai_from_lulc_mapping(
     df : pd.DataFrame
         Mapping table with LAI values per landuse class. One column for each month and
         one line per landuse class.
-    logger : logging.Logger, optional
-        Logger object.
 
     Returns
     -------
@@ -397,7 +389,6 @@ def lai_from_lulc_mapping(
         ds_like=ds_like,
         df=df,
         params=months,
-        logger=logger,
     )
     # Re-organise the dataset to have a time dimension
     da_lai = ds_lai.to_array(dim="time", name="LAI")
@@ -412,7 +403,7 @@ def add_paddy_to_landuse(
     df_mapping: pd.DataFrame,
     df_paddy_mapping: pd.DataFrame,
     output_paddy_class: Optional[int] = None,
-) -> Tuple[xr.DataArray, pd.DataFrame]:
+) -> tuple[xr.DataArray, pd.DataFrame]:
     """
     Burn paddy fields into landuse map and update mapping table.
 
@@ -473,7 +464,6 @@ def add_planted_forest_to_landuse(
     planted_forest_c: float = 0.0881,
     orchard_name: str = "Orchard",
     orchard_c: float = 0.2188,
-    logger=logger,
 ) -> xr.DataArray:
     """
     Update USLE C map with planted forest and orchard data.
