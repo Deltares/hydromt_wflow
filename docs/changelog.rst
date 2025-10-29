@@ -14,6 +14,7 @@ Added
 
 Changed
 -------
+- When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation.
 
 Fixed
 -----
