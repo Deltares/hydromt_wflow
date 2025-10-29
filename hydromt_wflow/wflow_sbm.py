@@ -1036,7 +1036,7 @@ setting new flood_depth dimensions"
             gdf=gdf_org,
             ds_reservoirs=ds_res,
             timeseries_fn=timeseries_fn,
-            output_folder=self.root.path,
+            output_folder=self.root.path / "validation",
         )
 
         # merge with existing reservoirs
