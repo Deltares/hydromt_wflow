@@ -1,14 +1,12 @@
 """Workflow for wflow model states."""
 
-from typing import Dict, Tuple
-
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt.raster import full_like
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.gis import full_like
+from hydromt.model.processes.grid import grid_from_constant
 
-from ..utils import get_grid_from_config
+from hydromt_wflow.utils import get_grid_from_config
 
 __all__ = ["prepare_cold_states"]
 
@@ -19,7 +17,7 @@ def prepare_cold_states(
     timestamp: str = None,
     mask_name_land: str = "subcatchment",
     mask_name_river: str = "river_mask",
-) -> Tuple[xr.Dataset, Dict[str, str]]:
+) -> tuple[xr.Dataset, dict[str, str]]:
     """
     Prepare cold states for Wflow.
 
@@ -33,16 +31,16 @@ def prepare_cold_states(
     * **snow_water_depth**: liquid water content in the snow pack [mm]
     * **vegetation_water_depth**: canopy storage [mm]
     * **river_instantaneous_q**: river discharge [m3/s]
-    * **river_instantaneous_h**: river water level [m]
+    * **river_h**: river water level [m]
     * **subsurface_q**: subsurface flow [m3/d]
-    * **land_instantaneous_h**: land water level [m]
+    * **land_h**: land water level [m]
     * **land_instantaneous_q** or **land_instantaneous_qx**+**land_instantaneous_qy**:
       overland flow for kinwave [m3/s] or overland flow in x/y directions for
-      local-inertial [m3/s]
+      local_inertial [m3/s]
 
     If reservoirs, also adds:
 
-    * **reservoir_instantaneous_water_level**: reservoir water level [m]
+    * **reservoir_water_level**: reservoir water level [m]
 
     If glaciers, also adds:
 
@@ -106,16 +104,16 @@ def prepare_cold_states(
 
     # Base output config dict for states
     states_config = {
-        "state.variables.soil_water_sat-zone__depth": "soil_saturated_depth",
-        "state.variables.snowpack~dry__leq-depth": "snow_leq_depth",
+        "state.variables.soil_water_saturated_zone__depth": "soil_saturated_depth",
+        "state.variables.snowpack_dry_snow__leq_depth": "snow_leq_depth",
         "state.variables.soil_surface__temperature": "soil_temp",
-        "state.variables.soil_layer_water_unsat-zone__depth": "soil_unsaturated_depth",
-        "state.variables.snowpack~liquid__depth": "snow_water_depth",
+        "state.variables.soil_layer_water_unsaturated_zone__depth": "soil_unsaturated_depth",  # noqa: E501
+        "state.variables.snowpack_liquid_water__depth": "snow_water_depth",
         "state.variables.vegetation_canopy_water__depth": "vegetation_water_depth",
         "state.variables.subsurface_water__volume_flow_rate": "subsurface_q",
-        "state.variables.land_surface_water__instantaneous_depth": "land_instantaneous_h",  # noqa: E501
+        "state.variables.land_surface_water__depth": "land_h",
         "state.variables.river_water__instantaneous_volume_flow_rate": "river_instantaneous_q",  # noqa: E501
-        "state.variables.river_water__instantaneous_depth": "river_instantaneous_h",
+        "state.variables.river_water__depth": "river_h",
     }
 
     # Map with constant values or zeros for basin
@@ -124,10 +122,10 @@ def prepare_cold_states(
         "snow_leq_depth",
         "snow_water_depth",
         "vegetation_water_depth",
-        "land_instantaneous_h",
+        "land_h",
     ]
-    land_routing = config["model"].get("land_routing", "kinematic-wave")
-    if land_routing == "local-inertial":
+    land_routing = config["model"].get("land_routing", "kinematic_wave")
+    if land_routing == "local_inertial":
         zeromap.extend(["land_instantaneous_qx", "land_instantaneous_qy"])
         states_config[
             "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
@@ -159,7 +157,7 @@ def prepare_cold_states(
     # soil_unsaturated_depth (zero per layer)
     # layers are based on brooks_corey_c parameter
     c = get_grid_from_config(
-        "soil_layer_water__brooks-corey_exponent",
+        "soil_layer_water__brooks_corey_exponent",
         config=config,
         grid=ds_like,
     )
@@ -186,7 +184,7 @@ def prepare_cold_states(
         grid=ds_like,
     )
     ksh = get_grid_from_config(
-        "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",
+        "subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio",
         config=config,
         grid=ds_like,
     )
@@ -223,16 +221,14 @@ def prepare_cold_states(
     ds_out["subsurface_q"] = ssf
 
     # River
-    zeromap_riv = ["river_instantaneous_q", "river_instantaneous_h"]
+    zeromap_riv = ["river_instantaneous_q", "river_h"]
     # 1D floodplain
     if config["model"].get("floodplain_1d__flag", False):
-        zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_instantaneous_h"])
+        zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_h"])
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
         ] = "floodplain_instantaneous_q"
-        states_config["state.variables.floodplain_water__instantaneous_depth"] = (
-            "floodplain_instantaneous_h"
-        )
+        states_config["state.variables.floodplain_water__depth"] = "floodplain_h"
     for var in zeromap_riv:
         value = 0.0
         da_param = grid_from_constant(
@@ -255,16 +251,16 @@ def prepare_cold_states(
         )
         rl = rl.where(rl != rl.raster.nodata, nodata)
         rl.raster.set_nodata(nodata)
-        ds_out["reservoir_instantaneous_water_level"] = rl
+        ds_out["reservoir_water_level"] = rl
 
-        states_config[
-            "state.variables.reservoir_water_surface__instantaneous_elevation"
-        ] = "reservoir_instantaneous_water_level"
+        states_config["state.variables.reservoir_water_surface__elevation"] = (
+            "reservoir_water_level"
+        )
 
     # glacier
     if config["model"].get("glacier__flag", False):
         gs_vn = get_grid_from_config(
-            "glacier_ice__initial_leq-depth",
+            "glacier_ice__initial_leq_depth",
             config=config,
             grid=ds_like,
         )
@@ -281,7 +277,7 @@ def prepare_cold_states(
             )
             ds_out["glacier_leq_depth"] = glacstore
 
-        states_config["state.variables.glacier_ice__leq-depth"] = "glacier_leq_depth"
+        states_config["state.variables.glacier_ice__leq_depth"] = "glacier_leq_depth"
 
     # paddy
     if config["model"].get("water_demand.paddy__flag", False):
@@ -295,9 +291,7 @@ def prepare_cold_states(
         )
         ds_out["demand_paddy_h"] = h_paddy
 
-        states_config["state.variables.land_surface_water~paddy__depth"] = (
-            "demand_paddy_h"
-        )
+        states_config["state.variables.paddy_surface_water__depth"] = "demand_paddy_h"
 
     # Add time dimension
     ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))

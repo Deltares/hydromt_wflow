@@ -6,16 +6,34 @@ This plugin allows to clip the following parts of an existing model for a smalle
 
 - staticmaps
 - forcing
+- states
+- geoms
+- config (update reservoir settings)
 
-To clip a smaller model from an existing one use:
+To clip a smaller model from an existing one use the ``update`` CLI command with the **clip** method:
 
 .. code-block:: console
 
-    activate hydromt-wflow
-    hydromt clip wflow_sediment path/to/model_to_clip path/to/clipped_model "{'basin' [1001]}" -vvv
+    activate hydromt_wflow
+    hydromt update wflow_sediment -o path/to/model_to_clip path/to/clipped_model -i clip_config.yml -v
 
-As for building, the recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
+Here is an example of the clip config:
+
+.. code-block:: yaml
+
+    steps:
+      - clip:
+        region: {"basin": [x, y]} # region to clip the model too
+        inverse_clip: false # whether to clip outside or inside the region
+        clip_states: true # whether to clip states
+        clip_forcing: true # whether to clip forcing
+
+As for building, the recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of the clipped model are:
 
 - basin
 - subbasin
+
+See the following model API:
+
+* :py:func:`~WflowSedimentModel.clip`

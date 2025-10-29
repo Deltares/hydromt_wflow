@@ -14,10 +14,10 @@ loglevel = "info"
 type = "sediment"
 cold_start__flag = true
 run_river_model__flag = true
-rainfall_erosion = "answers" # Rainfall erosion equation: ["answers", "eurosem"]
-overland_flow_erosion = "answers" # Overland flow erosion equation: ["answers"]
-land_transport = "yalinpart" # Overland flow transport capacity method: ["yalinpart", "govers", "yalin"]
-river_transport = "bagnold" # River flow transport capacity method: ["bagnold", "engelund", "yang", "kodatie", "molinas"]
+rainfall_erosion = "answers"
+overland_flow_erosion = "answers"
+land_transport = "yalinpart"
+river_transport = "bagnold"
 reservoir__flag = true
 
 [state]
@@ -29,24 +29,24 @@ river_water_clay__mass = "river_clay_load"
 river_bed_clay__mass = "river_bed_clay_store"
 river_water_gravel__mass = "river_gravel_load"
 river_bed_gravel__mass = "river_bed_gravel_store"
-"river_water_aggregates~large__mass" = "river_lagg_load"
-"river_bed_aggregates~large__mass" = "river_bed_lagg_store"
+river_water_large_aggregates__mass = "river_lagg_load"
+river_bed_large_aggregates__mass = "river_bed_lagg_store"
 river_water_clay__mass_flow_rate = "river_clay_flux"
 river_water_gravel__mass_flow_rate = "river_gravel_flux"
-"river_water_aggregates~large__mass_flow_rate" = "river_lagg_flux"
-"river_water_aggregates~small__mass_flow_rate" = "river_sagg_flux"
+river_water_large_aggregates__mass_flow_rate = "river_lagg_flux"
+river_water_small_aggregates__mass_flow_rate = "river_sagg_flux"
 river_water_sand__mass_flow_rate = "river_sand_flux"
 river_water_silt__mass_flow_rate = "river_silt_flux"
-"river_water_aggregates~small__mass" = "river_sagg_load"
-"river_bed_aggregates~small__mass" = "river_bed_sagg_store"
+river_water_small_aggregates__mass = "river_sagg_load"
+river_bed_small_aggregates__mass = "river_bed_sagg_store"
 river_water_sand__mass = "river_sand_load"
 river_bed_sand__mass = "river_bed_sand_store"
 river_water_silt__mass = "river_silt_load"
 river_bed_silt__mass = "river_bed_silt_store"
 
-
 [input]
 path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
 basin__local_drain_direction = "local_drain_direction"
 subbasin_location__count = "subcatchment"
 river_location__mask = "river_mask"
@@ -54,7 +54,6 @@ reservoir_area__count = "reservoir_area_id"
 reservoir_location__count = "reservoir_outlet_id"
 outlets = "outlets"
 gauges_grdc = "gauges_grdc"
-path_static = "staticmaps.nc"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
@@ -72,19 +71,19 @@ river__length = "river_length"
 river__slope = "river_slope"
 river__width = "river_width"
 reservoir_surface__area = "reservoir_area"
-"reservoir_water_sediment~bedload__trapping_efficiency" = "reservoir_trapping_efficiency"
-river_bottom-and-bank_sediment__median_diameter = "river_bed_sediment_d50"
-river_bottom-and-bank_clay__mass_fraction = "river_bed_clay_fraction"
-river_bottom-and-bank_silt__mass_fraction = "river_bed_silt_fraction"
-river_bottom-and-bank_sand__mass_fraction = "river_bed_sand_fraction"
-river_bottom-and-bank_gravel__mass_fraction = "river_bed_gravel_fraction"
-river_water_sediment__kodatie_transport_capacity_a-coefficient = "river_kodatie_a"
-river_water_sediment__kodatie_transport_capacity_b-coefficient = "river_kodatie_b"
-river_water_sediment__kodatie_transport_capacity_c-coefficient = "river_kodatie_c"
-river_water_sediment__kodatie_transport_capacity_d-coefficient = "river_kodatie_d"
-"soil~compacted__area_fraction" = "soil_compacted_fraction"
+reservoir_water_sediment__bedload_trapping_efficiency = "reservoir_trapping_efficiency"
+river_bottom_and_bank_sediment__median_diameter = "river_bed_sediment_d50"
+river_bottom_and_bank_clay__mass_fraction = "river_bed_clay_fraction"
+river_bottom_and_bank_silt__mass_fraction = "river_bed_silt_fraction"
+river_bottom_and_bank_sand__mass_fraction = "river_bed_sand_fraction"
+river_bottom_and_bank_gravel__mass_fraction = "river_bed_gravel_fraction"
+river_water_sediment__kodatie_transport_capacity_a_coefficient = "river_kodatie_a"
+river_water_sediment__kodatie_transport_capacity_b_coefficient = "river_kodatie_b"
+river_water_sediment__kodatie_transport_capacity_c_coefficient = "river_kodatie_c"
+river_water_sediment__kodatie_transport_capacity_d_coefficient = "river_kodatie_d"
+compacted_soil__area_fraction = "soil_compacted_fraction"
 soil_erosion__usle_c_factor = "erosion_usle_c"
-"land~water-covered__area_fraction" = "land_water_fraction"
+land_water_covered__area_fraction = "land_water_fraction"
 vegetation_canopy__height = "vegetation_height"
 soil_erosion__rainfall_soil_detachability_factor = "erosion_soil_detachability"
 soil_erosion__usle_k_factor = "erosion_usle_k"
@@ -93,20 +92,42 @@ land_surface_water_sediment__govers_transport_capacity_coefficient = "land_gover
 land_surface_water_sediment__govers_transport_capacity_exponent = "land_govers_n"
 soil_clay__mass_fraction = "soil_clay_fraction"
 soil_silt__mass_fraction = "soil_silt_fraction"
-"soil_aggregates~small__mass_fraction" = "soil_sagg_fraction"
+soil_small_aggregates__mass_fraction = "soil_sagg_fraction"
 soil_sand__mass_fraction = "soil_sand_fraction"
-"soil_aggregates~large__mass_fraction" = "soil_lagg_fraction"
-sediment__particle_density.value = 2650
-clay__mean_diameter.value = 2
-silt__mean_diameter.value = 10
-"sediment_aggregates~small__mean_diameter".value = 30
-sand__mean_diameter.value = 200
-"sediment_aggregates~large__mean_diameter".value = 500
-gravel__mean_diameter.value = 2000
-river_water_sediment__bagnold_transport_capacity_coefficient.value = 1.75e-05
-soil_erosion__answers_overland_flow_factor.value = 0.9
-soil_erosion__eurosem_exponent.value = 2.0
-river_water_sediment__bagnold_transport_capacity_exponent.value = 1.4
+soil_large_aggregates__mass_fraction = "soil_lagg_fraction"
+
+[input.static.sediment__particle_density]
+value = 2650
+
+[input.static.clay__mean_diameter]
+value = 2
+
+[input.static.silt__mean_diameter]
+value = 10
+
+[input.static.sediment_small_aggregates__mean_diameter]
+value = 30
+
+[input.static.sand__mean_diameter]
+value = 200
+
+[input.static.sediment_large_aggregates__mean_diameter]
+value = 500
+
+[input.static.gravel__mean_diameter]
+value = 2000
+
+[input.static.river_water_sediment__bagnold_transport_capacity_coefficient]
+value = 1.75e-05
+
+[input.static.soil_erosion__answers_overland_flow_factor]
+value = 0.9
+
+[input.static.soil_erosion__eurosem_exponent]
+value = 2.0
+
+[input.static.river_water_sediment__bagnold_transport_capacity_exponent]
+value = 1.4
 
 [output.netcdf_grid]
 path = "output.nc"
@@ -114,7 +135,7 @@ compressionlevel = 1
 
 [output.netcdf_grid.variables]
 soil_erosion__mass_flow_rate = "soil_loss"
-"river_water_sediment~suspended__mass_concentration" = "suspended_solids"
+river_water_sediment__suspended_mass_concentration = "suspended_solids"
 
 [output.csv]
 path = "output.csv"
@@ -122,7 +143,7 @@ path = "output.csv"
 [[output.csv.column]]
 header = "suspended_solids"
 map = "outlets"
-parameter = "river_water_sediment~suspended__mass_concentration"
+parameter = "river_water_sediment__suspended_mass_concentration"
 
 [[output.csv.column]]
 header = "river_q"
@@ -132,5 +153,6 @@ parameter = "river_water__volume_flow_rate"
 [[output.csv.column]]
 header = "suspended_solids"
 map = "gauges_grdc"
-parameter = "river_water_sediment~suspended__mass_concentration"
+parameter = "river_water_sediment__suspended_mass_concentration"
+
 [output.netcdf_scalar]

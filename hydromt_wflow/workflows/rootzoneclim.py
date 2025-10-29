@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import xarray as xr
-from hydromt import flw
+from hydromt.gis import flw
 from scipy import optimize
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 __all__ = ["rootzoneclim"]
 
@@ -130,7 +130,7 @@ def determine_omega(ds_sub_annual):
                 try:
                     omega_temp = optimize.brentq(
                         Zhang,
-                        0.000000000001,
+                        1e-6,  # changed from 1e-12 to 1e-6 for numerical stability
                         100,
                         args=(
                             aridity_index[subcatch_index_nr],
@@ -610,7 +610,6 @@ def rootzoneclim(
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
     missing_days_threshold: int | None = 330,
-    logger=logger,
 ):
     """
     Estimates the root zone storage parameter.
@@ -984,10 +983,22 @@ def rootzoneclim(
                     (y_dim, x_dim),
                     out_raster,
                 )
+
+            denom = ds_like["theta_s"].values - ds_like["theta_r"].values
+            eps = 1e-6  # numerical safety threshold
+
+            # Safe division: NaN where denominator is ~0
+            with np.errstate(divide="ignore", invalid="ignore"):
+                vrdepth = np.divide(
+                    out_raster,
+                    denom,
+                    out=np.full_like(out_raster, np.nan, dtype=float),
+                    where=np.abs(denom) > eps,
+                )
             # Store the vegetation_root_depth in ds_out
             ds_out[f"vegetation_root_depth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
-                out_raster / (ds_like["theta_s"].values - ds_like["theta_r"].values),
+                vrdepth,
             )
 
     return ds_out, gdf_basins_all

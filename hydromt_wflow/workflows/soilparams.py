@@ -2,7 +2,7 @@
 
 import numpy as np
 import xarray as xr
-from hydromt import raster
+from hydromt.gis import raster_utils
 
 __all__ = [
     "ksat_horizontal_ratio",
@@ -17,7 +17,7 @@ def ksat_horizontal_ratio(
 ) -> xr.DataArray:
     """Create KsatHorfrac map.
 
-    Based on the data properties of the WflowModel.
+    Based on the data properties of the WflowSbmModel.
 
     Parameters
     ----------
@@ -53,7 +53,6 @@ the predefined KsatHorFrac map.
     # Set the default no fill value for doubles
     da = da.fillna(-9999.0)
     da.raster.set_nodata(-9999.0)
-    # Return as a dataset to be used for 'set_grid'
     return da
 
 
@@ -78,7 +77,11 @@ def calc_kv_at_depth(depth, kv_0, f):
     kv_z
         The kv value at the requested depth
     """
-    kv_z = kv_0 * np.exp(-f * depth)
+    exp_arg = -f * depth
+    # Clip exponent to float64-safe range
+    exp_arg = np.clip(exp_arg, -700, 700)
+    kv_z = kv_0 * np.exp(exp_arg)
+
     return kv_z
 
 
@@ -137,7 +140,7 @@ def update_kvfrac(
     target_conductivity = np.array(target_conductivity)
 
     # Prepare empty dataarray
-    da_kvfrac = raster.full_like(ds_model["soil_brooks_corey_c"])
+    da_kvfrac = raster_utils.full_like(ds_model["soil_brooks_corey_c"])
     # Set all values to 1
     da_kvfrac = da_kvfrac.where(ds_model["elevtn"].raster.mask_nodata().isnull(), 1.0)
 

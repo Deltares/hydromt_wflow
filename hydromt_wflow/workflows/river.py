@@ -6,13 +6,18 @@ from os.path import join
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import pyflwdir
 import xarray as xr
-from hydromt import flw, gis_utils, stats, workflows
+from hydromt import stats
+from hydromt.gis import flw
+from hydromt.gis.raster_utils import cellres
+from hydromt.gis.vector_utils import nearest
+from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
 
 from hydromt_wflow.utils import DATADIR  # global var
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 __all__ = ["river", "river_bathymetry", "river_width", "river_floodplain_volume"]
 
@@ -25,13 +30,12 @@ def power_law(x, a, b):
 
 
 def river(
-    ds,
-    ds_model=None,
-    river_upa=30.0,
-    slope_len=2e3,
-    min_rivlen_ratio=0.0,
-    channel_dir="up",
-    logger=logger,
+    ds: xr.Dataset,
+    ds_model: xr.Dataset | None = None,
+    river_upa: float = 30.0,
+    slope_len: float = 2e3,
+    min_rivlen_ratio: float = 0.0,
+    channel_dir: str = "up",
 ):
     """Return river maps.
 
@@ -83,7 +87,7 @@ def river(
         logger.info("River length and slope are calculated at model resolution.")
 
     ## river mask and flow directions at model grid
-    logger.debug(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
+    logger.info(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
     riv_mask = ds_model["uparea"] > river_upa  # initial mask
     mod_mask = ds_model["uparea"] != ds_model["uparea"].raster.nodata
 
@@ -105,7 +109,7 @@ def river(
 
     ## river length
     # get river length based on on-between distance between two outlet pixels
-    logger.debug("Derive river length.")
+    logger.info("Derive river length.")
     rivlen = flwdir.subgrid_rivlen(
         idxs_out=idxs_out,
         mask=riv_mask_org,
@@ -115,7 +119,7 @@ def river(
     xres, yres = ds_model.raster.res
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
-        xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+        xres, yres = cellres(lat_avg, xres, yres)
     rivlen = np.where(riv_mask.values, rivlen, -9999)
     # set mean length at most downstream (if channel_dir=down) or upstream
     # (if channel_dir=up) river lengths
@@ -129,7 +133,7 @@ def river(
         rivlen2 = flwdir_model.smooth_rivlen(rivlen, min_len, nodata=-9999)
         min_len2 = rivlen2[riv_mask].min()
         pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
-        logger.debug(
+        logger.info(
             f"River length smoothed (min length: {min_len2:.0f} m; \
 cells modified: {pmod:.1f})%."
         )
@@ -140,7 +144,7 @@ cells modified: {pmod:.1f})%."
         )
 
     ## river slope as derivative of elevation around outlet pixels
-    logger.debug("Derive river slope.")
+    logger.info("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
         idxs_out=idxs_out,
         elevtn=ds["elevtn"].values,
@@ -174,41 +178,39 @@ cells modified: {pmod:.1f})%."
 def river_bathymetry(
     ds_model: xr.Dataset,
     gdf_riv: gpd.GeoDataFrame,
-    method: str = "powlaw",
+    method: str | None = "powlaw",
     smooth_len: float = 5e3,
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
-    logger=logger,
 ) -> xr.Dataset:
-    """Get river width and bankfull discharge.
+    """Get river width and optionally river depth/bankfull discharge.
 
-    From `gdf_riv` to estimate river depth
-    using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first
-    filled using downward filling and remaining  (upstream) missing values are set
-    to min_rivwth (for rivwth) and 0 (for qbankfull).
+    If `method` is None, only river width is derived. Otherwise river depth
+    is estimated using :py:meth:`hydromt.workflows.river_depth`.
 
     Parameters
     ----------
     ds_model : xr.Dataset
         Model dataset with 'flwdir', 'rivmsk', 'rivlen', 'x_out' and 'y_out' variables.
     gdf_riv : gpd.GeoDataFrame
-        River geometry with 'rivwth' and 'rivdph' or 'qbankfull' columns.
-    method : {'gvf', 'manning', 'powlaw'}
-        see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        River geometry with 'rivwth' and optionally 'rivdph' or 'qbankfull' columns.
+    method : {'gvf', 'manning', 'powlaw', None}, optional
+        Method to compute river depth. If None, depth is skipped.
     smooth_len : float, optional
         Length [m] over which to smooth the output river width and depth, by default 5e3
     min_rivdph : float, optional
-        Minimum river depth [m], by default 1.0
+        Minimum river depth [m], by default 1.0. Ignored if method=None.
     min_rivwth : float, optional
-        Minimum river width [m], by default 30.0
+        Minimum river width [m], by default 30.0.
 
     Returns
     -------
     xr.Dataset
-        Dataset with 'rivwth' and 'rivdph' variables
+        Dataset with 'rivwth' and (if method not None) 'rivdph'.
     """
     dims = ds_model.raster.dims
-    # check data variables.
+
+    # check required model variables
     dvars_model = ["flwdir", "rivmsk", "rivlen"]
     if method == "manning":
         dvars_model += ["rivslp"]
@@ -222,15 +224,20 @@ def river_bathymetry(
     flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
     rivlen_avg = ds_model["rivlen"].values[riv_mask].mean()
 
-    ## river width and bankfull discharge
-    vars0 = ["rivwth", "rivdph", "qbankfull"]
+    ## river width (+ optional depth)
+    vars0 = ["rivwth"]
+    if method is not None:
+        vars0 += ["rivdph", "qbankfull"]
+
     # find nearest values from river shape if provided
     # if None assume the data is in ds_model
     if gdf_riv is not None:
         vars = [c for c in vars0 if c in gdf_riv.columns]
         if len(vars) == 0:
-            raise ValueError(f" columns {vars0} not found in gdf_riv")
-        logger.debug(f"Derive {vars} from shapefile.")
+            raise ValueError(f"columns {vars0} not found in gdf_riv")
+        logger.info(f"Derive {vars} from shapefile.")
+
+        # outlet points
         if "x_out" in ds_model and "y_out" in ds_model:
             # get subgrid outlet pixel index and coordinates
             xs_out = ds_model["x_out"].values[riv_mask]
@@ -240,20 +247,24 @@ def river_bathymetry(
             row, col = np.nonzero(riv_mask)
             xs_out = ds_model.raster.xcoords.values[col]
             ys_out = ds_model.raster.ycoords.values[row]
+
         gdf_out = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(xs_out, ys_out), crs=ds_model.raster.crs
         )
-        idx_nn, dst_nn = gis_utils.nearest(gdf_out, gdf_riv)
+        idx_nn, dst_nn = nearest(gdf_out, gdf_riv)
+
         # get valid river data within max half pixel distance
         xres, yres = ds_model.raster.res
         if ds_model.raster.crs.is_geographic:  # convert degree to meters
             lat_avg = ds_model.raster.ycoords.values.mean()
-            xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+            xres, yres = cellres(lat_avg, xres, yres)
         max_dist = np.mean(np.abs([xres, yres])) / 2.0
+
         nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
-        logger.debug(
+        logger.info(
             f"Valid for {nsnap}/{nriv} river cells (max dist: {max_dist:.0f} m)."
         )
+
         for name in vars:
             data = np.full_like(riv_mask, -9999, dtype=np.float32)
             data[riv_mask] = np.where(
@@ -262,8 +273,10 @@ def river_bathymetry(
             ds_model[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
     else:
         vars = vars0
+
     assert "rivwth" in ds_model
-    assert "qbankfull" in ds_model or "rivdph" in ds_model
+    if method is not None:
+        assert "qbankfull" in ds_model or "rivdph" in ds_model
 
     # fill gaps in data using downward filling along flow directions
     for name in vars:
@@ -273,6 +286,7 @@ def river_bathymetry(
             continue
         data = flwdir_river.fillnodata(data, nodata, direction="down", how="max")
         ds_model[name].values = np.maximum(0, data)
+
     # smooth by averaging along flow directions and set minimum
     if smooth_len > 0:
         nsmooth = min(1, int(round(smooth_len / rivlen_avg / 2)))
@@ -284,45 +298,52 @@ def river_bathymetry(
         riv_mask, ds_model["rivwth"].raster.nodata
     )
 
-    ## river depth
-    if "rivdph" not in ds_model:
-        # distance to outlet; required for manning and gvf rivdph methods
-        if method != "powlaw" and "rivdst" not in ds_model:
-            rivlen = ds_model["rivlen"].values
-            nodata = ds_model["rivlen"].raster.nodata
-            rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
-            ds_model["rivdst"] = xr.Variable(
-                dims, rivdst, attrs=dict(_FillValue=nodata)
+    # optional depth
+    if method is not None:
+        if "rivdph" not in ds_model:
+            # distance to outlet; required for manning and gvf rivdph methods
+            if method != "powlaw" and "rivdst" not in ds_model:
+                rivlen = ds_model["rivlen"].values
+                nodata = ds_model["rivlen"].raster.nodata
+                rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
+                ds_model["rivdst"] = xr.Variable(
+                    dims, rivdst, attrs=dict(_FillValue=nodata)
+                )
+            # add river distance to outlet -> required for manning/gvf method
+            rivdph = river_depth(
+                data=ds_model,
+                flwdir=flwdir_river,
+                method=method,
+                min_rivdph=min_rivdph,
+                rivzs_name="subelv",
             )
-        # add river distance to outlet -> required for manning/gvf method
-        rivdph = workflows.river_depth(
-            data=ds_model,
-            flwdir=flwdir_river,
-            method=method,
-            min_rivdph=min_rivdph,
-            rivzs_name="subelv",
-        )
-        attrs = dict(_FillValue=-9999, unit="m")
-        ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
-    # smooth by averaging along flow directions and set minimum
-    if smooth_len > 0:
-        ds_model["rivdph"].values = flwdir_river.moving_average(
-            ds_model["rivdph"].values, nodata=-9999, **kwgs
-        )
-    ds_model["rivdph"] = np.maximum(min_rivdph, ds_model["rivdph"]).where(
-        riv_mask, -9999
-    )
+            attrs = dict(_FillValue=-9999, unit="m")
+            ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
 
-    return ds_model[["rivwth", "rivdph"]]
+        # smooth by averaging along flow directions and set minimum
+        if smooth_len > 0:
+            ds_model["rivdph"].values = flwdir_river.moving_average(
+                ds_model["rivdph"].values,
+                nodata=-9999,
+                **kwgs,
+            )
+        ds_model["rivdph"] = np.maximum(min_rivdph, ds_model["rivdph"]).where(
+            riv_mask, -9999
+        )
+
+    # return only what was computed
+    out_vars = ["rivwth"]
+    if method is not None:
+        out_vars.append("rivdph")
+    return ds_model[out_vars]
 
 
 def river_floodplain_volume(
-    ds,
-    ds_model,
-    river_upa=30,
-    flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5],
-    dtype=np.float64,
-    logger=logger,
+    ds: xr.Dataset,
+    ds_model: xr.Dataset,
+    river_upa: float = 30,
+    flood_depths: list[float] = [0.5, 1.0, 1.5, 2.0, 2.5],
+    dtype: np.dtype = np.float64,
 ):
     """Calculate floodplain volume at given flood depths based on (subgrid) HAND map.
 
@@ -416,22 +437,20 @@ def river_floodplain_volume(
 
 
 def river_width(
-    ds_like,
-    flwdir,
-    data=dict(),
-    fit=False,
-    fill=True,
-    fill_outliers=True,
-    min_wth=1,
-    mask_names=[],
-    predictor="discharge",
-    rivwth_name="rivwth",
-    obs_postfix="_obs",
-    rivmsk_name="rivmsk",
-    a=None,
-    b=None,
-    logger=logger,
-    **kwargs,
+    ds_like: xr.Dataset,
+    flwdir: pyflwdir.FlwdirRaster,
+    data: dict = {},
+    fit: bool = False,
+    fill: bool = True,
+    fill_outliers: bool = True,
+    min_wth: float = 1,
+    mask_names: list = [],
+    predictor: str = "discharge",
+    rivwth_name: str = "rivwth",
+    obs_postfix: str = "_obs",
+    rivmsk_name: str = "rivmsk",
+    a: float | None = None,
+    b: float | None = None,
 ):
     """Calculate river width."""
     nopars = a is None or b is None  # no manual a, b parameters
@@ -449,12 +468,12 @@ def river_width(
     # get predictor
     logger.debug(f'Deriving predictor "{predictor}" values')
     if predictor == "discharge":
-        values, pars = _discharge(ds_like, flwdir=flwdir, logger=logger, **data)
+        values, pars = _discharge(ds_like, flwdir=flwdir, **data)
         if fit == False:
             a, b = pars
     # TODO: check units
     elif predictor == "precip":
-        values = _precip(ds_like, flwdir=flwdir, logger=logger, **data)
+        values = _precip(ds_like, flwdir=flwdir, **data)
     else:
         if predictor not in ds_like:
             raise ValueError(f"required {predictor} variable missing in grid.")
@@ -481,7 +500,7 @@ def river_width(
         val = values[mask]
         if fit:
             logger.info(f"Fitting power-law a,b parameters based on {predictor}")
-            a, b = _width_fit(wth, val, mask, logger=logger)
+            a, b = _width_fit(wth, val, mask)
         wsim = power_law(val, a, b)
         res = np.abs(wsim - wth)
         outliers = np.logical_and(res > 200, (res / wsim) > 1.0)
@@ -489,7 +508,7 @@ def river_width(
 
         # validate
         wsim = power_law(val[~outliers], a, b)
-        nse = stats._nse(wsim, wth[~outliers])
+        nse = stats.skills._nse(wsim, wth[~outliers])
         logger.info(
             f'Using "width = a*{predictor}^b"; where a={a:.2f}, b={b:.2f} '
             f"(nse={nse:.3f}; outliers={pout:.2f}%)"
@@ -520,8 +539,7 @@ def _width_fit(
     val,
     mask,
     p0=[0.15, 0.65],
-    logger=logger,  # rhine uparea based
-):
+):  # rhine uparea based
     outliers = np.full(np.sum(mask), False, dtype=bool)
     a, b = None, None
     # check if sufficient data
@@ -559,21 +577,20 @@ def _width_fit(
     return a, b
 
 
-def _precip(ds_like, flwdir, da_precip, logger=logger):
+def _precip(ds_like, flwdir, da_precip):
     """Do simple precipication method."""
     precip = (
         da_precip.raster.reproject_like(ds_like, method=RESAMPLING["precip"]).values
         / 1e3
     )  # [m/yr]
     precip = np.maximum(precip, 0)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    area = gis_utils.reggrid_area(lat, lon)
+    area = ds_like.raster.area_grid()
     # 10 x average flow
     accu_precip = flwdir.accuflux(precip * area / (86400 * 365) * 10)  # [m3/s]
     return accu_precip
 
 
-def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
+def _discharge(ds_like, flwdir, da_precip, da_climate):
     """Do discharge method."""
     # read clim classes and regression parameters from data dir
     precip_fn = da_precip.name
@@ -606,8 +623,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     precip = precip / scaling_factor**2
 
     # derive cell areas (m2)
-    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    areagrid = gis_utils.reggrid_area(lat, lon) / 1e6
+    areagrid = ds_like.raster.area_grid() / 1e6
 
     # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])

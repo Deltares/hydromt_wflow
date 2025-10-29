@@ -26,7 +26,7 @@ and to facilitate the analysis of the model results.
 How to use HydroMT-Wflow?
 -------------------------
 The HydroMT-Wflow plugin can be used as a **command line** application, which provides commands to *build*,
-*update* and *clip* a Wflow model with a single line, or **from python** to exploit its rich interface.
+*update* (including clip) a Wflow model with a single line, or **from python** to exploit its rich interface.
 You can learn more about how to use HydroMT-Wflow in its `online documentation. <https://deltares.github.io/hydromt_wflow/latest/getting_started/intro>`_
 For a smooth installing experience we recommend installing HydroMT-Wflow and its dependencies
 from conda-forge in a clean environment, see `installation guide. <https://deltares.github.io/hydromt_wflow/latest/getting_started/installation>`_
@@ -38,7 +38,7 @@ For publications, please cite our work using the DOI provided in the Zenodo badg
 How to contribute?
 -------------------
 If you find any issues in the code or documentation feel free to leave an issue on the `github issue tracker. <https://github.com/Deltares/hydromt_wflow/issues>`_
-You can find information about how to contribute to the HydroMT project at our `contributing page. <https://deltares.github.io/hydromt/latest/dev/contributing>`_
+You can find information about how to contribute to the HydroMT project at our `contributing page. <https://deltares.github.io/hydromt/stable/guides/core_dev/contributing.html>`_
 
 HydroMT seeks active contribution from the (hydro) geoscientific community.
 So far, it has been developed and tested with a range of `Deltares <https://www.deltares.nl/en/>`_ models, but
@@ -137,7 +137,6 @@ HydroMT Wflow relies on these excellent packages:
 - six
 - tomli
 - tomli-w
-- tomlkit
 - toolz
 - typing-extensions
 - typing-inspection
