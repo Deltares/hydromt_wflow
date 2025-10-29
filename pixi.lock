@@ -6782,7 +6782,6 @@ packages:
   - __glibc >=2.17,<3.0.a0
   - libgcc >=14
   license: MIT
-  license_family: MIT
   purls: []
   size: 69333
   timestamp: 1756599354727
@@ -6794,7 +6793,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls: []
   size: 71243
   timestamp: 1756599708777
@@ -6806,7 +6804,6 @@ packages:
   - libbrotlicommon 1.1.0 hb03c661_4
   - libgcc >=14
   license: MIT
-  license_family: MIT
   purls: []
   size: 33406
   timestamp: 1756599364386
@@ -6819,7 +6816,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls: []
   size: 33430
   timestamp: 1756599740173
@@ -6831,7 +6827,6 @@ packages:
   - libbrotlicommon 1.1.0 hb03c661_4
   - libgcc >=14
   license: MIT
-  license_family: MIT
   purls: []
   size: 289680
   timestamp: 1756599375485
@@ -6844,7 +6839,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls: []
   size: 245418
   timestamp: 1756599770744
@@ -11649,7 +11643,6 @@ packages:
   - python >=3.12,<3.13.0a0
   - python_abi 3.12.* *_cp312
   license: BSD-3-Clause
-  license_family: BSD
   purls:
   - pkg:pypi/scipy?source=hash-mapping
   size: 17114633
@@ -11672,7 +11665,6 @@ packages:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: BSD-3-Clause
-  license_family: BSD
   purls:
   - pkg:pypi/scipy?source=hash-mapping
   size: 17034458
@@ -11714,7 +11706,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: BSD-3-Clause
-  license_family: BSD
   purls:
   - pkg:pypi/scipy?source=hash-mapping
   size: 15180381
@@ -11735,7 +11726,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: BSD-3-Clause
-  license_family: BSD
   purls:
   - pkg:pypi/scipy?source=hash-mapping
   size: 15347364
@@ -12801,6 +12791,7 @@ packages:
   - numba>=0.62 ; extra == 'accel'
   - flox>=0.9 ; extra == 'accel'
   - opt-einsum ; extra == 'accel'
+  - numpy<2.3 ; extra == 'accel'
   - xarray[accel,etc,io,parallel,viz] ; extra == 'complete'
   - netcdf4>=1.6.0 ; extra == 'io'
   - h5netcdf ; extra == 'io'
