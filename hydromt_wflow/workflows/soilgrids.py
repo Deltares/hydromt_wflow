@@ -371,6 +371,54 @@ def kv_layers(ds, thetas, ptf_name):
     return ds_out
 
 
+def air_entry_pressure(ds, thetas, ptf_name):
+    """
+    Determine hb (air entry pressure [cm])
+
+    Based on PTF.
+
+    Parameters
+    ----------
+    ds: xarray.Dataset
+        Dataset containing soil properties at each soil depth [sl1 - sl7].
+    thetas: xarray.Dataset
+        Dataset containing theta_s at each soil layer depth.
+    ptf_name : str
+        PTF to use for calculation hb .
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing hb [cm] for each soil layer depth.
+    """
+
+    if ptf_name == "brakensiek":
+        ds_out = xr.apply_ufunc(
+            ptf.hb_brakensiek,
+            ds["clyppt"],
+            ds["sndppt"],
+            thetas,
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+        )
+
+    elif ptf_name == "clapp":
+        ds_out = xr.apply_ufunc(
+            ptf.hb_clapp,
+            ds["clyppt"],
+            ds["sndppt"],
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+            )
+    
+    ds_out.name = "hb"
+    ds_out.raster.set_nodata(np.nan)
+
+    return ds_out
+
+
 def func(x, b):
     return np.exp(-b * x)
 
@@ -447,6 +495,7 @@ def soilgrids(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
+    ptf_hb: str = "brakensiek",
     soil_fn: str = "soilgrids",
     wflow_layers: list[int] = [100, 300, 800],
 ):
@@ -499,7 +548,9 @@ def soilgrids(
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculation ksat_vertical .
+        PTF to use for calculation ksat_vertical.
+    ptf_hb : str
+        PTF to use for computing hb (air entry pressure).
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
@@ -549,8 +600,8 @@ def soilgrids(
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
 
     # preserve thetas in original projection for computing hb
-    thetas_out = thetas.raster.reproject_like(ds_like, method="average")
-    ds_out["theta_s"] = thetas_out.astype(np.float32)
+    thetas = thetas.raster.reproject_like(ds_like, method="average")
+    ds_out["theta_s"] = thetas.astype(np.float32)
 
     logger.info("calculate and resample theta_r")
     thetar_sl = xr.apply_ufunc(
@@ -618,9 +669,9 @@ def soilgrids(
         keep_attrs=True,
     )
 
-    M_ = (thetas_out - thetar) / (-popt_0_)
+    M_ = (thetas - thetar) / (-popt_0_)
     M_ = constrain_M(M_, popt_0_, M_minmax)
-    ds_out["soil_f_"] = ((thetas_out - thetar) / M_).astype(np.float32)
+    ds_out["soil_f_"] = ((thetas - thetar) / M_).astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(
@@ -634,9 +685,9 @@ def soilgrids(
         keep_attrs=True,
     )
 
-    M = (thetas_out - thetar) / (popt_0)
+    M = (thetas - thetar) / (popt_0)
     M = constrain_M(M, popt_0, M_minmax)
-    ds_out["f"] = ((thetas_out - thetar) / M).astype(np.float32)
+    ds_out["f"] = ((thetas - thetar) / M).astype(np.float32)
 
     # wflow soil map is based on USDA soil classification
     # soilmap = ds["tax_usda"].raster.interpolate_na()
@@ -669,15 +720,15 @@ def soilgrids(
     ds_out["meta_soil_texture"].raster.set_nodata(0)
 
     # calc air entry pressure
-    hb = xr.apply_ufunc(
-        ptf.air_entry_pressure,
-        clay_av,
-        silt_av,
-        thetas,
-        dask="parallelized",
-        output_dtypes=[float],
-        keep_attrs=True,
-    )
+    hb_sl = air_entry_pressure(
+        ds,
+        thetas_sl,
+        ptf_hb)
+    
+    if soil_fn == "soilgrids_2020":
+        hb = average_soillayers_block(hb_sl, ds["soilthickness"])
+    else:
+        hb = average_soillayers(hb_sl, ds["soilthickness"])
 
     hb = hb.raster.reproject_like(ds_like, method="average")
     ds_out["hb"] = hb.astype(np.float32)

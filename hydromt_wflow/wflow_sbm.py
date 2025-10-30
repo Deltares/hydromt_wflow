@@ -1914,6 +1914,7 @@ Run setup_soilmaps first"
         self,
         soil_fn: str = "soilgrids",
         ptf_ksatver: str = "brakensiek",
+        ptf_hb: str = "brakensiek",
         wflow_thicknesslayers: list[int] = [100, 300, 800],
         output_names: dict = {
             "soil_water__saturated_volume_fraction": "soil_theta_s",
@@ -1933,8 +1934,9 @@ Run setup_soilmaps first"
 
         Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
         ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
-        "brakensiek" and "cosby". "soilgrids" provides data at 7 specific depths,
-        while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        "brakensiek" and "cosby". ``ptf_hb`` (PTF for the air entry pressure)
+        options are "brakensiek" and "clapp". "soilgrids" provides data at 7 specific 
+        depths, while "soilgrids_2020" provides data averaged over 6 depth intervals.
         This leads to small changes in the workflow:
         (1) M parameter uses midpoint depths in soilgrids_2020 versus \
 specific depths in soilgrids,
@@ -2000,6 +2002,10 @@ a map for each of the wflow_sbm soil layers (n in total)
             Pedotransfer function (PTF) to use for calculation of ksat vertical
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
+        ptf_hb : {'brakensiek', 'clapp'}
+            Pedotransfer function (PTF) method to use for calculation of hb
+            (air entry pressure [cm]). 
+            By default 'brakensiek'.
         wflow_thicknesslayers : list of int, optional
             Thickness of soil layers [mm] for wflow_sbm soil model.
             By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
@@ -2018,6 +2024,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             ds=dsin,
             ds_like=self.staticmaps.data,
             ptfKsatVer=ptf_ksatver,
+            ptf_hb=ptf_hb,
             soil_fn=soil_fn,
             wflow_layers=wflow_thicknesslayers,
         ).reset_coords(drop=True)

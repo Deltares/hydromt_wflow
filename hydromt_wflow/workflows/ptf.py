@@ -473,9 +473,13 @@ def mean_diameter_soil(clay, silt):
     return d50
 
 
-def air_entry_pressure(clay, silt, porosity):
+def hb_brakensiek(clay, sand, porosity):
     """
     Determine air entry pressure for soils with 5-60% clay and 5-70% sand.
+    The air entry pressure for soils that do not meet these requirements are
+    computed using the PTF from Clapp & Hornberger (1987).
+    Note that in Rawls & Brakensiek (1985) the air entry pressure 
+    is referred to as the Brooks-Corey bubbling pressure.
 
     Based on:
       Rawls, W.J., and D.L. Brakensiek. 1985. Prediction of soil water
@@ -487,8 +491,8 @@ def air_entry_pressure(clay, silt, porosity):
     ----------
     clay: float
         clay percentage [%].
-    silt: float
-        silt percentage [%].
+    sand: float
+        sand percentage [%].
     porosity: float
         porosity of the soil [-].
 
@@ -498,8 +502,7 @@ def air_entry_pressure(clay, silt, porosity):
         based on equation from Rawls & Brakensiek (1985).
 
     """
-    sand = 100 - (clay + silt)
-
+    
     air_entry_pressure = np.where(
         np.logical_and(
             np.logical_and(clay > 5.0, clay < 60), np.logical_and(sand > 5, sand < 70)
@@ -519,7 +522,91 @@ def air_entry_pressure(clay, silt, porosity):
             + 0.0000054 * (clay**2) * sand
             + 0.50028060 * (porosity**2) * clay
         ),
-        np.nan,
+        hb_clapp(clay, sand)
+    )
+
+    return air_entry_pressure
+
+
+def hb_clapp(clay, sand):
+    """
+    Determine air entry pressure from Clapp & Hornberger (1978), Table 2.
+    Note that in Clapp & Hornberger (1978) the air entry pressure is referred
+    to as ψ_s.
+
+    Based on:
+        Clapp, R. B., and G. M. Hornberger (1978), Empirical equations for 
+        some soil hydraulic properties, Water Resour. Res., 14(4),
+        601–604, doi:10.1029/WR014i004p00601. 
+
+    Parameters
+    ----------
+    clay: float
+        clay percentage [%].
+    sand: float
+        sand percentage [%].
+
+    Returns
+    -------
+    air_entry_pressure : float
+        based on equation from Clapp & Hornberger (1978).
+
+    """
+
+    silt = 100 - (clay + sand)
+
+    air_entry_pressure = np.where(
+        np.logical_and(clay >= 40.0, sand >= 20.0, sand <= 45),
+        -40.5,  # clay
+        np.where(
+            np.logical_and(clay >= 27.0, sand >= 20.0, sand <= 45),
+            -63.0,  # clay loam
+            np.where(
+                np.logical_and(silt <= 40.0, sand <= 20.0),
+                -40.5,  # clay
+                np.where(
+                    np.logical_and(silt > 40.0, clay >= 40.0),
+                    -49.0,  # silty clay
+                    np.where(
+                        np.logical_and(clay >= 35.0, sand >= 45.0),
+                        -15.3,  # sandy clay
+                        np.where(
+                            np.logical_and(clay >= 27.0, sand < 20.0),
+                            -35.6,  # silty clay loam
+                            np.where(
+                                np.logical_and(clay <= 10.0, silt >= 80.0),
+                                -78.6,  # silt, value not included in paper, so use value for silt loam
+                                np.where(
+                                    (silt >= 50.0),
+                                    -78.6,  # silt loam
+                                    np.where(
+                                        np.logical_and(
+                                            clay >= 7.0, sand <= 52.0, silt >= 28.0
+                                        ),
+                                        -47.8,  # loam
+                                        np.where(
+                                            (clay >= 20.0),
+                                            -29.9,  # sandy clay loam
+                                            np.where(
+                                                (clay >= (sand - 70)),
+                                                -21.8,  # sandy loam
+                                                np.where(
+                                                    (clay >= (2 * sand - 170.0)),
+                                                    -9.0,  # loamy sand
+                                                    np.where(
+                                                        np.isnan(clay), np.nan, -12.1
+                                                    ),  # sand
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
     )
 
     return air_entry_pressure
