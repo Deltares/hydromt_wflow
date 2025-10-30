@@ -452,14 +452,15 @@ class WflowSedimentModel(WflowBaseModel):
     def setup_lulcmaps(
         self,
         lulc_fn: str | Path | xr.DataArray,
+        *,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
-        lulc_vars: dict = {
-            "landuse": None,
-            "soil_compacted_fraction": "compacted_soil__area_fraction",
-            "erosion_usle_c": "soil_erosion__usle_c_factor",
-            "land_water_fraction": "land_water_covered__area_fraction",
-        },
+        lulc_vars: list[str] = [
+            "landuse",
+            "soil_compacted_fraction",
+            "erosion_usle_c",
+            "land_water_fraction",
+        ],
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
         orchard_c: float = 0.2188,
@@ -498,20 +499,21 @@ class WflowSedimentModel(WflowBaseModel):
 
         Parameters
         ----------
-        lulc_fn : str, xarray.DataArray
+        lulc_fn : str, Path, xarray.DataArray
             Name of RasterDataset source.
-        lulc_mapping_fn : str
+        lulc_mapping_fn : str, Path, pd.DataFrame, None, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars.
-        planted_forest_fn : str, Path, gpd.GeoDataFrame
+        planted_forest_fn : str, Path, gpd.GeoDataFrame, None, optional
             GeoDataFrame source with polygons of planted forests.
 
             * Optional variable: ["forest_type"]
 
-        lulc_vars : dict
-            Dictionnary of landuse parameters to prepare. The names are the
-            the columns of the mapping file and the values are the corresponding
-            Wflow.jl variables if any.
+        lulc_vars : list[str], optional
+            List of landuse parameters to prepare.
+            The names are the columns of the mapping file.
+            Can be a subset of: ["landuse", "soil_compacted_fraction", "erosion_usle_c",
+            "land_water_fraction"]
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
@@ -571,14 +573,15 @@ class WflowSedimentModel(WflowBaseModel):
     def setup_lulcmaps_from_vector(
         self,
         lulc_fn: str | gpd.GeoDataFrame,
+        *,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
-        lulc_vars: dict = {
-            "landuse": None,
-            "soil_compacted_fraction": "compacted_soil__area_fraction",
-            "erosion_usle_c": "soil_erosion__usle_c_factor",
-            "land_water_fraction": "land_water_covered__area_fraction",
-        },
+        lulc_vars: list[str] = [
+            "landuse",
+            "soil_compacted_fraction",
+            "erosion_usle_c",
+            "land_water_fraction",
+        ],
         lulc_res: float | int | None = None,
         all_touched: bool = False,
         buffer: int = 1000,
@@ -625,19 +628,24 @@ class WflowSedimentModel(WflowBaseModel):
             GeoDataFrame or name in data catalog / path to (vector) landuse map.
 
             * Required columns: 'landuse' [-]
-        lulc_mapping_fn : str, Path, pd.DataFrame
+        lulc_mapping_fn : str, Path, pd.DataFrame, None, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
             "esa_worldcover", "glmnco"}, a default mapping is used and this argument
             becomes optional.
-        planted_forest_fn : str, Path, gpd.GeoDataFrame
+        planted_forest_fn : str, Path, gpd.GeoDataFrame, None, optional
             GeoDataFrame source with polygons of planted forests.
 
             * Optional variable: ["forest_type"]
-        lulc_vars : dict
-            Dictionary of landuse parameters to prepare. The names are the
-            the columns of the mapping file and the values are the corresponding
-            Wflow.jl variables.
+        lulc_vars : list[str], optional
+            List of landuse parameters to prepare.
+            The names are the columns of the mapping file.
+            Can be a subset of: ["landuse", "soil_compacted_fraction", "erosion_usle_c",
+            "land_water_fraction"]
+        lulc_res : float, int, None, optional
+            Resolution of the intermediate rasterized landuse map. The unit (meter or
+            degree) depends on the CRS of lulc_fn (projected or not). By default None,
+            which uses the model resolution.
         all_touched : bool, optional
             If True, all pixels touched by the vector will be burned in the raster,
             by default False.

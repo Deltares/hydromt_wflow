@@ -14,7 +14,8 @@ Added
 
 Changed
 -------
-- When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation.
+- When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation. (#631)
+- ``setup_lulcmaps`` and equivalents: Parameters for ``lulc_vars`` are directly linked to the names in the columns of the mapping table. (#623)
 
 Fixed
 -----

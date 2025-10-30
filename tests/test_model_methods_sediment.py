@@ -18,7 +18,7 @@ def test_setup_lulc_sed(
         lulc_fn="globcover_2009",
         lulc_mapping_fn="globcover_mapping_default",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars={"erosion_usle_c": "soil_erosion__usle_c_factor"},
+        lulc_vars=["erosion_usle_c"],
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,

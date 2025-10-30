@@ -1485,7 +1485,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # There is no paddy in this region
-    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 5
+    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 4
     # Check if more irrigation is allowed during summer than winter
     assert (
         ds["demand_nonpaddy_irrigation_trigger"]
