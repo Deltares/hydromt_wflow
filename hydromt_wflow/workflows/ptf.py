@@ -476,6 +476,7 @@ def mean_diameter_soil(clay, silt):
 def hb_brakensiek(clay, sand, porosity):
     """
     Determine air entry pressure for soils with 5-60% clay and 5-70% sand.
+    
     The air entry pressure for soils that do not meet these requirements are
     computed using the PTF from Clapp & Hornberger (1987).
     Note that in Rawls & Brakensiek (1985) the air entry pressure 
@@ -500,9 +501,7 @@ def hb_brakensiek(clay, sand, porosity):
     -------
     air_entry_pressure : float
         based on equation from Rawls & Brakensiek (1985).
-
     """
-    
     air_entry_pressure = np.where(
         np.logical_and(
             np.logical_and(clay > 5.0, clay < 60), np.logical_and(sand > 5, sand < 70)
@@ -531,6 +530,7 @@ def hb_brakensiek(clay, sand, porosity):
 def hb_clapp(clay, sand):
     """
     Determine air entry pressure from Clapp & Hornberger (1978), Table 2.
+
     Note that in Clapp & Hornberger (1978) the air entry pressure is referred
     to as ψ_s.
 
@@ -550,9 +550,7 @@ def hb_clapp(clay, sand):
     -------
     air_entry_pressure : float
         based on equation from Clapp & Hornberger (1978).
-
     """
-
     silt = 100 - (clay + sand)
 
     air_entry_pressure = np.where(
@@ -575,7 +573,8 @@ def hb_clapp(clay, sand):
                             -35.6,  # silty clay loam
                             np.where(
                                 np.logical_and(clay <= 10.0, silt >= 80.0),
-                                -78.6,  # silt, value not included in paper, so use value for silt loam
+                                -78.6,  # silt (value not included in paper,
+                                # so use value for silt loam)
                                 np.where(
                                     (silt >= 50.0),
                                     -78.6,  # silt loam
