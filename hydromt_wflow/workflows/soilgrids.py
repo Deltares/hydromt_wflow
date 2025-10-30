@@ -373,7 +373,7 @@ def kv_layers(ds, thetas, ptf_name):
 
 def air_entry_pressure(ds, thetas, ptf_name):
     """
-    Determine hb (air entry pressure [cm])
+    Determine hb (air entry pressure [cm]).
 
     Based on PTF.
 
@@ -384,14 +384,13 @@ def air_entry_pressure(ds, thetas, ptf_name):
     thetas: xarray.Dataset
         Dataset containing theta_s at each soil layer depth.
     ptf_name : str
-        PTF to use for calculation hb .
+        PTF to use for calculation hb.
 
     Returns
     -------
     ds_out : xarray.Dataset
         Dataset containing hb [cm] for each soil layer depth.
     """
-
     if ptf_name == "brakensiek":
         ds_out = xr.apply_ufunc(
             ptf.hb_brakensiek,
