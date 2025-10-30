@@ -410,8 +410,8 @@ def air_entry_pressure(ds, thetas, ptf_name):
             dask="parallelized",
             output_dtypes=[float],
             keep_attrs=True,
-            )
-    
+        )
+
     ds_out.name = "hb"
     ds_out.raster.set_nodata(np.nan)
 
@@ -719,11 +719,8 @@ def soilgrids(
     ds_out["meta_soil_texture"].raster.set_nodata(0)
 
     # calc air entry pressure
-    hb_sl = air_entry_pressure(
-        ds,
-        thetas_sl,
-        ptf_hb)
-    
+    hb_sl = air_entry_pressure(ds, thetas_sl, ptf_hb)
+
     if soil_fn == "soilgrids_2020":
         hb = average_soillayers_block(hb_sl, ds["soilthickness"])
     else:

@@ -1935,7 +1935,7 @@ Run setup_soilmaps first"
         Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
         ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
         "brakensiek" and "cosby". ``ptf_hb`` (PTF for the air entry pressure)
-        options are "brakensiek" and "clapp". "soilgrids" provides data at 7 specific 
+        options are "brakensiek" and "clapp". "soilgrids" provides data at 7 specific
         depths, while "soilgrids_2020" provides data averaged over 6 depth intervals.
         This leads to small changes in the workflow:
         (1) M parameter uses midpoint depths in soilgrids_2020 versus \
@@ -1983,7 +1983,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             The air entry pressure [cm] at which air begins to enter the largest \
             pores of a saturated soil during drying.
 
-            
+
         Required setup methods:
 
         * :py:meth:`~WflowSbmModel.setup_basemaps`
@@ -2004,7 +2004,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             By default 'brakensiek'.
         ptf_hb : {'brakensiek', 'clapp'}
             Pedotransfer function (PTF) method to use for calculation of hb
-            (air entry pressure [cm]). 
+            (air entry pressure [cm]).
             By default 'brakensiek'.
         wflow_thicknesslayers : list of int, optional
             Thickness of soil layers [mm] for wflow_sbm soil model.

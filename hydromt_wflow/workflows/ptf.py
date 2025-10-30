@@ -476,10 +476,10 @@ def mean_diameter_soil(clay, silt):
 def hb_brakensiek(clay, sand, porosity):
     """
     Determine air entry pressure for soils with 5-60% clay and 5-70% sand.
-    
+
     The air entry pressure for soils that do not meet these requirements are
     computed using the PTF from Clapp & Hornberger (1987).
-    Note that in Rawls & Brakensiek (1985) the air entry pressure 
+    Note that in Rawls & Brakensiek (1985) the air entry pressure
     is referred to as the Brooks-Corey bubbling pressure.
 
     Based on:
@@ -521,7 +521,7 @@ def hb_brakensiek(clay, sand, porosity):
             + 0.0000054 * (clay**2) * sand
             + 0.50028060 * (porosity**2) * clay
         ),
-        hb_clapp(clay, sand)
+        hb_clapp(clay, sand),
     )
 
     return air_entry_pressure
@@ -535,9 +535,9 @@ def hb_clapp(clay, sand):
     to as ψ_s.
 
     Based on:
-        Clapp, R. B., and G. M. Hornberger (1978), Empirical equations for 
+        Clapp, R. B., and G. M. Hornberger (1978), Empirical equations for
         some soil hydraulic properties, Water Resour. Res., 14(4),
-        601–604, doi:10.1029/WR014i004p00601. 
+        601–604, doi:10.1029/WR014i004p00601.
 
     Parameters
     ----------
