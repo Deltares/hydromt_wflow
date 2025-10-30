@@ -52,12 +52,6 @@ a specific method see its documentation.
     * - :py:meth:`~WflowSedimentModel.setup_lulcmaps_from_vector`
       - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
-    * - :py:meth:`~WflowSedimentModel.setup_laimaps`
-      - This component sets leaf area index (LAI) climatology maps per month.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
-    * - :py:meth:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`
-      - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
-      - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_canopymaps`
       - Setup sediments based canopy height maps.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`

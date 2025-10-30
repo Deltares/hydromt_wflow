@@ -49,5 +49,5 @@ Getting started
 
    installation.rst
    example_index.rst
-   User's stories <https://deltares.github.io/hydromt/latest/getting_started/user_stories>
+   User's stories <https://deltares.github.io/hydromt/latest/overview/use_case_examples>
    faq.rst
