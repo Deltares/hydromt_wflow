@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_soilmaps**: add workflow to derive air entry pressure based on PTF from Rawls & Brakensiek or Clapp & Hornberger
 
 Changed
 -------
