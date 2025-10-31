@@ -537,7 +537,7 @@ def soilgrids(
             sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay,
             5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand,
             11: Loamy Sand, 12:Sandy Loam]
-        - **hb** :  air entry pressure of soil (Brooks-Corey) [cm]
+        - **soil_hb** :  air entry pressure of soil (Brooks-Corey) [cm]
 
 
     Parameters
@@ -727,7 +727,7 @@ def soilgrids(
         hb = average_soillayers(hb_sl, ds["soilthickness"])
 
     hb = hb.raster.reproject_like(ds_like, method="average")
-    ds_out["hb"] = hb.astype(np.float32)
+    ds_out["soil_hb"] = hb.astype(np.float32)
 
     dtypes = {"meta_soil_texture": np.int32}
     for var in ds_out:

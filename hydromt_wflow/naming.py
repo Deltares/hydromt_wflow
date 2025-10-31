@@ -253,7 +253,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "vertical.rootdistpar",
         "wflow_v1": "soil_wet_root__sigmoid_function_shape_parameter",
     },
-    "hb": {
+    "soil_hb": {
         "wflow_v0": "vertical.hb",
         "wflow_v1": "soil_water__air_entry_pressure_head",
     },
