@@ -1923,7 +1923,7 @@ Run setup_soilmaps first"
             "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
             "soil_layer_water__brooks_corey_exponent": "soil_brooks_corey_c",
-            "soil_water__air_entry_pressure_head": "soil_hb"
+            "soil_water__air_entry_pressure_head": "soil_hb",
         },
     ):
         """
