@@ -23,15 +23,55 @@ __all__ = [
     "lai_from_lulc_mapping",
     "add_paddy_to_landuse",
     "add_planted_forest_to_landuse",
+    "validate_lulc_vars",
+    "LULC_VARS_MAPPING",
 ]
 
 
-RESAMPLING = {
-    "landuse": "nearest",
+_RESAMPLING = {
+    "landuse": "mode",
     "lai": "average",
     "vegetation_feddes_alpha_h1": "mode",
 }
-DTYPES = {"landuse": np.int16, "vegetation_feddes_alpha_h1": np.int16}
+
+LULC_VARS_MAPPING = {
+    "landuse": None,
+    "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
+    "land_manning_n": "land_surface_water_flow__manning_n_parameter",
+    "soil_compacted_fraction": "compacted_soil__area_fraction",
+    "vegetation_root_depth": "vegetation_root__depth",
+    "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
+    "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
+    "land_water_fraction": "land_water_covered__area_fraction",
+    "vegetation_crop_factor": "vegetation__crop_factor",
+    "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
+    "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
+    "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
+    "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
+    "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",
+    "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
+    "erosion_usle_c": "soil_erosion__usle_c_factor",
+}
+
+
+def validate_lulc_vars(lulc_vars: list[str]):
+    """Throw an error if any lulc_vars are incorrect.
+
+    Parameters
+    ----------
+    lulc_vars : list[str]
+        The lulc_vars that are given to functions like setup_landuse.
+
+    Raises
+    ------
+        ValueError: An error that indicates which values are not allowed for lulc_vars.
+    """
+    invalid_vars = set(lulc_vars).difference(LULC_VARS_MAPPING.keys())
+    if invalid_vars:
+        raise ValueError(
+            f"Invalid lulc_vars: {invalid_vars}. "
+            f"Allowed values are: {list(LULC_VARS_MAPPING.keys())}."
+        )
 
 
 def landuse(
@@ -73,7 +113,7 @@ def landuse(
     da = da.raster.interpolate_na(method="nearest")
     # apply for each parameter
     for param in params:
-        method = RESAMPLING.get(param, "average")
+        method = _RESAMPLING.get(param, "average")
         values = df[param].values
         nodata = values[-1]  # NOTE values is set in last row
         d = dict(zip(keys, values))  # NOTE global param in reclass method
@@ -201,7 +241,7 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset):
         da = da["LAI"]
     elif not isinstance(da, xr.DataArray):
         raise ValueError("lai method requires a DataArray or Dataset with LAI array")
-    method = RESAMPLING.get(da.name, "average")
+    method = "average"
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
     da = da.astype(np.float32)
