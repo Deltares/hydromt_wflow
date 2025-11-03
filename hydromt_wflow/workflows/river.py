@@ -83,7 +83,18 @@ def river(
     subgrid = True
     if ds_model is None or not np.all([v in ds_model for v in ["x_out", "y_out"]]):
         subgrid = False
-        ds_model = ds
+        if not ds.raster.aligned_grid(ds_model):
+            raise ValueError(
+                "It seems model grid was not upscaled during setup_basemaps however"
+                "model grid does not align with the hydrography data provided for"
+                " river processing. Make sure you are using the same hydrography "
+                "dataset for setup_basemaps and setup_rivers."
+            )
+        ds = ds.rename({
+            ds.raster.y_dim: ds_model.raster.y_dim, 
+            ds.raster.x_dim: ds_model.raster.x_dim}
+        )
+        ds_model = ds.sel({dim: ds_model[dim].values for dim in ds_model.raster.dims})
         logger.info("River length and slope are calculated at model resolution.")
 
     ## river mask and flow directions at model grid
