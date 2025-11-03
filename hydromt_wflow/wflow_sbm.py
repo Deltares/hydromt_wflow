@@ -1405,7 +1405,7 @@ setting new flood_depth dimensions"
         )
         df_mapping = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            driver={"name": "pandas", "options": {"index_col": 0}},
         )
         output_paddy_class = (
             paddy_class if output_paddy_class is None else output_paddy_class
@@ -1421,7 +1421,7 @@ setting new flood_depth dimensions"
                 paddy_mapping_fn = "paddy_mapping_default"
             df_paddy_mapping = self.data_catalog.get_dataframe(
                 paddy_mapping_fn,
-                driver_kwargs={"index_col": 0},
+                driver={"name": "pandas", "options": {"index_col": 0}},
             )
 
             landuse, df_mapping = workflows.add_paddy_to_landuse(
@@ -1665,7 +1665,7 @@ setting new flood_depth dimensions"
         )
         df_lai_mapping = self.data_catalog.get_dataframe(
             lai_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            driver={"name": "pandas", "options": {"index_col": 0}},
         )
         # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
