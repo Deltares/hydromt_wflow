@@ -371,6 +371,53 @@ def kv_layers(ds, thetas, ptf_name):
     return ds_out
 
 
+def air_entry_pressure(ds, thetas, ptf_name):
+    """
+    Determine hb (air entry pressure [cm]).
+
+    Based on PTF.
+
+    Parameters
+    ----------
+    ds: xarray.Dataset
+        Dataset containing soil properties at each soil depth [sl1 - sl7].
+    thetas: xarray.Dataset
+        Dataset containing theta_s at each soil layer depth.
+    ptf_name : str
+        PTF to use for calculation hb.
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing hb [cm] for each soil layer depth.
+    """
+    if ptf_name == "brakensiek":
+        ds_out = xr.apply_ufunc(
+            ptf.hb_brakensiek,
+            ds["clyppt"],
+            ds["sndppt"],
+            thetas,
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+        )
+
+    elif ptf_name == "clapp":
+        ds_out = xr.apply_ufunc(
+            ptf.hb_clapp,
+            ds["clyppt"],
+            ds["sndppt"],
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+        )
+
+    ds_out.name = "hb"
+    ds_out.raster.set_nodata(np.nan)
+
+    return ds_out
+
+
 def func(x, b):
     return np.exp(-b * x)
 
@@ -447,6 +494,7 @@ def soilgrids(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
+    ptf_hb: str = "brakensiek",
     soil_fn: str = "soilgrids",
     wflow_layers: list[int] = [100, 300, 800],
 ):
@@ -489,6 +537,7 @@ def soilgrids(
             sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay,
             5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand,
             11: Loamy Sand, 12:Sandy Loam]
+        - **soil_hb** :  air entry pressure of soil (Brooks-Corey) [cm]
 
 
     Parameters
@@ -498,7 +547,9 @@ def soilgrids(
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculation ksat_vertical .
+        PTF to use for calculation ksat_vertical.
+    ptf_hb : str
+        PTF to use for computing hb (air entry pressure).
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
@@ -546,6 +597,8 @@ def soilgrids(
         thetas = average_soillayers_block(thetas_sl, ds["soilthickness"])
     else:
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
+
+    # preserve thetas in original projection for computing hb
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["theta_s"] = thetas.astype(np.float32)
 
@@ -664,6 +717,17 @@ def soilgrids(
     # np.nan is not a valid value for array with type integer
     ds_out["meta_soil_texture"] = soil_texture_out
     ds_out["meta_soil_texture"].raster.set_nodata(0)
+
+    # calc air entry pressure
+    hb_sl = air_entry_pressure(ds, thetas_sl, ptf_hb)
+
+    if soil_fn == "soilgrids_2020":
+        hb = average_soillayers_block(hb_sl, ds["soilthickness"])
+    else:
+        hb = average_soillayers(hb_sl, ds["soilthickness"])
+
+    hb = hb.raster.reproject_like(ds_like, method="average")
+    ds_out["soil_hb"] = hb.astype(np.float32)
 
     dtypes = {"meta_soil_texture": np.int32}
     for var in ds_out:
