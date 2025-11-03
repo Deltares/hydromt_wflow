@@ -90,9 +90,11 @@ def river(
                 " river processing. Make sure you are using the same hydrography "
                 "dataset for setup_basemaps and setup_rivers."
             )
-        ds = ds.rename({
-            ds.raster.y_dim: ds_model.raster.y_dim, 
-            ds.raster.x_dim: ds_model.raster.x_dim}
+        ds = ds.rename(
+            {
+                ds.raster.y_dim: ds_model.raster.y_dim,
+                ds.raster.x_dim: ds_model.raster.x_dim,
+            }
         )
         ds_model = ds.sel({dim: ds_model[dim].values for dim in ds_model.raster.dims})
         logger.info("River length and slope are calculated at model resolution.")
