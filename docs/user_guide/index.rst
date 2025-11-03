@@ -13,7 +13,7 @@ The user guide is organised through the following sections:
         :link: 1_getting_started_hydromt/index
         :link-type: doc
 
-        :octicon:`rocket;10em`
+        :octicon:`rocket;5em;sd-text-icon blue-icon`
         +++
         Getting started with HydroMT
 
@@ -22,7 +22,7 @@ The user guide is organised through the following sections:
         :link: 2_sbm_model/index
         :link-type: doc
 
-        :octicon:`file-directory-open-fill;10em`
+        :octicon:`file-directory-open-fill;5em;sd-text-icon blue-icon`
         +++
         Wflow SBM
 
@@ -31,7 +31,7 @@ The user guide is organised through the following sections:
         :link: 3_sediment_model/index
         :link-type: doc
 
-        :octicon:`file-directory-open-fill;10em`
+        :octicon:`file-directory-open-fill;5em;sd-text-icon blue-icon`
         +++
         Wflow Sediment
 
@@ -40,7 +40,7 @@ The user guide is organised through the following sections:
         :link: 4_pre_and_post_processing/index
         :link-type: doc
 
-        :octicon:`graph;10em`
+        :octicon:`graph;5em;sd-text-icon blue-icon`
         +++
         Processing and Visualization
 
@@ -49,7 +49,7 @@ The user guide is organised through the following sections:
         :link: 5_setup_methods/index
         :link-type: doc
 
-        :octicon:`cpu;10em`
+        :octicon:`cpu;5em;sd-text-icon blue-icon`
         +++
         Technical Description
 
@@ -58,7 +58,7 @@ The user guide is organised through the following sections:
         :link: 6_migration_guide/index
         :link-type: doc
 
-        :octicon:`arrow-switch;10em`
+        :octicon:`arrow-switch;5em;sd-text-icon blue-icon`
         +++
         Migration Guide
 

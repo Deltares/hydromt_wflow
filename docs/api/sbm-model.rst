@@ -196,6 +196,72 @@ If you are using python, you can read and write the different model components u
    WflowSbmModel.read
    WflowSbmModel.write
 
+Component-level API
+-------------------
+
+The table below summarizes the important methods and attributes for each component.
+These allow for fine-grained reading, writing, modification, and inspection of component data.
+They are particularly useful when working interactively in Python, for example when updating
+specific configuration parameters, clipping static maps, or inspecting the forcing data.
+
+Each component exposes a ``data`` attribute, which holds the underlying model data
+(e.g. :class:`dict`, :class:`xarray.Dataset`, or :class:`geopandas.GeoDataFrame`),
+and supports a common set of I/O and manipulation methods such as
+:meth:`read`, :meth:`write`, and :meth:`set`.
+
+For general I/O at the model level, refer to:
+:class:`~hydromt_wflow.model.WflowSbmModel` and its
+:meth:`~hydromt_wflow.model.WflowSbmModel.read` and
+:meth:`~hydromt_wflow.model.WflowSbmModel.write` methods.
+
+The following table provides a detailed overview of the component-level APIs.
+
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| **Component class**                                             | **Methods**                                                                 | **Attributes**                                                    |
++=================================================================+=============================================================================+===================================================================+
+| :class:`~hydromt_wflow.components.WflowConfigComponent`         | :meth:`~hydromt_wflow.components.WflowConfigComponent.read`,                | :attr:`~hydromt_wflow.components.WflowConfigComponent.data`       |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowConfigComponent.write`,               |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowConfigComponent.get_value`,           |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowConfigComponent.set`,                 |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowConfigComponent.update`,              |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowStaticmapsComponent`     | :meth:`~hydromt_wflow.components.WflowStaticmapsComponent.read`,            | :attr:`~hydromt_wflow.components.WflowStaticmapsComponent.data`   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStaticmapsComponent.write`,           |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStaticmapsComponent.set`,             |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStaticmapsComponent.clip`,            |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowGeomsComponent`          | :meth:`~hydromt_wflow.components.WflowGeomsComponent.read`,                 | :attr:`~hydromt_wflow.components.WflowGeomsComponent.data`        |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowGeomsComponent.write`,                |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowGeomsComponent.get`,                  |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowGeomsComponent.set`,                  |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowGeomsComponent.pop`,                  |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowForcingComponent`        | :meth:`~hydromt_wflow.components.WflowForcingComponent.read`,               | :attr:`~hydromt_wflow.components.WflowForcingComponent.data`      |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowForcingComponent.write`,              |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowForcingComponent.set`,                |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowForcingComponent.clip`,               |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowStatesComponent`         | :meth:`~hydromt_wflow.components.WflowStatesComponent.read`,                | :attr:`~hydromt_wflow.components.WflowStatesComponent.data`       |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStatesComponent.write`,               |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStatesComponent.set`,                 |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowStatesComponent.clip`,                |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowTablesComponent`         | :meth:`~hydromt_wflow.components.WflowTablesComponent.read`,                | :attr:`~hydromt_wflow.components.WflowTablesComponent.data`       |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowTablesComponent.write`,               |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowTablesComponent.set`,                 |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowOutputGridComponent`     | :meth:`~hydromt_wflow.components.WflowOutputGridComponent.read`,            | :attr:`~hydromt_wflow.components.WflowOutputGridComponent.data`   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputGridComponent.write`,           |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputGridComponent.set`,             |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowOutputScalarComponent`   | :meth:`~hydromt_wflow.components.WflowOutputScalarComponent.read`,          | :attr:`~hydromt_wflow.components.WflowOutputScalarComponent.data` |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputScalarComponent.write`,         |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputScalarComponent.set`,           |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
+| :class:`~hydromt_wflow.components.WflowOutputCsvComponent`      | :meth:`~hydromt_wflow.components.WflowOutputCsvComponent.read`,             | :attr:`~hydromt_wflow.components.WflowOutputCsvComponent.data`    |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputCsvComponent.write`,            |                                                                   |
+|                                                                 | :meth:`~hydromt_wflow.components.WflowOutputCsvComponent.set`,              |                                                                   |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
 
 Attributes
 ----------

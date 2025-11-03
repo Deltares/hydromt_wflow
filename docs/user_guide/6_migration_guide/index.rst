@@ -1,5 +1,5 @@
-v1 Migration Guide
-====================
+Migration Guide
+=================
 
 This section describes how to migrate HydroMT-Wflow models and configurations to newer versions of the HydroMT core and Wflow framework. It includes detailed steps, references to updated data structures, and example migration workflows.
 With the release of HydroMT Core v1 and Wflow v1, several major changes have been introduced that affect how models, data catalogs, and configuration files are defined.
@@ -7,8 +7,8 @@ This section provides an overview of the required migration steps for existing H
 
 .. _migration_hydromt_v1:
 
-Migration to HydroMT Core v1
-============================
+Migrating to HydroMT core v1.0.0
+=================================
 
 HydroMT v1 introduces a component-based architecture to replace the previous inheritance model.
 Instead of all model functionality being defined in a single `Model` class, a model is now composed of modular `ModelComponent` classes such as `GridComponent`, `VectorComponent`, or `ConfigComponent`.
@@ -114,10 +114,12 @@ Read and write operations are now handled at the **component level**.
 
 These changes provide a clearer and more modular interface, making it easier to manipulate model components independently.
 
-Migration to Wflow v1
-=====================
+Migrating to Wflow.jl v1.0.0
+=============================
 
-The Wflow v1 update mostly introduces new organisation of the model configuration (TOML), renamed or new (for sediment only) parameters and merging of lakes and reservoirs.
+The Wflow.jl v1 update mostly introduces new organisation of the model configuration (TOML), renamed or new (for sediment only) parameters and merging of lakes and reservoirs.
+For a complete overview of the changes, refer to the official `Wflow.jl changelog <https://deltares.github.io/Wflow.jl/dev/changelog.html>`_.
+
 
 To convert an existing v0.x wflow sbm model with hydromt, you can use the cli command:
 

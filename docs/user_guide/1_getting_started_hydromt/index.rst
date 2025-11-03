@@ -13,9 +13,10 @@ Refer to the sections below for the official and up-to-date information.
         :link: https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html
         :link-type: url
 
-        :octicon:`terminal;10em`
+        :octicon:`terminal;5em;sd-text-icon blue-icon`
         +++
         Command Line Interface
+
         Learn how to use the HydroMT CLI to run, build, and manage models efficiently.
 
     .. grid-item-card::
@@ -23,9 +24,10 @@ Refer to the sections below for the official and up-to-date information.
         :link: data_catalog
         :link-type: ref
 
-        :octicon:`database;10em`
+        :octicon:`database;5em;sd-text-icon blue-icon`
         +++
         Data Catalog
+
         Understand how HydroMT manages data sources and integrates external datasets.
 
     .. grid-item-card::
@@ -33,9 +35,10 @@ Refer to the sections below for the official and up-to-date information.
         :link: https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html
         :link-type: url
 
-        :octicon:`globe;10em`
+        :octicon:`globe;5em;sd-text-icon blue-icon`
         +++
         Model Region
+
         Learn how to define, configure, and manage model regions within HydroMT.
 
 

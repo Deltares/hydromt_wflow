@@ -27,7 +27,7 @@ hydromt-wflow environment, do (these packages are also available in conda-forge)
 .. code-block:: console
 
   $ conda activate hydromt-wflow
-  $ pip install "hydromt-wflow[examples]"
+  $(hydromt-wflow) uv pip install "hydromt-wflow[examples]"
 
 2 - Download the content of the examples and notebooks
 ******************************************************
@@ -44,7 +44,7 @@ You have two options:
 
   .. code-block:: console
 
-    $ hydromt --models
+    $(hydromt-wflow) hydromt --models
         Model plugins:
           - model (hydromt 1.3.0)
           - wflow_sbm (hydromt_wflow 1.0.0)
