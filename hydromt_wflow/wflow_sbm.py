@@ -1040,7 +1040,7 @@ setting new flood_depth dimensions"
             gdf=gdf_org,
             ds_reservoirs=ds_res,
             timeseries_fn=timeseries_fn,
-            output_folder=self.root.path,
+            output_folder=self.root.path / "validation",
         )
 
         # merge with existing reservoirs
@@ -1191,6 +1191,7 @@ setting new flood_depth dimensions"
     def setup_lulcmaps_with_paddy(
         self,
         lulc_fn: str | Path | xr.DataArray,
+        *,
         paddy_class: int,
         output_paddy_class: int | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
@@ -1205,24 +1206,24 @@ setting new flood_depth dimensions"
             None,
             None,
         ],
-        lulc_vars: dict = {
-            "landuse": None,
-            "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
-            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "soil_compacted_fraction": "compacted_soil__area_fraction",
-            "vegetation_root_depth": "vegetation_root__depth",
-            "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
-            "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
-            "land_water_fraction": "land_water_covered__area_fraction",
-            "vegetation_crop_factor": "vegetation__crop_factor",
-            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
-            "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
-            "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
-            "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
-            "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",  # noqa: E501
-            "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
-        },
-        paddy_waterlevels: dict = {
+        lulc_vars: list[str] = [
+            "landuse",
+            "vegetation_kext",
+            "land_manning_n",
+            "soil_compacted_fraction",
+            "vegetation_root_depth",
+            "vegetation_leaf_storage",
+            "vegetation_wood_storage",
+            "land_water_fraction",
+            "vegetation_crop_factor",
+            "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1",
+            "vegetation_feddes_h2",
+            "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low",
+            "vegetation_feddes_h4",
+        ],
+        paddy_waterlevels: dict[str, int] = {
             "demand_paddy_h_min": 20,
             "demand_paddy_h_opt": 50,
             "demand_paddy_h_max": 80,
@@ -1344,22 +1345,26 @@ setting new flood_depth dimensions"
 
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
-
-        wflow_thicknesslayers: list
+        wflow_thicknesslayers: list, optional
             List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]
-        target_conductivity: list
+        target_conductivity: list, optional
             List of target vertical conductivities [mm/day] for each layer in
             ``wflow_thicknesslayers``. Set value to `None` if no specific value is
             required, by default [None, None, 5, None, None].
-        lulc_vars : dict
-            Dictionnary of landuse parameters to prepare. The names are the
-            the columns of the mapping file and the values are the corresponding
-            Wflow.jl variables.
-        paddy_waterlevels : dict
+        lulc_vars : list[str], optional
+            List of landuse parameters to prepare.
+            The names are the columns of the mapping file.
+            Can be a subset of: ["landuse", "vegetation_kext", "land_manning_n",
+            "soil_compacted_fraction", "vegetation_root_depth",
+            "vegetation_leaf_storage", "vegetation_wood_storage", "land_water_fraction",
+            "vegetation_crop_factor", "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1", "vegetation_feddes_h2", "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low", "vegetation_feddes_h4"]
+        paddy_waterlevels : dict, optional
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
             "demand_paddy_h_max": 80}
-        save_high_resolution_lulc : bool
+        save_high_resolution_lulc : bool, optional
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
         output_names_suffix : str, optional
@@ -1370,10 +1375,14 @@ setting new flood_depth dimensions"
             soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         logger.info("Preparing LULC parameter maps including paddies.")
+
+        workflows.validate_lulc_vars(lulc_vars)
+
         if output_names_suffix is not None:
             # rename lulc_vars with the suffix
             output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
+                workflows.LULC_VARS_MAPPING[k]: f"{k}_{output_names_suffix}"
+                for k in lulc_vars
             }
             # Add soil_ksat_vertical_factor
             output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
@@ -1381,18 +1390,9 @@ setting new flood_depth dimensions"
             )
 
         else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+            output_names = {workflows.LULC_VARS_MAPPING[k]: k for k in lulc_vars}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
-
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
-        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
-        if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
-            # rename dict for the staticmaps (hydromt names are not used in that case)
-            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
-            if "landuse" in lulc_vars:
-                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.staticmaps.data.data_vars:
@@ -1446,14 +1446,10 @@ setting new flood_depth dimensions"
 
         # Prepare landuse parameters
         landuse_maps = workflows.landuse(
-            da=landuse,
-            ds_like=self.staticmaps.data,
-            df=df_mapping,
-            params=list(lulc_vars.keys()),
+            da=landuse, ds_like=self.staticmaps.data, df=df_mapping, params=lulc_vars
         )
-        self.staticmaps.set(landuse_maps.rename(rmdict))
-        # update config
-        self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
+
+        self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
 
         # Update soil parameters if there are paddies in the domain
         # Get paddy pixels at model resolution
