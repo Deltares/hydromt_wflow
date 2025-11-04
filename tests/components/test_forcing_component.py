@@ -1,6 +1,7 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import numpy as np
 import pytest
 import xarray as xr
 
@@ -214,9 +215,7 @@ def test_wflow_forcing_component_write_relative_filename(
     forcing_layer: xr.DataArray,
 ):
     # Setup the component
-    component = WflowForcingComponent(
-        mock_model,
-    )
+    component = WflowForcingComponent(mock_model)
     component._data = forcing_layer.to_dataset(promote_attrs=True)
 
     # Write to the drive
@@ -249,3 +248,24 @@ def test_wflow_forcing_component_write_abs_file(
 
     # Assert the output
     assert (mock_model.root.path / abs_path).is_file()
+
+
+def test_wflow_forcing_component_write_lazy_data(
+    mock_model: MagicMock,
+    forcing_layer: xr.DataArray,
+):
+    # Setup the component
+    component = WflowForcingComponent(mock_model)
+    lazy_data = forcing_layer.chunk({"time": 5})
+    component._data = lazy_data.to_dataset(promote_attrs=True)
+
+    # Write to the drive
+    out_path = mock_model.root.path / "inmaps.nc"
+    type(component.model.config).get_value = MagicMock(return_value="")
+    component.write(filename=out_path)
+
+    assert out_path.is_file()
+    with xr.open_dataset(out_path) as ds:
+        assert forcing_layer.name in ds.variables
+        assert ds[forcing_layer.name].shape == forcing_layer.shape
+        assert np.array_equal(ds[forcing_layer.name].values, forcing_layer.values)
