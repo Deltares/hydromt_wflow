@@ -25,7 +25,6 @@ jobs:
         shell: bash -l {0}
     env:
       branch_name: ${{ github.head_ref || github.ref_name }}
-    timeout-minutes: 15
 
     strategy:
       fail-fast: false
