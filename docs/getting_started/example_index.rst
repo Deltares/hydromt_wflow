@@ -31,6 +31,7 @@ For a static (non-interactive) view of the examples, follow one of the links bel
    - :ref:`Plotting - results <example-plot_wflow_results>`
 
 .. dropdown:: **Other: clipping and migrating to version 1**
+
    - :ref:`Clip a Wflow model <example-clip_model>`
    - :ref:`Upgrade your model to Wflow.jl version 1 <example-upgrade_to_wflow_v1>`
 
