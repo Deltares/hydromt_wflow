@@ -769,6 +769,47 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
+def test_setup_rivers_no_subgrid(tmpdir: Path):
+    # Instantiate new wflow model
+    # Region
+    region = {
+        "subbasin": [12.5032, 46.5327],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowSbmModel(
+        root=str(tmpdir.join("river_no_subgrid")),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+    hydrography = mod.data_catalog.get_rasterdataset("merit_hydro_ihu")
+    # Run setup_basemaps
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn=hydrography.copy(),
+        res=hydrography.raster.res[0],  # no upscaling
+    )
+
+    assert "x_out" not in mod.staticmaps.data
+
+    # Setup rivers with different hydrography (with subgrid = false)
+    with pytest.raises(ValueError, match="It seems model grid was not upscaled"):
+        mod.setup_rivers(
+            hydrography_fn="merit_hydro",
+            river_geom_fn="hydro_rivers_lin",
+            river_upa=30,
+        )
+
+    # Now with correct hydrography
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro_ihu",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+    )
+
+    assert "river_mask" in mod.staticmaps.data
+
+
 def test_setup_rivers_depth(tmpdir: Path):
     # Instantiate new wflow model
     # Region
@@ -1178,9 +1219,19 @@ def test_setup_lulc_vector(
     globcover_gdf,
 ):
     # Test for wflow sbm
+    # Use a file directly for lulc_mapping_fn
+    mapping_fn = join(
+        TESTDATADIR,
+        "..",
+        "..",
+        "hydromt_wflow",
+        "data",
+        "lulc",
+        "globcover_mapping.csv",
+    )
     example_wflow_model.setup_lulcmaps_from_vector(
         lulc_fn=globcover_gdf,
-        lulc_mapping_fn="globcover_mapping_default",
+        lulc_mapping_fn=mapping_fn,
         lulc_res=0.0025,
         save_raster_lulc=False,
     )
