@@ -26,6 +26,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
 .. toctree::
    :hidden:
    :maxdepth: 1
+   :titlesonly:
 
    basemaps
    connect

@@ -85,6 +85,7 @@ Two Wflow model classes are currently available:
    :caption: Table of Contents
    :maxdepth: 2
    :hidden:
+   :titlesonly:
 
    1_getting_started_hydromt/index.rst
    2_sbm_model/index.rst

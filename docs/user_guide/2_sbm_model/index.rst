@@ -11,10 +11,10 @@ This plugin contains relevant functions for setting up or adjusting models:
 
 
 .. toctree::
-    :maxdepth: 2
     :hidden:
+    :titlesonly:
 
-    1_methods_components.rst
-    2_build.rst
-    3_update.rst
-    4_clip.rst
+    1_methods_components
+    2_build
+    3_update
+    4_clip

@@ -15,6 +15,7 @@ This plugin contains as well relevant functions for setting up or adjusting Wflo
 .. toctree::
     :maxdepth: 2
     :hidden:
+    :titlesonly:
 
     1_methods_components.rst
     2_build.rst

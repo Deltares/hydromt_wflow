@@ -40,35 +40,35 @@ For a static (non-interactive) view of the examples, follow one of the links bel
    :caption: Building a model
    :hidden:
 
-   ../_examples/build_wflow
-   ../_examples/build_sediment
+   /_examples/build_model
+   /_examples/build_sediment
 
 .. toctree::
    :titlesonly:
    :caption: Updating a model
    :hidden:
 
-   ../_examples/update_model_landuse
-   ../_examples/update_model_forcing
-   ../_examples/update_model_gauges
-   ../_examples/update_model_water_demand
-   ../_examples/connect_to_1d_model
+   /_examples/update_model_landuse
+   /_examples/update_model_forcing
+   /_examples/update_model_gauges
+   /_examples/update_model_water_demand
+   /_examples/connect_to_1d_model
 
 .. toctree::
    :titlesonly:
    :caption: Pre-, Post-processing and visualization
    :hidden:
 
-   ../_examples/convert_staticmaps_to_mapstack
-   ../_examples/prepare_ldd
-   ../_examples/plot_wflow_staticmaps
-   ../_examples/plot_wflow_forcing
-   ../_examples/plot_wflow_results
+   /_examples/convert_staticmaps_to_mapstack
+   /_examples/prepare_ldd
+   /_examples/plot_wflow_staticmaps
+   /_examples/plot_wflow_forcing
+   /_examples/plot_wflow_results
 
 .. toctree::
    :titlesonly:
    :caption: Other
    :hidden:
 
-   ../_examples/clip_model
-   ../_examples/upgrade_to_wflow_v1
+   /_examples/clip_model
+   /_examples/upgrade_to_wflow_v1

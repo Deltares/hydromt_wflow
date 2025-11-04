@@ -20,5 +20,6 @@ In addition, this section will include illustrative figures and relevant literat
    :maxdepth: 2
    :caption: Technical description
    :glob:
+   :titlesonly:
 
    setup*

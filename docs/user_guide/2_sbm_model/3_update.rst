@@ -31,6 +31,7 @@ To add or change one or more components of an existing Wflow model the ``update`
     should thus be added to the .yml file to keep the model data and config consistent.
 
 .. toctree::
+    :titlesonly:
     :hidden:
 
     /_examples/update_model_landuse.ipynb

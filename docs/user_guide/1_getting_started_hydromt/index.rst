@@ -46,6 +46,7 @@ Refer to the sections below for the official and up-to-date information.
    :hidden:
    :caption: HydroMT Core
    :maxdepth: 2
+   :titlesonly:
 
    Command Line Interface <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>
    Data Catalog <data_catalog>

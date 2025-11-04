@@ -153,7 +153,7 @@ Users migrating from earlier versions of HydroMT-Wflow should:
 
 
 .. toctree::
-   :titlesonly:
-   :hidden:
+    :titlesonly:
+    :hidden:
 
-   /_examples/upgrade_to_wflow_v1.ipynb
+    /_examples/upgrade_to_wflow_v1.ipynb

@@ -43,5 +43,6 @@ See the following model API:
 
 .. toctree::
     :hidden:
+    :titlesonly:
 
     /_examples/clip_model.ipynb

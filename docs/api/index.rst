@@ -16,6 +16,7 @@ Wflow models. The API is divided into the following sections:
 .. toctree::
    :hidden:
    :maxdepth: 1
+   :titlesonly:
 
    sbm-model
    sediment-model

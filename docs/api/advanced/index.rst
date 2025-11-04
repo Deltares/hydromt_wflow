@@ -22,6 +22,7 @@ The API is organized into the following sections:
 .. toctree::
    :hidden:
    :maxdepth: 1
+   :titlesonly:
 
    base-model
    model-components

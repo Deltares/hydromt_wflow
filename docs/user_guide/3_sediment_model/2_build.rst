@@ -80,5 +80,6 @@ command line would be:
 
 .. toctree::
     :hidden:
+    :titlesonly:
 
     /_examples/build_sediment.ipynb

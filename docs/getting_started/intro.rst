@@ -46,6 +46,7 @@ Getting started
    :caption: Table of Contents
    :maxdepth: 2
    :hidden:
+   :titlesonly:
 
    installation.rst
    example_index.rst
