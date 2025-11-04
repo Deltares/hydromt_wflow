@@ -2667,7 +2667,7 @@ using 'variable' argument."
         lulcmap_name: str = "meta_landuse",
         output_names: dict = {
             "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
+            "irrigated_non_paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -2858,7 +2858,7 @@ using 'variable' argument."
         lai_threshold: float = 0.2,
         output_names: dict = {
             "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
+            "irrigated_non_paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
