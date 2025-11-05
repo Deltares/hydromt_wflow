@@ -102,11 +102,7 @@ def test_convert_to_wflow_v1_sbm(tmpdir, caplog):
     wflow.config.set("model.reinit", False)
     caplog.set_level(logging.WARNING)
     wflow.upgrade_to_v1_wflow()
-    assert (
-        "The 'reinit' option set to False is no longer supported in Wflow v1. "
-        "It will be converted to 'cold_start__flag = True'."
-    ) in caplog.text
-
+    assert "Converting states is not supported by this conversion code" in caplog.text
     assert wflow.config.get_value("model.cold_start__flag") is True
 
 
