@@ -130,6 +130,12 @@ def _convert_to_wflow_v1(
     config_out: dict
         The converted config.
     """
+    if config["model"].get("reinit") == False:
+        logger.warning(
+            "The 'reinit' option set to False is no longer supported in Wflow v1. "
+            "It will be converted to 'cold_start__flag = True'."
+        )
+        config["model"]["reinit"] = True
     WFLOW_CONVERSION = _create_v0_to_v1_var_mapping(wflow_vars)
     for k, v in states_vars.items():
         WFLOW_CONVERSION[v["wflow_v0"]] = v["wflow_v1"]
