@@ -66,9 +66,9 @@ are three ways for the user to select which data libraries to use:
   with the **data_libs** option in the [global] sections.
 
 
-.. toctree::
-    :hidden:
-    :titlesonly:
+Examples
+--------
+To know more about building a Wflow-SBM model from scratch, check the following examples:
 
-    /_examples/prepare_ldd.ipynb
-    /_examples/build_model.ipynb
+- :ref:`Optional first step: preparing flow directions from DEM <example-prepare_ldd>`
+- :ref:`Building a Wflow SBM model from command line <example-build_model>`

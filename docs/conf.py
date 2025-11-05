@@ -75,8 +75,8 @@ html_static_path = [_rel_path(STATIC_DIR)]
 html_css_files = ["theme-deltares.css"]
 html_theme_options = {
     "show_nav_level": 1,
-    "navbar_align": "left",
-    "use_edit_page_button": True,
+    "navbar_align": "content",
+    #"use_edit_page_button": True,
     "icon_links": [
         {
             "name": "GitHub",
@@ -103,11 +103,13 @@ html_theme_options = {
             "url": "https://deltares.github.io/hydromt/latest/index.html",
         },
     ],
-    "logo": {
-        "text": "HydroMT Wflow",
-    },
-    "navbar_center": ["version-switcher", "navbar-nav"],
+    "logo": {"text": "HydroMT Wflow"},
+    "navbar_center": ["navbar-nav"],
     "navbar_end": ["navbar-icon-links"],
+    "secondary_sidebar_items": [
+        "version-switcher",
+        "page-toc",
+    ],
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json",
         "version_match": doc_version,

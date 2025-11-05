@@ -32,6 +32,7 @@ This ensures sub-basin delineation is consistent with the river network derived 
  | **Q**: Can I use different datasets for precipitation, temperature, and PET forcing data?
 
 Yes. That's exactly why the methods were separated. You can use different sources for precipitation, temperature, and PET forcing:
+
 - :py:func:`~WflowSbmModel.setup_precip_forcing`
 - :py:func:`~WflowSbmModel.setup_temp_pet_forcing`
 - :py:func:`~WflowSbmModel.setup_pet_forcing`
@@ -46,9 +47,11 @@ The example below shows how to define multiple gauge sources:
 
 .. code-block:: yaml
 
-    setup_gauges:
-      - gauges_fn: my_gauges1
-      - gauges_fn: my_gauges2
+    steps:
+      - setup_gauges:
+          gauges_fn: my_gauges1
+      - setup_gauges:
+          gauges_fn: my_gauges2
 
 Updating a Wflow model
 ----------------------
@@ -74,9 +77,10 @@ Others
  | **Q**: Can I convert my old Wflow model to the new Wflow Julia version with HydroMT?
 
 Conversion from old Python Wflow models to Wflow Julia is **no longer supported** since HydroMT-Wflow version 1.0.
-You can use an older HydroMT version for that task and follow the steps described in its documentation.
+You can use an older HydroMT-Wflow version for that task and follow the steps described in its documentation.
 
 HydroMT-Wflow **does** support upgrading Wflow Julia v0.x models to Wflow Julia v1.x using:
+
 - :py:func:`~WflowSbmModel.upgrade_to_v1_wflow` for SBM models, and
 - :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow` for sediment models.
 

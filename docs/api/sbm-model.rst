@@ -276,11 +276,3 @@ Other useful model attributes if you are using python:
    WflowSbmModel.flwdir
    WflowSbmModel.basins
    WflowSbmModel.rivers
-
-
-.. autoclass:: hydromt_wflow.WflowSbmModel
-   :members:
-   :member-order: bysource
-   :undoc-members:
-   :show-inheritance:
-   :no-index:

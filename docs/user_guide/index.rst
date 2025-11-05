@@ -15,7 +15,7 @@ The user guide is organised through the following sections:
 
         :octicon:`rocket;5em;sd-text-icon blue-icon`
         +++
-        Getting started with HydroMT
+        Getting started with HydroMT Core
 
     .. grid-item-card::
         :text-align: center
@@ -24,7 +24,7 @@ The user guide is organised through the following sections:
 
         :octicon:`file-directory-open-fill;5em;sd-text-icon blue-icon`
         +++
-        Wflow SBM
+        Working with Wflow SBM models
 
     .. grid-item-card::
         :text-align: center
@@ -33,7 +33,7 @@ The user guide is organised through the following sections:
 
         :octicon:`file-directory-open-fill;5em;sd-text-icon blue-icon`
         +++
-        Wflow Sediment
+        Working with Wflow Sediment models
 
     .. grid-item-card::
         :text-align: center
@@ -42,7 +42,7 @@ The user guide is organised through the following sections:
 
         :octicon:`graph;5em;sd-text-icon blue-icon`
         +++
-        Processing and Visualization
+        Processing and Plots
 
     .. grid-item-card::
         :text-align: center
@@ -58,7 +58,7 @@ The user guide is organised through the following sections:
         :link: 6_migration_guide/index
         :link-type: doc
 
-        :octicon:`arrow-switch;5em;sd-text-icon blue-icon`
+        :octicon:`file-moved;5em;sd-text-icon blue-icon`
         +++
         Migration Guide
 

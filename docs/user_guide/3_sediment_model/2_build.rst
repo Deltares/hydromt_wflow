@@ -78,8 +78,8 @@ command line would be:
 
 .. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
 
-.. toctree::
-    :hidden:
-    :titlesonly:
+Examples
+--------
+To know more about building a Wflow-Sediment model from scratch, check the following examples:
 
-    /_examples/build_sediment.ipynb
+- :ref:`Building a Wflow Sediment model from command line <example-build_sediment>`

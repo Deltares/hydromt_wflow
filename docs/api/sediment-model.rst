@@ -25,7 +25,7 @@ These methods are used to add data, parameters, and components to your Wflow Sed
 
 
 Configuration
-=============
+-------------
 Defines and manages model configuration, global parameters, and output settings.
 
 .. autosummary::
@@ -37,7 +37,7 @@ Defines and manages model configuration, global parameters, and output settings.
 
 
 Topography and Rivers
-========================
+---------------------
 Prepares elevation maps, drainage networks, and sediment-related river properties used to route flow and sediment.
 
 .. autosummary::
@@ -50,7 +50,7 @@ Prepares elevation maps, drainage networks, and sediment-related river propertie
 
 
 Reservoirs
-=================
+----------
 Adds natural and man-made reservoirs and defines their impact on sediment storage and transport.
 
 .. autosummary::
@@ -60,9 +60,9 @@ Adds natural and man-made reservoirs and defines their impact on sediment storag
    WflowSedimentModel.setup_reservoirs
 
 
-Land Cover and Soils
-========================
-Defines vegetation, soil, and land cover maps that influence sediment erosion and deposition processes.
+Land Use and Vegetation
+-----------------------
+Defines land use and vegetation properties that influence sediment erosion and deposition processes.
 
 .. autosummary::
    :toctree: _generated
@@ -70,11 +70,19 @@ Defines vegetation, soil, and land cover maps that influence sediment erosion an
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_lulcmaps_from_vector
    WflowSedimentModel.setup_canopymaps
+
+Soil
+----
+Sets up soil-related data including soil maps.
+
+.. autosummary::
+   :toctree: _generated
+
    WflowSedimentModel.setup_soilmaps
 
 
 Output Locations
-====================
+----------------
 Defines model output points and areas such as outlets, gauges, and spatial masks for reporting results.
 
 .. autosummary::
@@ -86,7 +94,7 @@ Defines model output points and areas such as outlets, gauges, and spatial masks
 
 
 Other Methods
-====================
+-------------
 Additional high-level utilities to manage model geometry, upgrade versions, or modify spatial extent.
 
 .. autosummary::
@@ -97,7 +105,7 @@ Additional high-level utilities to manage model geometry, upgrade versions, or m
    WflowSedimentModel.clip
 
 Components
-----------
+==========
 
 If you are using python, you can access and update the model data using the components such as ``config``, ``staticmaps`` etc.
 This is for example useful for computing statictics, plotting etc.
@@ -129,7 +137,7 @@ The components of the WflowSbmModel are:
 
 
 Component-level API
--------------------
+===================
 
 The table below summarizes the important methods and attributes for each component.
 These allow for fine-grained reading, writing, modification, and inspection of component data.
@@ -194,12 +202,3 @@ The following table provides a detailed overview of the component-level APIs.
 |                                                                 | :meth:`~hydromt_wflow.components.WflowOutputCsvComponent.write`,            |                                                                   |
 |                                                                 | :meth:`~hydromt_wflow.components.WflowOutputCsvComponent.set`,              |                                                                   |
 +-----------------------------------------------------------------+-----------------------------------------------------------------------------+-------------------------------------------------------------------+
-
-
-
-.. autoclass:: hydromt_wflow.WflowSedimentModel
-   :members:
-   :member-order: bysource
-   :undoc-members:
-   :show-inheritance:
-   :no-index:

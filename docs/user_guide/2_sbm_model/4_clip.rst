@@ -25,10 +25,10 @@ Here is an example of the clip config:
 
     steps:
       - clip:
-        region: {"basin": [x, y]} # region to clip the model too
-        inverse_clip: false # whether to clip outside or inside the region
-        clip_states: true # whether to clip states
-        clip_forcing: true # whether to clip forcing
+          region: {"basin": [x, y]} # region to clip the model too
+          inverse_clip: false # whether to clip outside or inside the region
+          clip_states: true # whether to clip states
+          clip_forcing: true # whether to clip forcing
 
 As for building, the recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
 for a proper implementation of the clipped model are:
@@ -41,8 +41,8 @@ See the following model API:
 * :py:func:`~WflowSbmModel.clip`
 
 
-.. toctree::
-    :hidden:
-    :titlesonly:
+Examples
+--------
+To know more about clipping a Wflow-SBM model, check the following example:
 
-    /_examples/clip_model.ipynb
+- :ref:`Clipping a Wflow SBM model <example-clip_model>`

@@ -27,7 +27,7 @@ Getting started
         :link: api_reference
         :link-type: ref
 
-        :octicon:`list-unordered;5em;sd-text-icon blue-icon`
+        :octicon:`code-square;5em;sd-text-icon blue-icon`
         +++
         API reference
 

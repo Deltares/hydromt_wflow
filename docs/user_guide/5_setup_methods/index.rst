@@ -1,5 +1,5 @@
-Setup Methods
-=============
+Technical description
+=====================
 
 This section provides detailed technical descriptions of the setup methods available within HydroMT-Wflow.
 Each setup method is described on its own page, including an overview of the method, its underlying scientific background, and a link to the corresponding API function for detailed argument descriptions.

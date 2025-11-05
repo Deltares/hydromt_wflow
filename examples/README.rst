@@ -60,9 +60,9 @@ To manually download the examples on Windows, do (!replace with your own hydromt
 
 .. code-block:: console
 
-  $ curl https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v0.4.1.zip -O -L
-  $ tar -xf v0.4.1.zip
-  $ ren hydromt_wflow-0.4.1 hydromt_wflow
+  $ curl https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v1.0.0.zip -O -L
+  $ tar -xf v1.0.0.zip
+  $ ren hydromt_wflow-1.0.0 hydromt_wflow
 
 You can also download, unzip and rename manually if you prefer, rather than using the windows command prompt.
 
@@ -74,7 +74,7 @@ you have installed:
 .. code-block:: console
 
   $ git clone https://github.com/Deltares/hydromt_wflow.git
-  $ git checkout v0.4.1
+  $ git checkout v1.0.0
 
 3 - Running the examples
 ************************
