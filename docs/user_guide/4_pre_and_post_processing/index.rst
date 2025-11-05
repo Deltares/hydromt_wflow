@@ -14,13 +14,11 @@ The Hydromt-Wflow plugin provides several possibilities to postprocess and visua
 *   Upgrade your old Wflow model to the Wflow.jl version 1 format using the :ref:`upgrade <example-upgrade_to_wflow_v1>` example.
 
 
-.. toctree::
-    :hidden:
-    :titlesonly:
+Here are a few examples of how these methods can be used:
 
-    /_examples/prepare_ldd.ipynb
-    /_examples/convert_staticmaps_to_mapstack.ipynb
-    /_examples/plot_wflow_staticmaps.ipynb
-    /_examples/plot_wflow_forcing.ipynb
-    /_examples/plot_wflow_results.ipynb
-    /_examples/upgrade_to_wflow_v1.ipynb
+- :ref:`Preparing flow directions from DEM <example-prepare_ldd>`
+- :ref:`Convert static maps to mapstack <example-convert_staticmaps_to_mapstack>`
+- :ref:`Plot static maps <example-plot_wflow_staticmaps>`
+- :ref:`Plot forcing <example-plot_wflow_forcing>`
+- :ref:`Plot results <example-plot_wflow_results>`
+- :ref:`Upgrade to Wflow.jl version 1 <example-upgrade_to_wflow_v1>`
