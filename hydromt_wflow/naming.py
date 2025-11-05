@@ -323,7 +323,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "demand_nonpaddy_irrigated_mask": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-non-paddy_area__count",
+        "wflow_v1": "irrigated_non_paddy_area__count",
     },
     "demand_nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",
