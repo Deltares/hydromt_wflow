@@ -19,6 +19,8 @@ __all__ = ["WflowForcingComponent"]
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
+_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 
 class WflowForcingComponent(GridComponent):
     """Wflow forcing component.
@@ -105,7 +107,7 @@ class WflowForcingComponent(GridComponent):
         decimals: int = 2,
         overwrite: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """Write forcing model data.
 
         If no ``filename` path is provided and path_forcing from the wflow toml exists,
@@ -232,8 +234,9 @@ class WflowForcingComponent(GridComponent):
                 gdal_compliant=True,
                 rename_dims=True,
                 force_sn=False,
-                progressbar=True,
                 force_overwrite=True,
+                progressbar=True,
+                # to_netcdf kwargs
                 encoding=encoding,
                 **kwargs,
             )
@@ -254,8 +257,9 @@ class WflowForcingComponent(GridComponent):
                     gdal_compliant=True,
                     rename_dims=True,
                     force_sn=False,
-                    progressbar=True,
                     force_overwrite=True,
+                    progressbar=True,
+                    # to_netcdf kwargs
                     encoding=encoding,
                     **kwargs,
                 )
@@ -263,12 +267,8 @@ class WflowForcingComponent(GridComponent):
 
         # Set back to the config
         self.model.config.set("input.path_forcing", filepath.as_posix())
-        self.model.config.set(
-            "time.starttime", start_time.strftime("%Y-%m-%dT%H:%M:%S")
-        )
-        self.model.config.set("time.endtime", end_time.strftime("%Y-%m-%dT%H:%M:%S"))
-
-        return
+        self.model.config.set("time.starttime", start_time.strftime(_DATETIME_FORMAT))
+        self.model.config.set("time.endtime", end_time.strftime(_DATETIME_FORMAT))
 
     ## Mutating methods
     def set(
@@ -421,15 +421,14 @@ class WflowForcingComponent(GridComponent):
         endtime = pd.Timestamp(endtime).to_pydatetime()
 
         if self._data_is_empty():
-            DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
             logger.warning(
                 "Write forcing skipped: dataset is empty (no variables or data). Ensure"
                 " that forcing data is loaded before calling 'write'."
             )
             return (
                 None,
-                datetime.strptime(starttime, format=DATETIME_FORMAT),
-                datetime.strptime(endtime, format=DATETIME_FORMAT),
+                datetime.strptime(starttime, format=_DATETIME_FORMAT),
+                datetime.strptime(endtime, format=_DATETIME_FORMAT),
             )
 
         return starttime, endtime
