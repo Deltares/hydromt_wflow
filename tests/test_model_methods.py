@@ -1220,14 +1220,12 @@ def test_setup_lulc_vector(
 ):
     # Test for wflow sbm
     # Use a file directly for lulc_mapping_fn
-    mapping_fn = join(
-        TESTDATADIR,
-        "..",
-        "..",
-        "hydromt_wflow",
-        "data",
-        "lulc",
-        "globcover_mapping.csv",
+    mapping_fn = (
+        Path(abspath(__file__)).parent.parent
+        / "hydromt_wflow"
+        / "data"
+        / "lulc"
+        / "globcover_mapping.csv"
     )
     example_wflow_model.setup_lulcmaps_from_vector(
         lulc_fn=globcover_gdf,
