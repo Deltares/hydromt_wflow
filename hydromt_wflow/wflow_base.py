@@ -859,7 +859,7 @@ and will soon be removed. '
         )
         df_map = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            driver={"name": "pandas", "options": {"index_col": 0}},
         )
         # process landuse
         ds_lulc_maps = workflows.landuse(
@@ -1010,7 +1010,7 @@ and will soon be removed. '
             lulc_mapping_fn = f"{lulc_fn}_mapping_default"
         df_map = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            driver={"name": "pandas", "options": {"index_col": 0}},
         )
         # read landuse map
         gdf = self.data_catalog.get_geodataframe(
