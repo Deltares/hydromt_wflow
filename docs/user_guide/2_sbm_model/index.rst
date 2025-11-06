@@ -1,6 +1,7 @@
-============================
-Working with the Wflow model
-============================
+==================================
+Working with the Wflow SBM model
+==================================
+
 With the Hydromt-Wflow plugin, you can easily work with Wflow SBM models.
 This plugin contains relevant functions for setting up or adjusting models:
 
@@ -10,10 +11,10 @@ This plugin contains relevant functions for setting up or adjusting models:
 
 
 .. toctree::
-    :maxdepth: 2
     :hidden:
+    :titlesonly:
 
-    wflow_model_setup.rst
-    wflow_build.rst
-    wflow_update.rst
-    wflow_clip.rst
+    1_methods_components
+    2_build
+    3_update
+    4_clip

@@ -1,50 +1,46 @@
-.. _wflow_build:
+.. _sediment_build:
 
 Building a model
 ================
 
-This plugin allows to build a complete model from available data. Once the configuration and
+This plugin allows to build a complete Wflow Sediment model from available data. Once the configuration and
 data libraries are set, you can build a model by using:
 
 .. code-block:: console
 
-    hydromt build wflow_sbm path/to/built_model -i wflow_build.yml -d data_sources.yml -vvv
-
+    activate hydromt-wflow
+    hydromt build wflow_sediment path/to/built_model -i wflow_sediment_build.yml -d data_sources.yml -vvv
 
 .. Note::
   From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or \-\-region flag.
   The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
   From HydroMT version 1.0 onwards, the region argument has been moved to ``setup_basemaps`` function arguments and is no longer available via cli.
 
+
 The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
-for a proper implementation of this model are:
+for a proper implementation of the Wflow Sediment model are:
 
 - basin
 - subbasin
 
-The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
-is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
-If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
-You can find some examples on how to do this in the `example notebook <../_examples/prepare_ldd.ipynb>`_.
-
-.. _model_config:
+.. _model_config_sed:
 
 Configuration file
 ------------------
-Settings to build or update a Wflow model are managed in a configuration file. In this file,
-every option from each :ref:`model method <model_methods>` can be changed by the user
+Settings to build or update a Wflow Sediment model are managed in a configuration file. In this file,
+every option from each :ref:`model component <model_methods_sed>` can be changed by the user
 in its corresponding section.
 
 Note that the order in which the components are listed in the configuration file is important:
 
 - `setup_basemaps` should always be run first to determine the model domain
-- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (reservoirs, riverwidth, gauges)
+- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
 
-Below is an example configuration file that can be used to build a complete Wflow model
-:download:`.yml file <../_examples/wflow_build.yml>`. Each section corresponds
+Below is an example configuration file that can be used to build a complete Wflow Sediment model
+:download:`.yml file </_examples/wflow_sediment_build.yml>`. Each section corresponds
 to a model component with the same name.
 
-.. literalinclude:: ../_examples/wflow_build.yml
+.. literalinclude:: /_examples/wflow_sediment_build.yml
    :language: yaml
 
 Selecting data
@@ -65,7 +61,25 @@ are three ways for the user to select which data libraries to use:
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 
-.. .. toctree::
-..     :hidden:
+Extending a Wflow (SBM) model with a Wflow Sediment model
+---------------------------------------------------------
+If you already have a Wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
+Wflow Sediment model from scratch. You can instead ``update`` the Wflow model with the additional components needed by Wflow Sediment.
+These components are available in a template :download:`.yml file </_examples/wflow_extend_sediment.yml>` and shown below. The corresponding
+command line would be:
 
-..     Example: Build Wflow model <../_examples/build_model.ipynb>
+.. code-block:: console
+
+    activate hydromt-wflow
+    hydromt update wflow_sediment path/to/wflow_model_to_extend -o path/to/wflow_sediment_model -i wflow_extend_sediment.yml -d data_sources.yml -vvv
+
+.. literalinclude:: /_examples/wflow_extend_sediment.yml
+   :language: yaml
+
+.. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
+
+Examples
+--------
+To know more about building a Wflow-Sediment model from scratch, check the following examples:
+
+- :ref:`Building a Wflow Sediment model from command line <example-build_sediment>`

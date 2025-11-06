@@ -27,17 +27,7 @@ hydromt-wflow environment, do (these packages are also available in conda-forge)
 .. code-block:: console
 
   $ conda activate hydromt-wflow
-  $ pip install jupyterlab
-  $ pip install cartopy
-
-.. note::
-
-  To run the example notebook using pcraster, you will also need to install it from
-  conda-forge (not available on pypi):
-
-  .. code-block:: console
-
-    $ conda install -c conda-forge pcraster
+  $(hydromt-wflow) uv pip install "hydromt-wflow[examples]"
 
 2 - Download the content of the examples and notebooks
 ******************************************************
@@ -54,18 +44,15 @@ You have two options:
 
   .. code-block:: console
 
-    $ hydromt --models
+    $(hydromt-wflow) hydromt --models
+        Model plugins:
+          - model (hydromt 1.3.0)
+          - wflow_sbm (hydromt_wflow 1.0.0)
+          - wflow_sediment (hydromt_wflow 1.0.0)
+        Component plugins:
+          ...
 
-    model plugins:
-     - wflow (hydromt_wflow 0.4.1)
-     - wflow_sediment (hydromt_wflow 0.4.1)
-    generic models (hydromt 0.9.1)
-     - grid_model
-     - vector_model
-     - mesh_model
-     - network_model
-
-In the examples above, we see version 0.4.1 of hydromt_wflow is installed and version 0.9.1 of hydromt.
+In the examples above, we see version 1.0.0 of hydromt_wflow is installed and version 1.3.0 of hydromt.
 
 **Option 1: manual download and unzip**
 
@@ -73,9 +60,9 @@ To manually download the examples on Windows, do (!replace with your own hydromt
 
 .. code-block:: console
 
-  $ curl https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v0.4.1.zip -O -L
-  $ tar -xf v0.4.1.zip
-  $ ren hydromt_wflow-0.4.1 hydromt_wflow
+  $ curl https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v1.0.0.zip -O -L
+  $ tar -xf v1.0.0.zip
+  $ ren hydromt_wflow-1.0.0 hydromt_wflow
 
 You can also download, unzip and rename manually if you prefer, rather than using the windows command prompt.
 
@@ -87,7 +74,7 @@ you have installed:
 .. code-block:: console
 
   $ git clone https://github.com/Deltares/hydromt_wflow.git
-  $ git checkout v0.4.1
+  $ git checkout v1.0.0
 
 3 - Running the examples
 ************************

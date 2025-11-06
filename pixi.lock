@@ -5403,7 +5403,6 @@ packages:
   - python >=3.11,<3.12.0a0
   - python_abi 3.11.* *_cp311
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1868289
@@ -5420,7 +5419,6 @@ packages:
   - python >=3.12,<3.13.0a0
   - python_abi 3.12.* *_cp312
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1840883
@@ -5437,7 +5435,6 @@ packages:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1850647
@@ -5454,7 +5451,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1731774
@@ -5471,7 +5467,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1709701
@@ -5488,7 +5483,6 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/gdal?source=hash-mapping
   size: 1710715
@@ -5940,7 +5934,7 @@ packages:
 - pypi: ./
   name: hydromt-wflow
   version: 1.0.0rc2
-  sha256: a95e9b68c0d5dbcbd2bc8dde644ad7ee559fe0e035ae5408c2f52ab547cbe796
+  sha256: 9c74d1efed1b1d6b5d8297a2069c2572d773d3c78fa48a5369e92419898c3e54
   requires_dist:
   - dask
   - geopandas>=0.10
@@ -5974,6 +5968,7 @@ packages:
   - pytest-mock ; extra == 'test'
   - pytest-timeout ; extra == 'test'
   - pytest-benchmark ; extra == 'test'
+  - hydromt-wflow[dev,docs,examples,extra,test] ; extra == 'full'
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-75.1-he02047a_0.conda
@@ -6611,7 +6606,6 @@ packages:
   constrains:
   - binutils_impl_linux-64 2.44
   license: GPL-3.0-only
-  license_family: GPL
   purls: []
   size: 742501
   timestamp: 1761335175964
@@ -7050,7 +7044,6 @@ packages:
   constrains:
   - libgdal 3.11.5.*
   license: MIT
-  license_family: MIT
   purls: []
   size: 12054883
   timestamp: 1762275490325
@@ -7090,7 +7083,6 @@ packages:
   constrains:
   - libgdal 3.11.5.*
   license: MIT
-  license_family: MIT
   purls: []
   size: 9261187
   timestamp: 1762278694916

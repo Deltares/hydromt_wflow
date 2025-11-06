@@ -30,11 +30,12 @@ To add or change one or more components of an existing Wflow model the ``update`
     Note that the model config is often changed as part of the a model method and `write_config`
     should thus be added to the .yml file to keep the model data and config consistent.
 
-.. .. toctree::
-    :hidden:
+Examples
+--------
+Several examples of updating different input data for a Wflow SBM model are available:
 
-    Example Update Wflow model (landuse) <../_examples/update_model_landuse.ipynb>
-    Example Update Wflow model (forcing) <../_examples/update_model_forcing.ipynb>
-    Example Update Wflow model (gauges) <../_examples/update_model_gauges.ipynb>
-    Example Update Wflow model with water demand <../_examples/update_model_water_demand.ipynb>
-    Example Connect Wflow to a 1D river model <../_examples/connect_to_1d_model.ipynb>
+- :ref:`Update land use <example-update_model_landuse>`
+- :ref:`Update meteo forcing <example-update_model_forcing>`
+- :ref:`Add gauges locations <example-update_model_gauges>`
+- :ref:`Add water demands and allocations <example-update_model_water_demand>`
+- :ref:`Connect Wflow SBM to a 1D (hydraulic) model <example-connect_to_1d_model>`

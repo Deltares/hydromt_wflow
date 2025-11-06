@@ -1,8 +1,8 @@
 """Some utilities from the Wflow plugin."""
 
+import functools
 import logging
-from functools import reduce
-from os.path import abspath, join
+import os
 from pathlib import Path
 from typing import Any, Callable, Union
 
@@ -33,38 +33,63 @@ def get_config(
     abs_path: bool = False,
 ):
     """
-    Get a config value at key.
+    Retrieve a nested configuration value from a dictionary.
+
+    Keys can be specified using dot-separated paths (e.g. ``"a.b.c"``) to
+    access nested dictionaries. Optionally, the function can resolve relative
+    paths against a given model root.
 
     Parameters
     ----------
     config : dict
-        The config settings.
+        The configuration dictionary to read from.
     key : str
-        keys are string with '.' indicating a new level: ('key1.key2')
-    root: Path, optional
-        The model root.
-    fallback: Any, optional
-        fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-        NOTE: this assumes the config is located in model root!
+        Dotted key path indicating the value to retrieve, e.g. ``"a.b.c"``.
+    root : Path, optional
+        Path to the model root. Used when ``abs_path=True`` to resolve
+        relative paths. Default is ``None``.
+    fallback : Any, optional
+        Value to return if the key path does not exist. Default is ``None``.
+    abs_path : bool, optional
+        If ``True`` and the retrieved value is a relative path, return its
+        absolute version relative to ``root``. Default is ``False``.
 
     Returns
     -------
-    value : Any
-        dictionary value
+    Any
+        The value corresponding to the given key path. Returns ``fallback``
+        if the key does not exist.
 
     Examples
     --------
-    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+    .. code-block:: python
 
-    >> get_config(config, 'a')
-    >> 1
+       >>> from pathlib import Path
+       >>> from hydromt_wflow.utils import get_config
+       >>> cfg = {
+       ...     "model": {
+       ...         "params": {"scale": 2.5},
+       ...         "paths": {"data": "input/data.csv"},
+       ...     },
+       ...     "verbose": True,
+       ... }
 
-    >> get_config(config, 'b.c.d')
-    >> 2
+       # Retrieve a simple value
+       >>> get_config(cfg, "verbose")
+       True
 
+       # Retrieve a nested value
+       >>> get_config(cfg, "model.paths.data")
+       'input/data.csv'
+
+       # Retrieve as absolute path relative to a model root
+       >>> root = Path("/home/user/wflow_model")
+       >>> get_config(cfg, "model.paths.data", root=root, abs_path=True)
+       Path('/home/user/wflow_model/input/data.csv')
+
+       # Retrieve a non-existent key with fallback
+       >>> get_config(cfg, "model.output.folder", fallback="output")
+       'output'
     """
     parts = key.split(".")
     num_parts = len(parts)
@@ -83,36 +108,60 @@ def get_config(
                 raise ValueError(
                     "root path is required to get absolute path from relative path"
                 )
-            value = Path(abspath(join(root, value)))
+            value = Path(os.path.abspath(os.path.join(root, value)))
 
     return value
 
 
 def set_config(config: dict, key: str, value: Any):
     """
-    Update the config toml at key(s) with values.
+    Update a nested configuration dictionary using a dotted key path.
 
-    Parameters.
+    This function modifies a configuration dictionary in-place, allowing
+    assignment to nested keys using dot-separated paths (e.g. ``"a.b.c"``).
+
+    Parameters
     ----------
     config : dict
-        The config settings.
+        The configuration dictionary to update.
     key : str
-        key is a string,  with '.' indicating a new level: ('key1.key2').
+        The dotted key path identifying the target value to set.
+    value : Any
+        The new value to assign at the specified key path.
+
+    Returns
+    -------
+    dict
+        The updated configuration dictionary.
 
     Examples
     --------
-    .. code-block:: ipython
-        >> config
-        >> {'a': 1, 'b': {'c': {'d': 2}}}
-        >> set_config(config, 'a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
-        >> set_config(config, 'b.d.e', 99)
-        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    .. code-block:: python
+
+       >>> from hydromt_wflow.utils import set_config
+       >>> cfg = {"model": {"params": {"scale": 1.0, "offset": 0.0}}}
+       >>> set_config(cfg, "model.params.scale", 2.5)
+       {'model': {'params': {'scale': 2.5, 'offset': 0.0}}}
+
+       You can also create nested keys if they do not exist:
+
+       >>> set_config(cfg, "model.runtime.threads", 8)
+       {'model': {'params': {'scale': 2.5, 'offset': 0.0},
+                  'runtime': {'threads': 8}}}
+
+       Updating a top-level key works the same way:
+
+       >>> set_config(cfg, "description", "Wflow test run")
+       {'model': {'params': {'scale': 2.5, 'offset': 0.0},
+                  'runtime': {'threads': 8}},
+        'description': 'Wflow test run'}
     """
     if not isinstance(key, str):
         raise TypeError("key must be string")
     keys = key.split(".")
-    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = value
+    functools.reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], config)[keys[-1]] = (
+        value
+    )
 
 
 def read_csv_output(
