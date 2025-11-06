@@ -1,5 +1,6 @@
 """Tests for the utils module."""
 
+import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
 
@@ -65,7 +66,7 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm():
+def test_convert_to_wflow_v1_sbm(tmpdir, caplog):
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
@@ -95,6 +96,14 @@ def test_convert_to_wflow_v1_sbm():
             wflow.staticmaps.data["reservoir_rating_curve"].raster.mask_nodata(),
         )
     )
+
+    # Test reinit flag set to False
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
+    wflow.config.set("model.reinit", False)
+    caplog.set_level(logging.WARNING)
+    wflow.upgrade_to_v1_wflow()
+    assert "Converting states is not supported by this conversion code" in caplog.text
+    assert wflow.config.get_value("model.cold_start__flag") is True
 
 
 def test_convert_to_wflow_v1_sbm_with_exceptions():
