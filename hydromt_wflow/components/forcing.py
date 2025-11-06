@@ -235,7 +235,7 @@ class WflowForcingComponent(GridComponent):
                 rename_dims=True,
                 force_sn=False,
                 force_overwrite=True,
-                progressbar=False,
+                progressbar=True,
                 # to_netcdf kwargs
                 encoding=encoding,
                 **kwargs,
@@ -258,7 +258,7 @@ class WflowForcingComponent(GridComponent):
                     rename_dims=True,
                     force_sn=False,
                     force_overwrite=True,
-                    progressbar=False,
+                    progressbar=True,
                     # to_netcdf kwargs
                     encoding=encoding,
                     **kwargs,
