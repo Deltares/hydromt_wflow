@@ -25,9 +25,8 @@ def build_model(
     """Build example Wflow SBM model."""
     param_path = repo_root / "hydromt_wflow" / "data" / "parameters_data.yml"
 
-    # Remove existing nc files in model root
-    nc_files = list(model_root.glob("**/*.nc"))
-    remove_files(nc_files)
+    # Remove existing staticmaps.nc files in model root
+    remove_files([model_root / "staticmaps.nc"])
 
     mod = model(
         root=model_root.as_posix(),
