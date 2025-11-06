@@ -110,7 +110,7 @@ class WflowForcingComponent(GridComponent):
     ) -> None:
         """Write forcing model data.
 
-        If no ``filename` path is provided and path_forcing from the wflow toml exists,
+        If no ``filename`` path is provided and path_forcing from the wflow toml exists,
         the following default filenames are used:
 
             * Default name format (with downscaling):

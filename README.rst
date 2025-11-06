@@ -45,6 +45,10 @@ So far, it has been developed and tested with a range of `Deltares <https://www.
 we believe it is applicable to a much wider set of geoscientific models and are
 happy to discuss how it can be implemented for your model.
 
+Changelog
+----------
+See the :doc:`full changelog <changelog>` for a complete list of changes and release notes.
+
 .. _Hydromt: https://deltares.github.io/hydromt/latest/
 .. _Wflow: https://github.com/Deltares/Wflow.jl
 
@@ -83,67 +87,14 @@ happy to discuss how it can be implemented for your model.
     :alt: License
     :target: https://github.com/Deltares/hydromt_wflow/blob/main/LICENSE
 
-Attribution
------------
-HydroMT Wflow relies on these excellent packages:
+Dependencies
+------------
+HydroMT-Wflow builds on the HydroMT core and relies on several excellent open-source packages for geospatial and scientific computing, including:
 
-- affine
-- annotated-types
-- attrs
-- bottleneck
-- certifi
-- cftime
-- charset-normalizer
-- click
-- click-plugins
-- cligj
-- cloudpickle
-- colorama
-- crc32c
-- dask
-- donfig
-- fsspec
-- geopandas
-- hydromt
-- idna
-- importlib-metadata
-- llvmlite
-- locket
-- mercantile
-- netcdf4
-- numba
-- numcodecs
-- numpy
-- packaging
-- pandas
-- partd
-- platformdirs
-- pooch
-- pydantic
-- pydantic-core
-- pyflwdir
-- pyogrio
-- pyparsing
-- pyproj
-- pystac
-- python-dateutil
-- pytz
-- pyyaml
-- rasterio
-- requests
-- rioxarray
-- scipy
-- shapely
-- six
-- tomli
-- tomli-w
-- toolz
-- typing-extensions
-- typing-inspection
-- tzdata
-- universal-pathlib
-- urllib3
-- xarray
-- xmltodict
-- zarr
-- zipp
+- **Core Scientific & Data libraries:** `hydromt`, `xarray`, `numpy`, `pandas`, `scipy`, `numba`, `dask`, `bottleneck`, `cftime`, `gwwapi`, `hydroengine`, `pyflwdir`,
+- **Geospatial libraries:** `geopandas`, `shapely`, `rasterio`, `rioxarray`, `pyproj`, `pyogrio`, `cligj`
+- **Configuration, Validation & CLI Tools:** `attrs`, `click`, `click-plugins`, `pydantic`, `pydantic-core`, `pyyaml`, `typing-inspection`, `importlib-metadata`
+- **File IO, Storage & Networking:** `fsspec`, `netcdf4`, `tomli`, `tomli-w`, `requests`, `universal-pathlib`, `urllib3`, `pooch`, `pyet`, `wradlib`
+- **Utilities & Support libraries:** `colorama`, `six`, `packaging`, `platformdirs`, `partd`, `toolz`
+- **Other dependencies:** `affine`, `annotated-types`, `certifi`, `charset-normalizer`, `cloudpickle`, `crc32c`, `donfig`, `idna`, `llvmlite`, `locket`, `mercantile`, `numcodecs`, `pystac`, `pyparsing`, `python-dateutil`, `pytz`, `typing-extensions`, `tzdata`, `xmltodict`, `zarr`, `zipp`
+- **Examples & Visualization:** `cartopy`, `jupyterlab`, `nbconvert`, `notebook`
