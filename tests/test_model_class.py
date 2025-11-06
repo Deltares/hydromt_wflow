@@ -22,6 +22,25 @@ _supported_models: dict[str, type[WflowBaseModel]] = {
 }
 
 
+def _assert_dataset_not_empty(ds: xr.Dataset) -> tuple[bool, list[str]]:
+    counts = ds.count().to_pandas()
+    empty_layers = counts[counts == 0]
+    if len(empty_layers) > 0:
+        return False, list(counts.index)
+    else:
+        return True, []
+
+
+def _assert_grids_not_empty(model: WflowBaseModel):
+    if model.staticmaps._data:
+        eq, empty_layers = _assert_dataset_not_empty(model.staticmaps._data)
+        assert eq, f"empty layers in staticmaps: {empty_layers}"
+
+    if model.forcing._data:
+        eq, empty_layers = _assert_dataset_not_empty(model.forcing._data)
+        assert eq, f"empty layers in forcing: {empty_layers}"
+
+
 def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
     # check maps
     if mod0.staticmaps._data:
@@ -73,6 +92,10 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     mod0 = example_models[model]
     if mod0 is not None:
         mod0.read()
+
+        # make sure models aren't empty
+        _assert_grids_not_empty(mod0)
+
         # compare models
         _compare_wflow_models(mod0, mod1)
 
