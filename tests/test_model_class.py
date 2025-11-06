@@ -33,6 +33,11 @@ def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
         eq, errors = mod0.geoms.test_equal(mod1.geoms)
         assert eq, f"geoms not equal: {errors}"
 
+    if mod0.forcing._data:
+        # flatten
+        eq, errors = mod0.forcing.test_equal(mod1.forcing)
+        assert eq, f"forcing not equal: {errors}"
+
     # check config
     if mod0.config._data:
         # flatten
