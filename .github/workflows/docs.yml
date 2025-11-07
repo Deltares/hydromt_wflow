@@ -68,7 +68,8 @@ jobs:
           max_attempts: 3
           command: |
             pixi run -e docs docs-build-html
-            echo "DOC_VERSION=$(pixi run --locked -e docs python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
+            VERSION=$(pixi run --locked -e docs python -c "from hydromt_wflow import __version__ as v; print(\"dev\" if \"dev\" in v else \"v\" + v)")
+            echo "DOC_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Upload to GitHub Pages
         if: ${{ github.event_name != 'pull_request'}}
