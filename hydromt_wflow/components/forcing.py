@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt.io import write_nc
 from hydromt.model import Model
 from hydromt.model.components import GridComponent
+from hydromt.writers import write_nc
 
 from hydromt_wflow.components import utils
 
@@ -236,9 +236,7 @@ class WflowForcingComponent(GridComponent):
                 force_sn=False,
                 force_overwrite=True,
                 progressbar=True,
-                # to_netcdf kwargs
-                encoding=encoding,
-                **kwargs,
+                to_netcdf_kwargs={"encoding": encoding, **kwargs},
             )
         # Or per period
         else:
@@ -259,9 +257,7 @@ class WflowForcingComponent(GridComponent):
                     force_sn=False,
                     force_overwrite=True,
                     progressbar=True,
-                    # to_netcdf kwargs
-                    encoding=encoding,
-                    **kwargs,
+                    to_netcdf_kwargs={"encoding": encoding, **kwargs},
                 )
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
