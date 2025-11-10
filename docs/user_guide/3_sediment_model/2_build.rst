@@ -17,7 +17,7 @@ data libraries are set, you can build a model by using:
   From HydroMT version 1.0 onwards, the region argument has been moved to ``setup_basemaps`` function arguments and is no longer available via cli.
 
 
-The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
+The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html>`_
 for a proper implementation of the Wflow Sediment model are:
 
 - basin
@@ -76,7 +76,7 @@ command line would be:
 .. literalinclude:: /_examples/wflow_extend_sediment.yml
    :language: yaml
 
-.. _data: https://deltares.github.io/hydromt/stable/guides/user_guide/data_overview.html
+.. _data: https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_overview.html
 
 Examples
 --------

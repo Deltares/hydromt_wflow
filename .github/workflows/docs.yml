@@ -68,8 +68,22 @@ jobs:
           max_attempts: 3
           command: |
             pixi run -e docs docs-build-html
-            VERSION=$(pixi run --locked -e docs python -c "from hydromt_wflow import __version__ as v; print('dev' if 'dev' in v else 'v' + v)")
-            echo "DOC_VERSION=$VERSION" >> $GITHUB_ENV
+
+            export CURRENT_VERSION=$(grep "__version__" hydromt_wflow/version.py | cut -d= -f 2 | tr -d "\" ")
+
+            if [ -z "$CURRENT_VERSION" ]; then
+              echo "Could not determine version, exiting..."
+              exit 1
+            fi
+
+            # Are we a dev version or not?
+            if echo "$CURRENT_VERSION" | grep -q "dev"; then
+              # If it's a dev version, just echo "dev"
+              echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
+            else
+              # Otherwise, echo the version number
+              echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
+            fi
 
       - name: Upload to GitHub Pages
         if: ${{ github.event_name != 'pull_request'}}
