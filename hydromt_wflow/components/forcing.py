@@ -10,7 +10,7 @@ import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
 from hydromt.model import Model
-from hydromt.model.components import GridComponent
+from hydromt.model.components import GridComponent, ModelComponent
 from hydromt.writers import write_nc
 
 from hydromt_wflow.components import utils
@@ -434,3 +434,29 @@ class WflowForcingComponent(GridComponent):
         return len(self.data.data_vars) == 0 or all(
             var.size == 0 for var in self.data.data_vars.values()
         )
+
+    def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
+        """Test if two forcing components are equal.
+
+        Checks the model component type as well as the data variables and their values.
+
+        Parameters
+        ----------
+        other : ModelComponent
+            The component to compare against.
+
+        Returns
+        -------
+        tuple[bool, Dict[str, str]]
+            True if the components are equal, and a dict with the associated errors per
+            property checked.
+        """
+        errors: dict[str, str] = {}
+        if not isinstance(other, self.__class__):
+            errors["__class__"] = f"other does not inherit from {self.__class__}."
+
+        # Check dimensions
+        _, data_errors = utils.test_equal_grid_data(self.data, other.data)
+        errors.update(data_errors)
+
+        return len(errors) == 0, errors

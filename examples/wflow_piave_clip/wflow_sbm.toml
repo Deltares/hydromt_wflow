@@ -54,14 +54,6 @@ river_location__mask = "river_mask"
 outlets = "outlets"
 gauges_grdc = "gauges_grdc"
 
-[input.forcing]
-atmosphere_water__precipitation_volume_flux = "precip"
-land_surface_water__potential_evaporation_volume_flux = "pet"
-atmosphere_air__temperature = "temp"
-
-[input.cyclic]
-vegetation__leaf_area_index = "vegetation_leaf_area_index"
-
 [input.static]
 land_surface__slope = "land_slope"
 river__length = "river_length"
@@ -133,6 +125,14 @@ value = 0.001
 
 [input.static.glacier_ice__melting_temperature_threshold]
 value = 0
+
+[input.cyclic]
+vegetation__leaf_area_index = "vegetation_leaf_area_index"
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = "precip"
+land_surface_water__potential_evaporation_volume_flux = "pet"
+atmosphere_air__temperature = "temp"
 
 [output.netcdf_grid]
 path = "output.nc"
