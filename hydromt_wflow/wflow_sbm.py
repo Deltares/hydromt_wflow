@@ -3446,6 +3446,7 @@ using 'variable' argument."
                     geom=self.basins,
                     buffer=buffer,
                     handle_nodata=NoDataStrategy.IGNORE,
+                    source_kwargs={"assert_gtype": "Point"},
                 )
                 # Use station ids from gdf_stations when reading the DataFrame
                 if index_col is not None:
