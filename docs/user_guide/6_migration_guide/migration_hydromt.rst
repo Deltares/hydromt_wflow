@@ -7,7 +7,7 @@ HydroMT v1 introduces a component-based architecture to replace the previous inh
 Instead of all model functionality being defined in a single ``Model`` class, a model is now composed of modular ``ModelComponent``
 classes such as ``GridComponent``, ``VectorComponent``, or ``ConfigComponent``.
 This structure makes models more flexible, extensible, and easier to maintain.
-For detailed guidance, refer to the official `HydroMT migration guide <https://deltares.github.io/hydromt/stable/guides/plugin_dev/migrating_to_v1.html>`_.
+For detailed guidance, refer to the official `HydroMT migration guide <https://deltares.github.io/hydromt/latest/user_guide/migration_guide/index.html>`_.
 
 For HydroMT-Wflow, the names and arguments of a few setup methods have changed. The names of the maps in staticmaps have been updated to reflect better
 which process they belong to and maps that are not needed by Wflow.jl now start with ``meta_`` to indicate they are metadata only. The names of maps
@@ -31,7 +31,7 @@ Some of the functions (component specific read and write) are now explicitly map
 
 For a complete example of the new configuration format, see the Wflow v1 YAML template: :download:`wflow_build.yml </_examples/wflow_build.yml>`.
 
-For more information on the format changes, see this section in the HydroMT migration guide: `Changes to the yaml HydroMT configuration file format <https://deltares.github.io/hydromt/stable/guides/plugin_dev/migrating_to_v1.html#changes-to-the-yaml-hydromt-configuration-file-format>`_.
+For more information on the format changes, see this section in the HydroMT migration guide: `Changes to the yaml HydroMT configuration file format <https://deltares.github.io/hydromt/latest/user_guide/migration_guide/model_workflow.html>`_.
 
 How to upgrade
 ^^^^^^^^^^^^^^
@@ -72,7 +72,7 @@ Key format changes:
 - ``crs`` and ``nodata`` moved under ``metadata`` (renamed from ``meta``)
 - A single catalog entry can now reference multiple data variants or versions
 
-For detailed information about the format changes, see this section in the HydroMT migration guide: `Changes to the data catalog yaml file format <https://deltares.github.io/hydromt/stable/guides/plugin_dev/migrating_to_v1.html#datacatalog>`_
+For detailed information about the format changes, see this section in the HydroMT migration guide: `Changes to the data catalog yaml file format <https://deltares.github.io/hydromt/latest/user_guide/migration_guide/data_catalog.html>`_
 
 How to upgrade
 ^^^^^^^^^^^^^^

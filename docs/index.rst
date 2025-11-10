@@ -65,7 +65,7 @@ This plugin provides an implementation of the model API for the Wflow_ model.
 
     .. grid-item-card::
         :text-align: center
-        :link: https://deltares.github.io/hydromt/stable/guides/user_guide/model_build.html
+        :link: https://deltares.github.io/hydromt/latest/user_guide/models/model_build.html
 
         :octicon:`device-desktop;5em;sd-text-icon blue-icon`
         +++
@@ -75,7 +75,7 @@ This plugin provides an implementation of the model API for the Wflow_ model.
 
     .. grid-item-card::
         :text-align: center
-        :link: https://deltares.github.io/hydromt/stable/guides/advanced_user/data_prepare_cat.html
+        :link: https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_prepare_cat.html
 
         :octicon:`stack;5em;sd-text-icon blue-icon`
         +++

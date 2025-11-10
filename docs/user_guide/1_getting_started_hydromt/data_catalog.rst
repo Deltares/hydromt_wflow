@@ -11,6 +11,6 @@ You can explore the guides below for detailed instructions and examples.
    :maxdepth: 1
    :titlesonly:
 
-   Preparing a data catalog <https://deltares.github.io/hydromt/stable/guides/advanced_user/data_prepare_cat.html>
-   Supported data types <https://deltares.github.io/hydromt/stable/guides/advanced_user/data_types.html>
-   Predefined catalogs <https://deltares.github.io/hydromt/stable/guides/user_guide/data_existing_cat.html>
+   Preparing a data catalog <https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_prepare_cat.html>
+   Supported data types <https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_types.html>
+   Predefined catalogs <https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_existing_cat.html>
