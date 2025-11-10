@@ -1011,12 +1011,12 @@ setting new flood_depth dimensions"
         """  # noqa: E501
         # retrieve data for basin
         logger.info("Preparing reservoir with simple control maps.")
+        kwargs.setdefault("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            predicate=kwargs.pop("predicate", "contains"),
-            source_kwargs=kwargs,
+            **kwargs,
         )
         # Skip method if no data is returned
         if gdf_org is None:
