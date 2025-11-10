@@ -10,7 +10,7 @@ Refer to the sections below for the official and up-to-date information.
 
     .. grid-item-card::
         :text-align: center
-        :link: https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html
+        :link: https://deltares.github.io/hydromt/latest/user_guide/overview/hydromt_cli.html
         :link-type: url
 
         :octicon:`terminal;5em;sd-text-icon blue-icon`
@@ -32,7 +32,7 @@ Refer to the sections below for the official and up-to-date information.
 
     .. grid-item-card::
         :text-align: center
-        :link: https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html
+        :link: https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html
         :link-type: url
 
         :octicon:`globe;5em;sd-text-icon blue-icon`
@@ -48,6 +48,6 @@ Refer to the sections below for the official and up-to-date information.
    :maxdepth: 2
    :titlesonly:
 
-   Command Line Interface <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>
+   Command Line Interface <https://deltares.github.io/hydromt/latest/user_guide/overview/hydromt_cli.html>
    Data Catalog <data_catalog>
-   Model Region <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>
+   Model Region <https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html>

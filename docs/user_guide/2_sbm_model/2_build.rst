@@ -14,7 +14,7 @@ data libraries are set, you can build a model by using:
 .. Note::
   From HydroMT-wflow version 1.0 onwards (Hydromt version > 1.0.0), the region argument (-r & --region) has been moved to ``setup_basemaps`` function arguments and is no longer available via cli.
 
-The recommended `region options <https://deltares.github.io/hydromt/stable/guides/user_guide/model_region.html>`_
+The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html>`_
 for a proper implementation of this model are:
 
 - basin
