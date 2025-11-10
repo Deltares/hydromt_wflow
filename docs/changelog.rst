@@ -22,6 +22,7 @@ Fixed
 -----
 - Fixed cyclic data layer not having coordinates after setting the data in the ``WflowStaticMapsComponent``.
 - Deriving river if dem was not upscaled in setup_basemaps (#638).
+- fixed `setup_precip_forcing` producing an empty netcdf file (#649)
 
 Removed
 -------
