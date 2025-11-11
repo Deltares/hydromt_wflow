@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
+v1.0.0rc3
 ==========
 
 Added
