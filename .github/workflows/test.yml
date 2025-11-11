@@ -50,7 +50,7 @@ jobs:
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          pixi-version: "v0.47.0"
+          pixi-version: "v0.59.0"
           environments: test-full-py${{ matrix.python-version }}
           locked: false
           cache: true
@@ -62,4 +62,4 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run -e test-full-py${{ matrix.python-version }} test-cov
+            pixi run --locked -e test-full-py${{ matrix.python-version }} test-cov

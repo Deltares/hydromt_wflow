@@ -740,7 +740,7 @@ setting new flood_depth dimensions"
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            source_kwargs=kwargs,
         )
         if gdf_org is None:
             logger.info("Skipping method, as no data has been found")
@@ -1007,7 +1007,7 @@ setting new flood_depth dimensions"
             "meta_reservoirs_simple_control" for meta_reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+            hydromt.DataCatalog.get_geodataframe()
         """  # noqa: E501
         # retrieve data for basin
         logger.info("Preparing reservoir with simple control maps.")
@@ -1016,7 +1016,7 @@ setting new flood_depth dimensions"
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            source_kwargs=kwargs,
         )
         # Skip method if no data is returned
         if gdf_org is None:
@@ -1409,7 +1409,7 @@ setting new flood_depth dimensions"
         )
         df_mapping = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver={"name": "pandas", "options": {"index_col": 0}},
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         output_paddy_class = (
             paddy_class if output_paddy_class is None else output_paddy_class
@@ -1425,7 +1425,9 @@ setting new flood_depth dimensions"
                 paddy_mapping_fn = "paddy_mapping_default"
             df_paddy_mapping = self.data_catalog.get_dataframe(
                 paddy_mapping_fn,
-                driver={"name": "pandas", "options": {"index_col": 0}},
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
             )
 
             landuse, df_mapping = workflows.add_paddy_to_landuse(
@@ -1665,7 +1667,7 @@ setting new flood_depth dimensions"
         )
         df_lai_mapping = self.data_catalog.get_dataframe(
             lai_mapping_fn,
-            driver={"name": "pandas", "options": {"index_col": 0}},
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
@@ -3443,7 +3445,7 @@ using 'variable' argument."
                     precip_stations_fn,
                     geom=self.basins,
                     buffer=buffer,
-                    assert_gtype="Point",
+                    # assert_gtype= "Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                 )
                 # Use station ids from gdf_stations when reading the DataFrame

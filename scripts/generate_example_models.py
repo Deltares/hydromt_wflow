@@ -3,7 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
-from hydromt.io.readers import read_workflow_yaml
+from hydromt.readers import read_workflow_yaml
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 

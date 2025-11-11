@@ -177,7 +177,7 @@ class WflowStatesComponent(GridComponent):
             mask_and_scale=False,
         )
         if not self.data.raster.crs:
-            logging.warning("CRS not found in states data, setting to model CRS.")
+            logger.warning("CRS not found in states data, setting to model CRS.")
             self.data.raster.set_crs(self.model.crs)
 
     @hydromt_step
