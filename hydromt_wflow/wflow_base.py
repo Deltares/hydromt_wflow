@@ -1269,7 +1269,7 @@ gauge locations [-] (if derive_subcatch)
                 geom=self.basins,
                 # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
+                source_kwargs=kwargs,
             )
         elif self.data_catalog.contains_source(gauges_fn):
             if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
@@ -1278,7 +1278,7 @@ gauge locations [-] (if derive_subcatch)
                     geom=self.basins,
                     # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
+                    source_kwargs=kwargs,
                 )
             elif self.data_catalog.get_source(gauges_fn).data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
@@ -1286,7 +1286,7 @@ gauge locations [-] (if derive_subcatch)
                     geom=self.basins,
                     # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
+                    source_kwargs=kwargs,
                 )
                 gdf_gauges = da.vector.to_gdf()
                 # Check for point geometry

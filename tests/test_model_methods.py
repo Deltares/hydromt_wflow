@@ -309,7 +309,7 @@ def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
-            "update_existing": False,
+            "overwrite_existing": False,
         }
     }
 

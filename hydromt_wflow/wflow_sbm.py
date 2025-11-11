@@ -740,7 +740,7 @@ setting new flood_depth dimensions"
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            source_kwargs=kwargs,
         )
         if gdf_org is None:
             logger.info("Skipping method, as no data has been found")
@@ -1016,7 +1016,7 @@ setting new flood_depth dimensions"
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            source_kwargs=kwargs,
         )
         # Skip method if no data is returned
         if gdf_org is None:
@@ -3445,8 +3445,8 @@ using 'variable' argument."
                     precip_stations_fn,
                     geom=self.basins,
                     buffer=buffer,
+                    # assert_gtype= "Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
-                    source_kwargs={"assert_gtype": "Point"},
                 )
                 # Use station ids from gdf_stations when reading the DataFrame
                 if index_col is not None:
