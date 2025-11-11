@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.io import read_workflow_yaml
+from hydromt.readers import read_workflow_yaml
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 

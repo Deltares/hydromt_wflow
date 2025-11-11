@@ -10,8 +10,8 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt.gis import GeoDataArray
-from hydromt.io import open_timeseries_from_table
 from hydromt.model.processes.grid import grid_from_constant
+from hydromt.readers import open_timeseries_from_table
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
