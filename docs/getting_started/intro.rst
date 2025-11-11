@@ -33,8 +33,8 @@ Getting started
 
     .. grid-item-card::
         :text-align: center
-        :link: examples
-        :link-type: ref
+        :link: example_index
+        :link-type: doc
 
         :octicon:`graph;5em;sd-text-icon blue-icon`
         +++
