@@ -47,7 +47,7 @@ happy to discuss how it can be implemented for your model.
 
 Changelog
 ----------
-See the :doc:`full changelog <https://deltares.github.io/hydromt_wflow/latest/changelog.html>`_ for a complete list of changes and release notes.
+See the `full changelog <https://deltares.github.io/hydromt_wflow/latest/changelog.html>`_ for a complete list of changes and release notes.
 
 .. _Hydromt: https://deltares.github.io/hydromt/latest/
 .. _Wflow: https://github.com/Deltares/Wflow.jl
