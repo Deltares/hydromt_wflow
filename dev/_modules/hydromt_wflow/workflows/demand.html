@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -534,7 +495,7 @@
 
 
 <div class="viewcode-block" id="domestic">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.domestic.html#hydromt_wflow.workflows.domestic">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.domestic.html#hydromt_wflow.workflows.demand.domestic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">domestic</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -631,7 +592,7 @@
 
 
 <div class="viewcode-block" id="domestic_from_population">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.domestic_from_population.html#hydromt_wflow.workflows.domestic_from_population">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.domestic_from_population.html#hydromt_wflow.workflows.demand.domestic_from_population">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">domestic_from_population</span><span class="p">(</span>
     <span class="n">popu</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -705,7 +666,7 @@
 
 
 <div class="viewcode-block" id="other_demand">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.other_demand.html#hydromt_wflow.workflows.other_demand">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.other_demand.html#hydromt_wflow.workflows.demand.other_demand">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">other_demand</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -745,7 +706,7 @@
 
 
 <div class="viewcode-block" id="allocation_areas">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.allocation_areas.html#hydromt_wflow.workflows.allocation_areas">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.allocation_areas.html#hydromt_wflow.workflows.demand.allocation_areas">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">allocation_areas</span><span class="p">(</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">waterareas</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
@@ -858,7 +819,7 @@
 
 
 <div class="viewcode-block" id="surfacewaterfrac_used">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.surfacewaterfrac_used.html#hydromt_wflow.workflows.surfacewaterfrac_used">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.surfacewaterfrac_used.html#hydromt_wflow.workflows.demand.surfacewaterfrac_used">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">surfacewaterfrac_used</span><span class="p">(</span>
     <span class="n">gwfrac_raw</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">da_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -1095,7 +1056,7 @@
 
 
 <div class="viewcode-block" id="irrigation">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.irrigation.html#hydromt_wflow.workflows.irrigation">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.irrigation.html#hydromt_wflow.workflows.demand.irrigation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">irrigation</span><span class="p">(</span>
     <span class="n">da_irrigation</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -1178,7 +1139,7 @@
 
 
 <div class="viewcode-block" id="irrigation_from_vector">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.irrigation_from_vector.html#hydromt_wflow.workflows.irrigation_from_vector">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.demand.irrigation_from_vector.html#hydromt_wflow.workflows.demand.irrigation_from_vector">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">irrigation_from_vector</span><span class="p">(</span>
     <span class="n">gdf_irrigation</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -1269,6 +1230,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

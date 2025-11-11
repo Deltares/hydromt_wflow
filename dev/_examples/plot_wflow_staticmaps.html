@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -110,7 +110,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -137,29 +137,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -173,15 +153,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -299,29 +279,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -333,15 +290,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -433,11 +390,11 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow outputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clip_model.html">Clip a Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/overview/use_case_examples">User's stories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
 </ul>
 </div>
@@ -502,7 +459,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="admonition tip">
+  <div class="admonition tip" id="example-plot-wflow-staticmaps">
 <p class="admonition-title">Tip</p>
 <div>
     For an interactive online version click here:
@@ -545,7 +502,7 @@
 </section>
 <section id="Read-the-model">
 <h2>Read the model<a class="headerlink" href="#Read-the-model" title="Link to this heading">#</a></h2>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
@@ -553,6 +510,17 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-11-11 10:46:29,582 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:46:29,582 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:46:29,613 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:46:29,613 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+</pre></div></div>
 </div>
 </section>
 <section id="Plot-model-schematization-base-maps">
@@ -668,21 +636,11 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_8306/1033804585.py:77: UserWarning: Legend does not support handles for PatchCollection instances.
-See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#implementing-a-custom-legend-handler
-  handles=[*ax.get_legend_handles_labels()[0], *patches],
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/_examples_plot_wflow_staticmaps_10_1.png" src="../_images/_examples_plot_wflow_staticmaps_10_1.png" />
+<img alt="../_images/_examples_plot_wflow_staticmaps_10_0.png" src="../_images/_examples_plot_wflow_staticmaps_10_0.png" />
 </div>
 </div>
 </section>
@@ -728,6 +686,26 @@ See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#impl
 
 
   <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
@@ -740,31 +718,6 @@ See: https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html#impl
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-model-schematization-base-maps">Plot model schematization base maps</a></li>
 </ul>
   </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/plot_wflow_staticmaps.ipynb">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/_examples/plot_wflow_staticmaps.ipynb.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               

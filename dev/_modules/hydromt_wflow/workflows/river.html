@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -491,7 +452,7 @@
 
 
 <div class="viewcode-block" id="river">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river.html#hydromt_wflow.workflows.river">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.river.river.html#hydromt_wflow.workflows.river.river">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">river</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -546,6 +507,22 @@
     <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">,</span> <span class="s2">&quot;y_out&quot;</span><span class="p">]]):</span>
         <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span>
+                    <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">:</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">dim</span><span class="p">:</span> <span class="n">ds_model</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">})</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;It seems model grid was not upscaled during setup_basemaps however&quot;</span>
+                    <span class="s2">&quot; model grid does not align with the hydrography data provided for&quot;</span>
+                    <span class="s2">&quot; river processing. Make sure you are using the same hydrography&quot;</span>
+                    <span class="s2">&quot; dataset for setup_basemaps and setup_rivers.&quot;</span>
+                <span class="p">)</span>
         <span class="n">ds_model</span> <span class="o">=</span> <span class="n">ds</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;River length and slope are calculated at model resolution.&quot;</span><span class="p">)</span>
 
@@ -640,7 +617,7 @@
 
 
 <div class="viewcode-block" id="river_bathymetry">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river_bathymetry.html#hydromt_wflow.workflows.river_bathymetry">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.river.river_bathymetry.html#hydromt_wflow.workflows.river.river_bathymetry">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">river_bathymetry</span><span class="p">(</span>
     <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">gdf_riv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
@@ -805,6 +782,8 @@
 
 
 
+<div class="viewcode-block" id="river_floodplain_volume">
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.river.river_floodplain_volume.html#hydromt_wflow.workflows.river.river_floodplain_volume">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">river_floodplain_volume</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -896,13 +875,16 @@
     <span class="n">da_out</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
 
     <span class="c1"># TODO return a second dataset with hand and ucat_map variables for postprocessing</span>
-    <span class="k">return</span> <span class="n">da_out</span>
+    <span class="k">return</span> <span class="n">da_out</span></div>
+
 
 
 <span class="c1"># TODO: methods below are redundant after version v0.1.4 and will be removed in</span>
 <span class="c1"># future versions</span>
 
 
+<div class="viewcode-block" id="river_width">
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.river.river_width.html#hydromt_wflow.workflows.river.river_width">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">river_width</span><span class="p">(</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">flwdir</span><span class="p">:</span> <span class="n">pyflwdir</span><span class="o">.</span><span class="n">FlwdirRaster</span><span class="p">,</span>
@@ -998,7 +980,8 @@
 
     <span class="c1"># return xarray dataarray</span>
     <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">rivwth_out</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">rivwth_out</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_width_fit</span><span class="p">(</span>
@@ -1117,6 +1100,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

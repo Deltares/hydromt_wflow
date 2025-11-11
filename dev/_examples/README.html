@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -105,7 +105,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -132,29 +132,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -168,15 +148,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -296,29 +276,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -330,15 +287,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -479,17 +436,8 @@ see the <strong>Install HydroMT-Wflow in a new environment</strong> section in t
 run the notebooks and cartopy for some plots. To install these packages in your existing
 hydromt-wflow environment, do (these packages are also available in conda-forge):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
-<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>jupyterlab
-<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>cartopy
+<span class="gp">$</span><span class="o">(</span>hydromt-wflow<span class="o">)</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;hydromt-wflow[examples]&quot;</span>
 </pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>To run the example notebook using pcraster, you will also need to install it from
-conda-forge (not available on pypi):</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pcraster
-</pre></div>
-</div>
 </div>
 </section>
 <section id="download-the-content-of-the-examples-and-notebooks">
@@ -506,25 +454,22 @@ You have two options:</p>
 <p class="admonition-title">Warning</p>
 <p>Depending on your installed version of hydromt and hydromt_wflow, you will need to download the correct versions of the examples.
 To check the version of hydromt_wflow that you have installed, do:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>--models
-
-<span class="go">model plugins:</span>
-<span class="go"> - wflow (hydromt_wflow 0.4.1)</span>
-<span class="go"> - wflow_sediment (hydromt_wflow 0.4.1)</span>
-<span class="go">generic models (hydromt 0.9.1)</span>
-<span class="go"> - grid_model</span>
-<span class="go"> - vector_model</span>
-<span class="go"> - mesh_model</span>
-<span class="go"> - network_model</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">(</span>hydromt-wflow<span class="o">)</span><span class="w"> </span>hydromt<span class="w"> </span>--models
+<span class="go">    Model plugins:</span>
+<span class="go">      - model (hydromt 1.3.0)</span>
+<span class="go">      - wflow_sbm (hydromt_wflow 1.0.0)</span>
+<span class="go">      - wflow_sediment (hydromt_wflow 1.0.0)</span>
+<span class="go">    Component plugins:</span>
+<span class="go">      ...</span>
 </pre></div>
 </div>
 </div>
-<p>In the examples above, we see version 0.4.1 of hydromt_wflow is installed and version 0.9.1 of hydromt.</p>
+<p>In the examples above, we see version 1.0.0 of hydromt_wflow is installed and version 1.3.0 of hydromt.</p>
 <p><strong>Option 1: manual download and unzip</strong></p>
 <p>To manually download the examples on Windows, do (!replace with your own hydromt_wflow version!):</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v0.4.1.zip<span class="w"> </span>-O<span class="w"> </span>-L
-<span class="gp">$ </span>tar<span class="w"> </span>-xf<span class="w"> </span>v0.4.1.zip
-<span class="gp">$ </span>ren<span class="w"> </span>hydromt_wflow-0.4.1<span class="w"> </span>hydromt_wflow
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>https://github.com/Deltares/hydromt_wflow/archive/refs/tags/v1.0.0.zip<span class="w"> </span>-O<span class="w"> </span>-L
+<span class="gp">$ </span>tar<span class="w"> </span>-xf<span class="w"> </span>v1.0.0.zip
+<span class="gp">$ </span>ren<span class="w"> </span>hydromt_wflow-1.0.0<span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>
 <p>You can also download, unzip and rename manually if you prefer, rather than using the windows command prompt.</p>
@@ -532,7 +477,7 @@ To check the version of hydromt_wflow that you have installed, do:</p>
 <p>For git users, you can also get the examples by cloning the hydromt_wflow github repository and checkout the version
 you have installed:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Deltares/hydromt_wflow.git
-<span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>v0.4.1
+<span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>v1.0.0
 </pre></div>
 </div>
 </section>
@@ -571,6 +516,26 @@ after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
 
 
   <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
@@ -583,31 +548,6 @@ after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-examples">3 - Running the examples</a></li>
 </ul>
   </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/README.rst">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/_examples/README.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               

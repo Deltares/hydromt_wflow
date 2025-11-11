@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -484,19 +445,59 @@
     <span class="s2">&quot;lai_from_lulc_mapping&quot;</span><span class="p">,</span>
     <span class="s2">&quot;add_paddy_to_landuse&quot;</span><span class="p">,</span>
     <span class="s2">&quot;add_planted_forest_to_landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;validate_lulc_vars&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LULC_VARS_MAPPING&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<span class="n">RESAMPLING</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+<span class="n">_RESAMPLING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;mode&quot;</span><span class="p">,</span>
     <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
     <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;mode&quot;</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span> <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">}</span>
+
+<span class="n">LULC_VARS_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light_extinction_coefficient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;land_manning_n&quot;</span><span class="p">:</span> <span class="s2">&quot;land_surface_water_flow__manning_n_parameter&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__depth&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific_leaf_storage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_wood_water__storage_capacity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__crop_factor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+    <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+    <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_low&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h4&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_lulc_vars</span><span class="p">(</span><span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Throw an error if any lulc_vars are incorrect.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lulc_vars : list[str]</span>
+<span class="sd">        The lulc_vars that are given to functions like setup_landuse.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">        ValueError: An error that indicates which values are not allowed for lulc_vars.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">invalid_vars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lulc_vars</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">LULC_VARS_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">invalid_vars</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid lulc_vars: </span><span class="si">{</span><span class="n">invalid_vars</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Allowed values are: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">LULC_VARS_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="landuse">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.landuse.html#hydromt_wflow.workflows.landuse.landuse">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">landuse</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -536,7 +537,7 @@
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
     <span class="c1"># apply for each parameter</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="n">RESAMPLING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">)</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">_RESAMPLING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">nodata</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># NOTE values is set in last row</span>
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>  <span class="c1"># NOTE global param in reclass method</span>
@@ -554,7 +555,7 @@
 
 
 <div class="viewcode-block" id="landuse_from_vector">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse_from_vector.html#hydromt_wflow.workflows.landuse_from_vector">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.landuse_from_vector.html#hydromt_wflow.workflows.landuse.landuse_from_vector">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">landuse_from_vector</span><span class="p">(</span>
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -647,7 +648,7 @@
 
 
 <div class="viewcode-block" id="lai">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai.html#hydromt_wflow.workflows.lai">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.lai.html#hydromt_wflow.workflows.landuse.lai">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lai</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return climatology of Leaf Area Index (LAI).</span>
 
@@ -670,7 +671,7 @@
         <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">]</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;lai method requires a DataArray or Dataset with LAI array&quot;</span><span class="p">)</span>
-    <span class="n">method</span> <span class="o">=</span> <span class="n">RESAMPLING</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span>
     <span class="n">nodata</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deriving </span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> resampling (nodata=</span><span class="si">{</span><span class="n">nodata</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -683,7 +684,7 @@
 
 
 <div class="viewcode-block" id="create_lulc_lai_mapping_table">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.create_lulc_lai_mapping_table.html#hydromt_wflow.workflows.create_lulc_lai_mapping_table">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.create_lulc_lai_mapping_table.html#hydromt_wflow.workflows.landuse.create_lulc_lai_mapping_table">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_lulc_lai_mapping_table</span><span class="p">(</span>
     <span class="n">da_lulc</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">da_lai</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -832,7 +833,7 @@
 
 
 <div class="viewcode-block" id="lai_from_lulc_mapping">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai_from_lulc_mapping.html#hydromt_wflow.workflows.lai_from_lulc_mapping">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.lai_from_lulc_mapping.html#hydromt_wflow.workflows.landuse.lai_from_lulc_mapping">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lai_from_lulc_mapping</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -873,7 +874,7 @@
 
 
 <div class="viewcode-block" id="add_paddy_to_landuse">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_paddy_to_landuse.html#hydromt_wflow.workflows.add_paddy_to_landuse">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.add_paddy_to_landuse.html#hydromt_wflow.workflows.landuse.add_paddy_to_landuse">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_paddy_to_landuse</span><span class="p">(</span>
     <span class="n">landuse</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">paddy</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -938,7 +939,7 @@
 
 
 <div class="viewcode-block" id="add_planted_forest_to_landuse">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.add_planted_forest_to_landuse">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.landuse.add_planted_forest_to_landuse">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_planted_forest_to_landuse</span><span class="p">(</span>
     <span class="n">planted_forest</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -1015,6 +1016,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

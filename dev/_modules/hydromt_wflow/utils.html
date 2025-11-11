@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -461,9 +422,9 @@
   <h1>Source code for hydromt_wflow.utils</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Some utilities from the Wflow plugin.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -471,8 +432,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoDataArray</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.processes.grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">grid_from_constant</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -486,6 +447,8 @@
 <span class="p">]</span>
 
 
+<div class="viewcode-block" id="get_config">
+<a class="viewcode-back" href="../../api/advanced/_generated/hydromt_wflow.utils.get_config.html#hydromt_wflow.utils.get_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -494,38 +457,63 @@
     <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get a config value at key.</span>
+<span class="sd">    Retrieve a nested configuration value from a dictionary.</span>
+
+<span class="sd">    Keys can be specified using dot-separated paths (e.g. ``&quot;a.b.c&quot;``) to</span>
+<span class="sd">    access nested dictionaries. Optionally, the function can resolve relative</span>
+<span class="sd">    paths against a given model root.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config : dict</span>
-<span class="sd">        The config settings.</span>
+<span class="sd">        The configuration dictionary to read from.</span>
 <span class="sd">    key : str</span>
-<span class="sd">        keys are string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
-<span class="sd">    root: Path, optional</span>
-<span class="sd">        The model root.</span>
-<span class="sd">    fallback: Any, optional</span>
-<span class="sd">        fallback value if key(s) not found in config, by default None.</span>
-<span class="sd">    abs_path: bool, optional</span>
-<span class="sd">        If True return the absolute path relative to the model root,</span>
-<span class="sd">        by default False.</span>
-<span class="sd">        NOTE: this assumes the config is located in model root!</span>
+<span class="sd">        Dotted key path indicating the value to retrieve, e.g. ``&quot;a.b.c&quot;``.</span>
+<span class="sd">    root : Path, optional</span>
+<span class="sd">        Path to the model root. Used when ``abs_path=True`` to resolve</span>
+<span class="sd">        relative paths. Default is ``None``.</span>
+<span class="sd">    fallback : Any, optional</span>
+<span class="sd">        Value to return if the key path does not exist. Default is ``None``.</span>
+<span class="sd">    abs_path : bool, optional</span>
+<span class="sd">        If ``True`` and the retrieved value is a relative path, return its</span>
+<span class="sd">        absolute version relative to ``root``. Default is ``False``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    value : Any</span>
-<span class="sd">        dictionary value</span>
+<span class="sd">    Any</span>
+<span class="sd">        The value corresponding to the given key path. Returns ``fallback``</span>
+<span class="sd">        if the key does not exist.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt; config = {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}</span>
+<span class="sd">    .. code-block:: python</span>
 
-<span class="sd">    &gt;&gt; get_config(config, &#39;a&#39;)</span>
-<span class="sd">    &gt;&gt; 1</span>
+<span class="sd">       &gt;&gt;&gt; from pathlib import Path</span>
+<span class="sd">       &gt;&gt;&gt; from hydromt_wflow.utils import get_config</span>
+<span class="sd">       &gt;&gt;&gt; cfg = {</span>
+<span class="sd">       ...     &quot;model&quot;: {</span>
+<span class="sd">       ...         &quot;params&quot;: {&quot;scale&quot;: 2.5},</span>
+<span class="sd">       ...         &quot;paths&quot;: {&quot;data&quot;: &quot;input/data.csv&quot;},</span>
+<span class="sd">       ...     },</span>
+<span class="sd">       ...     &quot;verbose&quot;: True,</span>
+<span class="sd">       ... }</span>
 
-<span class="sd">    &gt;&gt; get_config(config, &#39;b.c.d&#39;)</span>
-<span class="sd">    &gt;&gt; 2</span>
+<span class="sd">       # Retrieve a simple value</span>
+<span class="sd">       &gt;&gt;&gt; get_config(cfg, &quot;verbose&quot;)</span>
+<span class="sd">       True</span>
 
+<span class="sd">       # Retrieve a nested value</span>
+<span class="sd">       &gt;&gt;&gt; get_config(cfg, &quot;model.paths.data&quot;)</span>
+<span class="sd">       &#39;input/data.csv&#39;</span>
+
+<span class="sd">       # Retrieve as absolute path relative to a model root</span>
+<span class="sd">       &gt;&gt;&gt; root = Path(&quot;/home/user/wflow_model&quot;)</span>
+<span class="sd">       &gt;&gt;&gt; get_config(cfg, &quot;model.paths.data&quot;, root=root, abs_path=True)</span>
+<span class="sd">       Path(&#39;/home/user/wflow_model/input/data.csv&#39;)</span>
+
+<span class="sd">       # Retrieve a non-existent key with fallback</span>
+<span class="sd">       &gt;&gt;&gt; get_config(cfg, &quot;model.output.folder&quot;, fallback=&quot;output&quot;)</span>
+<span class="sd">       &#39;output&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
     <span class="n">num_parts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
@@ -544,40 +532,68 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;root path is required to get absolute path from relative path&quot;</span>
                 <span class="p">)</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
 
-    <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">value</span></div>
 
 
+
+<div class="viewcode-block" id="set_config">
+<a class="viewcode-back" href="../../api/advanced/_generated/hydromt_wflow.utils.set_config.html#hydromt_wflow.utils.set_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update the config toml at key(s) with values.</span>
+<span class="sd">    Update a nested configuration dictionary using a dotted key path.</span>
 
-<span class="sd">    Parameters.</span>
+<span class="sd">    This function modifies a configuration dictionary in-place, allowing</span>
+<span class="sd">    assignment to nested keys using dot-separated paths (e.g. ``&quot;a.b.c&quot;``).</span>
+
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config : dict</span>
-<span class="sd">        The config settings.</span>
+<span class="sd">        The configuration dictionary to update.</span>
 <span class="sd">    key : str</span>
-<span class="sd">        key is a string,  with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;).</span>
+<span class="sd">        The dotted key path identifying the target value to set.</span>
+<span class="sd">    value : Any</span>
+<span class="sd">        The new value to assign at the specified key path.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The updated configuration dictionary.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    .. code-block:: ipython</span>
-<span class="sd">        &gt;&gt; config</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
-<span class="sd">        &gt;&gt; set_config(config, &#39;a&#39;, 99)</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 99, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
-<span class="sd">        &gt;&gt; set_config(config, &#39;b.d.e&#39;, 99)</span>
-<span class="sd">        &gt;&gt; {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 99}}}</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       &gt;&gt;&gt; from hydromt_wflow.utils import set_config</span>
+<span class="sd">       &gt;&gt;&gt; cfg = {&quot;model&quot;: {&quot;params&quot;: {&quot;scale&quot;: 1.0, &quot;offset&quot;: 0.0}}}</span>
+<span class="sd">       &gt;&gt;&gt; set_config(cfg, &quot;model.params.scale&quot;, 2.5)</span>
+<span class="sd">       {&#39;model&#39;: {&#39;params&#39;: {&#39;scale&#39;: 2.5, &#39;offset&#39;: 0.0}}}</span>
+
+<span class="sd">       You can also create nested keys if they do not exist:</span>
+
+<span class="sd">       &gt;&gt;&gt; set_config(cfg, &quot;model.runtime.threads&quot;, 8)</span>
+<span class="sd">       {&#39;model&#39;: {&#39;params&#39;: {&#39;scale&#39;: 2.5, &#39;offset&#39;: 0.0},</span>
+<span class="sd">                  &#39;runtime&#39;: {&#39;threads&#39;: 8}}}</span>
+
+<span class="sd">       Updating a top-level key works the same way:</span>
+
+<span class="sd">       &gt;&gt;&gt; set_config(cfg, &quot;description&quot;, &quot;Wflow test run&quot;)</span>
+<span class="sd">       {&#39;model&#39;: {&#39;params&#39;: {&#39;scale&#39;: 2.5, &#39;offset&#39;: 0.0},</span>
+<span class="sd">                  &#39;runtime&#39;: {&#39;threads&#39;: 8}},</span>
+<span class="sd">        &#39;description&#39;: &#39;Wflow test run&#39;}</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;key must be string&quot;</span><span class="p">)</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-    <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">keys</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">config</span><span class="p">)[</span><span class="n">keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">keys</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">config</span><span class="p">)[</span><span class="n">keys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">value</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="read_csv_output">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.read_csv_output.html#hydromt_wflow.utils.read_csv_output">[docs]</a>
+<a class="viewcode-back" href="../../api/advanced/_generated/hydromt_wflow.utils.read_csv_output.html#hydromt_wflow.utils.read_csv_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_csv_output</span><span class="p">(</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">GeoDataArray</span><span class="p">]:</span>
@@ -749,7 +765,7 @@
 
 
 <div class="viewcode-block" id="get_grid_from_config">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.get_grid_from_config.html#hydromt_wflow.utils.get_grid_from_config">[docs]</a>
+<a class="viewcode-back" href="../../api/advanced/_generated/hydromt_wflow.utils.get_grid_from_config.html#hydromt_wflow.utils.get_grid_from_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_grid_from_config</span><span class="p">(</span>
     <span class="n">var_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
@@ -988,6 +1004,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

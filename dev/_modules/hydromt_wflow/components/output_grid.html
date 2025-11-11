@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -476,7 +437,7 @@
 
 
 <div class="viewcode-block" id="WflowOutputGridComponent">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowOutputGridComponent</span><span class="p">(</span><span class="n">GridComponent</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ModelComponent class for Wflow netcdf_grid output.</span>
 
@@ -487,8 +448,6 @@
 <span class="sd">    xarray.Dataset for regular grid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WflowOutputGridComponent.__init__">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
@@ -516,12 +475,11 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">region_component</span><span class="o">=</span><span class="n">region_component</span><span class="p">,</span>
             <span class="n">region_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
+        <span class="p">)</span>
 
     <span class="c1">## I/O methods</span>
 <div class="viewcode-block" id="WflowOutputGridComponent.read">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowOutputGridComponent.read.html#hydromt_wflow.components.WflowOutputGridComponent.read">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent.read">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read netcdf_grid model output at root/dir_output/filename.</span>
 
@@ -553,15 +511,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowOutputGridComponent.write">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent.write">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Skip writing output files.</span>
 
 <span class="sd">        Output files are model results and are therefore not written by HydroMT.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;netcdf_grid is an output of Wflow and will not be written.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;netcdf_grid is an output of Wflow and will not be written.&quot;</span><span class="p">)</span></div>
+
 
     <span class="c1">## Set methods</span>
+<div class="viewcode-block" id="WflowOutputGridComponent.set">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowOutputGridComponent.html#hydromt_wflow.components.WflowOutputGridComponent.set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -601,6 +564,7 @@
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="p">)</span></div>
+</div>
 
 </pre></div>
 
@@ -619,6 +583,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

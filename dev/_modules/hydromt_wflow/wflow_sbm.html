@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -496,9 +457,13 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.html#hydromt_wflow.WflowSbmModel">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.html#hydromt_wflow.WflowSbmModel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowSbmModel</span><span class="p">(</span><span class="n">WflowBaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read or Write a wflow model.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to read, write, build, update wflow-SBM models.</span>
+
+<span class="sd">    This class provides methods to manipulate the wflow-SBM model components</span>
+<span class="sd">    and their data. It extends the :py:class:`hydromt_wflow.WflowBaseModel`</span>
+<span class="sd">    with specific methods for the setup of the wflow-SBM model schematisation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -519,7 +484,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_sbm&quot;</span>
 
 <div class="viewcode-block" id="WflowSbmModel.__init__">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.html#hydromt_wflow.WflowSbmModel.__init__">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.html#hydromt_wflow.WflowSbmModel.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -544,7 +509,7 @@
 
     <span class="c1">## SETUP METHODS</span>
 <div class="viewcode-block" id="WflowSbmModel.setup_rivers">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_rivers.html#hydromt_wflow.WflowSbmModel.setup_rivers">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_rivers.html#hydromt_wflow.WflowSbmModel.setup_rivers">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -693,7 +658,7 @@
             <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">river_routing</span> <span class="o">==</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
             <span class="n">postfix</span> <span class="o">=</span> <span class="p">{</span>
@@ -715,10 +680,12 @@
                 <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
                 <span class="n">river_d8</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowSbmModel.setup_river_roughness">
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_river_roughness.html#hydromt_wflow.WflowSbmModel.setup_river_roughness">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_river_roughness</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -786,12 +753,13 @@
             <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_nriver</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_nriver</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_nriver</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># update config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_nriver</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_nriver</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="WflowSbmModel.setup_floodplains">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_floodplains.html#hydromt_wflow.WflowSbmModel.setup_floodplains">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_floodplains.html#hydromt_wflow.WflowSbmModel.setup_floodplains">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_floodplains</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -881,7 +849,7 @@
 <span class="sd">        pyflwdir.FlwdirRaster.dem_adjust</span>
 <span class="sd">        setup_rivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Floodplains (1d or 2d) are currently only supported with </span><span class="se">\</span>
 <span class="s2">local inertial river routing&quot;</span>
@@ -953,7 +921,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">drop_dims</span><span class="p">(</span><span class="s2">&quot;flood_depth&quot;</span><span class="p">)</span>
 
             <span class="n">da_fldpln</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;floodplain_volume&quot;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_fldpln</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_fldpln</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">da_fldpln</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;2d&quot;</span><span class="p">:</span>
@@ -989,11 +957,11 @@
                 <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
                 <span class="n">river_d8</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
             <span class="c1"># Update the bankfull elevation map</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.static.river_bank_water__elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;input.static.river_bank_water__elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
             <span class="c1"># In this case river_bank_elevation is also used for the ground elevation?</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;input.static.land_surface_water_flow__ground_elevation&quot;</span><span class="p">,</span> <span class="n">elevtn_map</span>
             <span class="p">)</span>
 
@@ -1001,21 +969,21 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;Update wflow config model.floodplain_1d__flag=&quot;</span><span class="si">{</span><span class="n">floodplain_1d</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.floodplain_1d__flag&quot;</span><span class="p">,</span> <span class="n">floodplain_1d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.floodplain_1d__flag&quot;</span><span class="p">,</span> <span class="n">floodplain_1d</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.land_routing=&quot;</span><span class="si">{</span><span class="n">land_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.land_routing&quot;</span><span class="p">,</span> <span class="n">land_routing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.land_routing&quot;</span><span class="p">,</span> <span class="n">land_routing</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;1d&quot;</span><span class="p">:</span>
             <span class="c1"># Add states</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.floodplain_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;floodplain_instantaneous_q&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.floodplain_water__depth&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;floodplain_h&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_q&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1040,11 +1008,11 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Add local_inertial land routing states</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_qx&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;land_instantaneous_qy&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1069,7 +1037,7 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_reservoirs_no_control">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control.html#hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control.html#hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs_no_control</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1210,7 +1178,7 @@
             <span class="n">reservoirs_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
@@ -1253,7 +1221,9 @@
                     <span class="n">i</span> <span class="o">=</span> <span class="n">fns_ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
                     <span class="n">rating_fn</span> <span class="o">=</span> <span class="n">rating_curve_fns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                     <span class="c1"># Read data</span>
-                    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">rating_fn</span><span class="p">)</span> <span class="ow">or</span> <span class="n">rating_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">rating_fn</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">contains_source</span><span class="p">(</span>
+                        <span class="n">rating_fn</span>
+                    <span class="p">):</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                             <span class="sa">f</span><span class="s2">&quot;Preparing reservoir rating curve data from </span><span class="si">{</span><span class="n">rating_fn</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
@@ -1311,21 +1281,21 @@
 
         <span class="c1"># add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># write reservoirs with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_reservoirs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_reservoirs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
         <span class="c1"># Prepare a combined geoms of all reservoirs</span>
         <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms</span><span class="p">(</span>
             <span class="n">ds_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
         <span class="c1"># add the tables</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rating_curves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
 
         <span class="c1"># Reservoir settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1342,7 +1312,7 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_reservoirs_simple_control">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_reservoirs_simple_control.html#hydromt_wflow.WflowSbmModel.setup_reservoirs_simple_control">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_reservoirs_simple_control.html#hydromt_wflow.WflowSbmModel.setup_reservoirs_simple_control">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs_simple_control</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1478,7 +1448,7 @@
 <span class="sd">            &quot;meta_reservoirs_simple_control&quot; for meta_reservoirs_simple_control.geojson.</span>
 <span class="sd">        kwargs: optional</span>
 <span class="sd">            Keyword arguments passed to the method</span>
-<span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
+<span class="sd">            hydromt.DataCatalog.get_geodataframe()</span>
 <span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
         <span class="c1"># retrieve data for basin</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing reservoir with simple control maps.&quot;</span><span class="p">)</span>
@@ -1487,7 +1457,7 @@
             <span class="n">reservoirs_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Skip method if no data is returned</span>
         <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1511,7 +1481,7 @@
             <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
             <span class="n">ds_reservoirs</span><span class="o">=</span><span class="n">ds_res</span><span class="p">,</span>
             <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span>
-            <span class="n">output_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;validation&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># merge with existing reservoirs</span>
@@ -1545,19 +1515,19 @@
 
         <span class="c1"># add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
         <span class="c1"># write reservoirs with param values to geoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_res</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
         <span class="c1"># Prepare a combined geoms of all reservoirs</span>
         <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms</span><span class="p">(</span>
             <span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
 
         <span class="c1"># update toml</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
             <span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1569,7 +1539,7 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_glaciers">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_glaciers.html#hydromt_wflow.WflowSbmModel.setup_glaciers">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_glaciers.html#hydromt_wflow.WflowSbmModel.setup_glaciers">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_glaciers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1653,21 +1623,22 @@
         <span class="p">)</span>
 
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_glac</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># update config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.glacier__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.variables.glacier_ice__leq_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.glacier__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;state.variables.glacier_ice__leq_depth&quot;</span><span class="p">,</span> <span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">)</span>
         <span class="c1"># update geoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_lulcmaps_with_paddy">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_with_paddy</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">paddy_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">output_paddy_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1682,24 +1653,24 @@
             <span class="kc">None</span><span class="p">,</span>
             <span class="kc">None</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_canopy__light_extinction_coefficient&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_manning_n&quot;</span><span class="p">:</span> <span class="s2">&quot;land_surface_water_flow__manning_n_parameter&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__depth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__specific_leaf_storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_wood_water__storage_capacity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation__crop_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_high&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h3_low&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_root__feddes_critical_pressure_head_h4&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">paddy_waterlevels</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_kext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_manning_n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_root_depth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_leaf_storage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_wood_storage&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h3_high&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h3_low&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vegetation_feddes_h4&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">paddy_waterlevels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;demand_paddy_h_min&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
             <span class="s2">&quot;demand_paddy_h_opt&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
             <span class="s2">&quot;demand_paddy_h_max&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
@@ -1821,22 +1792,26 @@
 
 <span class="sd">            * Required variables: &#39;bd_sl*&#39; [g/cm3], &#39;clyppt_sl*&#39; [%], &#39;sltppt_sl*&#39; [%],</span>
 <span class="sd">              &#39;ph_sl*&#39; [-].</span>
-
-<span class="sd">        wflow_thicknesslayers: list</span>
+<span class="sd">        wflow_thicknesslayers: list, optional</span>
 <span class="sd">            List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]</span>
-<span class="sd">        target_conductivity: list</span>
+<span class="sd">        target_conductivity: list, optional</span>
 <span class="sd">            List of target vertical conductivities [mm/day] for each layer in</span>
 <span class="sd">            ``wflow_thicknesslayers``. Set value to `None` if no specific value is</span>
 <span class="sd">            required, by default [None, None, 5, None, None].</span>
-<span class="sd">        lulc_vars : dict</span>
-<span class="sd">            Dictionnary of landuse parameters to prepare. The names are the</span>
-<span class="sd">            the columns of the mapping file and the values are the corresponding</span>
-<span class="sd">            Wflow.jl variables.</span>
-<span class="sd">        paddy_waterlevels : dict</span>
+<span class="sd">        lulc_vars : list[str], optional</span>
+<span class="sd">            List of landuse parameters to prepare.</span>
+<span class="sd">            The names are the columns of the mapping file.</span>
+<span class="sd">            Can be a subset of: [&quot;landuse&quot;, &quot;vegetation_kext&quot;, &quot;land_manning_n&quot;,</span>
+<span class="sd">            &quot;soil_compacted_fraction&quot;, &quot;vegetation_root_depth&quot;,</span>
+<span class="sd">            &quot;vegetation_leaf_storage&quot;, &quot;vegetation_wood_storage&quot;, &quot;land_water_fraction&quot;,</span>
+<span class="sd">            &quot;vegetation_crop_factor&quot;, &quot;vegetation_feddes_alpha_h1&quot;,</span>
+<span class="sd">            &quot;vegetation_feddes_h1&quot;, &quot;vegetation_feddes_h2&quot;, &quot;vegetation_feddes_h3_high&quot;,</span>
+<span class="sd">            &quot;vegetation_feddes_h3_low&quot;, &quot;vegetation_feddes_h4&quot;]</span>
+<span class="sd">        paddy_waterlevels : dict, optional</span>
 <span class="sd">            Dictionary with the minimum, optimal and maximum water levels for paddy</span>
 <span class="sd">            fields [mm]. By default {&quot;demand_paddy_h_min&quot;: 20, &quot;demand_paddy_h_opt&quot;: 50,</span>
 <span class="sd">            &quot;demand_paddy_h_max&quot;: 80}</span>
-<span class="sd">        save_high_resolution_lulc : bool</span>
+<span class="sd">        save_high_resolution_lulc : bool, optional</span>
 <span class="sd">            Save the high resolution landuse map merged with the paddies to the static</span>
 <span class="sd">            folder. By default False.</span>
 <span class="sd">        output_names_suffix : str, optional</span>
@@ -1847,10 +1822,14 @@
 <span class="sd">            soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LULC parameter maps including paddies.&quot;</span><span class="p">)</span>
+
+        <span class="n">workflows</span><span class="o">.</span><span class="n">validate_lulc_vars</span><span class="p">(</span><span class="n">lulc_vars</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">output_names_suffix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># rename lulc_vars with the suffix</span>
             <span class="n">output_names</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">v</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="n">workflows</span><span class="o">.</span><span class="n">LULC_VARS_MAPPING</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lulc_vars</span>
             <span class="p">}</span>
             <span class="c1"># Add soil_ksat_vertical_factor</span>
             <span class="n">output_names</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">(</span>
@@ -1858,18 +1837,9 @@
             <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">output_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">output_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">workflows</span><span class="o">.</span><span class="n">LULC_VARS_MAPPING</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="p">}</span>
         <span class="c1"># update self._MAPS and self._WFLOW_NAMES with user defined output names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
-
-        <span class="c1"># As landuse is not a wflow variable, we update the name manually in self._MAPS</span>
-        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;meta_landuse&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="s2">&quot;landuse&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">output_names_suffix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;meta_landuse_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="c1"># rename dict for the staticmaps (hydromt names are not used in that case)</span>
-            <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
-            <span class="k">if</span> <span class="s2">&quot;landuse&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="p">:</span>
-                <span class="n">rmdict</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;meta_landuse_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Check if soil data is available</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
@@ -1886,7 +1856,7 @@
         <span class="p">)</span>
         <span class="n">df_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
             <span class="n">lulc_mapping_fn</span><span class="p">,</span>
-            <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># only used if fn_map is a file path</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}},</span>
         <span class="p">)</span>
         <span class="n">output_paddy_class</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">paddy_class</span> <span class="k">if</span> <span class="n">output_paddy_class</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">output_paddy_class</span>
@@ -1902,7 +1872,9 @@
                 <span class="n">paddy_mapping_fn</span> <span class="o">=</span> <span class="s2">&quot;paddy_mapping_default&quot;</span>
             <span class="n">df_paddy_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
                 <span class="n">paddy_mapping_fn</span><span class="p">,</span>
-                <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                <span class="n">source_kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+                <span class="p">},</span>
             <span class="p">)</span>
 
             <span class="n">landuse</span><span class="p">,</span> <span class="n">df_mapping</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_paddy_to_landuse</span><span class="p">(</span>
@@ -1923,20 +1895,16 @@
 
         <span class="c1"># Prepare landuse parameters</span>
         <span class="n">landuse_maps</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">landuse</span><span class="p">(</span>
-            <span class="n">da</span><span class="o">=</span><span class="n">landuse</span><span class="p">,</span>
-            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-            <span class="n">df</span><span class="o">=</span><span class="n">df_mapping</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">lulc_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">landuse</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df_mapping</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">lulc_vars</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">landuse_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-        <span class="c1"># update config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">landuse_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_landuse_on_staticmaps</span><span class="p">(</span><span class="n">landuse_maps</span><span class="p">,</span> <span class="n">lulc_vars</span><span class="p">,</span> <span class="n">output_names_suffix</span><span class="p">)</span>
 
         <span class="c1"># Update soil parameters if there are paddies in the domain</span>
         <span class="c1"># Get paddy pixels at model resolution</span>
         <span class="n">wflow_paddy</span> <span class="o">=</span> <span class="n">landuse_maps</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">output_paddy_class</span>
         <span class="k">if</span> <span class="n">wflow_paddy</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
                 <span class="n">wflow_thicknesslayers</span>
             <span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -1969,23 +1937,23 @@
                 <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_thicknesslayers</span><span class="p">,</span>
                 <span class="n">target_conductivity</span><span class="o">=</span><span class="n">target_conductivity</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="n">soil_maps</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">],</span>
                 <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">])</span>
             <span class="k">if</span> <span class="s2">&quot;soil_brooks_corey_c&quot;</span> <span class="ow">in</span> <span class="n">soil_maps</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                     <span class="n">soil_maps</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">],</span>
                     <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">],</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span>
             <span class="c1"># Add paddy water levels to the config</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">paddy_waterlevels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">.value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">.value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="c1"># Update the states</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
                 <span class="s2">&quot;state.variables.paddy_surface_water__depth&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_h&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1993,7 +1961,7 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_laimaps">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_laimaps.html#hydromt_wflow.WflowSbmModel.setup_laimaps">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_laimaps.html#hydromt_wflow.WflowSbmModel.setup_laimaps">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_laimaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2101,12 +2069,12 @@
         <span class="p">)</span>
         <span class="c1"># Rename the first dimension to time</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">da_lai</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;cyclic&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_laimaps_from_lulc_mapping">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowSbmModel.setup_laimaps_from_lulc_mapping">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowSbmModel.setup_laimaps_from_lulc_mapping">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_laimaps_from_lulc_mapping</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2152,7 +2120,7 @@
         <span class="p">)</span>
         <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
             <span class="n">lai_mapping_fn</span><span class="p">,</span>
-            <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># only used if fn_map is a file path</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}},</span>
         <span class="p">)</span>
         <span class="c1"># process landuse with LULC-LAI mapping table</span>
         <span class="n">da_lai</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">lai_from_lulc_mapping</span><span class="p">(</span>
@@ -2161,13 +2129,13 @@
             <span class="n">df</span><span class="o">=</span><span class="n">df_lai_mapping</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Add to grid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">])</span>
         <span class="c1"># Add to config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;cyclic&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_rootzoneclim">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_rootzoneclim.html#hydromt_wflow.WflowSbmModel.setup_rootzoneclim">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_rootzoneclim.html#hydromt_wflow.WflowSbmModel.setup_rootzoneclim">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_rootzoneclim</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2394,15 +2362,15 @@
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">dsout</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="n">dsout</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">999</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rootzone_storage&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rootzone_storage&quot;</span><span class="p">)</span>
 
         <span class="c1"># update config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.static.vegetation_root__depth&quot;</span><span class="p">,</span> <span class="n">output_name_rootingdepth</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;input.static.vegetation_root__depth&quot;</span><span class="p">,</span> <span class="n">output_name_rootingdepth</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_soilmaps">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_soilmaps.html#hydromt_wflow.WflowSbmModel.setup_soilmaps">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_soilmaps.html#hydromt_wflow.WflowSbmModel.setup_soilmaps">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2513,15 +2481,15 @@
             <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_thicknesslayers</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">reset_coords</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
         <span class="c1"># Update the toml file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.soil_layer__thickness&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_ksathorfrac">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_ksathorfrac.html#hydromt_wflow.WflowSbmModel.setup_ksathorfrac">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_ksathorfrac.html#hydromt_wflow.WflowSbmModel.setup_ksathorfrac">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_ksathorfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2582,12 +2550,12 @@
             <span class="n">daout</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">output_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_var</span><span class="p">:</span> <span class="n">daout</span><span class="o">.</span><span class="n">name</span><span class="p">})</span>
         <span class="c1"># Set the grid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">daout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">daout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">daout</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_ksatver_vegetation">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowSbmModel.setup_ksatver_vegetation">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowSbmModel.setup_ksatver_vegetation">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_ksatver_vegetation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2648,13 +2616,13 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_var</span><span class="p">:</span> <span class="n">output_name</span><span class="p">})</span>
         <span class="c1"># add to grid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ksatver_vegetation</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ksatver_vegetation</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
         <span class="c1"># update config file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">output_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_allocation_areas">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_allocation_areas.html#hydromt_wflow.WflowSbmModel.setup_allocation_areas">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_allocation_areas.html#hydromt_wflow.WflowSbmModel.setup_allocation_areas">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_allocation_areas</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2717,15 +2685,15 @@
             <span class="n">priority_basins</span><span class="o">=</span><span class="n">priority_basins</span><span class="p">,</span>
             <span class="n">minimum_area</span><span class="o">=</span><span class="n">minimum_area</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_alloc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_alloc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
         <span class="c1"># Update the config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.static.land_water_allocation_area__count&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;input.static.land_water_allocation_area__count&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
         <span class="c1"># Add alloc to geoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_alloc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_alloc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_allocation_surfacewaterfrac">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_allocation_surfacewaterfrac.html#hydromt_wflow.WflowSbmModel.setup_allocation_surfacewaterfrac">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_allocation_surfacewaterfrac.html#hydromt_wflow.WflowSbmModel.setup_allocation_surfacewaterfrac">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_allocation_surfacewaterfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2845,14 +2813,14 @@
         <span class="c1"># Update the settings toml</span>
         <span class="n">wflow_var</span> <span class="o">=</span> <span class="s2">&quot;land_surface_water__withdrawal_fraction&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_var</span><span class="p">:</span> <span class="n">output_name</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output_name</span><span class="p">)</span>
 
         <span class="c1"># Set the dataarray to the wflow grid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">w_frac</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">w_frac</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_domestic_demand">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_domestic_demand.html#hydromt_wflow.WflowSbmModel.setup_domestic_demand">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_domestic_demand.html#hydromt_wflow.WflowSbmModel.setup_domestic_demand">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_domestic_demand</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2960,18 +2928,18 @@
         <span class="p">)</span>
         <span class="c1"># Add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">domestic</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">population_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;meta_population&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;meta_population&quot;</span><span class="p">)</span>
 
         <span class="c1"># Update toml</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;cyclic&quot;</span> <span class="k">if</span> <span class="n">_cyclic</span> <span class="k">else</span> <span class="s2">&quot;static&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_domestic_demand_from_population">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_domestic_demand_from_population.html#hydromt_wflow.WflowSbmModel.setup_domestic_demand_from_population">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_domestic_demand_from_population.html#hydromt_wflow.WflowSbmModel.setup_domestic_demand_from_population">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_domestic_demand_from_population</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3052,18 +3020,18 @@
 
         <span class="c1"># Add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">domestic</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">population_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">popu_scaled</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;meta_population&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">popu_scaled</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;meta_population&quot;</span><span class="p">)</span>
 
         <span class="c1"># Update toml</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;cyclic&quot;</span> <span class="k">if</span> <span class="n">_cyclic</span> <span class="k">else</span> <span class="s2">&quot;static&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">domestic</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_other_demand">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_other_demand.html#hydromt_wflow.WflowSbmModel.setup_other_demand">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_other_demand.html#hydromt_wflow.WflowSbmModel.setup_other_demand">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_other_demand</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3157,21 +3125,21 @@
             <span class="n">ds_method</span><span class="o">=</span><span class="n">resampling_method</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">demand</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">demand</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">demand</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
         <span class="c1"># Update the settings toml</span>
         <span class="k">if</span> <span class="s2">&quot;domestic_gross&quot;</span> <span class="ow">in</span> <span class="n">demand</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.domestic__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;industry_gross&quot;</span> <span class="ow">in</span> <span class="n">demand</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.industry__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.industry__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;livestock_gross&quot;</span> <span class="ow">in</span> <span class="n">demand</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.livestock__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.livestock__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;cyclic&quot;</span> <span class="k">if</span> <span class="n">_cyclic</span> <span class="k">else</span> <span class="s2">&quot;static&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">demand</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">data_type</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_irrigation">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_irrigation.html#hydromt_wflow.WflowSbmModel.setup_irrigation">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_irrigation.html#hydromt_wflow.WflowSbmModel.setup_irrigation">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_irrigation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3184,7 +3152,7 @@
         <span class="n">lulcmap_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_landuse&quot;</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;irrigated_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~irrigated-non-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;irrigated_non_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
             <span class="s2">&quot;irrigated_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;irrigated_non_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
@@ -3312,8 +3280,8 @@
                 <span class="p">[</span><span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_paddy</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_paddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_paddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span>
@@ -3328,7 +3296,7 @@
                 <span class="n">data_type</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">]</span>
@@ -3345,9 +3313,9 @@
                 <span class="p">[</span><span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
             <span class="c1"># Update the config</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span>
@@ -3363,11 +3331,11 @@
                 <span class="n">data_type</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_irrigation_from_vector">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_irrigation_from_vector.html#hydromt_wflow.WflowSbmModel.setup_irrigation_from_vector">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_irrigation_from_vector.html#hydromt_wflow.WflowSbmModel.setup_irrigation_from_vector">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_irrigation_from_vector</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3378,7 +3346,7 @@
         <span class="n">lai_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;irrigated_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land~irrigated-non-paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;irrigated_non_paddy_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span>
             <span class="s2">&quot;irrigated_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
             <span class="s2">&quot;irrigated_non_paddy__irrigation_trigger_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
@@ -3498,9 +3466,9 @@
                 <span class="p">[</span><span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_paddy</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_paddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_paddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
             <span class="c1"># Update the config</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span>
@@ -3515,7 +3483,7 @@
                 <span class="n">data_type</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">]</span>
@@ -3532,9 +3500,9 @@
                 <span class="p">[</span><span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_nonpaddy</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
             <span class="c1"># Update the config</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span>
@@ -3550,11 +3518,11 @@
                 <span class="n">data_type</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.water_demand.nonpaddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_1dmodel_connection">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html#hydromt_wflow.WflowSbmModel.setup_1dmodel_connection">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html#hydromt_wflow.WflowSbmModel.setup_1dmodel_connection">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_1dmodel_connection</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3689,7 +3657,7 @@
 
         <span class="c1"># Derive tributary gauge map</span>
         <span class="k">if</span> <span class="s2">&quot;gauges&quot;</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="c1"># Derive the gauges staticgeoms</span>
             <span class="n">gdf_tributary</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
             <span class="n">centroid</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">planar_operation_in_utm</span><span class="p">(</span>
@@ -3699,7 +3667,7 @@
             <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
                 <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_tributary</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_tributary</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Add a check that all gauges are on the river</span>
             <span class="k">if</span> <span class="p">(</span>
@@ -3730,19 +3698,19 @@
                 <span class="p">)</span>
 
         <span class="c1"># Derive subcatchment map</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">gdf_subcatch</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
         <span class="n">gdf_subcatch</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_subcatch</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_subcatch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_subcatch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Subcatchment map for river cells only (to be able to save river outputs</span>
         <span class="c1"># in wflow)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">gdf_subcatch_riv</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
         <span class="n">gdf_subcatch_riv</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_subcatch_riv</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_subcatch_riv</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_subcatch_riv</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatchment_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Update toml</span>
         <span class="k">if</span> <span class="n">update_toml</span><span class="p">:</span>
@@ -3756,7 +3724,7 @@
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_precip_forcing">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_precip_forcing.html#hydromt_wflow.WflowSbmModel.setup_precip_forcing">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_precip_forcing.html#hydromt_wflow.WflowSbmModel.setup_precip_forcing">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_precip_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3798,9 +3766,9 @@
 <span class="sd">            Additional arguments passed to the forcing function.</span>
 <span class="sd">            See hydromt.model.processes.meteo.precip for more details.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
-        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
-        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="n">precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
@@ -3837,12 +3805,12 @@
         <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn</span><span class="p">})</span>
         <span class="k">if</span> <span class="n">precip_clim_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_clim_fn&quot;</span><span class="p">:</span> <span class="n">precip_clim_fn</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_precip_from_point_timeseries">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_precip_from_point_timeseries.html#hydromt_wflow.WflowSbmModel.setup_precip_from_point_timeseries">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_precip_from_point_timeseries.html#hydromt_wflow.WflowSbmModel.setup_precip_from_point_timeseries">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_precip_from_point_timeseries</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3916,9 +3884,9 @@
 <span class="sd">        hydromt_wflow.workflows.forcing.spatial_interpolation</span>
 <span class="sd">        `wradlib.ipol.interpolate &lt;https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
-        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
-        <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">timestep</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
@@ -3972,7 +3940,7 @@
                     <span class="n">precip_stations_fn</span><span class="p">,</span>
                     <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
                     <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
-                    <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                    <span class="c1"># assert_gtype= &quot;Point&quot;, hydromt#1243</span>
                     <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="c1"># Use station ids from gdf_stations when reading the DataFrame</span>
@@ -4022,16 +3990,16 @@
 
         <span class="c1"># Update meta attributes (used for default output filename later)</span>
         <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn_str</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span>
 
         <span class="c1"># Add to geoms</span>
         <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_stations</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stations_precipitation&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_stations</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stations_precipitation&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_temp_pet_forcing">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowSbmModel.setup_temp_pet_forcing">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowSbmModel.setup_temp_pet_forcing">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4130,9 +4098,9 @@
 <span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
 <span class="sd">            large/small catchments. By default None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
-        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
-        <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">timestep</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
@@ -4246,7 +4214,7 @@
                 <span class="s2">&quot;pet_method&quot;</span><span class="p">:</span> <span class="n">pet_method</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">pet_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span>
 
         <span class="c1"># make sure only temp is written to netcdf</span>
@@ -4275,12 +4243,12 @@
                 <span class="n">method</span><span class="o">=</span><span class="n">fillna_method</span><span class="p">,</span>
                 <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_pet_forcing">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_pet_forcing.html#hydromt_wflow.WflowSbmModel.setup_pet_forcing">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_pet_forcing.html#hydromt_wflow.WflowSbmModel.setup_pet_forcing">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4312,9 +4280,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing potential evapotranspiration forcing maps.&quot;</span><span class="p">)</span>
 
-        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
-        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
-        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
 
         <span class="n">pet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">pet_fn</span><span class="p">,</span>
@@ -4335,12 +4303,12 @@
 
         <span class="c1"># Update meta attributes (used for default output filename later)</span>
         <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;pet_fn&quot;</span><span class="p">:</span> <span class="n">pet_fn</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">pet_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;forcing&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.setup_cold_states">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.setup_cold_states.html#hydromt_wflow.WflowSbmModel.setup_cold_states">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_cold_states.html#hydromt_wflow.WflowSbmModel.setup_cold_states">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_cold_states</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4411,14 +4379,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
 
         <span class="c1"># Update config to read the states</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.cold_start__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.cold_start__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="c1"># Update states variables names in config</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">states_config</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">states_config</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">states_config</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.clip">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">clip</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -4454,7 +4422,7 @@
 <span class="sd">            :py:meth:`~hydromt.raster.Raster.clip_geom`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Reservoir maps that will be removed if no reservoirs after clipping</span>
-        <span class="c1"># key: staticmaps name,  value: wflow intput variable name</span>
+        <span class="c1"># key: staticmaps name,  value: wflow input variable name</span>
         <span class="n">reservoir_maps</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">],</span>
@@ -4477,7 +4445,7 @@
 
         <span class="c1"># Reservoir states that will be removed if no reservoirs after clipping</span>
         <span class="c1"># key: states name,  value: wflow state variable name</span>
-        <span class="n">reservoir_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+        <span class="n">reservoir_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
             <span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">,</span>
             <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -4513,11 +4481,11 @@
             <span class="c1"># Clear and add</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys_to_keep</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">old_tables</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">old_tables</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSbmModel.upgrade_to_v1_wflow">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSbmModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSbmModel.upgrade_to_v1_wflow">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSbmModel.upgrade_to_v1_wflow">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">upgrade_to_v1_wflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -4537,7 +4505,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
 
         <span class="c1"># Merge lakes and reservoirs layers</span>
         <span class="n">ds_res</span><span class="p">,</span> <span class="n">vars_to_remove</span><span class="p">,</span> <span class="n">config_opt</span> <span class="o">=</span> <span class="n">convert_reservoirs_to_wflow_v1_sbm</span><span class="p">(</span>
@@ -4548,10 +4516,10 @@
             <span class="c1"># Remove older maps from grid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_remove</span><span class="p">)</span>
             <span class="c1"># Add new reservoir maps to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
             <span class="c1"># Update the config with the new names</span>
             <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_opt</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 </div>
 
 </pre></div>
@@ -4571,6 +4539,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

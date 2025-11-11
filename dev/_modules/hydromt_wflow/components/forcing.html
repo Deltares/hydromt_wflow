@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -469,9 +430,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_nc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">hydromt_step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridComponent</span><span class="p">,</span> <span class="n">ModelComponent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.writers</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_nc</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.components</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
@@ -479,9 +441,11 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+<span class="n">_DATETIME_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span>
+
 
 <div class="viewcode-block" id="WflowForcingComponent">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowForcingComponent</span><span class="p">(</span><span class="n">GridComponent</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wflow forcing component.</span>
 
@@ -491,8 +455,6 @@
 <span class="sd">    regular grid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WflowForcingComponent.__init__">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
@@ -523,10 +485,12 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">region_component</span><span class="o">=</span><span class="n">region_component</span><span class="p">,</span>
             <span class="n">region_filename</span><span class="o">=</span><span class="n">region_filename</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
+        <span class="p">)</span>
 
     <span class="c1">## I/O methods</span>
+<div class="viewcode-block" id="WflowForcingComponent.read">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.read">[docs]</a>
+    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -556,8 +520,12 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">p_input</span><span class="p">,</span>
             <span class="n">mask_and_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="WflowForcingComponent.write">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.write">[docs]</a>
+    <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -568,10 +536,10 @@
         <span class="n">decimals</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write forcing model data.</span>
 
-<span class="sd">        If no ``filename` path is provided and path_forcing from the wflow toml exists,</span>
+<span class="sd">        If no ``filename`` path is provided and path_forcing from the wflow toml exists,</span>
 <span class="sd">        the following default filenames are used:</span>
 
 <span class="sd">            * Default name format (with downscaling):</span>
@@ -695,10 +663,9 @@
                 <span class="n">gdal_compliant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">rename_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">force_sn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">compute</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">to_netcdf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="n">encoding</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">},</span>
             <span class="p">)</span>
         <span class="c1"># Or per period</span>
         <span class="k">else</span><span class="p">:</span>
@@ -717,23 +684,21 @@
                     <span class="n">gdal_compliant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">rename_dims</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">force_sn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">compute</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">force_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                    <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
-                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                    <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">to_netcdf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="n">encoding</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">},</span>
                 <span class="p">)</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_*</span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Set back to the config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
-            <span class="s2">&quot;time.starttime&quot;</span><span class="p">,</span> <span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">,</span> <span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">,</span> <span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">_DATETIME_FORMAT</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">,</span> <span class="n">end_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">_DATETIME_FORMAT</span><span class="p">))</span></div>
 
-        <span class="k">return</span>
 
     <span class="c1">## Mutating methods</span>
+<div class="viewcode-block" id="WflowForcingComponent.set">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -772,8 +737,11 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="WflowForcingComponent.clip">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.clip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clip the forcing component to the region of the region component.</span>
 
@@ -792,7 +760,8 @@
             <span class="n">region_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grid_data</span><span class="p">()</span>
             <span class="n">ds_forcing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_bbox</span><span class="p">(</span><span class="n">region_grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>  <span class="c1"># clear existing forcing</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">)</span></div>
+
 
     <span class="c1">### Internal methods</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_new_filename</span><span class="p">(</span>
@@ -884,15 +853,14 @@
         <span class="n">endtime</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">endtime</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_is_empty</span><span class="p">():</span>
-            <span class="n">DATETIME_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Write forcing skipped: dataset is empty (no variables or data). Ensure&quot;</span>
                 <span class="s2">&quot; that forcing data is loaded before calling &#39;write&#39;.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span>
                 <span class="kc">None</span><span class="p">,</span>
-                <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">DATETIME_FORMAT</span><span class="p">),</span>
-                <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">endtime</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">DATETIME_FORMAT</span><span class="p">),</span>
+                <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">_DATETIME_FORMAT</span><span class="p">),</span>
+                <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">endtime</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">_DATETIME_FORMAT</span><span class="p">),</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span>
@@ -901,7 +869,36 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the forcing data is empty.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span>
             <span class="n">var</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="WflowForcingComponent.test_equal">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowForcingComponent.html#hydromt_wflow.components.WflowForcingComponent.test_equal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ModelComponent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test if two forcing components are equal.</span>
+
+<span class="sd">        Checks the model component type as well as the data variables and their values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : ModelComponent</span>
+<span class="sd">            The component to compare against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[bool, Dict[str, str]]</span>
+<span class="sd">            True if the components are equal, and a dict with the associated errors per</span>
+<span class="sd">            property checked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">errors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="n">errors</span><span class="p">[</span><span class="s2">&quot;__class__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;other does not inherit from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2">.&quot;</span>
+
+        <span class="c1"># Check dimensions</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">data_errors</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">test_equal_grid_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data_errors</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">errors</span></div>
+</div>
 
 </pre></div>
 
@@ -920,6 +917,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

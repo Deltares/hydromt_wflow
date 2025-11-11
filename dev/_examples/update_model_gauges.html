@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -110,7 +110,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -137,29 +137,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -173,15 +153,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -299,29 +279,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -333,15 +290,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -433,11 +390,11 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow outputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clip_model.html">Clip a Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/overview/use_case_examples">User's stories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
 </ul>
 </div>
@@ -502,7 +459,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="admonition tip">
+  <div class="admonition tip" id="example-update-model-gauges">
 <p class="admonition-title">Tip</p>
 <div>
     For an interactive online version click here:
@@ -596,8 +553,8 @@ Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
   Example usage: --------------
 
   Update Wflow model components outlined in an .yml configuration file and
-  write the model to a directory: hydromt update wflow /path/to/model_root  -o
-  /path/to/model_out  -i /path/to/wflow_config.yml  -d
+  write the model to a directory: hydromt update wflow_sbm /path/to/model_root
+  -o /path/to/model_out  -i /path/to/wflow_config.yml  -d
   /path/to/data_catalog.yml -v
 
 Options:
@@ -657,56 +614,54 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-10-15 02:41:04,432 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
-2025-10-15 02:41:04,432 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2025-10-15 02:41:04,432 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:04,432 - hydromt.cli.main - main - INFO - User settings:
-2025-10-15 02:41:04,466 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin
-2025-10-15 02:41:04,466 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-10-15 02:41:04,466 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-10-15 02:41:04,496 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-10-15 02:41:04,496 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-10-15 02:41:04,497 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-10-15 02:41:05,705 - hydromt.model.components.tables - tables - INFO - Reading model table files.
-2025-10-15 02:41:05,705 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - update: setup_gauges
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.basename=test-flow
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;precip&#39;]
-2025-10-15 02:41:05,708 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;]
-2025-10-15 02:41:05,709 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
-2025-10-15 02:41:05,715 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2025-10-15 02:41:05,720 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-flow gauge locations found within domain
-2025-10-15 02:41:07,123 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
-2025-10-15 02:41:07,123 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:07,124 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
-2025-10-15 02:41:07,397 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-10-15 02:41:07,426 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
-2025-10-15 02:41:07,428 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
-2025-10-15 02:41:07,431 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
-2025-10-15 02:41:07,434 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
-2025-10-15 02:41:07,451 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
-2025-10-15 02:41:07,453 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
-2025-10-15 02:41:07,488 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
-2025-10-15 02:41:07,492 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
-2025-10-15 02:41:07,495 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
-2025-10-15 02:41:07,497 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
-2025-10-15 02:41:07,500 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
-2025-10-15 02:41:07,503 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2025-10-15 02:41:07,508 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
-2025-10-15 02:41:07,547 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
-2025-10-15 02:41:07,547 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
-2025-10-15 02:41:07,657 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+2025-11-11 10:47:14,727 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:14,757 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:47:14,757 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:47:14,787 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:47:14,787 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-11-11 10:47:14,788 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:14,788 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2025-11-11 10:47:15,624 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-11-11 10:47:15,624 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - update: setup_gauges
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.basename=test-flow
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;precip&#39;]
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;]
+2025-11-11 10:47:15,626 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-11-11 10:47:15,633 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-11-11 10:47:15,640 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-flow gauge locations found within domain
+2025-11-11 10:47:16,983 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
+2025-11-11 10:47:16,983 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-11-11 10:47:16,985 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
+2025-11-11 10:47:17,041 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-11-11 10:47:17,068 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-11-11 10:47:17,070 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
+2025-11-11 10:47:17,072 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
+2025-11-11 10:47:17,074 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
+2025-11-11 10:47:17,091 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
+2025-11-11 10:47:17,093 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
+2025-11-11 10:47:17,128 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
+2025-11-11 10:47:17,131 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
+2025-11-11 10:47:17,133 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
+2025-11-11 10:47:17,135 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
+2025-11-11 10:47:17,139 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
+2025-11-11 10:47:17,141 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2025-11-11 10:47:17,144 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed | 100.45 ms
+2025-11-11 10:47:17,261 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2025-11-11 10:47:17,261 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
+2025-11-11 10:47:17,280 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -767,236 +722,56 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-10-15 02:41:11,484 - hydromt - log - INFO - HydroMT version: 1.3.0-rc1
-2025-10-15 02:41:11,484 - hydromt.cli.main - main - INFO - Updating wflow_sbm model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2025-10-15 02:41:11,484 - hydromt.cli.main - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:11,484 - hydromt.cli.main - main - INFO - User settings:
-2025-10-15 02:41:11,517 - hydromt.model.root - root - INFO - setting root to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:11,517 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-10-15 02:41:11,517 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-10-15 02:41:11,546 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-10-15 02:41:11,546 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
-2025-10-15 02:41:12,558 - hydromt.model.model - model - INFO - update: setup_gauges
-2025-10-15 02:41:12,558 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=False
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.basename=test-rain
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;P-station&#39;]
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;atmosphere_water__precipitation_volume_flux&#39;]
-2025-10-15 02:41:12,559 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=test_stations.csv
-2025-10-15 02:41:12,640 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2025-10-15 02:41:12,645 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-rain gauge locations found within domain
-2025-10-15 02:41:13,289 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
-2025-10-15 02:41:13,289 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-10-15 02:41:13,289 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2025-10-15 02:41:13,292 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
-2025-10-15 02:41:13,300 - hydromt.cli.main - main - ERROR - Unable to synchronously create file (unable to truncate a file which is already open)
-Traceback (most recent call last):
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;, line 219, in _acquire_with_cache_info
-    file = self._cache[self._key]
-           ~~~~~~~~~~~^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/lru_cache.py&#34;, line 56, in __getitem__
-    value = self._cache[key]
-            ~~~~~~~~~~~^^^^^
-KeyError: [&lt;class &#39;h5netcdf.core.File&#39;&gt;, (&#39;/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc&#39;,), &#39;a&#39;, ((&#39;decode_vlen_strings&#39;, True), (&#39;driver&#39;, None), (&#39;invalid_netcdf&#39;, None)), &#39;983f0ef2-5e46-47e5-a1df-b85cedac29ff&#39;]
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/cli/main.py&#34;, line 349, in update
-    mod.update(model_out=model_out, steps=steps, forceful_overwrite=fo)
-    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/model/model.py&#34;, line 371, in update
-    self.write()
-    ~~~~~~~~~~^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/wflow_base.py&#34;, line 1753, in write
-    self.write_grid(filename=grid_filename)
-    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/wflow_base.py&#34;, line 1881, in write_grid
-    self.staticmaps.write(filename=filename, **kwargs)
-    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/components/staticmaps.py&#34;, line 129, in write
-    super().write(
-    ~~~~~~~~~~~~~^
-        str(p_input),
-        ^^^^^^^^^^^^^
-    ...&lt;3 lines&gt;...
-        **kwargs,
-        ^^^^^^^^^
-    )
-    ^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/model/components/grid.py&#34;, line 186, in write
-    close_handle = write_nc(
-        self.data,
-    ...&lt;5 lines&gt;...
-        **kwargs,
-    )
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/io/writers.py&#34;, line 143, in write_nc
-    ds.to_netcdf(file_path, **kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/core/dataset.py&#34;, line 2104, in to_netcdf
-    return to_netcdf(  # type: ignore[return-value]  # mypy cannot resolve the overloads:(
-        self,
-    ...&lt;10 lines&gt;...
-        auto_complex=auto_complex,
-    )
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/writers.py&#34;, line 422, in to_netcdf
-    store = get_writable_netcdf_store(
-        target,
-    ...&lt;5 lines&gt;...
-        auto_complex=auto_complex,
-    )
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/writers.py&#34;, line 78, in get_writable_netcdf_store
-    return store_open(target, mode=mode, format=format, **kwargs)
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;, line 226, in open
-    return cls(manager, group=group, mode=mode, lock=lock, autoclose=autoclose)
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;, line 149, in __init__
-    self._filename = find_root_and_group(self.ds)[0].filename
-                                         ^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;, line 237, in ds
-    return self._acquire()
-           ~~~~~~~~~~~~~^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;, line 229, in _acquire
-    with self._manager.acquire_context(needs_lock) as root:
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/contextlib.py&#34;, line 141, in __enter__
-    return next(self.gen)
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;, line 207, in acquire_context
-    file, cached = self._acquire_with_cache_info(needs_lock)
-                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;, line 225, in _acquire_with_cache_info
-    file = self._opener(*self._args, **kwargs)
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5netcdf/core.py&#34;, line 1552, in __init__
-    self.__h5file = self._h5py.File(
-                    ~~~~~~~~~~~~~~~^
-        path, mode, track_order=track_order, **kwargs
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5py/_hl/files.py&#34;, line 564, in __init__
-    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
-  File &#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5py/_hl/files.py&#34;, line 244, in make_fid
-    fid = h5f.create(name, h5f.ACC_TRUNC, fapl=fapl, fcpl=fcpl)
-  File &#34;h5py/_objects.pyx&#34;, line 56, in h5py._objects.with_phil.wrapper
-  File &#34;h5py/_objects.pyx&#34;, line 57, in h5py._objects.with_phil.wrapper
-  File &#34;h5py/h5f.pyx&#34;, line 122, in h5py.h5f.create
-OSError: Unable to synchronously create file (unable to truncate a file which is already open)
-Traceback (most recent call last):
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;</span>, line <span class="ansi-magenta-fg">219</span>, in <span class="ansi-magenta-fg">_acquire_with_cache_info</span>
-    file = <span class="ansi-red-fg">self._cache</span><span class="ansi-red-intense-fg ansi-bold">[self._key]</span>
-           <span class="ansi-red-fg">~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/lru_cache.py&#34;</span>, line <span class="ansi-magenta-fg">56</span>, in <span class="ansi-magenta-fg">__getitem__</span>
-    value = <span class="ansi-red-fg">self._cache</span><span class="ansi-red-intense-fg ansi-bold">[key]</span>
-            <span class="ansi-red-fg">~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^</span>
-<span class="ansi-magenta-intense-fg ansi-bold">KeyError</span>: <span class="ansi-magenta-fg">[&lt;class &#39;h5netcdf.core.File&#39;&gt;, (&#39;/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc&#39;,), &#39;a&#39;, ((&#39;decode_vlen_strings&#39;, True), (&#39;driver&#39;, None), (&#39;invalid_netcdf&#39;, None)), &#39;983f0ef2-5e46-47e5-a1df-b85cedac29ff&#39;]</span>
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/bin/hydromt&#34;</span>, line <span class="ansi-magenta-fg">10</span>, in <span class="ansi-magenta-fg">&lt;module&gt;</span>
-    sys.exit(<span class="ansi-red-fg">main</span><span class="ansi-red-intense-fg ansi-bold">()</span>)
-             <span class="ansi-red-fg">~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/core.py&#34;</span>, line <span class="ansi-magenta-fg">1462</span>, in <span class="ansi-magenta-fg">__call__</span>
-    return <span class="ansi-red-fg">self.main</span><span class="ansi-red-intense-fg ansi-bold">(*args, **kwargs)</span>
-           <span class="ansi-red-fg">~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/core.py&#34;</span>, line <span class="ansi-magenta-fg">1383</span>, in <span class="ansi-magenta-fg">main</span>
-    rv = self.invoke(ctx)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/core.py&#34;</span>, line <span class="ansi-magenta-fg">1850</span>, in <span class="ansi-magenta-fg">invoke</span>
-    return _process_result(<span class="ansi-red-fg">sub_ctx.command.invoke</span><span class="ansi-red-intense-fg ansi-bold">(sub_ctx)</span>)
-                           <span class="ansi-red-fg">~~~~~~~~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/core.py&#34;</span>, line <span class="ansi-magenta-fg">1246</span>, in <span class="ansi-magenta-fg">invoke</span>
-    return <span class="ansi-red-fg">ctx.invoke</span><span class="ansi-red-intense-fg ansi-bold">(self.callback, **ctx.params)</span>
-           <span class="ansi-red-fg">~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/core.py&#34;</span>, line <span class="ansi-magenta-fg">814</span>, in <span class="ansi-magenta-fg">invoke</span>
-    return callback(*args, **kwargs)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/click/decorators.py&#34;</span>, line <span class="ansi-magenta-fg">34</span>, in <span class="ansi-magenta-fg">new_func</span>
-    return f(get_current_context(), *args, **kwargs)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/cli/main.py&#34;</span>, line <span class="ansi-magenta-fg">349</span>, in <span class="ansi-magenta-fg">update</span>
-    <span class="ansi-red-fg">mod.update</span><span class="ansi-red-intense-fg ansi-bold">(model_out=model_out, steps=steps, forceful_overwrite=fo)</span>
-    <span class="ansi-red-fg">~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/model/model.py&#34;</span>, line <span class="ansi-magenta-fg">371</span>, in <span class="ansi-magenta-fg">update</span>
-    <span class="ansi-red-fg">self.write</span><span class="ansi-red-intense-fg ansi-bold">()</span>
-    <span class="ansi-red-fg">~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/wflow_base.py&#34;</span>, line <span class="ansi-magenta-fg">1753</span>, in <span class="ansi-magenta-fg">write</span>
-    <span class="ansi-red-fg">self.write_grid</span><span class="ansi-red-intense-fg ansi-bold">(filename=grid_filename)</span>
-    <span class="ansi-red-fg">~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/wflow_base.py&#34;</span>, line <span class="ansi-magenta-fg">1881</span>, in <span class="ansi-magenta-fg">write_grid</span>
-    <span class="ansi-red-fg">self.staticmaps.write</span><span class="ansi-red-intense-fg ansi-bold">(filename=filename, **kwargs)</span>
-    <span class="ansi-red-fg">~~~~~~~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/components/staticmaps.py&#34;</span>, line <span class="ansi-magenta-fg">129</span>, in <span class="ansi-magenta-fg">write</span>
-    <span class="ansi-red-fg">super().write</span><span class="ansi-red-intense-fg ansi-bold">(</span>
-    <span class="ansi-red-fg">~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^</span>
-        <span class="ansi-red-intense-fg ansi-bold">str(p_input),</span>
-        <span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^</span>
-    ...&lt;3 lines&gt;...
-        <span class="ansi-red-intense-fg ansi-bold">**kwargs,</span>
-        <span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^</span>
-    <span class="ansi-red-intense-fg ansi-bold">)</span>
-    <span class="ansi-red-intense-fg ansi-bold">^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/model/components/grid.py&#34;</span>, line <span class="ansi-magenta-fg">186</span>, in <span class="ansi-magenta-fg">write</span>
-    close_handle = write_nc(
-        self.data,
-    ...&lt;5 lines&gt;...
-        **kwargs,
-    )
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/hydromt/io/writers.py&#34;</span>, line <span class="ansi-magenta-fg">143</span>, in <span class="ansi-magenta-fg">write_nc</span>
-    <span class="ansi-red-fg">ds.to_netcdf</span><span class="ansi-red-intense-fg ansi-bold">(file_path, **kwargs)</span>
-    <span class="ansi-red-fg">~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/core/dataset.py&#34;</span>, line <span class="ansi-magenta-fg">2104</span>, in <span class="ansi-magenta-fg">to_netcdf</span>
-    return to_netcdf(  # type: ignore[return-value]  # mypy cannot resolve the overloads:(
-        self,
-    ...&lt;10 lines&gt;...
-        auto_complex=auto_complex,
-    )
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/writers.py&#34;</span>, line <span class="ansi-magenta-fg">422</span>, in <span class="ansi-magenta-fg">to_netcdf</span>
-    store = get_writable_netcdf_store(
-        target,
-    ...&lt;5 lines&gt;...
-        auto_complex=auto_complex,
-    )
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/writers.py&#34;</span>, line <span class="ansi-magenta-fg">78</span>, in <span class="ansi-magenta-fg">get_writable_netcdf_store</span>
-    return store_open(target, mode=mode, format=format, **kwargs)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;</span>, line <span class="ansi-magenta-fg">226</span>, in <span class="ansi-magenta-fg">open</span>
-    return cls(manager, group=group, mode=mode, lock=lock, autoclose=autoclose)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;</span>, line <span class="ansi-magenta-fg">149</span>, in <span class="ansi-magenta-fg">__init__</span>
-    self._filename = find_root_and_group(<span class="ansi-red-intense-fg ansi-bold">self.ds</span>)[0].filename
-                                         <span class="ansi-red-intense-fg ansi-bold">^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;</span>, line <span class="ansi-magenta-fg">237</span>, in <span class="ansi-magenta-fg">ds</span>
-    return <span class="ansi-red-fg">self._acquire</span><span class="ansi-red-intense-fg ansi-bold">()</span>
-           <span class="ansi-red-fg">~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/h5netcdf_.py&#34;</span>, line <span class="ansi-magenta-fg">229</span>, in <span class="ansi-magenta-fg">_acquire</span>
-    with <span class="ansi-red-fg">self._manager.acquire_context</span><span class="ansi-red-intense-fg ansi-bold">(needs_lock)</span> as root:
-         <span class="ansi-red-fg">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/contextlib.py&#34;</span>, line <span class="ansi-magenta-fg">141</span>, in <span class="ansi-magenta-fg">__enter__</span>
-    return next(self.gen)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;</span>, line <span class="ansi-magenta-fg">207</span>, in <span class="ansi-magenta-fg">acquire_context</span>
-    file, cached = <span class="ansi-red-fg">self._acquire_with_cache_info</span><span class="ansi-red-intense-fg ansi-bold">(needs_lock)</span>
-                   <span class="ansi-red-fg">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/xarray/backends/file_manager.py&#34;</span>, line <span class="ansi-magenta-fg">225</span>, in <span class="ansi-magenta-fg">_acquire_with_cache_info</span>
-    file = self._opener(*self._args, **kwargs)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5netcdf/core.py&#34;</span>, line <span class="ansi-magenta-fg">1552</span>, in <span class="ansi-magenta-fg">__init__</span>
-    self.__h5file = <span class="ansi-red-fg">self._h5py.File</span><span class="ansi-red-intense-fg ansi-bold">(</span>
-                    <span class="ansi-red-fg">~~~~~~~~~~~~~~~</span><span class="ansi-red-intense-fg ansi-bold">^</span>
-        <span class="ansi-red-intense-fg ansi-bold">path, mode, track_order=track_order, **kwargs</span>
-        <span class="ansi-red-intense-fg ansi-bold">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-    <span class="ansi-red-intense-fg ansi-bold">)</span>
-    <span class="ansi-red-intense-fg ansi-bold">^</span>
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5py/_hl/files.py&#34;</span>, line <span class="ansi-magenta-fg">564</span>, in <span class="ansi-magenta-fg">__init__</span>
-    fid = make_fid(name, mode, userblock_size, fapl, fcpl, swmr=swmr)
-  File <span class="ansi-magenta-fg">&#34;/home/runner/work/hydromt_wflow/hydromt_wflow/.pixi/envs/docs/lib/python3.13/site-packages/h5py/_hl/files.py&#34;</span>, line <span class="ansi-magenta-fg">244</span>, in <span class="ansi-magenta-fg">make_fid</span>
-    fid = h5f.create(name, h5f.ACC_TRUNC, fapl=fapl, fcpl=fcpl)
-  File <span class="ansi-magenta-fg">&#34;h5py/_objects.pyx&#34;</span>, line <span class="ansi-magenta-fg">56</span>, in <span class="ansi-magenta-fg">h5py._objects.with_phil.wrapper</span>
-  File <span class="ansi-magenta-fg">&#34;h5py/_objects.pyx&#34;</span>, line <span class="ansi-magenta-fg">57</span>, in <span class="ansi-magenta-fg">h5py._objects.with_phil.wrapper</span>
-  File <span class="ansi-magenta-fg">&#34;h5py/h5f.pyx&#34;</span>, line <span class="ansi-magenta-fg">122</span>, in <span class="ansi-magenta-fg">h5py.h5f.create</span>
-<span class="ansi-magenta-intense-fg ansi-bold">OSError</span>: <span class="ansi-magenta-fg">Unable to synchronously create file (unable to truncate a file which is already open)</span>
+2025-11-11 10:47:20,914 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:20,945 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:47:20,945 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:47:20,976 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:47:20,976 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+2025-11-11 10:47:20,977 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:20,977 - hydromt - log - INFO - HydroMT version: 1.3.0-rc5
+2025-11-11 10:47:21,730 - hydromt.model.model - model - INFO - update: setup_gauges
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=False
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.basename=test-rain
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;P-station&#39;]
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;atmosphere_water__precipitation_volume_flux&#39;]
+2025-11-11 10:47:21,731 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-11-11 10:47:21,813 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading test_stations.csv GeoDataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2025-11-11 10:47:21,820 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 test-rain gauge locations found within domain
+2025-11-11 10:47:22,460 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
+2025-11-11 10:47:22,460 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-11-11 10:47:22,460 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2025-11-11 10:47:22,463 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc.
+2025-11-11 10:47:22,522 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-11-11 10:47:22,549 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/region.geojson.
+2025-11-11 10:47:22,551 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins.geojson.
+2025-11-11 10:47:22,553 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_grdc.geojson.
+2025-11-11 10:47:22,556 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-flow.geojson.
+2025-11-11 10:47:22,557 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/basins_highres.geojson.
+2025-11-11 10:47:22,575 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/outlets.geojson.
+2025-11-11 10:47:22,576 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/glaciers.geojson.
+2025-11-11 10:47:22,611 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/rivers.geojson.
+2025-11-11 10:47:22,614 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_no_control.geojson.
+2025-11-11 10:47:22,617 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/reservoirs.geojson.
+2025-11-11 10:47:22,619 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/meta_reservoirs_simple_control.geojson.
+2025-11-11 10:47:22,627 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms/gauges_test-rain.geojson.
+2025-11-11 10:47:22,638 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2025-11-11 10:47:22,638 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Netcdf forcing file `/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc` already exists and overwriting is not enabled. To overwrite netcdf forcing file: change name `input.path_forcing` in setup_config section of the build inifile or allow overwriting with `overwrite` flag. A default name will be generated.
+2025-11-11 10:47:22,641 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps_era5_era5d_debruin_None_2010_2010.nc
+[########################################] | 100% Completed | 100.51 ms
+2025-11-11 10:47:22,757 - hydromt.model.components.tables - tables - INFO - Reading model table files.
+2025-11-11 10:47:22,757 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2025-11-11 10:47:22,768 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/instate/instates.nc.
+2025-11-11 10:47:22,789 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -1011,7 +786,7 @@ Traceback (most recent call last):
 <section id="Visualization-of-the-gauges">
 <h2>Visualization of the gauges<a class="headerlink" href="#Visualization-of-the-gauges" title="Link to this heading">#</a></h2>
 <p>We can now plot our newly created gauges stations maps and check the differences between the flow and rain maps.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
@@ -1021,6 +796,17 @@ Traceback (most recent call last):
 <span class="n">mod</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_gauges&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-11-11 10:47:26,158 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:47:26,159 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:47:26,190 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:47:26,190 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml.
+</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -1154,6 +940,26 @@ Traceback (most recent call last):
 
 
   <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
@@ -1169,31 +975,6 @@ Traceback (most recent call last):
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualization-of-the-gauges">Visualization of the gauges</a></li>
 </ul>
   </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/update_model_gauges.ipynb">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/_examples/update_model_gauges.ipynb.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               

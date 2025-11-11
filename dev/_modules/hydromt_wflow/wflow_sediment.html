@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
   </a>
 </li>
 
@@ -487,14 +448,14 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowBaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The wflow sediment model class, a subclass of WflowBaseModel.&quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment&quot;</span>
 
 <div class="viewcode-block" id="WflowSedimentModel.__init__">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel.__init__">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -517,7 +478,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_rivers">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -620,7 +581,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverbedsed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -713,13 +674,13 @@
         <span class="p">)</span>
 
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_riversed</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_riversed</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_riversed</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># update config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_riversed</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_natural_reservoirs">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_natural_reservoirs">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_natural_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -761,12 +722,12 @@
             <span class="n">trapping_default</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># lakes have no trapping efficiency</span>
             <span class="n">output_names</span><span class="o">=</span><span class="n">output_names</span><span class="p">,</span>
             <span class="n">geom_name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -846,7 +807,7 @@
             <span class="n">reservoirs_fn</span><span class="p">,</span>
             <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">source_kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Skip method if no data is returned</span>
         <span class="k">if</span> <span class="n">gdf_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -907,18 +868,18 @@
 
         <span class="c1"># add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
         <span class="c1"># write reservoirs with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
         <span class="c1"># Prepare a combined geoms of all reservoirs</span>
         <span class="n">gdf_res_all</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirs</span><span class="o">.</span><span class="n">create_reservoirs_geoms_sediment</span><span class="p">(</span>
             <span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_res_all</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
 
         <span class="c1"># Reservoir settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -927,19 +888,20 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
         <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
         <span class="n">orchard_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2188</span><span class="p">,</span>
@@ -978,20 +940,21 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lulc_fn : str, xarray.DataArray</span>
+<span class="sd">        lulc_fn : str, Path, xarray.DataArray</span>
 <span class="sd">            Name of RasterDataset source.</span>
-<span class="sd">        lulc_mapping_fn : str</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame, None, optional</span>
 <span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
 <span class="sd">            in lulc_vars.</span>
-<span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame</span>
+<span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame, None, optional</span>
 <span class="sd">            GeoDataFrame source with polygons of planted forests.</span>
 
 <span class="sd">            * Optional variable: [&quot;forest_type&quot;]</span>
 
-<span class="sd">        lulc_vars : dict</span>
-<span class="sd">            Dictionnary of landuse parameters to prepare. The names are the</span>
-<span class="sd">            the columns of the mapping file and the values are the corresponding</span>
-<span class="sd">            Wflow.jl variables if any.</span>
+<span class="sd">        lulc_vars : list[str], optional</span>
+<span class="sd">            List of landuse parameters to prepare.</span>
+<span class="sd">            The names are the columns of the mapping file.</span>
+<span class="sd">            Can be a subset of: [&quot;landuse&quot;, &quot;soil_compacted_fraction&quot;, &quot;erosion_usle_c&quot;,</span>
+<span class="sd">            &quot;land_water_fraction&quot;]</span>
 <span class="sd">        planted_forest_c : float, optional</span>
 <span class="sd">            Value of USLE C factor for planted forest, by default 0.0881.</span>
 <span class="sd">        orchard_name : str, optional</span>
@@ -1045,23 +1008,24 @@
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps_from_vector">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_from_vector</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;compacted_soil__area_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land_water_covered__area_fraction&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -1108,19 +1072,24 @@
 <span class="sd">            GeoDataFrame or name in data catalog / path to (vector) landuse map.</span>
 
 <span class="sd">            * Required columns: &#39;landuse&#39; [-]</span>
-<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame, None, optional</span>
 <span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
 <span class="sd">            in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;,</span>
 <span class="sd">            &quot;esa_worldcover&quot;, &quot;glmnco&quot;}, a default mapping is used and this argument</span>
 <span class="sd">            becomes optional.</span>
-<span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame</span>
+<span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame, None, optional</span>
 <span class="sd">            GeoDataFrame source with polygons of planted forests.</span>
 
 <span class="sd">            * Optional variable: [&quot;forest_type&quot;]</span>
-<span class="sd">        lulc_vars : dict</span>
-<span class="sd">            Dictionary of landuse parameters to prepare. The names are the</span>
-<span class="sd">            the columns of the mapping file and the values are the corresponding</span>
-<span class="sd">            Wflow.jl variables.</span>
+<span class="sd">        lulc_vars : list[str], optional</span>
+<span class="sd">            List of landuse parameters to prepare.</span>
+<span class="sd">            The names are the columns of the mapping file.</span>
+<span class="sd">            Can be a subset of: [&quot;landuse&quot;, &quot;soil_compacted_fraction&quot;, &quot;erosion_usle_c&quot;,</span>
+<span class="sd">            &quot;land_water_fraction&quot;]</span>
+<span class="sd">        lulc_res : float, int, None, optional</span>
+<span class="sd">            Resolution of the intermediate rasterized landuse map. The unit (meter or</span>
+<span class="sd">            degree) depends on the CRS of lulc_fn (projected or not). By default None,</span>
+<span class="sd">            which uses the model resolution.</span>
 <span class="sd">        all_touched : bool, optional</span>
 <span class="sd">            If True, all pixels touched by the vector will be burned in the raster,</span>
 <span class="sd">            by default False.</span>
@@ -1187,11 +1156,11 @@
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_canopymaps">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_canopymaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1226,13 +1195,13 @@
         <span class="c1"># update name</span>
         <span class="n">wflow_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_var</span><span class="p">:</span> <span class="n">output_name</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
         <span class="c1"># update config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">output_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_soilmaps">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1314,12 +1283,12 @@
             <span class="n">add_aggregates</span><span class="o">=</span><span class="n">add_aggregates</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_outlets">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_outlets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1375,7 +1344,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_gauges">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1441,7 +1410,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.clip">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.clip.html#hydromt_wflow.WflowSedimentModel.clip">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.clip.html#hydromt_wflow.WflowSedimentModel.clip">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">clip</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1477,7 +1446,7 @@
 <span class="sd">            :py:meth:`~hydromt.raster.Raster.clip_geom`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Reservoir maps that will be removed if no reservoirs after clipping</span>
-        <span class="c1"># key: staticmaps name,  value: wflow intput variable name</span>
+        <span class="c1"># key: staticmaps name,  value: wflow input variable name</span>
         <span class="n">reservoir_maps</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">],</span>
@@ -1498,7 +1467,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel.upgrade_to_v1_wflow">
-<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow">[docs]</a>
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html#hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">upgrade_to_v1_wflow</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1539,7 +1508,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">DATADIR</span> <span class="o">/</span> <span class="s2">&quot;default_config_headers.toml&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_out</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_out</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
 
         <span class="c1"># Rerun setup_soilmaps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_soilmaps</span><span class="p">(</span>
@@ -1559,10 +1528,10 @@
             <span class="c1"># Remove older maps from grid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_remove</span><span class="p">)</span>
             <span class="c1"># Add new reservoir maps to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_res</span><span class="p">)</span>
             <span class="c1"># Update the config with the new names</span>
             <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">config_opt</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">config_opt</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 </div>
 
 </pre></div>
@@ -1582,6 +1551,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

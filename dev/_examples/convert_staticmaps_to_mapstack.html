@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -110,7 +110,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -137,29 +137,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -173,15 +153,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -299,29 +279,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -333,15 +290,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
   </a>
 </li>
 
@@ -433,11 +390,11 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow outputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clip_model.html">Clip a Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/overview/use_case_examples">User's stories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
 </ul>
 </div>
@@ -502,7 +459,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="admonition tip">
+  <div class="admonition tip" id="example-convert-staticmaps-to-mapstack">
 <p class="admonition-title">Tip</p>
 <div>
     For an interactive online version click here:
@@ -545,15 +502,19 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+2025-11-11 10:46:09,700 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:46:09,701 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:46:09,731 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:46:09,731 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
 &lt;xarray.Dataset&gt; Size: 975kB
 Dimensions:                               (latitude: 53, longitude: 58,
                                            time: 12, layer: 4)
 Coordinates:
   * latitude                              (latitude) float64 424B 46.68 ... 4...
   * longitude                             (longitude) float64 464B 11.78 ... ...
-    spatial_ref                           int64 8B 0
   * time                                  (time) int32 48B 1 2 3 4 ... 10 11 12
   * layer                                 (layer) int64 32B 0 1 2 3
+    spatial_ref                           int64 8B 0
 Data variables: (12/69)
     meta_subgrid_outlet_x                 (latitude, longitude) float64 25kB ...
     meta_subgrid_outlet_y                 (latitude, longitude) float64 25kB ...
@@ -573,8 +534,8 @@ Data variables: (12/69)
 </section>
 <section id="Write-netcdf-to-mapstack">
 <h2>Write netcdf to mapstack<a class="headerlink" href="#Write-netcdf-to-mapstack" title="Link to this heading">#</a></h2>
-<p>The raster module provides many raster GIS methods through the <strong>raster</strong> Dataset accessor. To write a Dataset into several raster files (eg one geotiff file per map), one line with code is sufficient using <a class="reference external" href="https://deltares.github.io/hydromt/stable/_generated/hydromt.gis.Dataset.raster.to_mapstack.html">raster.to_mapstack</a>. We only need to provide the output folder in which all raster files are saved. The default output format is <em>GeoTIFF</em>, but this can be changed with the <code class="docutils literal notranslate"><span class="pre">driver</span></code>
-argument.</p>
+<p>The raster module provides many raster GIS methods through the <strong>raster</strong> Dataset accessor. To write a Dataset into several raster files (eg one geotiff file per map), one line with code is sufficient using <a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.gis.Dataset.raster.to_mapstack.html#hydromt.gis.Dataset.raster.to_mapstack">raster.to_mapstack</a>. We only need to provide the output folder in which all raster files are saved. The default output format is <em>GeoTIFF</em>, but this can
+be changed with the <code class="docutils literal notranslate"><span class="pre">driver</span></code> argument.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -702,7 +663,7 @@ argument.</p>
 <p>In the below example, we will use python to update our model. If you wish to update via command line, the steps are:</p>
 <ol class="arabic simple">
 <li><p>Create a data catalog entry for the maps in the “updated_staticmaps” folder</p></li>
-<li><p>Prepare a hydromt config file with the steps: <code class="docutils literal notranslate"><span class="pre">setup_grid_from_raster</span></code>, <code class="docutils literal notranslate"><span class="pre">write_grid</span></code> and <code class="docutils literal notranslate"><span class="pre">write_config</span></code></p></li>
+<li><p>Prepare a hydromt config file with the steps: <code class="docutils literal notranslate"><span class="pre">setup_grid_from_raster</span></code>, <code class="docutils literal notranslate"><span class="pre">statimaps.write</span></code> and <code class="docutils literal notranslate"><span class="pre">config.write</span></code></p></li>
 <li><p>Call the <code class="docutils literal notranslate"><span class="pre">hydromt</span> <span class="pre">update</span></code> command line re-using the catalog and configuration file you created.</p></li>
 </ol>
 <div class="nbinput docutils container">
@@ -714,7 +675,7 @@ argument.</p>
 
 <span class="c1"># `KsatVer` corresponds to the `soil_surface_water__vertical_saturated_hydraulic_conductivity` variable</span>
 <span class="n">wflow_variable</span> <span class="o">=</span> <span class="s2">&quot;soil_surface_water__vertical_saturated_hydraulic_conductivity&quot;</span>
-<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Before setup_grid_from_raster: </span><span class="si">{</span><span class="n">config_opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Path to the (updated) `soil_ksat_vertical_updated.tif`</span>
@@ -728,12 +689,12 @@ argument.</p>
     <span class="n">wflow_variables</span><span class="o">=</span><span class="p">[</span><span class="n">wflow_variable</span><span class="p">],</span>
 
 <span class="p">)</span>
-<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">config_opt</span> <span class="o">=</span> <span class="n">wflow</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After setup_grid_from_raster: </span><span class="si">{</span><span class="n">config_opt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Write the updated grid and config files to new files</span>
-<span class="n">wflow</span><span class="o">.</span><span class="n">write_grid</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;staticmaps_updated.nc&quot;</span><span class="p">)</span>
-<span class="n">wflow</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;wflow_sbm_updated.toml&quot;</span><span class="p">)</span>
+<span class="n">wflow</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;staticmaps_updated.nc&quot;</span><span class="p">)</span>
+<span class="n">wflow</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;wflow_sbm_updated.toml&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -742,8 +703,17 @@ argument.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+2025-11-11 10:46:10,571 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2025-11-11 10:46:10,572 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-11-11 10:46:10,586 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2025-11-11 10:46:10,586 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
 Before setup_grid_from_raster: soil_ksat_vertical
+2025-11-11 10:46:10,588 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing grid data from raster source updated_staticmaps/soil_ksat_vertical_updated.tif
+2025-11-11 10:46:10,803 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soil_ksat_vertical_updated.tif RasterDataset data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/updated_staticmaps/soil_ksat_vertical_updated.tif
+2025-11-11 10:46:10,834 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Updating the config for wflow_variables: [&#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;]
 After setup_grid_from_raster: soil_ksat_vertical_updated
+2025-11-11 10:46:10,835 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps_updated.nc.
+2025-11-11 10:46:10,892 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm_updated.toml.
 </pre></div></div>
 </div>
 </section>
@@ -789,6 +759,26 @@ After setup_grid_from_raster: soil_ksat_vertical_updated
 
 
   <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
@@ -802,31 +792,6 @@ After setup_grid_from_raster: soil_ksat_vertical_updated
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Update-a-specific-map-using-setup_grid_from_raster">Update a specific map using <code class="docutils literal notranslate"><span class="pre">setup_grid_from_raster</span></code></a></li>
 </ul>
   </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/convert_staticmaps_to_mapstack.ipynb">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/_examples/convert_staticmaps_to_mapstack.ipynb.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               

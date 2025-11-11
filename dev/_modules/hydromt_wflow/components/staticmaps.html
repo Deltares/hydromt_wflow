@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -104,7 +104,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -131,29 +131,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -167,15 +147,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -266,6 +246,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -291,29 +275,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -325,15 +286,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../api.html">
-    API reference
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
   </a>
 </li>
 
@@ -484,7 +445,7 @@
 
 
 <div class="viewcode-block" id="WflowStaticmapsComponent">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowStaticmapsComponent</span><span class="p">(</span><span class="n">GridComponent</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wflow staticmaps component.</span>
 
@@ -495,8 +456,6 @@
 <span class="sd">    is an extension of xarray.Dataset for regular grid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WflowStaticmapsComponent.__init__">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
@@ -522,10 +481,11 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">region_component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">region_filename</span><span class="o">=</span><span class="n">region_filename</span><span class="p">,</span>
-        <span class="p">)</span></div>
-
+        <span class="p">)</span>
 
     <span class="c1">## I/O methods</span>
+<div class="viewcode-block" id="WflowStaticmapsComponent.read">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.read">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -554,8 +514,11 @@
             <span class="n">filename</span><span class="o">=</span><span class="n">p_input</span><span class="p">,</span>
             <span class="n">mask_and_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="WflowStaticmapsComponent.write">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.write">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -604,9 +567,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
             <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span>
             <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">p_input</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="c1">## Mutating methods</span>
+<div class="viewcode-block" id="WflowStaticmapsComponent.set">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.set">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -673,6 +639,9 @@
 
             <span class="k">if</span> <span class="n">tname</span> <span class="o">!=</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">tname</span><span class="p">})</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">tname</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">tname</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)}</span>
+                <span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;layer&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s2">&quot;layer&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">]):</span>
                 <span class="n">vars_to_drop</span> <span class="o">=</span> <span class="p">[</span>
@@ -702,10 +671,11 @@
                     <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span></div>
+
 
 <div class="viewcode-block" id="WflowStaticmapsComponent.drop_vars">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.components.WflowStaticmapsComponent.drop_vars.html#hydromt_wflow.components.WflowStaticmapsComponent.drop_vars">[docs]</a>
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.drop_vars">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">drop_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Drop variables from the grid.</span>
@@ -724,6 +694,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowStaticmapsComponent.clip">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.clip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clip</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">region</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
@@ -851,9 +823,12 @@
 
         <span class="c1"># Update staticmaps data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">)</span></div>
+
 
     <span class="c1">## Setup and update methods</span>
+<div class="viewcode-block" id="WflowStaticmapsComponent.update_names">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.update_names">[docs]</a>
     <span class="nd">@hydromt_step</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_names</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -879,8 +854,11 @@
                 <span class="n">_</span> <span class="o">=</span> <span class="n">rename</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not rename </span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s2">, not found in data&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="o">**</span><span class="n">rename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="o">**</span><span class="n">rename</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="WflowStaticmapsComponent.test_equal">
+<a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.test_equal">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ModelComponent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test if two staticmaps components are equal.</span>
 
@@ -906,6 +884,7 @@
         <span class="n">errors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data_errors</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">errors</span></div>
+</div>
 
 </pre></div>
 
@@ -924,6 +903,32 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+</div></div>
               
             
           </div>

@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/theme-deltares.css?v=5ca2d357" />
+    <link rel="stylesheet" type="text/css" href="_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -107,7 +107,7 @@
   </button>
   
   
-  <div class=" navbar-header-items__start">
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -134,29 +134,9 @@
     
   </div>
   
-  <div class=" navbar-header-items">
+  <div class="col-lg-9 navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -170,15 +150,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="user_guide/intro.html">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="api.html">
-    API reference
+  <a class="nav-link nav-internal" href="api/index.html">
+    API
   </a>
 </li>
 
@@ -296,29 +276,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -330,15 +287,15 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="user_guide/intro.html">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
     User guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="api.html">
-    API reference
+  <a class="nav-link nav-internal" href="api/index.html">
+    API
   </a>
 </li>
 
@@ -489,9 +446,43 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
-<p>TODO: merge with the Wflow.jl v1 pre-release notes below when we are ready for hydromt_wflow v1.0.0</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>When using <code class="docutils literal notranslate"><span class="pre">setup_reservoirs_simple_control</span></code>, the tables for reservoir accuracy and reservoir timeseries are written to the [model’s root]/validation. (#631)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> and equivalents: Parameters for <code class="docutils literal notranslate"><span class="pre">lulc_vars</span></code> are directly linked to the names in the columns of the mapping table. (#623)</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fixed cyclic data layer not having coordinates after setting the data in the <code class="docutils literal notranslate"><span class="pre">WflowStaticMapsComponent</span></code>.</p></li>
+<li><p>Deriving river if dem was not upscaled in setup_basemaps (#638).</p></li>
+<li><p>fixed <cite>setup_precip_forcing</cite> producing an empty netcdf file (#649)</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_*</span></code>, <code class="docutils literal notranslate"><span class="pre">set_*</span></code>, <code class="docutils literal notranslate"><span class="pre">read_*</span></code>, and <code class="docutils literal notranslate"><span class="pre">write_*</span></code> functions on the model have been removed. Their equivalent on the corresponding component should be used instead. (#613)</p></li>
+</ul>
+</section>
+</section>
+<section id="v1-0-0rc2">
+<h2>v1.0.0rc2<a class="headerlink" href="#v1-0-0rc2" title="Link to this heading">#</a></h2>
+<p>In v1.0.0rc2, lakes and reservoirs were merged into a single structure in Wflow.jl, prompting updates to related functions and parameters. Several new model components were introduced,
+including those for configuration, static maps, forcing, states, geoms, and various output types. The minimum supported Python version was raised to 3.11.
+The model root is now managed by a ModelRoot class, and model components such as config and forcing are now ModelComponent classes, with their data accessed via a data property.
+Component and method names were updated for clarity, including renaming “grid” to “staticmaps” and splitting or renaming several setup methods. The process for clipping a model was simplified to a single clip method.
+Reservoir handling was enhanced, allowing overwriting or adding reservoirs, and a combined staticgeom for all reservoirs is now created. The release also included various bug fixes,
+such as improved handling in upgrade_to_v1_wflow, correct addition of states in setup_floodplains, and better clipping and snapping of 1D rivers.
+The use of the tomlkit dependency was reverted, and the standard naming conventions were updated. Finally, the workflows.waterbodies module was renamed to workflows.reservoirs,
+and the release included documentation improvements and updates to example configurations.</p>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>config component <code class="docutils literal notranslate"><span class="pre">WflowConfigComponent</span></code>: represents the Wflow configuration TOML file.</p></li>
 <li><p>staticmaps component <code class="docutils literal notranslate"><span class="pre">WflowStaticMapsComponent</span></code>: represents Wflow static and cyclic data (used to be grid).</p></li>
@@ -500,10 +491,12 @@
 <li><p>geoms component <code class="docutils literal notranslate"><span class="pre">WflowGeomsComponent</span></code>: represents Wflow staticgeoms data.</p></li>
 <li><p>output_grid <code class="docutils literal notranslate"><span class="pre">WflowOutputGridComponent</span></code>, output_scalar <code class="docutils literal notranslate"><span class="pre">WflowOutputScalarComponent</span></code> and output_csv <code class="docutils literal notranslate"><span class="pre">WflowOutputCsvComponent</span></code> components: represent Wflow outputs (used to be results).</p></li>
 <li><p><strong>write_geoms</strong>: added function arguments <code class="docutils literal notranslate"><span class="pre">to_wgs84</span></code>  to convert the geometry to WGS84 before writing it to file. PR #432</p></li>
+<li><p>Reservoirs can now overwrite or be added to existing ones in the model. PR #515</p></li>
+<li><p>Create a combined staticgeom for all reservoirs “reservoirs.geojson”. PR #515</p></li>
 </ul>
 </section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Increased minimum python version to 3.11 according to <a class="reference external" href="https://scientific-python.org/specs/spec-0000/">https://scientific-python.org/specs/spec-0000/</a></p></li>
 <li><p>Model root is now a <code class="docutils literal notranslate"><span class="pre">ModelRoot</span></code> class. To access the root path, use <code class="docutils literal notranslate"><span class="pre">wflow.root.path</span></code>.</p></li>
@@ -524,30 +517,14 @@ Eg wflow.config.data, wflow.staticmaps.data</p></li>
 <li><p>Update values used in example yamls to new defaults used in Wflow.jl (#589)</p></li>
 <li><p>Improve behavior of <code class="docutils literal notranslate"><span class="pre">merge_reservoirs</span></code>, to merge values based on their ID rather than all non-missing pixels. (#597)</p></li>
 <li><p>Rename standard names to no longer use “instantaneous” in the name (#601)</p></li>
-</ul>
-</section>
-</section>
-<section id="id1">
-<h2>Unreleased<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
-<p>Lakes and reservoirs have been merged into one structure in Wflow.jl. We have updated our functions and parameters accordingly.</p>
-<section id="id2">
-<h3>Added<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>Reservoirs can now overwrite or be added to existing ones in the model. PR #515</p></li>
-<li><p>Create a combined staticgeom for all reservoirs “reservoirs.geojson”. PR #515</p></li>
-</ul>
-</section>
-<section id="id3">
-<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
-<ul class="simple">
 <li><p><strong>setup_reservoirs</strong> has been renamed to <strong>setup_reservoirs_simple_control</strong> for sbm. The default output geom is meta_reservoirs_simple_control.geojson. PR #515</p></li>
 <li><p><strong>setup_lakes</strong> has been renamed to <strong>setup_reservoirs_no_control</strong> for sbm. Arguments of the functions have been updated as well. The default output geom is meta_reservoirs_no_control.geojson. PR #515</p></li>
 <li><p><strong>setup_lakes</strong> has been renamed to <strong>setup_natural_reservoirs</strong> for sediment. Arguments of the functions have been updated as well. The default output geom is meta_natural_reservoirs.geojson. PR #515</p></li>
 <li><p><strong>workflows.waterbodies</strong> has been renamed to <strong>workflows.reservoirs</strong>. PR #515</p></li>
 </ul>
 </section>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>upgrade_to_v1_wflow</strong>: fixed bug for [model] options that kept the same name in Wflow v1. (e.g. type, river_routing, land_routing). PR #487</p></li>
 <li><p><strong>setup_floodplains</strong>: states were not correctly added to the model config. PR #486</p></li>
@@ -557,11 +534,8 @@ Eg wflow.config.data, wflow.staticmaps.data</p></li>
 <li><p>included <code class="docutils literal notranslate"><span class="pre">floodplain_water_flow__manning_n_parameter</span></code> in naming script (#529)</p></li>
 </ul>
 </section>
-<section id="deprecated">
-<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
-</section>
-<section id="removed">
-<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Removed<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Reverted use of tomlkit (#529)</p></li>
 </ul>
@@ -579,16 +553,16 @@ variables in staticmaps.nc files in each of the setup methods. This allows users
 of the same variable in the staticmaps.nc file using different options (eg. landuse_corine, landuse_vito, etc.).</p>
 <p>Finally, some of the staticgeoms names have changed, in particular gauges is now outlets and has been
 replaced in the input section of the TOML as well in order to save outputs for these locations.</p>
-<section id="id4">
-<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>upgrade_to_v1_wflow</strong>: convert models for Wflow.jl version &lt; 1.0.0 to Wflow.jl version 1. PR #364</p></li>
 <li><p>Allow users to choose the names of each variables in staticmaps.nc files or the same of some of the staticgeoms (eg lakes, reservoirs).  PR #364</p></li>
 <li><p><strong>setup_areamap</strong>: if the map is linked to a Wflow variable, the TOML file can now be updated to link the new created map to the right Wflow.jl variable.  PR #364</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Changed<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for Wflow.jl &gt;= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl &lt; 1.0.0 has been dropped (see below).  PR #364</p></li>
 <li><p>All default names in staticmaps.nc and states have been redefined and harmonized. PR #422</p></li>
@@ -609,14 +583,14 @@ Due to this change we discourage users from modifying the config structure by ha
 <li><p>TOML file options are added on the fly by each setup method rather than starting from a complete template.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Fixed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Updated installation guide (#376)</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Deprecated<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="deprecated">
+<h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for building/updating models for Wflow.jl version &lt; 1.0.0. We encourage you to upgrade your model to the new version using <cite>upgrade_to_v1_wflow</cite> or use an older release of hydromt_wflow if you do not want to upgrade your model.  PR #364</p></li>
 <li><p><strong>setup_soilmaps</strong>: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334</p></li>
@@ -1213,6 +1187,26 @@ Note that the new river width estimates are different and result in different mo
 
 
   <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
 <div
     id="pst-page-navigation-heading-2"
     class="page-toc tocsection onthispage">
@@ -1223,21 +1217,22 @@ Note that the new river width estimates are different and result in different mo
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unreleased">Unreleased</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Unreleased</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0rc2">v1.0.0rc2</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Removed</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0rc1-26-june-2025">v1.0.0rc1 (26 June 2025)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Removed</a></li>
 </ul>
 </li>
@@ -1346,31 +1341,6 @@ Note that the new river width estimates are different and result in different mo
 </li>
 </ul>
   </nav></div>
-
-  <div class="sidebar-secondary-item">
-
-  
-  <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/changelog.rst">
-      <i class="fa-solid fa-pencil"></i>
-      
-      
-        
-          Edit on GitHub
-        
-      
-    </a>
-  </div>
-</div>
-
-  <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/changelog.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
 
 </div></div>
               
