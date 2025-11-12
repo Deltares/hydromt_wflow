@@ -6,17 +6,17 @@ on:
   push:
     branches: [main]
     paths:
-      - docs/*
-      - examples/*
-      - hydromt_wflow/*
+      - docs/**
+      - examples/**
+      - hydromt_wflow/**
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
     branches: [main]
     paths:
-      - docs/*
-      - examples/*
-      - hydromt_wflow/*
+      - docs/**
+      - examples/**
+      - hydromt_wflow/**
       - pyproject.toml
       - .github/workflows/docs.yml
 
@@ -46,7 +46,7 @@ jobs:
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          pixi-version: "v0.47.0"
+          pixi-version: "v0.59.0"
           environments: docs
           locked: false
           cache: true
@@ -58,7 +58,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pixi run -e docs docs-build-dummy
+          command: pixi run --locked -e docs docs-build-dummy
 
       - name: Generate docs
         if: ${{ github.event_name != 'pull_request' && !github.event.act }}

@@ -287,7 +287,7 @@ class WflowSedimentModel(WflowBaseModel):
             trapping_default=0.0,  # lakes have no trapping efficiency
             output_names=output_names,
             geom_name=geom_name,
-            **kwargs,
+            source_kwargs=kwargs,
         )
 
     @hydromt_step
@@ -369,7 +369,7 @@ class WflowSedimentModel(WflowBaseModel):
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            source_kwargs=kwargs,
         )
         # Skip method if no data is returned
         if gdf_res is None:

@@ -859,7 +859,7 @@ and will soon be removed. '
         )
         df_map = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver={"name": "pandas", "options": {"index_col": 0}},
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         # process landuse
         ds_lulc_maps = workflows.landuse(
@@ -1010,7 +1010,7 @@ and will soon be removed. '
             lulc_mapping_fn = f"{lulc_fn}_mapping_default"
         df_map = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver={"name": "pandas", "options": {"index_col": 0}},
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         # read landuse map
         gdf = self.data_catalog.get_geodataframe(
@@ -1269,7 +1269,7 @@ gauge locations [-] (if derive_subcatch)
                 geom=self.basins,
                 # assert_gtype="Point", hydromt#1243
                 handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
+                source_kwargs=kwargs,
             )
         elif self.data_catalog.contains_source(gauges_fn):
             if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
@@ -1278,7 +1278,7 @@ gauge locations [-] (if derive_subcatch)
                     geom=self.basins,
                     # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
+                    source_kwargs=kwargs,
                 )
             elif self.data_catalog.get_source(gauges_fn).data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
@@ -1286,7 +1286,7 @@ gauge locations [-] (if derive_subcatch)
                     geom=self.basins,
                     # assert_gtype="Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
+                    source_kwargs=kwargs,
                 )
                 gdf_gauges = da.vector.to_gdf()
                 # Check for point geometry
