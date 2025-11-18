@@ -12,14 +12,18 @@ type = "sbm"
 snow_gravitational_transport__flag = true
 snow__flag = true
 cold_start__flag = true
+reservoir__flag = true
 glacier__flag = true
 land_routing = "kinematic_wave"
 river_routing = "kinematic_wave"
-kinematic_wave__adaptive_time_step_flag = false
+kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
-soil_layer__thickness = [100, 300, 800]
-reservoir__flag = true
+soil_layer__thickness = [
+    100,
+    300,
+    800,
+]
 
 [state]
 path_input = "instate/instates.nc"
@@ -42,7 +46,7 @@ reservoir_water_surface__elevation = "reservoir_water_level"
 
 [input]
 path_forcing = "inmaps.nc"
-path_static = "staticmaps_v0x.nc"
+path_static = "staticmaps/staticmaps_v0x.nc"
 gauges = "wflow_gauges"
 basin__local_drain_direction = "wflow_ldd"
 river_location__mask = "wflow_river"
@@ -59,6 +63,7 @@ land_surface_water__potential_evaporation_volume_flux = "pet"
 
 [input.cyclic]
 vegetation__leaf_area_index = "LAI"
+reservoir_water__target_full_volume_fraction = "reservoir_target_full_fraction"
 
 [input.static]
 snowpack__degree_day_coefficient = "Cfmax"
@@ -77,6 +82,7 @@ vegetation_root__depth = "RootingDepth"
 vegetation__specific_leaf_storage = "Sl"
 vegetation_wood_water__storage_capacity = "Swood"
 vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient = "alpha_h1"
+soil_layer_water__brooks_corey_exponent = "c"
 soil_surface_water__infiltration_reduction_parameter = "cf_soil"
 soil_surface_water__vertical_saturated_hydraulic_conductivity = "KsatVer"
 soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "f"
@@ -95,24 +101,17 @@ river__length = "wflow_riverlength"
 river_water_flow__manning_n_parameter = "N_River"
 river__slope = "RiverSlope"
 river__width = "wflow_riverwidth"
-reservoir_surface__area = "reservoir_area"
 reservoir_water_surface__initial_elevation = "reservoir_initial_depth"
-reservoir_water__rating_curve_type_count = "reservoir_rating_curve"
-reservoir_water__storage_curve_type_count = "reservoir_storage_curve"
-reservoir_water__max_volume = "reservoir_max_volume"
-reservoir_water__target_full_volume_fraction = "reservoir_target_full_fraction"
-reservoir_water__target_min_volume_fraction = "reservoir_target_min_fraction"
-reservoir_water_demand__required_downstream_volume_flow_rate = "reservoir_demand"
-reservoir_water_release_below_spillway__max_volume_flow_rate = "reservoir_max_release"
+reservoir_water_flow_threshold_level__elevation = "reservoir_outflow_threshold"
 reservoir_water__rating_curve_coefficient = "reservoir_b"
 reservoir_water__rating_curve_exponent = "reservoir_e"
-reservoir_water_flow_threshold_level__elevation = "reservoir_outflow_threshold"
-
-[input.static.soil_layer_water__brooks_corey_exponent]
-netcdf_variable_name = "c"
-scale = [2.0, 1.5]
-offset = [0.0, 0.0]
-layer = [1, 2]
+reservoir_water__rating_curve_type_count = "reservoir_rating_curve"
+reservoir_water__storage_curve_type_count = "reservoir_storage_curve"
+reservoir_surface__area = "reservoir_area"
+reservoir_water_demand__required_downstream_volume_flow_rate = "reservoir_demand"
+reservoir_water_release_below_spillway__max_volume_flow_rate = "reservoir_max_release"
+reservoir_water__max_volume = "reservoir_max_volume"
+reservoir_water__target_min_volume_fraction = "reservoir_target_min_fraction"
 
 [input.static.subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio]
 value = 100
@@ -127,6 +126,7 @@ land_surface_water__depth = "h_land"
 
 [output.netcdf_scalar]
 path = "output_scalar.nc"
+
 [[output.netcdf_scalar.variable]]
 name = "Q"
 map = "gauges"
@@ -148,6 +148,7 @@ y = 45.8925
 
 [output.csv]
 path = "output.csv"
+
 [[output.csv.column]]
 header = "Q-max"
 parameter = "river_water__volume_flow_rate"
@@ -165,6 +166,7 @@ parameter = "atmosphere_air__temperature"
 [output.csv.column.coordinate]
 x = 11.95
 y = 45.9
+
 [[output.csv.column]]
 header = "temp_byindex"
 parameter = "atmosphere_air__temperature"
@@ -172,6 +174,7 @@ parameter = "atmosphere_air__temperature"
 [output.csv.column.index]
 x = 11
 y = 6
+
 [[output.csv.column]]
 header = "Q"
 map = "gauges_grdc"
