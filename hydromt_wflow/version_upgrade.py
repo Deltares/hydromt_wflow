@@ -402,8 +402,19 @@ def convert_to_wflow_v1_sbm(config: dict) -> dict:
         "lateral.river.floodplain.volume": "floodplain_water__volume",
         "lateral.river.reservoir.volume": "reservoir_water__volume",
         "lateral.river.reservoir.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",  # noqa : E501
+        "lateral.river.reservoir.outflow": "reservoir_water__outgoing_volume_flow_rate",
+        "lateral.river.reservoir.inflow": "reservoir_water__incoming_volume_flow_rate",
+        "lateral.river.reservoir.precipitation": "reservoir_water__precipitation_volume_flux",  # noqa : E501
+        "lateral.river.reservoir.evaporation": "reservoir_water__potential_evaporation_volume_flux",  # noqa : E501
+        "lateral.river.reservoir.actevap": "reservoir_water__evaporation_volume_flux",
         "lateral.river.lake.storage": "reservoir_water__volume",
         "lateral.river.lake.totaloutflow": "reservoir_water__outgoing_volume_flow_rate",
+        "lateral.river.lake.outflow": "reservoir_water__outgoing_volume_flow_rate",
+        "lateral.river.lake.inflow": "reservoir_water__incoming_volume_flow_rate",
+        "lateral.river.lake.waterlevel": "reservoir_water_surface__elevation",
+        "lateral.river.lake.precipitation": "reservoir_water__precipitation_volume_flux",  # noqa : E501
+        "lateral.river.lake.evaporation": "reservoir_water__potential_evaporation_volume_flux",  # noqa : E501
+        "lateral.river.lake.actevap": "reservoir_water__evaporation_volume_flux",
     }
 
     # Options in model section that were renamed
