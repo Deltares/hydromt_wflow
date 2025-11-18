@@ -66,7 +66,7 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm(tmpdir, caplog):
+def test_convert_to_wflow_v1_sbm(caplog):
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
@@ -121,6 +121,9 @@ def test_convert_to_wflow_v1_sbm_with_exceptions():
     wflow.config.set("input.vertical.θᵣ", theta_r)
     wflow.config.set("input.vertical.g_tt", g_ttm)
     wflow.config.set("input.vertical.kv₀", kv)
+    cyclic = wflow.config.get_value("input.cyclic", [])
+    cyclic.append("lateral.river.reservoir.targetfullfrac")
+    wflow.config.set("input.cyclic", cyclic)
 
     # Convert to v1
     wflow.upgrade_to_v1_wflow()

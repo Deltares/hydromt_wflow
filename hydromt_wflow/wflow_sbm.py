@@ -4001,7 +4001,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
             self.staticmaps.data, config_v0
         )
-        upgrade_lake_tables_to_reservoir_tables_v1(self.tables)
         if ds_res is not None:
             # Remove older maps from grid
             self.staticmaps.drop_vars(vars_to_remove)
@@ -4010,3 +4009,5 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             # Update the config with the new names
             for option in config_opt:
                 self.config.set(option, config_opt[option])
+        # also update tables
+        upgrade_lake_tables_to_reservoir_tables_v1(self.tables)

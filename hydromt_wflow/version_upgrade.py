@@ -645,6 +645,7 @@ def convert_reservoirs_to_wflow_v1_sbm(
 
         # Update the config options
         for layer in reservoir_layers:
+            # layers that are in "main" input section
             if layer in [
                 "reservoir_area_id",
                 "reservoir_outlet_id",
@@ -652,7 +653,16 @@ def convert_reservoirs_to_wflow_v1_sbm(
             ]:
                 wflow_var_v1 = f"input.{WFLOW_NAMES[layer]['wflow_v1']}"
             else:
-                wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer]['wflow_v1']}"
+                # Find if in cyclic / forcing / static
+                v0_var = WFLOW_NAMES[layer]["wflow_v0"]
+                if v0_var in get_config(config=config, key="input.cyclic", fallback=[]):
+                    wflow_var_v1 = f"input.cyclic.{WFLOW_NAMES[layer]['wflow_v1']}"
+                elif v0_var in get_config(
+                    config=config, key="input.forcing", fallback=[]
+                ):
+                    wflow_var_v1 = f"input.forcing.{WFLOW_NAMES[layer]['wflow_v1']}"
+                else:
+                    wflow_var_v1 = f"input.static.{WFLOW_NAMES[layer]['wflow_v1']}"
             config_options[wflow_var_v1] = layer
 
     # Move to the lake layers
