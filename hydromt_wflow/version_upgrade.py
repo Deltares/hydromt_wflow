@@ -241,6 +241,13 @@ def _convert_to_wflow_v1(
     cyclic_variables = []
     forcing_variables = []
 
+    reservoir_locs = []
+    if get_config(config, "input.lateral.river.reservoir.locs") is not None:
+        reservoir_locs.append(get_config(config, "input.lateral.river.reservoir.locs"))
+    if get_config(config, "input.lateral.river.lake.locs") is not None:
+        reservoir_locs.append(get_config(config, "input.lateral.river.lake.locs"))
+    reservoir_locs_map = []
+
     config_out["input"] = {}
     for key, name in config["input"].items():
         if key in input_options.keys():
@@ -250,7 +257,11 @@ def _convert_to_wflow_v1(
         elif key == "cyclic":
             cyclic_variables = name
         elif key not in ["vertical", "lateral"]:  # variables are done separately
-            config_out["input"][key] = name
+            # For reservoir / lake locations map, skip
+            if name in reservoir_locs:
+                reservoir_locs_map.append(key)
+            else:
+                config_out["input"][key] = name
 
     # Go through the input variables
     config_out["input"]["forcing"] = {}
@@ -315,6 +326,9 @@ def _convert_to_wflow_v1(
         "lateral.river.lake.locs": "reservoir_location__count",
         "lateral.river.reservoir.locs": "reservoir_location__count",
     }
+    # Add the reservoir maps that were potentially in the input section
+    for var in reservoir_locs_map:
+        map_variable_conversions[var] = "reservoir_location__count"
 
     if get_config(key="netcdf", config=config, fallback=None) is not None:
         if "output" not in config_out:
