@@ -66,7 +66,7 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm(tmpdir, caplog):
+def test_convert_to_wflow_v1_sbm(caplog):
     # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
@@ -86,14 +86,26 @@ def test_convert_to_wflow_v1_sbm(tmpdir, caplog):
     assert wflow.config.test_equal(wflow_v1.config)[0]
 
     # Checks on extra data in staticmaps
-    res_ids = np.unique(
-        wflow.staticmaps.data["reservoir_outlet_id"].raster.mask_nodata()
-    )
+    staticmaps = wflow.staticmaps.data
+    res_ids = np.unique(staticmaps["reservoir_outlet_id"].raster.mask_nodata())
     assert np.all(np.isin([3349.0, 3367.0, 169986.0], res_ids))
     assert np.all(
         np.isin(
             [3.0, 4.0],
-            wflow.staticmaps.data["reservoir_rating_curve"].raster.mask_nodata(),
+            staticmaps["reservoir_rating_curve"].raster.mask_nodata(),
+        )
+    )
+    # Check the -1 where added for lake and reservoir
+    assert np.all(
+        np.isin(
+            [-1.0, 2.0],
+            staticmaps["reservoir_e"].raster.mask_nodata(),
+        )
+    )
+    assert np.all(
+        np.isin(
+            [-1.0, 1.0],
+            staticmaps["reservoir_target_full_fraction"].raster.mask_nodata(),
         )
     )
 
@@ -197,6 +209,11 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
 
+    # Also test lake files with cyclic inputs
+    cyclic = wflow.config.get_value("input.cyclic", [])
+    cyclic.append("lateral.river.reservoir.targetfullfrac")
+    wflow.config.set("input.cyclic", cyclic)
+
     # Convert to v1
     wflow.upgrade_to_v1_wflow()
     wflow.root.set(tmp_path, mode="w")
@@ -204,3 +221,11 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
 
     assert (tmp_path / "staticmaps" / "reservoir_hq_1.csv").is_file()
     assert (tmp_path / "staticmaps" / "reservoir_hq_2.csv").is_file()
+
+    # Check with a test config
+    config_fn_v1 = join(
+        TESTDATADIR, "wflow_v0x", "sbm_with_lake_files", "wflow_sbm_v1.toml"
+    )
+    wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
+
+    assert wflow.config.test_equal(wflow_v1.config)[0]
