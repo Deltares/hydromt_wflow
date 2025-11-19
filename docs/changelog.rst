@@ -26,6 +26,7 @@ Fixed
 - Fixed conversion of reservoir variables in cyclic / forcing sections in `upgrade_to_v1_wflow` (#661).
 - Use -1 instead of NaN when merging lakes and reservoirs parameters (#661).
 - Convert reservoir location map in netcdf_scalar and csv output (#661).
+- Fixed issue with reading reservoir hq rating curve tables (#662).
 
 Removed
 -------
