@@ -25,6 +25,7 @@ forcing = [
 ]
 cyclic = ["vertical.leaf_area_index"]
 gauges_grdc = "wflow_gauges_grdc"
+reservoirlocs = "wflow_reservoirlocs"
 
 [model]
 type = "sbm"
@@ -211,6 +212,11 @@ parameter = "lateral.river.q_av"
 header = "lake-volume"
 map = "lateral.river.lake.locs"
 parameter = "lateral.river.lake.storage"
+
+[[csv.column]]
+header = "res-outflow"
+map = "reservoirlocs"
+parameter = "lateral.river.reservoir.outflow"
 
 [[csv.column]]
 header = "P"
