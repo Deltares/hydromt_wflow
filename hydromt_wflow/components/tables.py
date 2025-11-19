@@ -68,7 +68,7 @@ class WflowTablesComponent(TablesComponent):
         if len(df.columns) != 366:
             raise ValueError(
                 f"HQ table at {filepath} should have 366 columns, 1 for H and 365 for "
-                f"DOY Q. Found {len(df.columns)}."
+                f"JDOY Q. Found {len(df.columns)}."
             )
 
         return df
