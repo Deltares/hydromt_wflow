@@ -1379,17 +1379,23 @@
             <span class="n">mask</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">id_layer</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="c1"># if layer is not in ds, skip it</span>
-        <span class="c1"># NaN can be ok: e.g. natural lake does not have reservoir_demand</span>
+        <span class="c1"># NaN are not ok - use -1: e.g. natural lake does not have reservoir_demand</span>
         <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1"># if layer is in ds_like, merge it</span>
-        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">and</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
-            <span class="c1"># merge the layer</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">])</span>
-            <span class="c1"># ensure the nodata value is set correctly</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
-        <span class="c1"># else we just keep ds[layer] as it is</span>
+        <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># if layer is in ds_like, merge it</span>
+            <span class="k">if</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+                <span class="c1"># merge the layer</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">])</span>
+                <span class="c1"># ensure the nodata value is set correctly</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+
+            <span class="c1"># else update ds[layer] to add -1 for the new locs</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mask_ds_like</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">id_layer</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">mask_ds_like</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">set_rating_curve_layer_data_type</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_check_duplicated_ids_in_merge</span><span class="p">(</span><span class="n">ds_out</span><span class="p">,</span> <span class="n">duplicate_id</span><span class="o">=</span><span class="n">duplicate_id</span><span class="p">)</span></div>
 

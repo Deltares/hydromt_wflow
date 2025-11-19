@@ -448,6 +448,9 @@
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Support more lake/reservoir output variables in the upgrade to v1 function. (#661)</p></li>
+</ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
@@ -461,7 +464,10 @@
 <ul class="simple">
 <li><p>Fixed cyclic data layer not having coordinates after setting the data in the <code class="docutils literal notranslate"><span class="pre">WflowStaticMapsComponent</span></code>.</p></li>
 <li><p>Deriving river if dem was not upscaled in setup_basemaps (#638).</p></li>
-<li><p>fixed <cite>setup_precip_forcing</cite> producing an empty netcdf file (#649)</p></li>
+<li><p>fixed <cite>setup_precip_forcing</cite> producing an empty netcdf file (#649).</p></li>
+<li><p>Fixed conversion of reservoir variables in cyclic / forcing sections in <cite>upgrade_to_v1_wflow</cite> (#661).</p></li>
+<li><p>Use -1 instead of NaN when merging lakes and reservoirs parameters (#661).</p></li>
+<li><p>Convert reservoir location map in netcdf_scalar and csv output (#661).</p></li>
 </ul>
 </section>
 <section id="removed">
