@@ -29,7 +29,8 @@ class WflowTablesComponent(TablesComponent):
         self.root._assert_read_mode()
         self._initialize_tables(skip_read=True)
         logger.info("Reading model table files.")
-        filenames = glob.glob(join(self.root.path, filename.format(name="*")))
+        fn = filename or self._filename
+        filenames = glob.glob(join(self.root.path, fn.format(name="*")))
         if len(filenames) > 0:
             for fn in filenames:
                 name = basename(fn).split(".")[0]
