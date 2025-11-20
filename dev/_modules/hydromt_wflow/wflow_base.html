@@ -2137,7 +2137,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_outlets</span><span class="p">()</span>
-        <span class="n">exclude_geoms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">,</span> <span class="s2">&quot;basins_highres&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="s2">&quot;outlets&quot;</span><span class="p">]</span>
+        <span class="n">exclude_geoms</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">,</span> <span class="s2">&quot;meta_basins_highres&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">,</span> <span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="s2">&quot;outlets&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">old_geoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_geoms</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clipping geometry </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">..&quot;</span><span class="p">)</span>
@@ -2378,8 +2378,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">basins_highres</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a high resolution basin(s) geometry.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;basins_highres&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;meta_basins_highres&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;meta_basins_highres&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
         <span class="k">return</span> <span class="n">gdf</span>
