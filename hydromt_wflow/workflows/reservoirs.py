@@ -798,7 +798,8 @@ def reservoir_parameters(
                 if "volume" in df_rate.columns:
                     gdf.loc[gdf["waterbody_id"] == wid, "reservoir_storage_curve"] = 2
                     df_stor = df_rate[["elevtn", "volume"]].dropna(
-                        subset=["elevtn", "volume"]
+                        subset=["elevtn", "volume"],
+                        ignore_index=True,
                     )
                     df_stor.rename(columns={"elevtn": "H", "volume": "S"}, inplace=True)
                     # add to rating_curves
@@ -812,7 +813,8 @@ def reservoir_parameters(
                 if "discharge" in df_rate.columns:
                     gdf.loc[gdf["waterbody_id"] == wid, "reservoir_rating_curve"] = 1
                     df_rate = df_rate[["elevtn", "discharge"]].dropna(
-                        subset=["elevtn", "discharge"]
+                        subset=["elevtn", "discharge"],
+                        ignore_index=True,
                     )
                     df_rate.rename(
                         columns={"elevtn": "H", "discharge": "Q"},
