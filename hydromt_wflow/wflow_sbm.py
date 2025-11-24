@@ -1329,7 +1329,7 @@ setting new flood_depth dimensions"
         lulc_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
-            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            "esa_worldcover", "glcnmo"}, a default mapping is used and this argument
             becomes optional.
         paddy_fn : str, Path, xr.DataArray, optional
             RasterDataset or name in data catalog / path to paddy map.
