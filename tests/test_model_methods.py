@@ -298,6 +298,7 @@ def test_setup_reservoirs_no_control(
 
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
+@pytest.mark.integration
 def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"

@@ -5,6 +5,7 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
@@ -202,6 +203,7 @@ def test_config_toml_overwrite(tmp_path: Path):
     assert dummy_model.config.get_value("path_log") == "log_file2.log"
 
 
+@pytest.mark.integration
 def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
     # Initialize wflow model
     root = TESTDATADIR / "wflow_v0x" / "sbm_with_lake_files"
