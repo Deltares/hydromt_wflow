@@ -112,11 +112,9 @@ Parameters related to vegetation interception and storage of rainfall on leaves 
 | kext         | Extinction coefficient in the canopy gap fraction equation [-] | 0.2-0.9  | `Van Dijk and Bruijnzeel (2001) <https://doi.org/10.1016/S0022-1694(01)00392-4>`_ |
 |              |                                                                |          | `Van Heemst (1988) <https://edepot.wur.nl/218353>`_                               |
 +--------------+----------------------------------------------------------------+----------+-----------------------------------------------------------------------------------+
-| leaf_storage | Specific leaf storage [mm]                                     | 0.02-0.2 | `Pitman (1989) <https://doi.org/10.5194/hess-15-3355-2011>`_                      |
-|              |                                                                |          | `Liu (1998) <https://doi.org/10.1016/S0022-1694(98)00115-2>`_                     |
+| leaf_storage | Specific leaf storage [mm]                                     | 0.02-0.2 | `Zhong et al. (2022) <https://doi.org/10.5194/hess-26-5647-2022>`_                |
 +--------------+----------------------------------------------------------------+----------+-----------------------------------------------------------------------------------+
-| wood_storage | Fraction of wood in the vegetation/plant [-]                   | 0.0-0.5  | `Pitman (1989) <https://doi.org/10.5194/hess-15-3355-2011>`_                      |
-|              |                                                                |          | `Liu (1998) <https://doi.org/10.1016/S0022-1694(98)00115-2>`_                     |
+| wood_storage | Fraction of wood in the vegetation/plant [-]                   | 0.0-0.5  | `Zhong et al. (2022) <https://doi.org/10.5194/hess-26-5647-2022>`_                |
 +--------------+----------------------------------------------------------------+----------+-----------------------------------------------------------------------------------+
 
 **kext**
@@ -170,6 +168,49 @@ Values for different crops from van Heemst (1988):
    * - Cotton
      - 0.62
 
+Leaf and wood storage
+*********************
+
+Previous values were derived from `Pitman (1989) <https://doi.org/10.5194/hess-15-3355-2011>`_
+and `Liu (1998) <https://doi.org/10.1016/S0022-1694(98)00115-2>`_ . Starting from version 1, the
+default lookup tables use updated values based on a literature review by
+`Zhong et al. (2022) <https://doi.org/10.5194/hess-26-5647-2022>`_ (supplement values with more
+details are available).
+
+Note that for land use types with mixed (e.g urban) or sparse vegetation, the actual values will be scaled
+with LAI.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Vegetation / Crop type
+     - Leaf storage [mm]
+     - Wood storage [-]
+   * - Needleleaf forest
+     - 0.29
+     - 0.09
+   * - Evergreen broadleaf forest
+     - 0.20
+     - 0.09
+   * - Deciduous broadleaf forest
+     - 0.18
+     - 0.09
+   * - Mixed forest
+     - 0.20
+     - 0.09
+   * - All forest
+     - 0.23
+     - 0.09
+   * - Short vegetation (crops, grass, shrub)
+     - 0.10
+     - 0.03 (0.01 - 0.05)
+   * Maize
+     - 0.077
+     - 0.005
+   * Rice
+     - 0.042
+     - 0.005
+
 Evapotranspiration parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Parameters related to vegetation evaporation and transpiration.
@@ -177,27 +218,44 @@ Parameters related to vegetation evaporation and transpiration.
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 | Parameter       | Description                                         | Range                           | Reference                                                                                     |
 +=================+=====================================================+=================================+===============================================================================================+
-| crop_factor     | Crop coefficient [-]                                |                                 |                                                                                               |
+| crop_factor     | Crop coefficient [-]                                | 0.3 - 1.25                      | `Allen et al. (1998) <https://www.fao.org/4/x0490e/x0490e0b.htm>`_                            |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 | root_depth      | Length of vegetation roots [mm]                     | 100 - 5000                      | `Fan et al. (2016) <https://www.mdpi.com/2077-0472/14/4/532>`_                                |
 |                 |                                                     |                                 | `Schenk and Jackson (2002) <https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2>`_ |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_alpha_h1 | Root water uptake reduction at pressure head h1 [-] | 0 (crop) - 1 (other)            | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_alpha_h1 | Root water uptake reduction at pressure head h1 [-] | 0 (crop) - 1 (other)            | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_h1       | Critical pressure head h1 - anorexic condition [cm] | 100 (paddy) - 0 (other)         | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_h1       | Critical pressure head h1 - anorexic condition [cm] | 100 (paddy) - 0 (other)         | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_h2       | Critical pressure head h2 - field capacity [cm]     | 55 (paddy) - -100 (other)       | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_h2       | Critical pressure head h2 - field capacity [cm]     | 55 (paddy) - -100 (other)       | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_h3_high  | Critical pressure head h3 (high) [cm]               | -160 (paddy) - -400 (other)     | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_h3_high  | Critical pressure head h3 (high) [cm]               | -160 (paddy) - -400 (other)     | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_h3_low   | Critical pressure head h3 (low) [cm]                | -250 (paddy) - -1000 (other)    | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_h3_low   | Critical pressure head h3 (low) [cm]                | -250 (paddy) - -1000 (other)    | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
-| feddes_h4       | Critical pressure head h4 - wilting point [cm]      | -15000 (paddy) - -15849 (other) | `Feddes et al. (1978) <https://edepot.wur.nl/172222>`_                                        |
+| feddes_h4       | Critical pressure head h4 - wilting point [cm]      | -15000 (paddy) - -16000 (other) | `van Dam et al. (1997) <https://edepot.wur.nl/222782>`_                                       |
+|                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 
 **Crop factor**
 
-- https://www.fao.org/4/x0490e/x0490e0b.htm#chapter%206%20%20%20etc%20%20%20single%20crop%20coefficient%20(kc)
+The factor or FAO-56 crop coefficient kc is used to scale reference evapotranspiration (ET0)
+to crop evapotranspiration (ETc) as follows: ETc = Kc * ET0. In Wflow, kc is used as a maximum
+value valid for a full cover of a vegetation/crop type (i.e. kc is not dependant on crop growth stage
+or soil cover). Within Wflow, kc will be scaled further based on the actual vegetation cover fraction
+(from LAI) to get the actual crop coefficient used for ETc calculation.
+
+Detailed values of kc can be found for different crop types in the
+`FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`. As most LULC
+maps do not distinguish between crop types, an average value representing the most common crops
+in your study area should be used. In the default lookup tables, 1.15 is used for cropland areas
+(based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
+
 
 **Root depth**
 
@@ -281,11 +339,54 @@ Values for different crops from Fan et al. (2016) and different other vegetation
 
 **Feddes root water uptake**
 
-Other links:
+Critical pressure heads for rice are taken after Singh et al. (2003). For other vegetation,
+the default values from Wflow.jl are used. These are now vegetation independent and are taken
+as the default complete saturation (h1=0 cm), field capacity (h2=-100 cm) and wilting point
+(h4=-16000 cm). The h3 values are set to -400 cm (high) and -1000 cm (low) but these are largely
+dependent on the type of vegetation.
 
-- https://books.google.com.sg/books?hl=fr&lr=&id=e0MzVX-7FnIC&oi=fnd&pg=PA95&dq=Parameterizing+the+soil+%E2%80%93+water+%E2%80%93+plant+root+system+R.A.+Feddes%23+and+P.A.C.+Raats&ots=ZfjyLAP3CN&sig=WIAfKWDerr6rKwb2-gDNX4KQPhk&redir_esc=y#v=onepage&q=Parameterizing%20the%20soil%20%E2%80%93%20water%20%E2%80%93%20plant%20root%20system%20R.A.%20Feddes%23%20and%20P.A.C.%20Raats&f=false
-- https://swap.wur.nl/DownloadHistory/swap303/Reference%20Manual%20SWAP%20version%203.0.3%20Report773.pdf (appendix 3)
-- https://www.mdpi.com/2077-0472/14/4/532
+Examples can be found in annexes C and D of Van Dam et al. (1997). Here are examples for
+the most common crops [cm]:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Crop
+     - h1
+     - h2
+     - h3_high
+     - h3_low
+     - h4
+   * - Potatoes
+     - -10
+     - -25
+     - -320
+     - -600
+     - -16000
+   * - Sugar beet
+     - -10
+     - -25
+     - -320
+     - -600
+     - -16000
+   * - Wheat
+     - 0
+     - -1
+     - -500
+     - -900
+     - -16000
+   * - Pasture
+     - -10
+     - -25
+     - -200
+     - -800
+     - -8000
+   * - Corn
+     - -15
+     - -30
+     - -325
+     - -600
+     - -8000
 
 Manning Roughness
 ^^^^^^^^^^^^^^^^^
@@ -297,7 +398,7 @@ Estimations per landuse class can be found in literature such as:
 +===========+=============================+=============+==========================================================================+
 | manning_n | Manning Roughness [m-1/3 s] | 0.008-0.96  | `Engman (1986) <https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39)>` |
 |           |                             |             | `Kilgore (1997) <http://hdl.handle.net/10919/35777>`_                    |
-|           |                             |             | Cronshey (1986)                                                          |
+|           |                             |             | `Cronshey (1986) <https://www.nrc.gov/docs/ML1421/ML14219A437.pdf>`_                                                          |
 +-----------+-----------------------------+-------------+--------------------------------------------------------------------------+
 
 Example of values from different sources:
@@ -312,23 +413,23 @@ Example of values from different sources:
    * - Smooth surfaces (concrete, gravel, bare)
      - 0.011
      - 0.015 (residential/commercial) / 0.020 (gravel road)
-     - 0.010 (bare) / 0.011 (concrete) / 0.020 (gravel)
+     - 0.01 (smooth bare soil or bare sand) / 0.011 (concrete) - 0.020 (gravel)
    * - Fallow (no residue)
      - 0.05
      - 0.05
-     -
-   * - Cultivated soil
+     - 0.05
+   * - Cropland
      - 0.06 - 0.17 (depending on residue cover)
-     - 0.032 (wheat) - 0.08 (corn) - 0.2 (depending on tillage)
-     -
+     - 0.032 (wheat) / 0.08 (corn) - 0.2 (depending on tillage)
+     - 0.1 - 0.4 (small grain) / 0.07 - 0.2 (row crops)
    * - Grassland
-     - 0.15 (short) / 0.24 (dense)
+     - 0.15 (short) - 0.24 (dense)
      - 0.046 (grass) / 0.1 (pasture)
-     - 0.15 (short grass)
+     - 0.15 (short) - 0.24 (dense)
    * - Forest
      - 0.4 - 0.8 (depending on underbrush)
      - 0.6
-     - 0.3 - 0.8
+     -
    * - Range (natural)
      - 0.13
      -
@@ -359,13 +460,128 @@ urban but still contains a significant fraction of vegetation or water.
 
 Soil erosion
 ^^^^^^^^^^^^
-USLE cover management factor (erosion_usle_c)
+For soil erosion, the soil cover-management factor USLE C can be estimated for different
+land use / vegetation type.
+
++----------------+----------------------------------+-------------+-----------------------------------------------------------------------------+
+| Parameter      | Description                      | Range       | Reference                                                                   |
++================+==================================+=============+=============================================================================+
+| erosion_usle_c | USLE cover management factor [-] | 0.001 - 1.0 | `Panagos et al. (2015) <https://doi.org/10.1016/j.landusepol.2015.05.021>`_ |
+|                |                                  |             | `Bosco et al. (2015) <https://doi.org/10.5194/nhess-15-225-2015>`_          |
+|                |                                  |             | `Gericke et al. (2015) <https://doi.org/10.1080/15715124.2014.1003302>`_    |
++----------------+----------------------------------+-------------+-----------------------------------------------------------------------------+
+
+Examples of USLE C values for different land use types different sources:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Land use
+     - Panagos
+     - Bosco
+     - Gericke
+   * - Wheat
+     - 0.20
+     -
+     -
+   * - Maize
+     - 0.38
+     -
+     -
+   * - Rice
+     - 0.15
+     - 0.15
+     - 0.05
+   * - Potatoes or sugar beet
+     - 0.34
+     -
+     -
+   * - Oilseeds
+     - 0.28
+     -
+     -
+   * - All crops
+     - 0.233 (0.2 - 0.5)
+     - 0.2 (irrigated) / 0.335 (rainfed)
+     - 0.18 - 0.24 (irrigated) / 0.3 - 0.4 (rainfed)
+   * - Vineyards
+     - 0.3527 (0.15 - 0.45)
+     - 0.45
+     - 0.5
+   * - Fruit trees and berries
+     - 0.2188 (0.1 - 0.3)
+     - 0.35
+     - 0.4
+   * - Olive groves
+     - 0.2273 (0.1 - 0.3)
+     - 0.35
+     - 0.4
+   * - Agro-forestry areas
+     - 0.0881 (0.03 - 0.13)
+     - 0.2
+     - 0.23 - 0.3
+   * - Broad-leaved forest
+     - 0.0013 (0.0001 - 0.003)
+     - 0.0025
+     - 0.005 - 0.008
+   * - Coniferous forest
+     - 0.0011 (0.0001 - 0.003)
+     - 0.0015
+     - 0.005 - 0.008
+   * - Mixed forest
+     - 0.0011 (0.0001 - 0.003)
+     - 0.002
+     - 0.005 - 0.008
+   * - Pastures
+     - 0.0903 (0.05 - 0.15)
+     - 0.01
+     - 0.01 - 0.005
+   * Natural grasslands
+     - 0.0435 (0.01 - 0.08)
+     - 0.005
+     - 0.01 - 0.05
+   * - Moors and heathland
+     - 0.0420 (0.01 - 0.1)
+     - 0.05
+     - 0.01 - 0.05
+   * - Shrubland
+     - 0.0623 (0.01 - 0.1)
+     - 0.04
+     - 0.01 - 0.05
+   * - Bare rocks
+     - 0
+     -
+     - 0
+   * - Sparse vegetation
+     - 0.2652 (0.1 - 0.45)
+     - 0.3
+     - 0.35
+   * - Burnt areas
+     - 0.3427 (0.1 - 0.55)
+     - 0.3
+     - 0.35
+   * - Glaciers and perpetual snow
+     - 0
+     - 0.001
+     - 0
 
 References
 ----------
 
+- Allen RG, Pereira LS, Raes D, Smith M (1998) Crop evapotranspiration guidelines for computing
+  crop water requirements. FAO Irrig Drain Pap 56. FAO, Rome, p 300
+- Bosco, C., de Rigo, D., Dewitte, O., Poesen, J., and Panagos, P. (2015). Modelling soil
+  erosion at European scale: towards harmonization and reproducibility, Nat. Hazards Earth Syst.
+  Sci., 15, 225–245, https://doi.org/10.5194/nhess-15-225-2015
+- Corbari, C., Ravazzani, G., Galvagno, M., Cremonese, E., & Mancini, M. (2017). Assessing
+  crop coefficients for natural vegetated areas using satellite data and eddy covariance
+  stations. Sensors, 17(11), 2664.
 - Cronshey, R. (1986). Urban hydrology for small watersheds (No. 55). US Department of Agriculture,
   Soil Conservation Service, Engineering Division.
+- van Dam, J.C., Huygen, J., Wesseling, J.G., Feddes, R.A., Kabat, P., van Walsum, P.E.V., Groenendijk, P.,
+  and van Diepen, C.A., 1997. Theory of SWAP version 2.0: Simulation of water flow, solute transport
+  and plant growth in the soil-water-atmosphere-plant environment. Wageningen Agricultural
+  University, The Netherlands, Report 71.
 - van Dijk, A. I. J. M., & Bruijnzeel, L. A. (2001). Modelling rainfall interception by vegetation
   of variable density using an adapted analytical model. Part 2. Model validation for a tropical
   upland mixed cropping system. Journal of Hydrology, 247(3-4), 239–262.
@@ -375,6 +591,9 @@ References
   agricultural crops. Field Crops Research, 189, 68–74. https://doi.org/10.1016/j.fcr.2016.02.013
 - Feddes, R.A., Kowalik, P.J. and Zaradny, H., 1978, Simulation of field water use and crop yield,
   Pudoc, Wageningen, Simulation Monographs.
+- Gericke, A. (2015). Soil loss estimation and empirical relationships for sediment delivery
+  ratios of European river catchments. International Journal of River Basin Management,
+  13(2), 179–202. https://doi.org/10.1080/15715124.2014.1003302
 - van Heemst, H.D.J. (1988). Plant data values required for simple crop growth simulation models,
   review and bibliography. Simulation report CABO-TT No 17. Wageningen.
 - Imhoff, R.O, van Verseveld, W.J., van Osnabrugge, B., Weerts, A.H., 2020. Scaling Point-Scale
@@ -386,8 +605,28 @@ References
 - Liu, S. (1998). Estimation of rainfall storage capacity in the canopies of cypress wet lands
   and slash pine uplands in North-Central Florida. Journal of Hydrology, 207(1-2), 32–41.
   https://doi.org/10.1016/S0022-1694(98)00115-2
+- Panagos, P., Borrelli, P., Meusburger, K., Alewell, C., Lugato, E., & Montanarella, L. (2015).
+  Estimating the soil erosion cover-management factor at the European scale. Land Use Policy,
+  48, 38–50. https://doi.org/10.1016/j.landusepol.2015.05.021
+- Pereira, L.S., Paredes, P. & Espírito-Santo, D. (2024a). Crop coefficients of natural wetlands
+  and riparian vegetation to compute ecosystem evapotranspiration and the water balance.
+  Irrig Sci 42, 1171–1197. https://doi.org/10.1007/s00271-024-00923-9
+- Pereira, L.S., Paredes, P., Espírito-Santo, D. et al. (2024b). Actual and standard crop
+  coefficients for semi-natural and planted grasslands and grasses: a review aimed at
+  supporting water management to improve production and ecosystem services. Irrig Sci 42,
+  1139–1170. https://doi.org/10.1007/s00271-023-00867-6
+- Pereira, L.S., Paredes, P., Oliveira, C.M. et al. (2024c). Single and basal crop coefficients
+  for estimation of water use of tree and vine woody crops with consideration of fraction of
+  ground cover, height, and training system for Mediterranean and warm temperate fruit and
+  leaf crops. Irrig Sci 42, 1019–1058. https://doi.org/10.1007/s00271-023-00901-7
 - Pitman, J. (1989). Rainfall interception by bracken in open habitats—Relations between
   leaf area, canopy storage and drainage rate. Journal of Hydrology, 105(3-4), 317–334.
   https://doi.org/10.1016/0022-1694(89)90111-X
 - Schenk, H. J., & Jackson, R. B. (2002). The global biogeography of roots. Ecological
   Monographs, 72(3), 311–328. https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2
+- Singh, R., Van Dam, J. C., & Jhorar, R. K. (2003). Water and salt balances at farmer fields.
+  Water productivity of irrigated crops in Sirsa district, India. Integration of remote sensing,
+  crop and soil models and geographical information systems.
+- Zhong, F., Jiang, S., van Dijk, A. I. J. M., Ren, L., Schellekens, J., and Miralles, D. G.
+  (2022). Revisiting large-scale interception patterns constrained by a synthesis of global
+  experimental data, Hydrol. Earth Syst. Sci., 26, 5647–5667. https://doi.org/10.5194/hess-26-5647-2022
