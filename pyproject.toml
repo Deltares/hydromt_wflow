@@ -120,6 +120,7 @@ filterwarnings = [
 testpaths = ["tests"]
 # don't run benchmarks by default when testing
 addopts = ["--benchmark-skip"]
+markers = ["integration: marks tests as integration tests"]
 
 [tool.coverage.run]
 branch = true
@@ -357,20 +358,6 @@ build-example-models = {cmd = [
 [tool.pixi.feature.test.tasks]
 test = { cmd = ["pytest"] }
 test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
-test-cov = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov=hydromt_wflow",
-  "--cov-report",
-  "xml",
-] }
-test-cov-local = { cmd = [
-  "pytest",
-  "--verbose",
-  "--cov",
-  "--cov-report",
-  "html",
-] }
 build-test-model-simple = { cmd = [
   "hydromt",
   "build",
@@ -471,3 +458,17 @@ benchmark-compare = { cmd = [
   "--benchmark-compare",
   "--benchmark-compare-fail=min:25%",
 ] }
+
+[tool.pixi.feature.test.tasks.test-cov]
+cmd = [
+  "pytest",
+  "--verbose",
+  "--cov=hydromt_wflow",
+  "--cov-report={{ report }}",
+  "--cov-branch",
+  "-m",
+  "not integration",
+]
+args=[
+  { "arg" = "report", default="xml"}
+]

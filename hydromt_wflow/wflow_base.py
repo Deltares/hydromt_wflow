@@ -1672,7 +1672,7 @@ one variable and variables list is not provided."
         self.basins
         self.rivers
         self.setup_outlets()
-        exclude_geoms = ["basins", "basins_highres", "region", "rivers", "outlets"]
+        exclude_geoms = ["basins", "meta_basins_highres", "region", "rivers", "outlets"]
         for name, gdf in old_geoms.items():
             if name not in exclude_geoms:
                 logger.debug(f"Clipping geometry {name}..")
@@ -1900,8 +1900,8 @@ one variable and variables list is not provided."
     @property
     def basins_highres(self) -> gpd.GeoDataFrame | None:
         """Returns a high resolution basin(s) geometry."""
-        if "basins_highres" in self.geoms.data:
-            gdf = self.geoms.get("basins_highres")
+        if "meta_basins_highres" in self.geoms.data:
+            gdf = self.geoms.get("meta_basins_highres")
         else:
             gdf = self.basins
         return gdf

@@ -285,16 +285,20 @@ def test_setup_reservoirs_no_control(
     example_wflow_model.tables.write()
 
     test_table = example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"]
+    test_table_hq = example_wflow_model.tables.data[f"reservoir_hq_{lake_id}"]
 
     example_wflow_model.tables.data.clear()
     example_wflow_model.root.set(new_root, mode="r")
     example_wflow_model.tables.read()
+    tables_data = example_wflow_model.tables.data
 
-    assert example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_hq_{lake_id}"].equals(test_table_hq)
 
 
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
+@pytest.mark.integration
 def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"

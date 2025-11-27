@@ -11,17 +11,23 @@ Unreleased
 
 Added
 -----
+- Support more lake/reservoir output variables in the upgrade to v1 function. (#661)
 
 Changed
 -------
 - When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation. (#631)
 - ``setup_lulcmaps`` and equivalents: Parameters for ``lulc_vars`` are directly linked to the names in the columns of the mapping table. (#623)
+- Renamed ``basin_highres`` to ``meta_basins_highres``. (#635)
 
 Fixed
 -----
 - Fixed cyclic data layer not having coordinates after setting the data in the ``WflowStaticMapsComponent``.
 - Deriving river if dem was not upscaled in setup_basemaps (#638).
-- fixed `setup_precip_forcing` producing an empty netcdf file (#649)
+- fixed `setup_precip_forcing` producing an empty netcdf file (#649).
+- Fixed conversion of reservoir variables in cyclic / forcing sections in `upgrade_to_v1_wflow` (#661).
+- Use -1 instead of NaN when merging lakes and reservoirs parameters (#661).
+- Convert reservoir location map in netcdf_scalar and csv output (#661).
+- Fixed issue with reading reservoir hq rating curve tables (#662).
 
 Removed
 -------
