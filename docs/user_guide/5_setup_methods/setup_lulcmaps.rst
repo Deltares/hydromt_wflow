@@ -20,9 +20,11 @@ LULC map are preserved in the final model maps.
 
 The following methods are available:
 
-- :py:meth:`~WflowSbmModel.setup_lulcmaps`: Main method to setup LULC maps using lookup tables.
-- :py:meth:`~WflowSbmModel.setup_lulcmaps_from_vector`: Similar to the above but starts with
-  rasterizing the LULC vector data to a user-defined resolution.
+- :py:meth:`~WflowSbmModel.setup_lulcmaps` and :py:meth:`~WflowSedimentModel.setup_lulcmaps`:
+  Main method to setup LULC maps using lookup tables.
+- :py:meth:`~WflowSbmModel.setup_lulcmaps_from_vector` and
+  :py:meth:`~WflowSedimentModel.setup_lulcmaps_from_vector`: Similar to the above but starts
+  with rasterizing the LULC vector data to a user-defined resolution.
 - :py:meth:`~WflowSbmModel.setup_lulcmaps_with_paddy`: Specific method if paddies are present
   in your catchment. The LULC map can directly contain a paddy class or an additional paddy map
   can be provided and will be merged into the landuse map before deriving parameters. Additional
@@ -77,23 +79,35 @@ The columns names should match the HydroMT names of each Wflow parameter. These 
 - **erosion_usle_c** (sediment): USLE cover management factor [-]
 
 Example lookup table (for ESA WorldCover):
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO update after harmo is done!!!!!!!!!!!!!!!!!!!
 
 .. code-block:: csv
 
     esa,description,landuse,vegetation_kext,land_manning_n,soil_compacted_fraction,vegetation_root_depth,vegetation_leaf_storage,vegetation_wood_storage,land_water_fraction,vegetation_crop_factor,vegetation_feddes_alpha_h1,vegetation_feddes_h1,vegetation_feddes_h2,vegetation_feddes_h3_high,vegetation_feddes_h3_low,vegetation_feddes_h4,erosion_usle_c,Cov_River
-    10,Tree cover,10,0.8,0.5,0,369,0.0477,0.5,0,0.85,1,0,-100,-400,-1000,-15849,0.0069,12.3
-    20,Shrubland,20,0.07,0.5,0,410,0.07,0.1,0,0.8,1,0,-100,-400,-1000,-15849,0.05,1.97
-    30,Grassland,30,0.6,0.15,0,106.8,0.1272,0,0,0.75,1,0,-100,-400,-1000,-15849,0.045,1.97
-    40,Cropland,40,0.6,0.2,0,390.4,0.1272,0,0,1.15,0,0,-100,-400,-1000,-15849,0.3,1.97
-    50,Built-up,50,0.7,0.011,0.9,257.4,0.04,0.01,0,1,1,0,-100,-400,-1000,-15849,0,1
-    60,Bare / sparse vegetation,60,0.6,0.02,0,10.7,0.04,0.04,0,1,1,0,-100,-400,-1000,-15849,0.25,1.97
-    70,Snow and Ice,70,0.6,0.01,0,0,0,0,0,1,1,0,-100,-400,-1000,-15849,0,1
-    80,Permanent water bodies,80,0.7,0.01,0,0,0,0,1,1,1,0,-100,-400,-1000,-15849,0,1
-    90,Herbaceous wetland,90,0.6,0.15,0,106.8,0.1272,0,0,1.1,1,0,-100,-400,-1000,-15849,0.05,1.97
-    95,Mangroves,95,0.8,0.5,0,369,0.0477,0.5,0.5,1,1,0,-100,-400,-1000,-15849,0.0069,12.3
-    100,Moss and lichen,100,0.6,0.085,0,136.9,0.04,0,0,1,1,0,-100,-400,-1000,-15849,0.04,1.97
-    0,No data,0,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999
+    10,Tree cover,10,0.8,0.5,0,406,0.23,0.09,0,1.1,1,0,-100,-400,-1000,-16000,0.0012
+    20,Shrubland,20,0.7,0.5,0,410,0.1,0.05,0,1.05,1,0,-100,-400,-1000,-16000,0.06
+    30,Grassland,30,0.6,0.2,0,106.8,0.1,0.01,0,1,1,0,-100,-400,-1000,-16000,0.04
+    40,Cropland,40,0.6,0.15,0,390.4,0.077,0.005,0,1.15,0,0,-100,-400,-1000,-16000,0.3
+    50,Built-up,50,0.6,0.015,0.9,257.4,0.1,0.03,0,1,1,0,-100,-400,-1000,-16000,0.001
+    60,Bare / sparse vegetation,60,0.6,0.015,0,10.7,0.1,0.03,0,0.5,1,0,-100,-400,-1000,-16000,0.35
+    70,Snow and Ice,70,0,0.01,0,0,0,0,0,1,1,0,-100,-400,-1000,-16000,0
+    80,Permanent water bodies,80,0,0.01,0,0,0,0,1,1.05,1,0,-100,-400,-1000,-16000,0
+    90,Herbaceous wetland,90,0.6,0.125,0,106.8,0.1,0.01,0,1.2,1,0,-100,-400,-1000,-16000,0.001
+    95,Mangroves,95,0.8,0.5,0,369,0.23,0.09,0.5,1.05,1,0,-100,-400,-1000,-16000,0.008
+    100,Moss and lichen,100,0.6,0.085,0,136.9,0.09,0,0,1.05,1,0,-100,-400,-1000,-16000,0.001
+    0,No data,0,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999
+
+Example usage
+-------------
+Here is an example of how to use the ``setup_lulcmaps`` method in a model setup workflow:
+
+
+
+
+
+More examples can be found in the following notebooks:
+
+- :ref:`Update land use <example-update_model_landuse>`
+- :ref:`Add water demands and allocations (with paddy landuse) <example-update_model_water_demand>`
 
 Parameter estimation
 --------------------
@@ -204,10 +218,10 @@ with LAI.
    * - Short vegetation (crops, grass, shrub)
      - 0.10
      - 0.03 (0.01 - 0.05)
-   * Maize
+   * - Maize
      - 0.077
      - 0.005
-   * Rice
+   * - Rice
      - 0.042
      - 0.005
 

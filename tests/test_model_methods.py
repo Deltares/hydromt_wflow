@@ -1225,6 +1225,7 @@ def test_setup_lulc_vector(
         / "hydromt_wflow"
         / "data"
         / "lulc"
+        / "v0.8"
         / "globcover_mapping.csv"
     )
     example_wflow_model.setup_lulcmaps_from_vector(
