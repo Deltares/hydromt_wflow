@@ -16,7 +16,7 @@ the model grid resolution (using either averaging or majority mapping depending 
 parameter type). This ensures that most of the details of the original resolution of the
 LULC map are preserved in the final model maps.
 
-.. figure:: _static/setup_lulcmaps.png
+.. figure:: ../../_static/setup_lulcmaps.png
 
 The following methods are available:
 
@@ -98,10 +98,134 @@ Example lookup table (for ESA WorldCover):
 
 Example usage
 -------------
-Here is an example of how to use the ``setup_lulcmaps`` method in a model setup workflow:
+Here is an example of how to use the ``setup_lulcmaps`` and related methods when updating a model:
+
+.. tab-set::
+
+    .. tab-item:: Command Line Interface (CLI)
+
+        The definition of the method and the arguments is done in a workflow file (YAML format).
+        The workflow file can then be used to build or update a model from the command line interface.
+        For example, using the pre-defined ``artifact_data`` catalog:
+
+        .. code-block:: console
+
+            $ hydromt update wflow_sbm "./path/to/model_to_update" -o "./path/to/model_with_landuse" -d "artifact_data" -i "./path/to/update_landuse.yaml" -v
+
+        A minimal example of how to use the ``setup_lulcmaps`` method in a workflow file:
+
+        .. code-block:: yaml
+
+            steps:
+              - setup_lulcmaps:
+                  lulc_fn: globcover
+                  lulc_mapping_fn: globcover_mapping_default
+
+        Another example using the ``setup_lulcmaps_from_vector``. Here we will also save the rasterized
+        version of the landuse map to a file and only prepare a couple of parameters:
+
+        .. code-block:: yaml
+
+            steps:
+              - setup_lulcmaps_from_vector:
+                  lulc_vector_fn: local_landuse_vector.shp
+                  lulc_mapping_fn: local_landuse_mapping.csv
+                  lulc_res: 50
+                  save_raster_lulc: true
+                  lulc_vars:
+                    - land_manning_n
+                    - vegetation_crop_factor
+
+        Final example using the ``setup_lulcmaps_with_paddy`` method to include paddy fields.
+        Here another raster file is provided with the paddy field locations (GLCNMO where paddy
+        class is number 12). As class numbers for irrigated and rainfed cropland are 11 and 14
+        in globcover we can keep twelve as the paddy class value in the merged landuse map.
+
+        Adding paddies also requires to add extra parameters related to paddy management and
+        update some of the soil parameters.
+
+        .. code-block:: yaml
+
+            steps:
+              - setup_lulcmaps_with_paddy:
+                  lulc_fn: globcover
+                  lulc_mapping_fn: globcover_mapping_default
+                  paddy_fn: glcnmo
+                  paddy_mapping_fn: paddy_mapping_default
+                  paddy_class: 12
+                  output_paddy_class: 12
+                  paddy_waterlevels:
+                    demand_paddy_h_min: 20
+                    demand_paddy_h_opt: 50
+                    demand_paddy_h_max: 80
+                  wflow_thicknesslayers: [50, 100, 50, 200, 800]
+                  target_conductivity: [null, null, 5, null, null]
 
 
+    .. tab-item:: Python API
 
+        For python, you need to first instantiate a Wflow model and then call the setup methods directly:
+
+        .. code-block:: python
+
+            from hydromt_wflow import WflowSbmModel
+
+            model = WflowSbmModel(
+              root="path/to/model_to_update",
+              mode="r+",
+              data_libs=["artifact_data"]
+            )
+
+        A minimal example of how to use the ``setup_lulcmaps`` method:
+
+        .. code-block:: python
+
+            model.setup_lulcmaps(
+              lulc_fn="globcover",
+              lulc_mapping_fn="globcover_mapping_default"
+            )
+
+        Another example using the ``setup_lulcmaps_from_vector``. Here we will also save the rasterized
+        version of the landuse map to a file and only prepare a couple of parameters:
+
+        .. code-block:: python
+
+            model.setup_lulcmaps_from_vector(
+              lulc_vector_fn="local_landuse_vector.shp",
+              lulc_mapping_fn="local_landuse_mapping.csv",
+              lulc_res=50,
+              save_raster_lulc=True,
+              lulc_vars=[
+                "land_manning_n",
+                "vegetation_crop_factor"
+              ]
+            )
+
+        Final example using the ``setup_lulcmaps_with_paddy`` method to include paddy fields.
+        Here another raster file is provided with the paddy field locations (GLCNMO where paddy
+        class is number 12). As class numbers for irrigated and rainfed cropland are 11 and 14
+        in globcover we can keep twelve as the paddy class value in the merged landuse map.
+
+        Adding paddies also requires to add extra parameters related to paddy management and
+        update some of the soil parameters.
+
+        .. code-block:: python
+
+            model.setup_lulcmaps_with_paddy(
+              lulc_fn="globcover",
+              lulc_mapping_fn="globcover_mapping_default",
+              paddy_fn="glcnmo",
+              paddy_mapping_fn="paddy_mapping_default",
+              paddy_class=12,
+              output_paddy_class=12,
+              paddy_waterlevels={
+                "demand_paddy_h_min": 20,
+                "demand_paddy_h_opt": 50,
+                "demand_paddy_h_max": 80
+              },
+              wflow_thicknesslayers=[50, 100, 50, 200, 800],
+              target_conductivity=[None, None, 5, None, None]
+            )
 
 
 More examples can be found in the following notebooks:
@@ -112,7 +236,7 @@ More examples can be found in the following notebooks:
 Parameter estimation
 --------------------
 The estimates in the above table are based on literature reviews done by
-`Imhoff et al., 2020 < https://doi.org/10.1029/2019WR026807>`_
+`Imhoff et al., 2020 <https://doi.org/10.1029/2019WR026807>`_
 
 Here are some references to help you estimate parameter values for your own lookup tables.
 
@@ -412,7 +536,7 @@ Estimations per landuse class can be found in literature such as:
 +===========+=============================+=============+==========================================================================+
 | manning_n | Manning Roughness [m-1/3 s] | 0.008-0.96  | `Engman (1986) <https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39)>` |
 |           |                             |             | `Kilgore (1997) <http://hdl.handle.net/10919/35777>`_                    |
-|           |                             |             | `Cronshey (1986) <https://www.nrc.gov/docs/ML1421/ML14219A437.pdf>`_                                                          |
+|           |                             |             | `Cronshey (1986) <https://www.nrc.gov/docs/ML1421/ML14219A437.pdf>`_     |
 +-----------+-----------------------------+-------------+--------------------------------------------------------------------------+
 
 Example of values from different sources:
@@ -550,7 +674,7 @@ Examples of USLE C values for different land use types different sources:
      - 0.0903 (0.05 - 0.15)
      - 0.01
      - 0.01 - 0.005
-   * Natural grasslands
+   * - Natural grasslands
      - 0.0435 (0.01 - 0.08)
      - 0.005
      - 0.01 - 0.05
