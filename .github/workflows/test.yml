@@ -62,4 +62,4 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --locked -e test-full-py${{ matrix.python-version }} test-cov
+            pixi run --locked -e test-full-py${{ matrix.python-version }} test --verbose
