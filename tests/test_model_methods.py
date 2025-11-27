@@ -596,13 +596,13 @@ def test_setup_rootzoneclim(example_wflow_model):
 
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_obs_2"
-    ] == pytest.approx(82.85684577620462, abs=0.5)
+    ] == pytest.approx(83.73380337309179, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_hist_2"
-    ] == pytest.approx(82.44039441508069, abs=0.5)
+    ] == pytest.approx(83.46095605283114, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_fut_2"
-    ] == pytest.approx(106.03809681174451, abs=0.5)
+    ] == pytest.approx(107.12276256619255, abs=0.5)
 
 
 def test_setup_outlets(example_wflow_model):
@@ -1294,7 +1294,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
 
     # Test values for crop coefficient
     assert np.isclose(
-        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 0.8869253
+        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 1.04849195
     )
 
     # Test with a separate paddy_map

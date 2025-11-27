@@ -1718,7 +1718,7 @@ setting new flood_depth dimensions"
 
         The main assumption is that vegetation adapts its rootzone storage capacity
         to overcome dry spells with a certain return period (typically 20 years for
-        forest ecosystems). In response to a changing climtate,
+        forest ecosystems). In response to a changing climate,
         it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
         This method also allows to estimate the change in rootzone storage capacity
