@@ -1329,7 +1329,7 @@ setting new flood_depth dimensions"
         lulc_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
-            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            "esa_worldcover", "glcnmo"}, a default mapping is used and this argument
             becomes optional.
         paddy_fn : str, Path, xr.DataArray, optional
             RasterDataset or name in data catalog / path to paddy map.
@@ -1718,7 +1718,7 @@ setting new flood_depth dimensions"
 
         The main assumption is that vegetation adapts its rootzone storage capacity
         to overcome dry spells with a certain return period (typically 20 years for
-        forest ecosystems). In response to a changing climtate,
+        forest ecosystems). In response to a changing climate,
         it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
         This method also allows to estimate the change in rootzone storage capacity

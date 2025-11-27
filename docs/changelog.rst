@@ -12,9 +12,11 @@ Unreleased
 Added
 -----
 - Support more lake/reservoir output variables in the upgrade to v1 function. (#661)
+- Revised version 1.0 of the landuse parameter mapping tables. (#670)
 
 Changed
 -------
+- The default landuse mapping tables are now the revised version (1.0). The previous version is still available as variant version 0.8. (#670)
 - When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation. (#631)
 - ``setup_lulcmaps`` and equivalents: Parameters for ``lulc_vars`` are directly linked to the names in the columns of the mapping table. (#623)
 - Renamed ``basin_highres`` to ``meta_basins_highres``. (#635)
