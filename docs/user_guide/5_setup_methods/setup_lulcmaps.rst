@@ -80,9 +80,9 @@ The columns names should match the HydroMT names of each Wflow parameter. These 
 
 Example lookup table (for ESA WorldCover):
 
-.. code-block:: csv
+.. csv-table::
+    :header: landuse,description,landuse,vegetation_kext,land_manning_n,soil_compacted_fraction,vegetation_root_depth,vegetation_leaf_storage,vegetation_wood_storage,land_water_fraction,vegetation_crop_factor,vegetation_feddes_alpha_h1,vegetation_feddes_h1,vegetation_feddes_h2,vegetation_feddes_h3_high,vegetation_feddes_h3_low,vegetation_feddes_h4,erosion_usle_c
 
-    esa,description,landuse,vegetation_kext,land_manning_n,soil_compacted_fraction,vegetation_root_depth,vegetation_leaf_storage,vegetation_wood_storage,land_water_fraction,vegetation_crop_factor,vegetation_feddes_alpha_h1,vegetation_feddes_h1,vegetation_feddes_h2,vegetation_feddes_h3_high,vegetation_feddes_h3_low,vegetation_feddes_h4,erosion_usle_c,Cov_River
     10,Tree cover,10,0.8,0.5,0,406,0.23,0.09,0,1.1,1,0,-100,-400,-1000,-16000,0.0012
     20,Shrubland,20,0.7,0.5,0,410,0.1,0.05,0,1.05,1,0,-100,-400,-1000,-16000,0.06
     30,Grassland,30,0.6,0.2,0,106.8,0.1,0.01,0,1,1,0,-100,-400,-1000,-16000,0.04
@@ -389,7 +389,7 @@ or soil cover). Within Wflow, kc will be scaled further based on the actual vege
 (from LAI) to get the actual crop coefficient used for ETc calculation.
 
 Detailed values of kc can be found for different crop types in the
-`FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`. As most LULC
+`FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`_. As most LULC
 maps do not distinguish between crop types, an average value representing the most common crops
 in your study area should be used. In the default lookup tables, 1.15 is used for cropland areas
 (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
@@ -531,13 +531,13 @@ Manning Roughness
 Manning's N values are used to represent roughness of the land surface for overland flow.
 Estimations per landuse class can be found in literature such as:
 
-+-----------+-----------------------------+-------------+--------------------------------------------------------------------------+
-| Parameter | Description                 | Range       | Reference                                                                |
-+===========+=============================+=============+==========================================================================+
-| manning_n | Manning Roughness [m-1/3 s] | 0.008-0.96  | `Engman (1986) <https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39)>` |
-|           |                             |             | `Kilgore (1997) <http://hdl.handle.net/10919/35777>`_                    |
-|           |                             |             | `Cronshey (1986) <https://www.nrc.gov/docs/ML1421/ML14219A437.pdf>`_     |
-+-----------+-----------------------------+-------------+--------------------------------------------------------------------------+
++-----------+-----------------------------+-------------+---------------------------------------------------------------------------+
+| Parameter | Description                 | Range       | Reference                                                                 |
++===========+=============================+=============+===========================================================================+
+| manning_n | Manning Roughness [m-1/3 s] | 0.008-0.96  | `Engman (1986) <https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39)>`_ |
+|           |                             |             | `Kilgore (1997) <http://hdl.handle.net/10919/35777>`_                     |
+|           |                             |             | `Cronshey (1986) <https://www.nrc.gov/docs/ML1421/ML14219A437.pdf>`_      |
++-----------+-----------------------------+-------------+---------------------------------------------------------------------------+
 
 Example of values from different sources:
 

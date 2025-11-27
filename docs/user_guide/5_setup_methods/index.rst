@@ -26,4 +26,5 @@ separately in the **User Guide**.
    :hidden:
    :titlesonly:
 
-   setup_lulcmaps.rst
+   setup_x
+   setup_lulcmaps
