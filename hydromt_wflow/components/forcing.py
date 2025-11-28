@@ -234,7 +234,7 @@ class WflowForcingComponent(GridComponent):
                 progressbar=True,
                 to_netcdf_kwargs={"encoding": encoding, **kwargs},
             )
-            if close_handle:
+            if close_handle is not None:
                 self._deferred_file_close_handles.append(close_handle)
         # Or per period
         else:
