@@ -3303,7 +3303,6 @@ using 'variable' argument."
         precip_out = workflows.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
-            clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
         )
