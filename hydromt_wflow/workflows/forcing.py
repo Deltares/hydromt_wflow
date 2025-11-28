@@ -9,15 +9,15 @@ from hydromt.model.processes.meteo import resample_time
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
-__all__ = ["pet", "spatial_interpolation"]
+__all__ = ["pet", "precip", "spatial_interpolation", "temp"]
 
 
 def pet(
     pet: xr.DataArray,
-    ds_like: xr.Dataset,
+    ds_like: xr.DataArray | xr.Dataset,
     freq: str = "D",
-    mask_name: Optional[str] = None,
-    chunksize: Optional[int] = None,
+    mask_name: str | None = None,
+    chunksize: int | None = None,
 ) -> xr.DataArray:
     """
     Resample and reproject PET to the grid of ds_like.
@@ -26,7 +26,7 @@ def pet(
     ----------
     pet : xr.DataArray
         PET data array with time as first dimension.
-    ds_like : xr.Dataset
+    ds_like : xr.DataArray | xr.Dataset
         Dataset with the grid to reproject to.
     freq : str, optional
         Resampling frequency, by default "D".
@@ -51,8 +51,16 @@ def pet(
     pet = pet.where(pet != pet.raster.nodata, np.nan)
     pet.raster.set_nodata(np.nan)
 
-    # Minimum is zero
-    pet_out = np.fmax(pet.raster.reproject_like(ds_like, method="nearest_index"), 0)
+    # Reproject the data
+    pet_out = pet.raster.reproject_like(ds_like, method="nearest_index")
+
+    # Fill nodata
+    pet_out = pet_out.interpolate_na(
+        dim=pet_out.raster.x_dim,
+        fill_value="extrapolate",
+    )
+    # Minimum must be zero
+    pet_out = pet_out.where(pet_out >= 0, 0)
 
     # resample time
     resample_kwargs = dict(label="right", closed="right")
@@ -72,6 +80,126 @@ def pet(
     pet_out.attrs.update(unit="mm")
 
     return pet_out
+
+
+def precip(
+    precip: xr.DataArray,
+    ds_like: xr.DataArray | xr.Dataset,
+    freq: str | None = None,
+    reproj_method: str = "nearest_index",
+    resample_kwargs: dict | None = None,
+):
+    """Return the lazy reprojection of precipitation to model.
+
+      Applies the projection to the grid and resampling of time dimension to frequency.
+
+    Parameters
+    ----------
+    precip : xr.DataArray
+        DataArray of precipitation forcing [mm]
+    ds_like : xr.DataArray | xr.Dataset
+        DataArray of the target resolution and projection.
+    freq : str, Timedelta
+        Output frequency of time dimension
+    reproj_method : str, optional
+        Method for spatital reprojection of precip, by default 'nearest_index'
+    resample_kwargs : dict, optional
+        Additional key-word arguments (e.g. label, closed) for time resampling method
+
+    Returns
+    -------
+    p_out: xarray.DataArray (lazy)
+        processed precipitation forcing
+    """
+    resample_kwargs = resample_kwargs or {}
+    if precip.raster.dim0 != "time":
+        raise ValueError(f'First precip dim should be "time", not {precip.raster.dim0}')
+    # downscale precip (lazy); global min of zero
+    p_out = precip.raster.reproject_like(ds_like, method=reproj_method)
+
+    # Fill nodata
+    p_out = p_out.interpolate_na(
+        dim=p_out.raster.x_dim,
+        fill_value="extrapolate",
+    )
+    # Minimum must be zero
+    p_out = p_out.where(p_out >= 0, 0)
+
+    # resample time
+    p_out.name = "precip"
+    p_out.attrs.update(unit="mm")
+    if freq is not None:
+        resample_kwargs.update(upsampling="bfill", downsampling="sum", logger=logger)
+        p_out = resample_time(p_out, freq, conserve_mass=True, **resample_kwargs)
+    return p_out
+
+
+def temp(
+    temp: xr.DataArray,
+    ds_like: xr.DataArray | xr.Dataset,
+    freq: str = "D",
+    mask_name: Optional[str] = None,
+    chunksize: Optional[int] = None,
+) -> xr.DataArray:
+    """
+    Resample and reproject temp to the grid of ds_like.
+
+    Parameters
+    ----------
+    Temp : xr.DataArray
+        Temp data array with time as first dimension.
+    ds_like : xr.DataArray | xr.Dataset
+        Dataset with the grid to reproject to.
+    freq : str, optional
+        Resampling frequency, by default "D".
+    mask_name : str, optional
+        Name of the mask variable in ds_like, by default None.
+    chunksize : int, optional
+        Chunksize for the time dimension for resampling, by default None to use default
+        time chunk.
+
+    Returns
+    -------
+    temp_out : xr.DataArray
+        Resampled and reprojected temp data array.
+    """
+    if chunksize is not None:
+        temp = temp.chunk({"time": chunksize})
+
+    if temp.raster.dim0 != "time":
+        raise ValueError(f'First temp dim should be "time", not {temp.raster.dim0}')
+
+    # change nodata
+    temp = temp.where(temp != temp.raster.nodata, np.nan)
+    temp.raster.set_nodata(np.nan)
+
+    # Reproject the data
+    temp_out = temp.raster.reproject_like(ds_like, method="nearest_index")
+
+    # Interpolate data
+    temp_out = temp_out.interpolate_na(
+        dim=temp_out.raster.x_dim,
+        fill_value="extrapolate",
+    )
+
+    # resample time
+    resample_kwargs = dict(label="right", closed="right")
+    if freq is not None:
+        resample_kwargs.update(upsampling="bfill", downsampling="mean", logger=logger)
+        temp_out = resample_time(temp_out, freq, conserve_mass=False, **resample_kwargs)
+        # nodata is lost in resampling, set it back
+        temp_out.raster.set_nodata(np.nan)
+
+    # Mask
+    if mask_name is not None:
+        mask = ds_like[mask_name].values > 0
+        temp_out = temp_out.where(mask)
+
+    # Attributes
+    temp_out.name = "temp"
+    temp_out.attrs.update(unit="degree C.")
+
+    return temp_out
 
 
 def spatial_interpolation(

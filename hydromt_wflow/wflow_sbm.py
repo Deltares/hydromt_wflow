@@ -3239,7 +3239,6 @@ using 'variable' argument."
         precip_fn: str | xr.DataArray,
         precip_clim_fn: str | xr.DataArray | None = None,
         chunksize: int | None = None,
-        **kwargs,
     ) -> None:
         """Generate gridded precipitation forcing at model resolution.
 
@@ -3301,7 +3300,7 @@ using 'variable' argument."
             )
             clim = clim.astype("float32")
 
-        precip_out = hydromt.model.processes.meteo.precip(
+        precip_out = workflows.precip(
             precip=precip,
             da_like=self.staticmaps.data[self._MAPS["elevtn"]],
             clim=clim,
@@ -3792,7 +3791,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         )
         pet = pet.astype("float32")
 
-        pet_out = workflows.forcing.pet(
+        pet_out = workflows.pet(
             pet=pet,
             ds_like=self.staticmaps.data,
             freq=freq,
@@ -3804,6 +3803,58 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         pet_out.attrs.update({"pet_fn": pet_fn})
         self.forcing.set(pet_out, name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
+
+    def setup_temp_forcing(
+        self,
+        temp_fn: str | xr.DataArray,
+        chunksize: int | None = None,
+    ):
+        """
+        Prepare temp forcing from existig temp data.
+
+        Adds model layer:
+
+        * **temp**: temperature [C]
+
+        Parameters
+        ----------
+        temp_fn: str, xr.DataArray
+            RasterDataset source or data for temp to be resampled.
+
+            * Required variable: 'temp' [mm]
+
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
+        """
+        logger.info("Preparing temperature forcing maps.")
+
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+
+        temp = self.data_catalog.get_rasterdataset(
+            temp_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["temp"],
+            time_tuple=(starttime, endtime),
+        )
+        temp = temp.astype("float32")
+
+        temp_out = workflows.temp(
+            temp=temp,
+            ds_like=self.grid,
+            freq=freq,
+            mask_name=self._MAPS["basins"],
+            chunksize=chunksize,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        temp_out.attrs.update({"temp_fn": temp_fn})
+        self.forcing.set(temp_out, name="temp")
+        self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step
     def setup_cold_states(
