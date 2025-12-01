@@ -3302,7 +3302,7 @@ using 'variable' argument."
 
         precip_out = workflows.precip(
             precip=precip,
-            da_like=self.staticmaps.data[self._MAPS["elevtn"]],
+            ds_like=self.staticmaps.data[self._MAPS["elevtn"]],
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
         )
@@ -3780,6 +3780,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
         freq = pd.to_timedelta(self.config.get_value("time.timestepsecs"), unit="s")
+        mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
@@ -3792,15 +3793,14 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         pet_out = workflows.pet(
             pet=pet,
-            ds_like=self.staticmaps.data,
+            ds_like=self.staticmaps.data[self._MAPS["elevtn"]],
             freq=freq,
-            mask_name=self._MAPS["basins"],
             chunksize=chunksize,
         )
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
-        self.forcing.set(pet_out, name="pet")
+        self.forcing.set(pet_out.where(mask), name="pet")
         self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     def setup_temp_forcing(
@@ -3829,30 +3829,30 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         """
         logger.info("Preparing temperature forcing maps.")
 
-        starttime = self.get_config("time.starttime")
-        endtime = self.get_config("time.endtime")
-        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        freq = pd.to_timedelta(self.config.get_value("time.timestepsecs"), unit="s")
+        mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
         temp = self.data_catalog.get_rasterdataset(
             temp_fn,
             geom=self.region,
             buffer=2,
             variables=["temp"],
-            time_tuple=(starttime, endtime),
+            time_range=(starttime, endtime),
         )
         temp = temp.astype("float32")
 
         temp_out = workflows.temp(
             temp=temp,
-            ds_like=self.grid,
+            ds_like=self.staticmaps.data[self._MAPS["elevtn"]],
             freq=freq,
-            mask_name=self._MAPS["basins"],
             chunksize=chunksize,
         )
 
         # Update meta attributes (used for default output filename later)
         temp_out.attrs.update({"temp_fn": temp_fn})
-        self.forcing.set(temp_out, name="temp")
+        self.forcing.set(temp_out.where(mask), name="temp")
         self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     @hydromt_step

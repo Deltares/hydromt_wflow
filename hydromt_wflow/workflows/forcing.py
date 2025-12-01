@@ -16,7 +16,6 @@ def pet(
     pet: xr.DataArray,
     ds_like: xr.DataArray | xr.Dataset,
     freq: str = "D",
-    mask_name: str | None = None,
     chunksize: int | None = None,
 ) -> xr.DataArray:
     """
@@ -69,11 +68,6 @@ def pet(
         pet_out = resample_time(pet_out, freq, conserve_mass=True, **resample_kwargs)
         # nodata is lost in resampling, set it back
         pet_out.raster.set_nodata(np.nan)
-
-    # Mask
-    if mask_name is not None:
-        mask = ds_like[mask_name].values > 0
-        pet_out = pet_out.where(mask)
 
     # Attributes
     pet_out.name = "pet"
@@ -129,7 +123,7 @@ def precip(
     p_out.name = "precip"
     p_out.attrs.update(unit="mm")
     if freq is not None:
-        resample_kwargs.update(upsampling="bfill", downsampling="sum", logger=logger)
+        resample_kwargs.update(upsampling="bfill", downsampling="sum")
         p_out = resample_time(p_out, freq, conserve_mass=True, **resample_kwargs)
     return p_out
 
@@ -138,7 +132,6 @@ def temp(
     temp: xr.DataArray,
     ds_like: xr.DataArray | xr.Dataset,
     freq: str = "D",
-    mask_name: Optional[str] = None,
     chunksize: Optional[int] = None,
 ) -> xr.DataArray:
     """
@@ -185,15 +178,10 @@ def temp(
     # resample time
     resample_kwargs = dict(label="right", closed="right")
     if freq is not None:
-        resample_kwargs.update(upsampling="bfill", downsampling="mean", logger=logger)
+        resample_kwargs.update(upsampling="bfill", downsampling="mean")
         temp_out = resample_time(temp_out, freq, conserve_mass=False, **resample_kwargs)
         # nodata is lost in resampling, set it back
         temp_out.raster.set_nodata(np.nan)
-
-    # Mask
-    if mask_name is not None:
-        mask = ds_like[mask_name].values > 0
-        temp_out = temp_out.where(mask)
 
     # Attributes
     temp_out.name = "temp"
