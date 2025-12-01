@@ -606,26 +606,22 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">p_input</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting existing forcing file </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">filepath</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Netcdf forcing file `</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">` already exists and overwriting &quot;</span>
-                    <span class="s2">&quot;is not enabled. To overwrite netcdf forcing file: change name &quot;</span>
-                    <span class="s2">&quot;`input.path_forcing` in setup_config section of the build &quot;</span>
-                    <span class="s2">&quot;inifile or allow overwriting with `overwrite` flag. A default &quot;</span>
-                    <span class="s2">&quot;name will be generated.&quot;</span>
-                <span class="p">)</span>
-                <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_new_filename</span><span class="p">(</span>
-                    <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
-                    <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
-                    <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span>
-                    <span class="n">frequency</span><span class="o">=</span><span class="n">output_frequency</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># should skip writing</span>
-                    <span class="k">return</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Netcdf forcing file `</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">` already exists and overwriting &quot;</span>
+                <span class="s2">&quot;is not enabled. To overwrite netcdf forcing file: change name &quot;</span>
+                <span class="s2">&quot;`input.path_forcing` in setup_config section of the build &quot;</span>
+                <span class="s2">&quot;inifile or allow overwriting with `overwrite` flag. A default &quot;</span>
+                <span class="s2">&quot;name will be generated.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_new_filename</span><span class="p">(</span>
+                <span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
+                <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+                <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span>
+                <span class="n">frequency</span><span class="o">=</span><span class="n">output_frequency</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># should skip writing</span>
+                <span class="k">return</span>
 
         <span class="c1"># Clean-up forcing and write</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">([</span><span class="s2">&quot;mask&quot;</span><span class="p">,</span> <span class="s2">&quot;idx_out&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
@@ -656,7 +652,7 @@
         <span class="c1"># Write the file either in one go</span>
         <span class="k">if</span> <span class="n">output_frequency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing file </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">write_nc</span><span class="p">(</span>
+            <span class="n">close_handle</span> <span class="o">=</span> <span class="n">write_nc</span><span class="p">(</span>
                 <span class="n">ds</span><span class="p">,</span>
                 <span class="n">file_path</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
                 <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -667,6 +663,8 @@
                 <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">to_netcdf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="n">encoding</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">},</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">close_handle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_file_close_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">close_handle</span><span class="p">)</span>
         <span class="c1"># Or per period</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing several forcing with freq </span><span class="si">{</span><span class="n">output_frequency</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -677,7 +675,7 @@
                 <span class="n">filepath_freq</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing file </span><span class="si">{</span><span class="n">filepath_freq</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="c1"># Write to file</span>
-                <span class="n">write_nc</span><span class="p">(</span>
+                <span class="n">close_handle</span> <span class="o">=</span> <span class="n">write_nc</span><span class="p">(</span>
                     <span class="n">data_freq</span><span class="p">,</span>
                     <span class="n">file_path</span><span class="o">=</span><span class="n">filepath_freq</span><span class="p">,</span>
                     <span class="n">compress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -688,6 +686,8 @@
                     <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">to_netcdf_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="n">encoding</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">},</span>
                 <span class="p">)</span>
+                <span class="k">if</span> <span class="n">close_handle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_deferred_file_close_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">close_handle</span><span class="p">)</span>
             <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_*</span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Set back to the config</span>
