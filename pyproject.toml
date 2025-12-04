@@ -458,8 +458,8 @@ benchmark-compare = { cmd = [
   "--benchmark-compare",
   "--benchmark-compare-fail=min:25%",
 ] }
-system-tests = { cmd = [
-  "python", "./tests/integration/generate.py"
+system-test = { cmd = [
+  "python", "./tests/integration/system_tests.py"
 ] }
 
 [tool.pixi.feature.test.tasks.test-cov]
