@@ -1238,6 +1238,10 @@ setting new flood_depth dimensions"
         and then resampled to the model resolution using the average value, unless noted
         differently.
 
+        For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+        bare soil) should have a crop factor equivalent to the nodata value. After
+        mapping and resampling, the nodata values will be filled with 1.
+
         If paddies are present either directly as a class in the landuse_fn or in a
         separate paddy_fn, the paddy class is used to derive the paddy parameters.
 
@@ -1329,7 +1333,7 @@ setting new flood_depth dimensions"
         lulc_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
-            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            "esa_worldcover", "glcnmo"}, a default mapping is used and this argument
             becomes optional.
         paddy_fn : str, Path, xr.DataArray, optional
             RasterDataset or name in data catalog / path to paddy map.
@@ -1718,7 +1722,7 @@ setting new flood_depth dimensions"
 
         The main assumption is that vegetation adapts its rootzone storage capacity
         to overcome dry spells with a certain return period (typically 20 years for
-        forest ecosystems). In response to a changing climtate,
+        forest ecosystems). In response to a changing climate,
         it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
         This method also allows to estimate the change in rootzone storage capacity
