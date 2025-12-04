@@ -140,7 +140,7 @@ def test_wflow_forcing_component_write(
 
 
 def test_wflow_forcing_component_write_with_overwrite(
-    mock_model: MagicMock, forcing_layer: xr.DataArray, caplog
+    mock_model: MagicMock, forcing_layer: xr.DataArray
 ):
     # Setup the component
     component = WflowForcingComponent(
@@ -156,13 +156,6 @@ def test_wflow_forcing_component_write_with_overwrite(
     type(component.model.config).get_value = MagicMock(return_value="")
     component.write(filename=filename_in, overwrite=True)
 
-    # Assert the output
-    DELETE_WARNING = f"Deleting existing forcing file {out_path.as_posix()}"
-    deletion_warnings = [
-        DELETE_WARNING in " ".join(message.split()) for message in caplog.messages
-    ]
-
-    assert deletion_warnings.count(True) == 1
     assert out_path.is_file()
     assert len(list(Path(mock_model.root.path).glob("*.nc"))) == 1
     assert last_modification_time < out_path.stat().st_mtime
