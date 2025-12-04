@@ -1294,7 +1294,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
 
     # Test values for crop coefficient
     assert np.isclose(
-        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 1.04849195
+        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 1.05686426
     )
 
     # Test with a separate paddy_map

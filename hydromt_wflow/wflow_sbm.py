@@ -1238,6 +1238,10 @@ setting new flood_depth dimensions"
         and then resampled to the model resolution using the average value, unless noted
         differently.
 
+        For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+        bare soil) should have a crop factor equivalent to the nodata value. After
+        mapping and resampling, the nodata values will be filled with 1.
+
         If paddies are present either directly as a class in the landuse_fn or in a
         separate paddy_fn, the paddy class is used to derive the paddy parameters.
 

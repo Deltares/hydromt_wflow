@@ -86,11 +86,11 @@ Example lookup table (for ESA WorldCover):
     10,Tree cover,10,0.8,0.5,0,406,0.23,0.09,0,1.1,1,0,-100,-400,-1000,-16000,0.0012
     20,Shrubland,20,0.7,0.5,0,410,0.1,0.05,0,1.05,1,0,-100,-400,-1000,-16000,0.06
     30,Grassland,30,0.6,0.2,0,106.8,0.1,0.01,0,1,1,0,-100,-400,-1000,-16000,0.04
-    40,Cropland,40,0.6,0.15,0,390.4,0.077,0.005,0,1.15,0,0,-100,-400,-1000,-16000,0.3
+    40,Cropland,40,0.6,0.15,0,390.4,0.077,0.005,0,1.1,0,0,-100,-400,-1000,-16000,0.3
     50,Built-up,50,0.6,0.015,0.9,257.4,0.1,0.03,0,1,1,0,-100,-400,-1000,-16000,0.001
-    60,Bare / sparse vegetation,60,0.6,0.015,0,10.7,0.1,0.03,0,0.5,1,0,-100,-400,-1000,-16000,0.35
-    70,Snow and Ice,70,0,0.01,0,0,0,0,0,1,1,0,-100,-400,-1000,-16000,0
-    80,Permanent water bodies,80,0,0.01,0,0,0,0,1,1.05,1,0,-100,-400,-1000,-16000,0
+    60,Bare / sparse vegetation,60,0.6,0.015,0,10.7,0.1,0.03,0,-999,1,0,-100,-400,-1000,-16000,0.35
+    70,Snow and Ice,70,0,0.01,0,0,0,0,0,-999,1,0,-100,-400,-1000,-16000,0
+    80,Permanent water bodies,80,0,0.01,0,0,0,0,1,-999,1,0,-100,-400,-1000,-16000,0
     90,Herbaceous wetland,90,0.6,0.125,0,106.8,0.1,0.01,0,1.2,1,0,-100,-400,-1000,-16000,0.001
     95,Mangroves,95,0.8,0.5,0,369,0.23,0.09,0.5,1.05,1,0,-100,-400,-1000,-16000,0.008
     100,Moss and lichen,100,0.6,0.085,0,136.9,0.09,0,0,1.05,1,0,-100,-400,-1000,-16000,0.001
@@ -356,7 +356,7 @@ Parameters related to vegetation evaporation and transpiration.
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 | Parameter       | Description                                         | Range                           | Reference                                                                                     |
 +=================+=====================================================+=================================+===============================================================================================+
-| crop_factor     | Crop coefficient [-]                                | 0.3 - 1.25                      | `Allen et al. (1998) <https://www.fao.org/4/x0490e/x0490e0b.htm>`_                            |
+| crop_factor     | Crop coefficient [-]                                | 0.3 - 1.25                      | `Allen et al. (1998) <https://www.fao.org/4/x0490e/x0490e0c.htm>`_                            |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 | root_depth      | Length of vegetation roots [mm]                     | 100 - 5000                      | `Fan et al. (2016) <https://www.mdpi.com/2077-0472/14/4/532>`_                                |
 |                 |                                                     |                                 | `Schenk and Jackson (2002) <https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2>`_ |
@@ -382,17 +382,47 @@ Parameters related to vegetation evaporation and transpiration.
 
 **Crop factor**
 
-The factor or FAO-56 crop coefficient kc is used to scale reference evapotranspiration (ET0)
-to crop evapotranspiration (ETc) as follows: ETc = Kc * ET0. In Wflow, kc is used as a maximum
-value valid for a full cover of a vegetation/crop type (i.e. kc is not dependant on crop growth stage
-or soil cover). Within Wflow, kc will be scaled further based on the actual vegetation cover fraction
-(from LAI) to get the actual crop coefficient used for ETc calculation.
+The factor or FAO-56 crop coefficient the crop factor is used to scale reference evapotranspiration (:math:`ET_0`)
+to crop evapotranspiration (ETc) as follows: :math:`ET_c = (K_{cb} + K_e) * ET_0`, where
+:math:`K_{cb}` is the basal crop coefficient and :math:`K_e` is the soil evaporation coefficient.
+As Wflow takes care of the soil evaporation component, the crop coefficient needed is then :math:`K_{cb full}`
+which is the basal crop coefficient during the mid-season (at peak plant size or height) for vegetation having
+full ground cover or LAI > 3. Within Wflow, :math:`K_{cb full}` will be scaled further based on
+the actual vegetation cover fraction (using LAI) to get the actual crop coefficient used for :math:`ET_c` calculation.
+
+In sub-humid and calm wind conditions, :math:`K_{cb full}` is equal to the FAO-56 mid-season
+crop coefficient :math:`K_{cb mid}`. Detailed values of :math:`K_{cb mid}` can be found for
+different crop types in the `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0c.htm>`_. As
+most LULC maps do not distinguish between crop types, an average value representing the most
+common crops in your study area should be used. In the default lookup tables, 1.15 is used for
+cropland areas (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
 
 Detailed values of kc can be found for different crop types in the
 `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`_. As most LULC
 maps do not distinguish between crop types, an average value representing the most common crops
-in your study area should be used. In the default lookup tables, 1.15 is used for cropland areas
-(based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
+in your study area should be used. In the default lookup tables, 1.10 is used for cropland areas
+(based on an average value for cereals and oil crops), and 1.15 for paddy/rice fields.
+
+For natural vegetation, :math:`K_{cb full}` can be estimated from the vegetation height and
+climate conditions. For example, the `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0f.htm>`_
+provide the following equations to estimate :math:`K_{cb full}` for natural vegetation:
+
+..math::
+
+    K_{cb full} = K_{cb,h} + [0.04(u_2 - 2) - 0.004(RH_{min} - 45)] * (h/3)^0.3
+    K_{cb,h} = 1.0 + 0.1 * h \quad \text{for } h \leq 2 \text{ m}
+
+where :math:`u_2` is the wind speed at 2 m height [m/s], :math:`RH_{min}` is the minimum relative
+humidity [%] and :math:`h` is the mean maximum plant height [m].
+
+Finally, for land use type with no vegetation (e.g. bare soil, waterbodies), the nodata value
+should be used (e.g. -9999) to avoid underestimation of :math:`K_{cb full}` during reprojection
+of the land use parameter at original resolution to the model grid resolution.
+
+For mixed land use types (e.g. urban areas), the value should be scaled based on the
+vegetation type in the area (e.g. sparse vegetation should use the value for grass or
+shrubland). In the default lookup tables, such areas (urban, sparse vegetation) use a value
+of 1.0 for grass.
 
 
 **Root depth**

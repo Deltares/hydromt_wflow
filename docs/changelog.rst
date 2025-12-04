@@ -17,6 +17,7 @@ Added
 Changed
 -------
 - The default landuse mapping tables are now the revised version (1.0). The previous version is still available as variant version 0.8. (#670)
+- vegetation_crop_factor: values for cells without vegetation in the mapping tables are now nodata values. After mapping and resampling, nodata values are filled with 1. (#670)
 - When using ``setup_reservoirs_simple_control``, the tables for reservoir accuracy and reservoir timeseries are written to the [model's root]/validation. (#631)
 - ``setup_lulcmaps`` and equivalents: Parameters for ``lulc_vars`` are directly linked to the names in the columns of the mapping table. (#623)
 - Renamed ``basin_highres`` to ``meta_basins_highres``. (#635)
