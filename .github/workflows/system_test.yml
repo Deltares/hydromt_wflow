@@ -36,9 +36,9 @@ jobs:
       - name: Install Wflow
         # TODO: When Wflow.jl v1.0.0 has been released, delete checkout step above and uncomment below to install the latest release
         # install latest release
-        # run:  julia -e 'using Pkg; Pkg.add(\"Wflow\"); Pkg.precompile(); using Wflow'
+        # run:  julia -e 'using Pkg; Pkg.add("Wflow"); Pkg.instantiate(); Pkg.precompile(); using Wflow'
         # install from local source
-        run: julia -e 'using Pkg; Pkg.develop(path="Wflow.jl/Wflow"); Pkg.precompile();'
+        run: julia -e 'using Pkg; Pkg.develop(path="Wflow.jl/Wflow"); Pkg.instantiate(); Pkg.precompile(); using Wflow'
 
       # Python
       - name: Checkout hydromt_wflow
