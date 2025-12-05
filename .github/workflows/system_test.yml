@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: Deltares/Wflow.jl
-          path: ../Wflow.jl
+          path: Wflow.jl
           ref: release/v1.0
 
       - name: Setup pixi
@@ -41,7 +41,7 @@ jobs:
         uses: julia-actions/setup-julia@v2
 
       - name: Install Wflow
-        run: pixi run install-wflow-julia ../Wflow.jl/Wflow
+        run: pixi run install-wflow-julia Wflow.jl/Wflow
 
       - name: Run system tests
         run: pixi run system-test
