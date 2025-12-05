@@ -44,4 +44,4 @@ jobs:
         run: pixi run install-wflow-julia Wflow.jl/Wflow
 
       - name: Run system tests
-        run: pixi run system-test
+        run: pixi run system-test ${{ runner.temp }}
