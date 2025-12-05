@@ -38,7 +38,7 @@ jobs:
         # install latest release
         # run:  julia -e 'using Pkg; Pkg.add(\"Wflow\"); Pkg.precompile(); using Wflow'
         # install from local source
-        run: julia -e 'using Pkg; Pkg.develop(path=\"Wflow.jl/Wflow\"); Pkg.precompile();'
+        run: julia -e 'using Pkg; Pkg.develop(path="Wflow.jl/Wflow"); Pkg.precompile();'
 
       # Python
       - name: Checkout hydromt_wflow
