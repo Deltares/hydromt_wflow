@@ -26,10 +26,14 @@ def main():
     """
     initialize_logging()
 
+    logger.info("Building sbm model with water demand data...")
     sbm_config = generate_water_demand_model()
+    logger.info("Running sbm model...")
     run_wflow_julia(sbm_config)
 
+    logger.info("Building sediment model from sbm model...")
     sediment_config = generate_sediment_model(sbm_config.parent)
+    logger.info("Running sediment model...")
     run_wflow_julia(sediment_config)
 
 
