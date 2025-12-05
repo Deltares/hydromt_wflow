@@ -14,6 +14,7 @@ from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 _supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow": WflowSbmModel,

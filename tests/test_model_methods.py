@@ -18,6 +18,7 @@ from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
 def test_setup_basemaps(tmpdir: Path):
