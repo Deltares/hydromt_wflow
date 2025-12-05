@@ -118,9 +118,15 @@ filterwarnings = [
   "ignore:Engine 'radolan' loading failed.*:RuntimeWarning"
 ]
 testpaths = ["tests"]
-# don't run benchmarks by default when testing
-addopts = ["--benchmark-skip"]
-markers = ["integration: marks tests as integration tests"]
+
+addopts = [
+  "--benchmark-skip", # don't run benchmarks by default when testing
+  "-m", "not system" # don't run system test by default when testing
+]
+markers = [
+  "integration: slow tests that combine components, workflows and actual data; no Julia execution",
+  "system: hydromt build + Julia model execution + artifact verification"
+]
 
 [tool.coverage.run]
 branch = true
@@ -458,19 +464,17 @@ benchmark-compare = { cmd = [
   "--benchmark-compare",
   "--benchmark-compare-fail=min:25%",
 ] }
-system-test = { cmd = [
-  "python", "./tests/integration/system_tests.py"
-] }
-
-[tool.pixi.feature.test.tasks.test-cov]
-cmd = [
+unit-test = { cmd = ["pytest", "-m", "not system and not integration"] }
+system-test = { cmd = ["pytest", "-m", "system"] }
+integration-test = { cmd = ["pytest", "-m", "integration"] }
+test-all = { cmd = ["pytest", "-m", ""] }
+test-cov = { cmd = [
   "pytest",
   "--cov=hydromt_wflow",
   "--cov-report={{ report }}",
   "--cov-branch",
   "-m",
-  "not integration",
-]
-args=[
+  "not integration and not system",
+], args=[
   { "arg" = "report", default="xml"}
-]
+] }
