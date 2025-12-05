@@ -288,6 +288,18 @@ serve = { cmd = [
   "docs/_build/html",
 ] }
 
+# Julia
+install-wflow-julia = { cmd = ["julia", "-e", 'using Pkg; Pkg.develop(path=raw"{{ WFLOW_JULIA_REPO }}"); using Wflow'], args=[ { "arg" = "WFLOW_JULIA_REPO", default = "../Wflow.jl/Wflow" } ] }
+run-wflow-julia = { cmd = [ "julia", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = [ { "arg" = "CONFIG_TOML" } ] }
+build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/system/wflow_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
+build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/system/wflow_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
+system-test = { depends-on = [
+  { task="build-system-test-sbm",       args=["$TMP/wflow_system_test/sbm"]},
+  { task="run-wflow-julia",             args=["$TMP/wflow_system_test/sbm/wflow_sbm.toml"]},
+  { task="build-system-test-sediment",  args=["$TMP/wflow_system_test/sbm"]},
+  { task="run-wflow-julia",             args=["$TMP/wflow_system_test/sbm/wflow_sediment.toml"]},
+]}
+
 ## Dependencies
 [tool.pixi.dependencies]
 h5py     = "*"
@@ -465,7 +477,6 @@ benchmark-compare = { cmd = [
   "--benchmark-compare-fail=min:25%",
 ] }
 unit-test = { cmd = ["pytest", "-m", "not system and not integration"] }
-system-test = { cmd = ["pytest", "-m", "system"] }
 integration-test = { cmd = ["pytest", "-m", "integration"] }
 test-all = { cmd = ["pytest", "-m", ""] }
 test-cov = { cmd = [

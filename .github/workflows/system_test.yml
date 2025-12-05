@@ -24,30 +24,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Julia
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
+        with:
+          pixi-version: v0.59.0
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v2
+
+      - name: Checkout hydromt_wflow
+        uses: actions/checkout@v6
       - name: Checkout Wflow.jl
         uses: actions/checkout@v6
         with:
           repository: Deltares/Wflow.jl
           path: Wflow.jl
           ref: release/v1.0
-      - name: Setup Julia
-        uses: julia-actions/setup-julia@v2
+
       - name: Install Wflow
-        # TODO: When Wflow.jl v1.0.0 has been released, delete checkout step above and uncomment below to install the latest release
-        # install latest release
-        # run:  julia -e 'using Pkg; Pkg.add("Wflow"); Pkg.instantiate(); Pkg.precompile(); using Wflow'
-        # install from local source
-        run: julia -e 'using Pkg; Pkg.develop(path="Wflow.jl/Wflow"); Pkg.instantiate(); Pkg.precompile(); using Wflow'
+        run: pixi run install-wflow-julia
 
-      # Python
-      - name: Checkout hydromt_wflow
-        uses: actions/checkout@v6
-      - name: Setup pixi
-        uses: prefix-dev/setup-pixi@v0.9.3
-        with:
-          pixi-version: v0.59.0
-
-      # Combine
       - name: Run system tests
         run: pixi run system-test
