@@ -293,14 +293,12 @@ install-wflow-julia = { cmd = ["julia", "-e", 'using Pkg; Pkg.develop(path=raw"{
 run-wflow-julia = { cmd = [ "julia", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = [ { "arg" = "CONFIG_TOML" } ] }
 build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/system/wflow_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/system/wflow_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
-system-test = { args = [ { "arg" = "TMP_DIR", "default" = "$TMP/wflow_system_test" } ],
-  depends-on = [
-    { task="build-system-test-sbm",       args=["{{ TMP_DIR }}/wflow_system_test/sbm"]},
-    { task="run-wflow-julia",             args=["{{ TMP_DIR }}/wflow_system_test/sbm/wflow_sbm.toml"]},
-    { task="build-system-test-sediment",  args=["{{ TMP_DIR }}/wflow_system_test/sbm"]},
-    { task="run-wflow-julia",             args=["{{ TMP_DIR }}/wflow_system_test/sbm/wflow_sediment.toml"]},
-  ]
-}
+system-test = { depends-on = [
+  { task="build-system-test-sbm",       args=["{{ TMP_DIR }}/wflow_system_test/sbm"]},
+  { task="run-wflow-julia",             args=["{{ TMP_DIR }}/wflow_system_test/sbm/wflow_sbm.toml"]},
+  { task="build-system-test-sediment",  args=["{{ TMP_DIR }}/wflow_system_test/sbm"]},
+  { task="run-wflow-julia",             args=["{{ TMP_DIR }}/wflow_system_test/sbm/wflow_sediment.toml"]},
+], args = [ { "arg" = "TMP_DIR", "default" = "$TMP/wflow_system_test" } ] }
 
 ## Dependencies
 [tool.pixi.dependencies]
