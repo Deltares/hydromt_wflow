@@ -483,6 +483,8 @@ test-cov = { cmd = [
   "--cov=hydromt_wflow",
   "--cov-report={{ report }}",
   "--cov-branch",
+  "-m",
+  "not integration"
 ], args=[
   { "arg" = "report", default="xml"}
 ] }
