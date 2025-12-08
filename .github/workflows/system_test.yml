@@ -39,6 +39,8 @@ jobs:
           pixi-version: v0.59.0
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
+        with:
+          version: 1.11.3
 
       - name: Install Wflow
         run: pixi run install-wflow-julia Wflow.jl/Wflow
