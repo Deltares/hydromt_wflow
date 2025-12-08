@@ -290,7 +290,7 @@ serve = { cmd = [
 
 # Julia
 remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
-install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=[ { "arg" = "WFLOW_JULIA_REPO", default = "../Wflow.jl/Wflow" } ] }
+install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.resolve(); Pkg.instantiate(); Pkg.precompile()'], args=[ { "arg" = "WFLOW_JULIA_REPO", default = "../Wflow.jl/Wflow" } ] }
 run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
 build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/system/wflow_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/system/wflow_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
