@@ -43,7 +43,7 @@ jobs:
           version: 1.11.3
 
       - name: Install Wflow
-        run: pixi run install-wflow-julia Wflow.jl/Wflow
+        run: pixi run install-wflow-julia ./Wflow.jl/Wflow
 
       - name: Run system tests
-        run: pixi run system-test ${{ runner.temp }}
+        run: pixi run system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
