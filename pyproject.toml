@@ -121,11 +121,9 @@ testpaths = ["tests"]
 
 addopts = [
   "--benchmark-skip", # don't run benchmarks by default when testing
-  "-m", "not system" # don't run system test by default when testing
 ]
 markers = [
   "integration: slow tests that combine components, workflows and actual data; no Julia execution",
-  "system: hydromt build + Julia model execution + artifact verification"
 ]
 
 [tool.coverage.run]
@@ -478,16 +476,13 @@ benchmark-compare = { cmd = [
   "--benchmark-compare",
   "--benchmark-compare-fail=min:25%",
 ] }
-unit-test = { cmd = ["pytest", "-m", "not system and not integration"] }
+unit-test = { cmd = ["pytest", "-m", "not integration"] }
 integration-test = { cmd = ["pytest", "-m", "integration"] }
-test-all = { cmd = ["pytest", "-m", ""] }
 test-cov = { cmd = [
   "pytest",
   "--cov=hydromt_wflow",
   "--cov-report={{ report }}",
   "--cov-branch",
-  "-m",
-  "not integration and not system",
 ], args=[
   { "arg" = "report", default="xml"}
 ] }
