@@ -646,7 +646,7 @@
 Also, note that some setup methods are overridden or extended to include SBM-specific parameters and data.
 To know more about this, see <a class="reference internal" href="advanced/base-model.html#api-base-model"><span class="std std-ref">WflowBaseModel</span></a>.</p>
 </div>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.html#hydromt_wflow.WflowSbmModel" title="hydromt_wflow.WflowSbmModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel</span></code></a>([root, config_filename, mode, ...])</p></td>
 <td><p>Class to read, write, build, update wflow-SBM models.</p></td>
@@ -659,7 +659,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="configuration">
 <h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h3>
 <p>Defines and manages model configuration, global parameters, and output settings.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_config.html#hydromt_wflow.WflowSbmModel.setup_config" title="hydromt_wflow.WflowSbmModel.setup_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_config</span></code></a>(data)</p></td>
 <td><p>Set the config dictionary at key(s) with values.</p></td>
@@ -677,7 +677,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="topography-and-rivers">
 <h3>Topography and Rivers<a class="headerlink" href="#topography-and-rivers" title="Link to this heading">#</a></h3>
 <p>Prepares elevation maps, drainage networks, and river-related features used to simulate flow routing and floodplain processes.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_basemaps</span></code></a>(region, ...[, ...])</p></td>
 <td><p>Build the DEM and flow direction for a Wflow model.</p></td>
@@ -701,7 +701,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="reservoirs-and-glaciers">
 <h3>Reservoirs and Glaciers<a class="headerlink" href="#reservoirs-and-glaciers" title="Link to this heading">#</a></h3>
 <p>Adds reservoirs and glaciers, and defines their impact on hydrological storage and flow regulation.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control.html#hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control" title="hydromt_wflow.WflowSbmModel.setup_reservoirs_no_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_reservoirs_no_control</span></code></a>(...)</p></td>
 <td><p>Generate maps of reservoir areas, outlets and parameters.</p></td>
@@ -719,7 +719,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="land-use-and-vegetation">
 <h3>Land Use and Vegetation<a class="headerlink" href="#land-use-and-vegetation" title="Link to this heading">#</a></h3>
 <p>Defines land use and vegetation properties, including LULC and LAI maps, which influence evapotranspiration and interception processes.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps" title="hydromt_wflow.WflowSbmModel.setup_lulcmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_lulcmaps</span></code></a>(lulc_fn, *[, ...])</p></td>
 <td><p>Derive several wflow maps based on landuse-landcover (LULC) data.</p></td>
@@ -746,7 +746,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="soil">
 <h3>Soil<a class="headerlink" href="#soil" title="Link to this heading">#</a></h3>
 <p>Sets up soil-related data including soil maps and hydraulic properties.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_soilmaps.html#hydromt_wflow.WflowSbmModel.setup_soilmaps" title="hydromt_wflow.WflowSbmModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_soilmaps</span></code></a>([soil_fn, ...])</p></td>
 <td><p>Derive several (layered) soil parameters.</p></td>
@@ -764,7 +764,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="water-demands-and-allocation">
 <h3>Water Demands and Allocation<a class="headerlink" href="#water-demands-and-allocation" title="Link to this heading">#</a></h3>
 <p>Defines domestic, irrigation, and other water demand maps and allocation parameters.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_allocation_areas.html#hydromt_wflow.WflowSbmModel.setup_allocation_areas" title="hydromt_wflow.WflowSbmModel.setup_allocation_areas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_allocation_areas</span></code></a>(...[, ...])</p></td>
 <td><p>Create water demand allocation areas.</p></td>
@@ -794,7 +794,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="forcing">
 <h3>Forcing<a class="headerlink" href="#forcing" title="Link to this heading">#</a></h3>
 <p>Sets up meteorological forcing inputs such as precipitation, temperature, and potential evapotranspiration.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_precip_forcing.html#hydromt_wflow.WflowSbmModel.setup_precip_forcing" title="hydromt_wflow.WflowSbmModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_precip_forcing</span></code></a>(precip_fn)</p></td>
 <td><p>Generate gridded precipitation forcing at model resolution.</p></td>
@@ -815,7 +815,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="states">
 <h3>States<a class="headerlink" href="#states" title="Link to this heading">#</a></h3>
 <p>Defines initial hydrological state variables such as soil moisture and groundwater storage.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_cold_states.html#hydromt_wflow.WflowSbmModel.setup_cold_states" title="hydromt_wflow.WflowSbmModel.setup_cold_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_cold_states</span></code></a>([timestamp])</p></td>
 <td><p>Prepare cold states for Wflow.</p></td>
@@ -827,7 +827,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="output-locations">
 <h3>Output Locations<a class="headerlink" href="#output-locations" title="Link to this heading">#</a></h3>
 <p>Defines outlets, gauges, and spatial masks used for reporting model results.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_outlets.html#hydromt_wflow.WflowSbmModel.setup_outlets" title="hydromt_wflow.WflowSbmModel.setup_outlets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_outlets</span></code></a>([river_only, ...])</p></td>
 <td><p>Set the default gauge map based on basin outlets.</p></td>
@@ -845,7 +845,7 @@ To know more about this, see <a class="reference internal" href="advanced/base-m
 <section id="other-setup-methods">
 <h3>Other Setup Methods<a class="headerlink" href="#other-setup-methods" title="Link to this heading">#</a></h3>
 <p>Additional high-level utilities to modify model geometry, link external models, or upgrade model versions.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_raster.html#hydromt_wflow.WflowSbmModel.setup_grid_from_raster" title="hydromt_wflow.WflowSbmModel.setup_grid_from_raster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_grid_from_raster</span></code></a>(...[, ...])</p></td>
 <td><p>Add data variable(s) from <code class="docutils literal notranslate"><span class="pre">raster_fn</span></code> to grid object.</p></td>
@@ -911,7 +911,7 @@ The components of the WflowSbmModel are:</p>
 <section id="i-o-methods">
 <h2>I/O methods<a class="headerlink" href="#i-o-methods" title="Link to this heading">#</a></h2>
 <p>If you are using python, you can read and write the different model components using the methods below.</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.build.html#hydromt_wflow.WflowSbmModel.build" title="hydromt_wflow.WflowSbmModel.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.build</span></code></a>(*[, write])</p></td>
 <td><p>Single method to build a model from scratch based on settings in <cite>steps</cite>.</p></td>
@@ -936,7 +936,7 @@ These allow for fine-grained reading, writing, modification, and inspection of c
 They are particularly useful when working interactively in Python, for example when updating
 specific configuration parameters, clipping static maps, or inspecting the forcing data.</p>
 <p>Each component exposes a <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute, which holds the underlying model data
-(e.g. <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, or <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a>),
+(e.g. <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, or <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a>),
 and supports a common set of I/O and manipulation methods such as
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">set()</span></code>.</p>
 <p>For general I/O at the model level, refer to:
@@ -1020,7 +1020,7 @@ and supports a common set of I/O and manipulation methods such as
 <section id="attributes">
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <p>Other useful model attributes if you are using python:</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.crs.html#hydromt_wflow.WflowSbmModel.crs" title="hydromt_wflow.WflowSbmModel.crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.crs</span></code></a></p></td>
 <td><p>Returns coordinate reference system embedded in region.</p></td>
@@ -1164,7 +1164,7 @@ and supports a common set of I/O and manipulation methods such as
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>
