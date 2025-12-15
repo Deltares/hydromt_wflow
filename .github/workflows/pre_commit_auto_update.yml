@@ -20,7 +20,7 @@ jobs:
       - name: Update pre-commit hooks
         uses: browniebroke/pre-commit-autoupdate-action@main
       - name: Create PR with updated hook versions
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         if: always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
