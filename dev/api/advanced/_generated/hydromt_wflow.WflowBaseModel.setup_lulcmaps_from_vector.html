@@ -655,6 +655,9 @@ or at a higher resolution specified in <code class="docutils literal notranslate
 parameters based on literature. The data is remapped at its original resolution
 and then resampled to the model resolution using the average value, unless noted
 differently.</p>
+<p>For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+bare soil) should have a crop factor equivalent to the nodata value. After
+mapping and resampling, the nodata values will be filled with 1.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><dl class="simple">

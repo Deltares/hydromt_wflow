@@ -650,6 +650,9 @@
 parameters based on literature. The data is remapped at its original resolution
 and then resampled to the model resolution using the average value, unless noted
 differently.</p>
+<p>For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+bare soil) should have a crop factor equivalent to the nodata value. After
+mapping and resampling, the nodata values will be filled with 1.</p>
 <p>If paddies are present either directly as a class in the landuse_fn or in a
 separate paddy_fn, the paddy class is used to derive the paddy parameters.</p>
 <p>To allow for water to pool on the surface (for paddy/rice fields), the layers in
@@ -794,7 +797,7 @@ the <code class="docutils literal notranslate"><span class="pre">paddy_class</sp
 merging paddy location from <code class="docutils literal notranslate"><span class="pre">paddy_fn</span></code> into <code class="docutils literal notranslate"><span class="pre">landuse_fn</span></code>.</p></li>
 <li><p><strong>lulc_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>pd.DataFrame</em><em>, </em><em>optional</em>) – Path to a mapping csv file from landuse in source name to parameter values
 in lulc_vars. If lulc_fn is one of {“globcover”, “vito”, “corine”,
-“esa_worldcover”, “glmnco”}, a default mapping is used and this argument
+“esa_worldcover”, “glcnmo”}, a default mapping is used and this argument
 becomes optional.</p></li>
 <li><p><strong>paddy_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>xr.DataArray</em><em>, </em><em>optional</em>) – RasterDataset or name in data catalog / path to paddy map.</p></li>
 <li><p><strong>paddy_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>pd.DataFrame</em><em>, </em><em>optional</em>) – Path to a mapping csv file from paddy in source name to parameter values

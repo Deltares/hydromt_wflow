@@ -1685,6 +1685,10 @@
 <span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
 <span class="sd">        differently.</span>
 
+<span class="sd">        For vegetation_crop_factor, land use types without any vegetation (e.g. water,</span>
+<span class="sd">        bare soil) should have a crop factor equivalent to the nodata value. After</span>
+<span class="sd">        mapping and resampling, the nodata values will be filled with 1.</span>
+
 <span class="sd">        If paddies are present either directly as a class in the landuse_fn or in a</span>
 <span class="sd">        separate paddy_fn, the paddy class is used to derive the paddy parameters.</span>
 
@@ -1776,7 +1780,7 @@
 <span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame, optional</span>
 <span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
 <span class="sd">            in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;,</span>
-<span class="sd">            &quot;esa_worldcover&quot;, &quot;glmnco&quot;}, a default mapping is used and this argument</span>
+<span class="sd">            &quot;esa_worldcover&quot;, &quot;glcnmo&quot;}, a default mapping is used and this argument</span>
 <span class="sd">            becomes optional.</span>
 <span class="sd">        paddy_fn : str, Path, xr.DataArray, optional</span>
 <span class="sd">            RasterDataset or name in data catalog / path to paddy map.</span>
@@ -2174,7 +2178,7 @@
 
 <span class="sd">        The main assumption is that vegetation adapts its rootzone storage capacity</span>
 <span class="sd">        to overcome dry spells with a certain return period (typically 20 years for</span>
-<span class="sd">        forest ecosystems). In response to a changing climtate,</span>
+<span class="sd">        forest ecosystems). In response to a changing climate,</span>
 <span class="sd">        it is likely that vegetation also adapts its rootzone storage capacity,</span>
 <span class="sd">        thereby changing model parameters for future conditions.</span>
 <span class="sd">        This method also allows to estimate the change in rootzone storage capacity</span>

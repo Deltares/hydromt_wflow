@@ -1214,6 +1214,10 @@
 <span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
 <span class="sd">        differently.</span>
 
+<span class="sd">        For vegetation_crop_factor, land use types without any vegetation (e.g. water,</span>
+<span class="sd">        bare soil) should have a crop factor equivalent to the nodata value. After</span>
+<span class="sd">        mapping and resampling, the nodata values will be filled with 1.</span>
+
 <span class="sd">        Currently, if `lulc_fn` is set to the &quot;vito&quot;, &quot;globcover&quot;, &quot;esa_worldcover&quot;</span>
 <span class="sd">        &quot;corine&quot; or &quot;glmnco&quot;, default lookup tables are available and will be used if</span>
 <span class="sd">        `lulc_mapping_fn` is not provided.</span>
@@ -1356,6 +1360,10 @@
 <span class="sd">        parameters based on literature. The data is remapped at its original resolution</span>
 <span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
 <span class="sd">        differently.</span>
+
+<span class="sd">        For vegetation_crop_factor, land use types without any vegetation (e.g. water,</span>
+<span class="sd">        bare soil) should have a crop factor equivalent to the nodata value. After</span>
+<span class="sd">        mapping and resampling, the nodata values will be filled with 1.</span>
 
 <span class="sd">        Adds model layers:</span>
 

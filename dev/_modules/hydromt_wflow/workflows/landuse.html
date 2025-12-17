@@ -509,6 +509,10 @@
 <span class="sd">    The parameter maps are prepared based on landuse map and</span>
 <span class="sd">    mapping table as provided in the generic data folder of hydromt.</span>
 
+<span class="sd">    For vegetation_crop_factor, land use types without any vegetation (e.g. water,</span>
+<span class="sd">    bare soil) should have a crop factor equivalent to the nodata value. After</span>
+<span class="sd">    mapping and resampling, the nodata values will be filled with 1.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    da : xarray.DataArray</span>
@@ -549,6 +553,10 @@
         <span class="n">ds_out</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_param</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
             <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span>
         <span class="p">)</span>  <span class="c1"># then resample</span>
+
+        <span class="c1"># For crop factor, fill nodata with 1 (no effect on evapotranspiration)</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="s2">&quot;vegetation_crop_factor&quot;</span><span class="p">:</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">param</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
 
