@@ -118,9 +118,13 @@ filterwarnings = [
   "ignore:Engine 'radolan' loading failed.*:RuntimeWarning"
 ]
 testpaths = ["tests"]
-# don't run benchmarks by default when testing
-addopts = ["--benchmark-skip"]
-markers = ["integration: marks tests as integration tests"]
+
+addopts = [
+  "--benchmark-skip", # don't run benchmarks by default when testing
+]
+markers = [
+  "integration: slow tests that combine components, workflows and actual data; no Julia execution",
+]
 
 [tool.coverage.run]
 branch = true
@@ -281,6 +285,20 @@ serve = { cmd = [
   "-d",
   "docs/_build/html",
 ] }
+
+# Julia
+remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
+install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
+run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
+build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
+build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
+system-test = { depends-on = [
+  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
+  { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
+], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
 
 ## Dependencies
 [tool.pixi.dependencies]
@@ -458,16 +476,15 @@ benchmark-compare = { cmd = [
   "--benchmark-compare",
   "--benchmark-compare-fail=min:25%",
 ] }
-
-[tool.pixi.feature.test.tasks.test-cov]
-cmd = [
+unit-test = { cmd = ["pytest", "-m", "not integration"] }
+integration-test = { cmd = ["pytest", "-m", "integration"] }
+test-cov = { cmd = [
   "pytest",
   "--cov=hydromt_wflow",
   "--cov-report={{ report }}",
   "--cov-branch",
   "-m",
-  "not integration",
-]
-args=[
+  "not integration"
+], args=[
   { "arg" = "report", default="xml"}
-]
+] }
