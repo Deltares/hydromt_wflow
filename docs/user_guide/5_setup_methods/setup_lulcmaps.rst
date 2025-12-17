@@ -81,20 +81,9 @@ The columns names should match the HydroMT names of each Wflow parameter. These 
 Example lookup table (for ESA WorldCover):
 
 .. csv-table::
-    :header: landuse,description,landuse,vegetation_kext,land_manning_n,soil_compacted_fraction,vegetation_root_depth,vegetation_leaf_storage,vegetation_wood_storage,land_water_fraction,vegetation_crop_factor,vegetation_feddes_alpha_h1,vegetation_feddes_h1,vegetation_feddes_h2,vegetation_feddes_h3_high,vegetation_feddes_h3_low,vegetation_feddes_h4,erosion_usle_c
+  :file: ../../../hydromt_wflow/data/lulc/v1.0/esa_worldcover_mapping.csv
+  :header-rows: 1
 
-    10,Tree cover,10,0.8,0.5,0,406,0.23,0.09,0,1.1,1,0,-100,-400,-1000,-16000,0.0012
-    20,Shrubland,20,0.7,0.5,0,410,0.1,0.05,0,1.05,1,0,-100,-400,-1000,-16000,0.06
-    30,Grassland,30,0.6,0.2,0,106.8,0.1,0.01,0,1,1,0,-100,-400,-1000,-16000,0.04
-    40,Cropland,40,0.6,0.15,0,390.4,0.077,0.005,0,1.1,0,0,-100,-400,-1000,-16000,0.3
-    50,Built-up,50,0.6,0.015,0.9,257.4,0.1,0.03,0,1,1,0,-100,-400,-1000,-16000,0.001
-    60,Bare / sparse vegetation,60,0.6,0.015,0,10.7,0.1,0.03,0,-999,1,0,-100,-400,-1000,-16000,0.35
-    70,Snow and Ice,70,0,0.01,0,0,0,0,0,-999,1,0,-100,-400,-1000,-16000,0
-    80,Permanent water bodies,80,0,0.01,0,0,0,0,1,-999,1,0,-100,-400,-1000,-16000,0
-    90,Herbaceous wetland,90,0.6,0.125,0,106.8,0.1,0.01,0,1.2,1,0,-100,-400,-1000,-16000,0.001
-    95,Mangroves,95,0.8,0.5,0,369,0.23,0.09,0.5,1.05,1,0,-100,-400,-1000,-16000,0.008
-    100,Moss and lichen,100,0.6,0.085,0,136.9,0.09,0,0,1.05,1,0,-100,-400,-1000,-16000,0.001
-    0,No data,0,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999
 
 Example usage
 -------------
@@ -255,7 +244,8 @@ Parameters related to vegetation interception and storage of rainfall on leaves 
 | wood_storage | Fraction of wood in the vegetation/plant [-]                   | 0.0-0.5  | `Zhong et al. (2022) <https://doi.org/10.5194/hess-26-5647-2022>`_                |
 +--------------+----------------------------------------------------------------+----------+-----------------------------------------------------------------------------------+
 
-**kext**
+kext
+****
 
 Extract from Van Dijk and Bruijnzeel (2001):
 
@@ -380,7 +370,8 @@ Parameters related to vegetation evaporation and transpiration.
 |                 |                                                     |                                 | `Singh et al. (2003) <https://www.academia.edu/download/102602419/19325.pdf>`_                |
 +-----------------+-----------------------------------------------------+---------------------------------+-----------------------------------------------------------------------------------------------+
 
-**Crop factor**
+Crop factor
+***********
 
 The factor or FAO-56 crop coefficient the crop factor is used to scale reference evapotranspiration (:math:`ET_0`)
 to crop evapotranspiration (ETc) as follows: :math:`ET_c = (K_{cb} + K_e) * ET_0`, where
@@ -425,7 +416,8 @@ shrubland). In the default lookup tables, such areas (urban, sparse vegetation) 
 of 1.0 for grass.
 
 
-**Root depth**
+Root depth
+**********
 
 Values for different crops from Fan et al. (2016) and different other vegetation from Schenk and Jackson (2002):
 
@@ -505,7 +497,8 @@ Values for different crops from Fan et al. (2016) and different other vegetation
      - 146
      - 1027
 
-**Feddes root water uptake**
+Feddes root water uptake
+************************
 
 Critical pressure heads for rice are taken after Singh et al. (2003). For other vegetation,
 the default values from Wflow.jl are used. These are now vegetation independent and are taken
