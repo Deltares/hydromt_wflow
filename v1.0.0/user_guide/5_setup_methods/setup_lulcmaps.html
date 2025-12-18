@@ -1,0 +1,1818 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Setup_lulcmaps and related methods &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/5_setup_methods/setup_lulcmaps';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Migration Guide" href="../6_migration_guide/index.html" />
+    <link rel="prev" title="Setup Method: setup_x" href="setup_x.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../1_getting_started_hydromt/index.html">Getting started with HydroMT</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/overview/hydromt_cli.html">Command Line Interface</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../1_getting_started_hydromt/data_catalog.html">Data Catalog</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_prepare_cat.html">Preparing a data catalog</a></li>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_types.html">Supported data types</a></li>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_existing_cat.html">Predefined catalogs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html">Model Region</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../2_sbm_model/index.html">Working with the Wflow SBM model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/1_methods_components.html">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/2_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/3_update.html">Updating a model</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/4_clip.html">Clipping a model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../3_sediment_model/index.html">Working with the Wflow Sediment model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/1_methods_components.html">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/2_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/3_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/4_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../4_pre_and_post_processing/index.html">Pre and postprocessing and visualization</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Technical description</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setup_x.html">Setup Method: setup_x</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Setup_lulcmaps and related methods</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../6_migration_guide/index.html">Migration Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../6_migration_guide/migration_hydromt.html">Migrating to HydroMT v1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../6_migration_guide/migration_wflow.html">Migrating to Wflow.jl v1.0.0</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Technical description</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Setup_lulcmaps and related methods</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="setup-lulcmaps-and-related-methods">
+<h1>Setup_lulcmaps and related methods<a class="headerlink" href="#setup-lulcmaps-and-related-methods" title="Link to this heading">#</a></h1>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
+<p>To prepare land use / land cover related maps for Wflow, HydroMT provides several
+methods. The basis of these methods is that they use lookup tables with parameters
+values for each land use / land cover class and then map these values to the model grid
+using land use / land cover maps.</p>
+<p>The parameters are mapped at the original LULC map resolution before being resampled to
+the model grid resolution (using either averaging or majority mapping depending on the
+parameter type). This ensures that most of the details of the original resolution of the
+LULC map are preserved in the final model maps.</p>
+<figure class="align-default">
+<img alt="../../_images/setup_lulcmaps.png" src="../../_images/setup_lulcmaps.png" />
+</figure>
+<p>The following methods are available:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps" title="hydromt_wflow.WflowSbmModel.setup_lulcmaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a> and <a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps" title="hydromt_wflow.WflowSedimentModel.setup_lulcmaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a>:
+Main method to setup LULC maps using lookup tables.</p></li>
+<li><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps_from_vector" title="hydromt_wflow.WflowSbmModel.setup_lulcmaps_from_vector"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector()</span></code></a> and
+<a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector" title="hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector()</span></code></a>: Similar to the above but starts
+with rasterizing the LULC vector data to a user-defined resolution.</p></li>
+<li><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy" title="hydromt_wflow.WflowSbmModel.setup_lulcmaps_with_paddy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps_with_paddy()</span></code></a>: Specific method if paddies are present
+in your catchment. The LULC map can directly contain a paddy class or an additional paddy map
+can be provided and will be merged into the landuse map before deriving parameters. Additional
+parameters related to paddy management (minimum/optimal/maximum water levels) are also added
+based on user defined values. Finally, to allow for water to pool on the surface
+(for paddy/rice fields), the layers in the model can be updated to new depths, such that we
+can allow a thin layer with limited vertical conductivity. These updated layers means that the
+<code class="docutils literal notranslate"><span class="pre">soil_brooks_corey_c</span></code> parameter needs to be calculated again. Next, the
+soil_ksat_vertical_factor layer corrects the vertical conductivity
+(by multiplying) such that the bottom of the layer corresponds to a
+<cite>target_conductivity</cite> for that layer.</p></li>
+</ul>
+</section>
+<section id="parameter-lookup-tables">
+<h2>Parameter lookup tables<a class="headerlink" href="#parameter-lookup-tables" title="Link to this heading">#</a></h2>
+<p>The parameter values for each land use / land cover class need to be defined in lookup tables.
+HydroMT provides some default lookup tables for the following LULC classification systems:</p>
+<ul class="simple">
+<li><p><strong>corine</strong>: <a class="reference external" href="https://land.copernicus.eu/en/products/corine-land-cover">CORINE Land Cover (CLC)</a></p></li>
+<li><p><strong>glcnmo</strong>: <a class="reference external" href="https://globalmaps.github.io/glcnmo.html">GLCNMO</a></p></li>
+<li><p><strong>globcover</strong>: <a class="reference external" href="https://due.esrin.esa.int/page_globcover.php">GlobCover</a></p></li>
+<li><p><strong>esa_worldcover</strong>: <a class="reference external" href="https://esa-worldcover.org/en">ESA WorldCover</a></p></li>
+<li><p><strong>vito</strong>: <a class="reference external" href="https://land.copernicus.eu/en/products/global-dynamic-land-cover">Copernicus Global Dynamic Land Cover</a></p></li>
+<li><p><strong>paddy</strong>: specific lookup table for paddy fields (if using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_with_paddy</span></code> method)</p></li>
+</ul>
+<p>You can find these tables in the <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/tree/main/hydromt_wflow/data/lulc">HydroMT-Wflow repository</a>
+or create your own based on these examples or literature values to better reflect the specific vegetation
+and soil characteristics of your study area.</p>
+<p>The lookup tables are simple CSV files with the first column containing the land use / land cover class
+identifiers (matching those in the LULC map), the second column containing the <code class="docutils literal notranslate"><span class="pre">description</span></code> of the class
+and the other columns containing the parameter values for each class. The <strong>last line of the table should
+contain the nodata value</strong> for the LULC map (e.g. -9999) and the corresponding parameter values for nodata areas.</p>
+<p>The columns names should match the HydroMT names of each Wflow parameter. These are:</p>
+<ul class="simple">
+<li><p><strong>landuse</strong>: landuse class ID</p></li>
+<li><p><strong>vegetation_kext</strong>: Extinction coefficient in the canopy gap fraction equation [-]</p></li>
+<li><p><strong>land_manning_n</strong>: Manning Roughness [m-1/3 s]</p></li>
+<li><p><strong>soil_compacted_fraction</strong>: The fraction of compacted or urban area per grid cell [-]</p></li>
+<li><p><strong>vegetation_root_depth</strong>: Length of vegetation roots [mm]</p></li>
+<li><p><strong>vegetation_leaf_storage</strong>: Specific leaf storage [mm]</p></li>
+<li><p><strong>vegetation_wood_storage</strong>: Fraction of wood in the vegetation/plant [-]</p></li>
+<li><p><strong>land_water_fraction</strong>: The fraction of open water per grid cell [-]</p></li>
+<li><p><strong>vegetation_crop_factor</strong>: Crop coefficient [-]</p></li>
+<li><p><strong>vegetation_feddes_alpha_h1</strong>: Root water uptake reduction at soil water pressure head h1 (0 or 1) [-]</p></li>
+<li><p><strong>vegetation_feddes_h1</strong>: Soil water pressure head h1 at which root water uptake is reduced (Feddes) [cm]</p></li>
+<li><p><strong>vegetation_feddes_h2</strong>: Soil water pressure head h2 at which root water uptake is reduced (Feddes) [cm]</p></li>
+<li><p><strong>vegetation_feddes_h3_high</strong>: Soil water pressure head h3 (high) at which root water uptake is reduced (Feddes) [cm]</p></li>
+<li><p><strong>vegetation_feddes_h3_low</strong>: Soil water pressure head h3 (low) at which root water uptake is reduced (Feddes) [cm]</p></li>
+<li><p><strong>vegetation_feddes_h4</strong>: Soil water pressure head h4 at which root water uptake is reduced (Feddes) [cm]</p></li>
+<li><p><strong>erosion_usle_c</strong> (sediment): USLE cover management factor [-]</p></li>
+</ul>
+<p>Example lookup table (for ESA WorldCover):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>esa</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>landuse</p></th>
+<th class="head"><p>vegetation_kext</p></th>
+<th class="head"><p>land_manning_n</p></th>
+<th class="head"><p>soil_compacted_fraction</p></th>
+<th class="head"><p>vegetation_root_depth</p></th>
+<th class="head"><p>vegetation_leaf_storage</p></th>
+<th class="head"><p>vegetation_wood_storage</p></th>
+<th class="head"><p>land_water_fraction</p></th>
+<th class="head"><p>vegetation_crop_factor</p></th>
+<th class="head"><p>vegetation_feddes_alpha_h1</p></th>
+<th class="head"><p>vegetation_feddes_h1</p></th>
+<th class="head"><p>vegetation_feddes_h2</p></th>
+<th class="head"><p>vegetation_feddes_h3_high</p></th>
+<th class="head"><p>vegetation_feddes_h3_low</p></th>
+<th class="head"><p>vegetation_feddes_h4</p></th>
+<th class="head"><p>erosion_usle_c</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>Tree cover</p></td>
+<td><p>10</p></td>
+<td><p>0.8</p></td>
+<td><p>0.5</p></td>
+<td><p>0</p></td>
+<td><p>406</p></td>
+<td><p>0.23</p></td>
+<td><p>0.09</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.0012</p></td>
+</tr>
+<tr class="row-odd"><td><p>20</p></td>
+<td><p>Shrubland</p></td>
+<td><p>20</p></td>
+<td><p>0.7</p></td>
+<td><p>0.5</p></td>
+<td><p>0</p></td>
+<td><p>410</p></td>
+<td><p>0.1</p></td>
+<td><p>0.05</p></td>
+<td><p>0</p></td>
+<td><p>1.05</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.06</p></td>
+</tr>
+<tr class="row-even"><td><p>30</p></td>
+<td><p>Grassland</p></td>
+<td><p>30</p></td>
+<td><p>0.6</p></td>
+<td><p>0.2</p></td>
+<td><p>0</p></td>
+<td><p>106.8</p></td>
+<td><p>0.1</p></td>
+<td><p>0.01</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.04</p></td>
+</tr>
+<tr class="row-odd"><td><p>40</p></td>
+<td><p>Cropland</p></td>
+<td><p>40</p></td>
+<td><p>0.6</p></td>
+<td><p>0.15</p></td>
+<td><p>0</p></td>
+<td><p>390.4</p></td>
+<td><p>0.077</p></td>
+<td><p>0.005</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr class="row-even"><td><p>50</p></td>
+<td><p>Built-up</p></td>
+<td><p>50</p></td>
+<td><p>0.6</p></td>
+<td><p>0.015</p></td>
+<td><p>0.9</p></td>
+<td><p>257.4</p></td>
+<td><p>0.1</p></td>
+<td><p>0.03</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.001</p></td>
+</tr>
+<tr class="row-odd"><td><p>60</p></td>
+<td><p>Bare / sparse vegetation</p></td>
+<td><p>60</p></td>
+<td><p>0.6</p></td>
+<td><p>0.015</p></td>
+<td><p>0</p></td>
+<td><p>10.7</p></td>
+<td><p>0.1</p></td>
+<td><p>0.03</p></td>
+<td><p>0</p></td>
+<td><p>-999</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.35</p></td>
+</tr>
+<tr class="row-even"><td><p>70</p></td>
+<td><p>Snow and Ice</p></td>
+<td><p>70</p></td>
+<td><p>0</p></td>
+<td><p>0.01</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>-999</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>80</p></td>
+<td><p>Permanent water bodies</p></td>
+<td><p>80</p></td>
+<td><p>0</p></td>
+<td><p>0.01</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>-999</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>90</p></td>
+<td><p>Herbaceous wetland</p></td>
+<td><p>90</p></td>
+<td><p>0.6</p></td>
+<td><p>0.125</p></td>
+<td><p>0</p></td>
+<td><p>106.8</p></td>
+<td><p>0.1</p></td>
+<td><p>0.01</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.001</p></td>
+</tr>
+<tr class="row-odd"><td><p>95</p></td>
+<td><p>Mangroves</p></td>
+<td><p>95</p></td>
+<td><p>0.8</p></td>
+<td><p>0.5</p></td>
+<td><p>0</p></td>
+<td><p>369</p></td>
+<td><p>0.23</p></td>
+<td><p>0.09</p></td>
+<td><p>0.5</p></td>
+<td><p>1.05</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.008</p></td>
+</tr>
+<tr class="row-even"><td><p>100</p></td>
+<td><p>Moss and lichen</p></td>
+<td><p>100</p></td>
+<td><p>0.6</p></td>
+<td><p>0.085</p></td>
+<td><p>0</p></td>
+<td><p>136.9</p></td>
+<td><p>0.09</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1.05</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>-100</p></td>
+<td><p>-400</p></td>
+<td><p>-1000</p></td>
+<td><p>-16000</p></td>
+<td><p>0.001</p></td>
+</tr>
+<tr class="row-odd"><td><p>0</p></td>
+<td><p>No data</p></td>
+<td><p>0</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+<td><p>-999</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="example-usage">
+<h2>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading">#</a></h2>
+<p>Here is an example of how to use the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> and related methods when updating a model:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
+<p>The definition of the method and the arguments is done in a workflow file (YAML format).
+The workflow file can then be used to build or update a model from the command line interface.
+For example, using the pre-defined <code class="docutils literal notranslate"><span class="pre">artifact_data</span></code> catalog:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_landuse&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;artifact_data&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/update_landuse.yaml&quot;</span><span class="w"> </span>-v
+</pre></div>
+</div>
+<p>A minimal example of how to use the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> method in a workflow file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_lulcmaps</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover</span>
+<span class="w">      </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span>
+</pre></div>
+</div>
+<p>Another example using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector</span></code>. Here we will also save the rasterized
+version of the landuse map to a file and only prepare a couple of parameters:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_lulcmaps_from_vector</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">lulc_vector_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_landuse_vector.shp</span>
+<span class="w">      </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_landuse_mapping.csv</span>
+<span class="w">      </span><span class="nt">lulc_res</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">      </span><span class="nt">save_raster_lulc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">lulc_vars</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">land_manning_n</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vegetation_crop_factor</span>
+</pre></div>
+</div>
+<p>Final example using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_with_paddy</span></code> method to include paddy fields.
+Here another raster file is provided with the paddy field locations (GLCNMO where paddy
+class is number 12). As class numbers for irrigated and rainfed cropland are 11 and 14
+in globcover we can keep twelve as the paddy class value in the merged landuse map.</p>
+<p>Adding paddies also requires to add extra parameters related to paddy management and
+update some of the soil parameters.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_lulcmaps_with_paddy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover</span>
+<span class="w">      </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span>
+<span class="w">      </span><span class="nt">paddy_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">glcnmo</span>
+<span class="w">      </span><span class="nt">paddy_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">paddy_mapping_default</span>
+<span class="w">      </span><span class="nt">paddy_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
+<span class="w">      </span><span class="nt">output_paddy_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
+<span class="w">      </span><span class="nt">paddy_waterlevels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">demand_paddy_h_min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">        </span><span class="nt">demand_paddy_h_opt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">        </span><span class="nt">demand_paddy_h_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">wflow_thicknesslayers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">50</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">100</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">50</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">200</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">800</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">target_conductivity</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">null</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">null</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">null</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">null</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Python API</label><div class="sd-tab-content docutils">
+<p>For python, you need to first instantiate a Wflow model and then call the setup methods directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
+  <span class="n">root</span><span class="o">=</span><span class="s2">&quot;path/to/model_to_update&quot;</span><span class="p">,</span>
+  <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+  <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>A minimal example of how to use the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps</span><span class="p">(</span>
+  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;globcover_mapping_default&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Another example using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector</span></code>. Here we will also save the rasterized
+version of the landuse map to a file and only prepare a couple of parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps_from_vector</span><span class="p">(</span>
+  <span class="n">lulc_vector_fn</span><span class="o">=</span><span class="s2">&quot;local_landuse_vector.shp&quot;</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;local_landuse_mapping.csv&quot;</span><span class="p">,</span>
+  <span class="n">lulc_res</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+  <span class="n">save_raster_lulc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  <span class="n">lulc_vars</span><span class="o">=</span><span class="p">[</span>
+    <span class="s2">&quot;land_manning_n&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vegetation_crop_factor&quot;</span>
+  <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Final example using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_with_paddy</span></code> method to include paddy fields.
+Here another raster file is provided with the paddy field locations (GLCNMO where paddy
+class is number 12). As class numbers for irrigated and rainfed cropland are 11 and 14
+in globcover we can keep twelve as the paddy class value in the merged landuse map.</p>
+<p>Adding paddies also requires to add extra parameters related to paddy management and
+update some of the soil parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps_with_paddy</span><span class="p">(</span>
+  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;globcover_mapping_default&quot;</span><span class="p">,</span>
+  <span class="n">paddy_fn</span><span class="o">=</span><span class="s2">&quot;glcnmo&quot;</span><span class="p">,</span>
+  <span class="n">paddy_mapping_fn</span><span class="o">=</span><span class="s2">&quot;paddy_mapping_default&quot;</span><span class="p">,</span>
+  <span class="n">paddy_class</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+  <span class="n">output_paddy_class</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+  <span class="n">paddy_waterlevels</span><span class="o">=</span><span class="p">{</span>
+    <span class="s2">&quot;demand_paddy_h_min&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">&quot;demand_paddy_h_opt&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s2">&quot;demand_paddy_h_max&quot;</span><span class="p">:</span> <span class="mi">80</span>
+  <span class="p">},</span>
+  <span class="n">wflow_thicknesslayers</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+  <span class="n">target_conductivity</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>More examples can be found in the following notebooks:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../_examples/update_model_landuse.html#example-update-model-landuse"><span class="std std-ref">Update land use</span></a></p></li>
+<li><p><a class="reference internal" href="../../_examples/update_model_water_demand.html#example-update-model-water-demand"><span class="std std-ref">Add water demands and allocations (with paddy landuse)</span></a></p></li>
+</ul>
+</section>
+<section id="parameter-estimation">
+<h2>Parameter estimation<a class="headerlink" href="#parameter-estimation" title="Link to this heading">#</a></h2>
+<p>The estimates in the above table are based on literature reviews done by
+<a class="reference external" href="https://doi.org/10.1029/2019WR026807">Imhoff et al., 2020</a></p>
+<p>Here are some references to help you estimate parameter values for your own lookup tables.</p>
+<section id="interception-parameters">
+<h3>Interception parameters<a class="headerlink" href="#interception-parameters" title="Link to this heading">#</a></h3>
+<p>Parameters related to vegetation interception and storage of rainfall on leaves and branches.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Range</p></th>
+<th class="head"><p>Reference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>kext</p></td>
+<td><p>Extinction coefficient in the canopy gap fraction equation [-]</p></td>
+<td><p>0.2-0.9</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1016/S0022-1694(01)00392-4">Van Dijk and Bruijnzeel (2001)</a>
+<a class="reference external" href="https://edepot.wur.nl/218353">Van Heemst (1988)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>leaf_storage</p></td>
+<td><p>Specific leaf storage [mm]</p></td>
+<td><p>0.02-0.2</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.5194/hess-26-5647-2022">Zhong et al. (2022)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>wood_storage</p></td>
+<td><p>Fraction of wood in the vegetation/plant [-]</p></td>
+<td><p>0.0-0.5</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.5194/hess-26-5647-2022">Zhong et al. (2022)</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="kext">
+<h4>kext<a class="headerlink" href="#kext" title="Link to this heading">#</a></h4>
+<p>Extract from Van Dijk and Bruijnzeel (2001):</p>
+<blockquote>
+<div><p>The value of kext for a particular radiation wavelength depends on leaf
+distribution and inclination angle and for PAR usually ranges between 0.6
+and 0.8 in forests (Ross, 1975). For a number of agricultural crops,
+van Heemst (1988) reported kext values between 0.2 and 0.8 with values of
+0.5-0.7 being the most common.</p>
+</div></blockquote>
+<p>Values for different crops from van Heemst (1988):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Crop</p></th>
+<th class="head"><p>kext</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wheat</p></td>
+<td><p>0.42 - 0.54</p></td>
+</tr>
+<tr class="row-odd"><td><p>Barley</p></td>
+<td><p>0.44</p></td>
+</tr>
+<tr class="row-even"><td><p>Rice</p></td>
+<td><p>0.29 - 0.43</p></td>
+</tr>
+<tr class="row-odd"><td><p>Millet</p></td>
+<td><p>0.5 - 0.6</p></td>
+</tr>
+<tr class="row-even"><td><p>Sorghum</p></td>
+<td><p>0.4 - 0.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>Maize</p></td>
+<td><p>0.6 - 0.64</p></td>
+</tr>
+<tr class="row-even"><td><p>Soybean</p></td>
+<td><p>0.787 - 0.804</p></td>
+</tr>
+<tr class="row-odd"><td><p>Peanut</p></td>
+<td><p>0.6</p></td>
+</tr>
+<tr class="row-even"><td><p>Oilseed rape</p></td>
+<td><p>0.54</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sunflower</p></td>
+<td><p>0.8 - 0.9</p></td>
+</tr>
+<tr class="row-even"><td><p>Cassava</p></td>
+<td><p>0.7 - 0.88</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sweet Potato</p></td>
+<td><p>0.45</p></td>
+</tr>
+<tr class="row-even"><td><p>Potato</p></td>
+<td><p>0.48</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sugar beet</p></td>
+<td><p>0.65</p></td>
+</tr>
+<tr class="row-even"><td><p>Sugar cane</p></td>
+<td><p>0.48</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cotton</p></td>
+<td><p>0.62</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="leaf-and-wood-storage">
+<h4>Leaf and wood storage<a class="headerlink" href="#leaf-and-wood-storage" title="Link to this heading">#</a></h4>
+<p>Previous values were derived from <a class="reference external" href="https://doi.org/10.5194/hess-15-3355-2011">Pitman (1989)</a>
+and <a class="reference external" href="https://doi.org/10.1016/S0022-1694(98)00115-2">Liu (1998)</a> . Starting from version 1, the
+default lookup tables use updated values based on a literature review by
+<a class="reference external" href="https://doi.org/10.5194/hess-26-5647-2022">Zhong et al. (2022)</a> (supplement values with more
+details are available).</p>
+<p>Note that for land use types with mixed (e.g urban) or sparse vegetation, the actual values will be scaled
+with LAI.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Vegetation / Crop type</p></th>
+<th class="head"><p>Leaf storage [mm]</p></th>
+<th class="head"><p>Wood storage [-]</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Needleleaf forest</p></td>
+<td><p>0.29</p></td>
+<td><p>0.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>Evergreen broadleaf forest</p></td>
+<td><p>0.20</p></td>
+<td><p>0.09</p></td>
+</tr>
+<tr class="row-even"><td><p>Deciduous broadleaf forest</p></td>
+<td><p>0.18</p></td>
+<td><p>0.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mixed forest</p></td>
+<td><p>0.20</p></td>
+<td><p>0.09</p></td>
+</tr>
+<tr class="row-even"><td><p>All forest</p></td>
+<td><p>0.23</p></td>
+<td><p>0.09</p></td>
+</tr>
+<tr class="row-odd"><td><p>Short vegetation (crops, grass, shrub)</p></td>
+<td><p>0.10</p></td>
+<td><p>0.03 (0.01 - 0.05)</p></td>
+</tr>
+<tr class="row-even"><td><p>Maize</p></td>
+<td><p>0.077</p></td>
+<td><p>0.005</p></td>
+</tr>
+<tr class="row-odd"><td><p>Rice</p></td>
+<td><p>0.042</p></td>
+<td><p>0.005</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="evapotranspiration-parameters">
+<h3>Evapotranspiration parameters<a class="headerlink" href="#evapotranspiration-parameters" title="Link to this heading">#</a></h3>
+<p>Parameters related to vegetation evaporation and transpiration.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Range</p></th>
+<th class="head"><p>Reference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>crop_factor</p></td>
+<td><p>Crop coefficient [-]</p></td>
+<td><p>0.3 - 1.25</p></td>
+<td><p><a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0c.htm">Allen et al. (1998)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>root_depth</p></td>
+<td><p>Length of vegetation roots [mm]</p></td>
+<td><p>100 - 5000</p></td>
+<td><p><a class="reference external" href="https://www.mdpi.com/2077-0472/14/4/532">Fan et al. (2016)</a>
+<a class="reference external" href="https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2">Schenk and Jackson (2002)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>feddes_alpha_h1</p></td>
+<td><p>Root water uptake reduction at pressure head h1 [-]</p></td>
+<td><p>0 (crop) - 1 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>feddes_h1</p></td>
+<td><p>Critical pressure head h1 - anorexic condition [cm]</p></td>
+<td><p>100 (paddy) - 0 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>feddes_h2</p></td>
+<td><p>Critical pressure head h2 - field capacity [cm]</p></td>
+<td><p>55 (paddy) - -100 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>feddes_h3_high</p></td>
+<td><p>Critical pressure head h3 (high) [cm]</p></td>
+<td><p>-160 (paddy) - -400 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+<tr class="row-even"><td><p>feddes_h3_low</p></td>
+<td><p>Critical pressure head h3 (low) [cm]</p></td>
+<td><p>-250 (paddy) - -1000 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>feddes_h4</p></td>
+<td><p>Critical pressure head h4 - wilting point [cm]</p></td>
+<td><p>-15000 (paddy) - -16000 (other)</p></td>
+<td><p><a class="reference external" href="https://edepot.wur.nl/222782">van Dam et al. (1997)</a>
+<a class="reference external" href="https://www.academia.edu/download/102602419/19325.pdf">Singh et al. (2003)</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="crop-factor">
+<h4>Crop factor<a class="headerlink" href="#crop-factor" title="Link to this heading">#</a></h4>
+<p>The factor or FAO-56 crop coefficient the crop factor is used to scale reference evapotranspiration (<span class="math notranslate nohighlight">\(ET_0\)</span>)
+to crop evapotranspiration (ETc) as follows: <span class="math notranslate nohighlight">\(ET_c = (K_{cb} + K_e) * ET_0\)</span>, where
+<span class="math notranslate nohighlight">\(K_{cb}\)</span> is the basal crop coefficient and <span class="math notranslate nohighlight">\(K_e\)</span> is the soil evaporation coefficient.
+As Wflow takes care of the soil evaporation component, the crop coefficient needed is then <span class="math notranslate nohighlight">\(K_{cb full}\)</span>
+which is the basal crop coefficient during the mid-season (at peak plant size or height) for vegetation having
+full ground cover or LAI &gt; 3. Within Wflow, <span class="math notranslate nohighlight">\(K_{cb full}\)</span> will be scaled further based on
+the actual vegetation cover fraction (using LAI) to get the actual crop coefficient used for <span class="math notranslate nohighlight">\(ET_c\)</span> calculation.</p>
+<p>In sub-humid and calm wind conditions, <span class="math notranslate nohighlight">\(K_{cb full}\)</span> is equal to the FAO-56 mid-season
+crop coefficient <span class="math notranslate nohighlight">\(K_{cb mid}\)</span>. Detailed values of <span class="math notranslate nohighlight">\(K_{cb mid}\)</span> can be found for
+different crop types in the <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0c.htm">FAO guidelines</a>. As
+most LULC maps do not distinguish between crop types, an average value representing the most
+common crops in your study area should be used. In the default lookup tables, 1.15 is used for
+cropland areas (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.</p>
+<p>Detailed values of kc can be found for different crop types in the
+<a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0b.htm">FAO guidelines</a>. As most LULC
+maps do not distinguish between crop types, an average value representing the most common crops
+in your study area should be used. In the default lookup tables, 1.10 is used for cropland areas
+(based on an average value for cereals and oil crops), and 1.15 for paddy/rice fields.</p>
+<p>For natural vegetation, <span class="math notranslate nohighlight">\(K_{cb full}\)</span> can be estimated from the vegetation height and
+climate conditions. For example, the <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0f.htm">FAO guidelines</a>
+provide the following equations to estimate <span class="math notranslate nohighlight">\(K_{cb full}\)</span> for natural vegetation:</p>
+<p>..math:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">K_</span><span class="p">{</span><span class="n">cb</span> <span class="n">full</span><span class="p">}</span> <span class="o">=</span> <span class="n">K_</span><span class="p">{</span><span class="n">cb</span><span class="p">,</span><span class="n">h</span><span class="p">}</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.04</span><span class="p">(</span><span class="n">u_2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.004</span><span class="p">(</span><span class="n">RH_</span><span class="p">{</span><span class="nb">min</span><span class="p">}</span> <span class="o">-</span> <span class="mi">45</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">^</span><span class="mf">0.3</span>
+<span class="n">K_</span><span class="p">{</span><span class="n">cb</span><span class="p">,</span><span class="n">h</span><span class="p">}</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">h</span> \<span class="n">quad</span> \<span class="n">text</span><span class="p">{</span><span class="k">for</span> <span class="p">}</span> <span class="n">h</span> \<span class="n">leq</span> <span class="mi">2</span> \<span class="n">text</span><span class="p">{</span> <span class="n">m</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(u_2\)</span> is the wind speed at 2 m height [m/s], <span class="math notranslate nohighlight">\(RH_{min}\)</span> is the minimum relative
+humidity [%] and <span class="math notranslate nohighlight">\(h\)</span> is the mean maximum plant height [m].</p>
+<p>Finally, for land use type with no vegetation (e.g. bare soil, waterbodies), the nodata value
+should be used (e.g. -9999) to avoid underestimation of <span class="math notranslate nohighlight">\(K_{cb full}\)</span> during reprojection
+of the land use parameter at original resolution to the model grid resolution.</p>
+<p>For mixed land use types (e.g. urban areas), the value should be scaled based on the
+vegetation type in the area (e.g. sparse vegetation should use the value for grass or
+shrubland). In the default lookup tables, such areas (urban, sparse vegetation) use a value
+of 1.0 for grass.</p>
+</section>
+<section id="root-depth">
+<h4>Root depth<a class="headerlink" href="#root-depth" title="Link to this heading">#</a></h4>
+<p>Values for different crops from Fan et al. (2016) and different other vegetation from Schenk and Jackson (2002):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Vegetation / Crop type</p></th>
+<th class="head"><p>Root depth D50 [mm]</p></th>
+<th class="head"><p>Root depth D95 [mm]</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tundra</p></td>
+<td><p>90</p></td>
+<td><p>290</p></td>
+</tr>
+<tr class="row-odd"><td><p>Boreal forest</p></td>
+<td><p>120</p></td>
+<td><p>580</p></td>
+</tr>
+<tr class="row-even"><td><p>Cool temperate forest</p></td>
+<td><p>210</p></td>
+<td><p>1040</p></td>
+</tr>
+<tr class="row-odd"><td><p>Warm temperate forest</p></td>
+<td><p>230</p></td>
+<td><p>1210</p></td>
+</tr>
+<tr class="row-even"><td><p>Meadows</p></td>
+<td><p>50</p></td>
+<td><p>400</p></td>
+</tr>
+<tr class="row-odd"><td><p>Prairie</p></td>
+<td><p>70</p></td>
+<td><p>910</p></td>
+</tr>
+<tr class="row-even"><td><p>Semi arid steppe</p></td>
+<td><p>160</p></td>
+<td><p>1200</p></td>
+</tr>
+<tr class="row-odd"><td><p>Temperate savanna</p></td>
+<td><p>230</p></td>
+<td><p>1400</p></td>
+</tr>
+<tr class="row-even"><td><p>Mediterranean woodland and shrub</p></td>
+<td><p>190</p></td>
+<td><p>1710</p></td>
+</tr>
+<tr class="row-odd"><td><p>Semi-desert shrubland</p></td>
+<td><p>280</p></td>
+<td><p>1310</p></td>
+</tr>
+<tr class="row-even"><td><p>Desert</p></td>
+<td><p>270</p></td>
+<td><p>1120</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dry tropical savannas</p></td>
+<td><p>280</p></td>
+<td><p>1440</p></td>
+</tr>
+<tr class="row-even"><td><p>Humid tropical savannas</p></td>
+<td><p>140</p></td>
+<td><p>940</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tropical semi-deciduous and deciduous forest</p></td>
+<td><p>160</p></td>
+<td><p>950</p></td>
+</tr>
+<tr class="row-even"><td><p>Tropical evergreen forest</p></td>
+<td><p>150</p></td>
+<td><p>910</p></td>
+</tr>
+<tr class="row-odd"><td><p>Wheat</p></td>
+<td><p>168</p></td>
+<td><p>1038</p></td>
+</tr>
+<tr class="row-even"><td><p>Maize</p></td>
+<td><p>144</p></td>
+<td><p>889</p></td>
+</tr>
+<tr class="row-odd"><td><p>Oat</p></td>
+<td><p>112</p></td>
+<td><p>777</p></td>
+</tr>
+<tr class="row-even"><td><p>Barley</p></td>
+<td><p>115</p></td>
+<td><p>996</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cereals</p></td>
+<td><p>141</p></td>
+<td><p>929</p></td>
+</tr>
+<tr class="row-even"><td><p>Soybean</p></td>
+<td><p>109</p></td>
+<td><p>1380</p></td>
+</tr>
+<tr class="row-odd"><td><p>Oilseed crops</p></td>
+<td><p>94</p></td>
+<td><p>1063</p></td>
+</tr>
+<tr class="row-even"><td><p>All crops</p></td>
+<td><p>146</p></td>
+<td><p>1027</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="feddes-root-water-uptake">
+<h4>Feddes root water uptake<a class="headerlink" href="#feddes-root-water-uptake" title="Link to this heading">#</a></h4>
+<p>Critical pressure heads for rice are taken after Singh et al. (2003). For other vegetation,
+the default values from Wflow.jl are used. These are now vegetation independent and are taken
+as the default complete saturation (h1=0 cm), field capacity (h2=-100 cm) and wilting point
+(h4=-16000 cm). The h3 values are set to -400 cm (high) and -1000 cm (low) but these are largely
+dependent on the type of vegetation.</p>
+<p>Examples can be found in annexes C and D of Van Dam et al. (1997). Here are examples for
+the most common crops [cm]:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Crop</p></th>
+<th class="head"><p>h1</p></th>
+<th class="head"><p>h2</p></th>
+<th class="head"><p>h3_high</p></th>
+<th class="head"><p>h3_low</p></th>
+<th class="head"><p>h4</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Potatoes</p></td>
+<td><p>-10</p></td>
+<td><p>-25</p></td>
+<td><p>-320</p></td>
+<td><p>-600</p></td>
+<td><p>-16000</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sugar beet</p></td>
+<td><p>-10</p></td>
+<td><p>-25</p></td>
+<td><p>-320</p></td>
+<td><p>-600</p></td>
+<td><p>-16000</p></td>
+</tr>
+<tr class="row-even"><td><p>Wheat</p></td>
+<td><p>0</p></td>
+<td><p>-1</p></td>
+<td><p>-500</p></td>
+<td><p>-900</p></td>
+<td><p>-16000</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pasture</p></td>
+<td><p>-10</p></td>
+<td><p>-25</p></td>
+<td><p>-200</p></td>
+<td><p>-800</p></td>
+<td><p>-8000</p></td>
+</tr>
+<tr class="row-even"><td><p>Corn</p></td>
+<td><p>-15</p></td>
+<td><p>-30</p></td>
+<td><p>-325</p></td>
+<td><p>-600</p></td>
+<td><p>-8000</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="manning-roughness">
+<h3>Manning Roughness<a class="headerlink" href="#manning-roughness" title="Link to this heading">#</a></h3>
+<p>Manning’s N values are used to represent roughness of the land surface for overland flow.
+Estimations per landuse class can be found in literature such as:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Range</p></th>
+<th class="head"><p>Reference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>manning_n</p></td>
+<td><p>Manning Roughness [m-1/3 s]</p></td>
+<td><p>0.008-0.96</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39)">Engman (1986)</a>
+<a class="reference external" href="http://hdl.handle.net/10919/35777">Kilgore (1997)</a>
+<a class="reference external" href="https://www.nrc.gov/docs/ML1421/ML14219A437.pdf">Cronshey (1986)</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Example of values from different sources:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Landuse</p></th>
+<th class="head"><p>Cronshey</p></th>
+<th class="head"><p>Kilgore</p></th>
+<th class="head"><p>Engman</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Smooth surfaces (concrete, gravel, bare)</p></td>
+<td><p>0.011</p></td>
+<td><p>0.015 (residential/commercial) / 0.020 (gravel road)</p></td>
+<td><p>0.01 (smooth bare soil or bare sand) / 0.011 (concrete) - 0.020 (gravel)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fallow (no residue)</p></td>
+<td><p>0.05</p></td>
+<td><p>0.05</p></td>
+<td><p>0.05</p></td>
+</tr>
+<tr class="row-even"><td><p>Cropland</p></td>
+<td><p>0.06 - 0.17 (depending on residue cover)</p></td>
+<td><p>0.032 (wheat) / 0.08 (corn) - 0.2 (depending on tillage)</p></td>
+<td><p>0.1 - 0.4 (small grain) / 0.07 - 0.2 (row crops)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Grassland</p></td>
+<td><p>0.15 (short) - 0.24 (dense)</p></td>
+<td><p>0.046 (grass) / 0.1 (pasture)</p></td>
+<td><p>0.15 (short) - 0.24 (dense)</p></td>
+</tr>
+<tr class="row-even"><td><p>Forest</p></td>
+<td><p>0.4 - 0.8 (depending on underbrush)</p></td>
+<td><p>0.6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Range (natural)</p></td>
+<td><p>0.13</p></td>
+<td></td>
+<td><p>0.13</p></td>
+</tr>
+<tr class="row-even"><td><p>Wetland</p></td>
+<td></td>
+<td><p>0.125</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Waterway, pond</p></td>
+<td></td>
+<td><p>0.08</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="land-cover-parameters">
+<h3>Land cover parameters<a class="headerlink" href="#land-cover-parameters" title="Link to this heading">#</a></h3>
+<p>The land cover parameters represent fractions of different land cover types within each grid cell.
+For these parameters, it may matter to take into account the resolution of the original LULC map
+when estimating the values. E.g. a coarse resolution may for example represent a cell that is majority
+urban but still contains a significant fraction of vegetation or water.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Estimate</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>soil_compacted_fraction</p></td>
+<td><p>Fraction of compacted or paved area per grid cell [-]</p></td>
+<td><p>&gt; 0 if urban or compacted / paved surfaces are present</p></td>
+</tr>
+<tr class="row-odd"><td><p>land_water_fraction</p></td>
+<td><p>Fraction of open water per grid cell [-]</p></td>
+<td><p>&gt; 0 if water (water bodies, ponds, waterways etc.) is present</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="soil-erosion">
+<h3>Soil erosion<a class="headerlink" href="#soil-erosion" title="Link to this heading">#</a></h3>
+<p>For soil erosion, the soil cover-management factor USLE C can be estimated for different
+land use / vegetation type.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Range</p></th>
+<th class="head"><p>Reference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>erosion_usle_c</p></td>
+<td><p>USLE cover management factor [-]</p></td>
+<td><p>0.001 - 1.0</p></td>
+<td><p><a class="reference external" href="https://doi.org/10.1016/j.landusepol.2015.05.021">Panagos et al. (2015)</a>
+<a class="reference external" href="https://doi.org/10.5194/nhess-15-225-2015">Bosco et al. (2015)</a>
+<a class="reference external" href="https://doi.org/10.1080/15715124.2014.1003302">Gericke et al. (2015)</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Examples of USLE C values for different land use types different sources:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Land use</p></th>
+<th class="head"><p>Panagos</p></th>
+<th class="head"><p>Bosco</p></th>
+<th class="head"><p>Gericke</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wheat</p></td>
+<td><p>0.20</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Maize</p></td>
+<td><p>0.38</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Rice</p></td>
+<td><p>0.15</p></td>
+<td><p>0.15</p></td>
+<td><p>0.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>Potatoes or sugar beet</p></td>
+<td><p>0.34</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Oilseeds</p></td>
+<td><p>0.28</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>All crops</p></td>
+<td><p>0.233 (0.2 - 0.5)</p></td>
+<td><p>0.2 (irrigated) / 0.335 (rainfed)</p></td>
+<td><p>0.18 - 0.24 (irrigated) / 0.3 - 0.4 (rainfed)</p></td>
+</tr>
+<tr class="row-even"><td><p>Vineyards</p></td>
+<td><p>0.3527 (0.15 - 0.45)</p></td>
+<td><p>0.45</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fruit trees and berries</p></td>
+<td><p>0.2188 (0.1 - 0.3)</p></td>
+<td><p>0.35</p></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-even"><td><p>Olive groves</p></td>
+<td><p>0.2273 (0.1 - 0.3)</p></td>
+<td><p>0.35</p></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>Agro-forestry areas</p></td>
+<td><p>0.0881 (0.03 - 0.13)</p></td>
+<td><p>0.2</p></td>
+<td><p>0.23 - 0.3</p></td>
+</tr>
+<tr class="row-even"><td><p>Broad-leaved forest</p></td>
+<td><p>0.0013 (0.0001 - 0.003)</p></td>
+<td><p>0.0025</p></td>
+<td><p>0.005 - 0.008</p></td>
+</tr>
+<tr class="row-odd"><td><p>Coniferous forest</p></td>
+<td><p>0.0011 (0.0001 - 0.003)</p></td>
+<td><p>0.0015</p></td>
+<td><p>0.005 - 0.008</p></td>
+</tr>
+<tr class="row-even"><td><p>Mixed forest</p></td>
+<td><p>0.0011 (0.0001 - 0.003)</p></td>
+<td><p>0.002</p></td>
+<td><p>0.005 - 0.008</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pastures</p></td>
+<td><p>0.0903 (0.05 - 0.15)</p></td>
+<td><p>0.01</p></td>
+<td><p>0.01 - 0.005</p></td>
+</tr>
+<tr class="row-even"><td><p>Natural grasslands</p></td>
+<td><p>0.0435 (0.01 - 0.08)</p></td>
+<td><p>0.005</p></td>
+<td><p>0.01 - 0.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>Moors and heathland</p></td>
+<td><p>0.0420 (0.01 - 0.1)</p></td>
+<td><p>0.05</p></td>
+<td><p>0.01 - 0.05</p></td>
+</tr>
+<tr class="row-even"><td><p>Shrubland</p></td>
+<td><p>0.0623 (0.01 - 0.1)</p></td>
+<td><p>0.04</p></td>
+<td><p>0.01 - 0.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>Bare rocks</p></td>
+<td><p>0</p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>Sparse vegetation</p></td>
+<td><p>0.2652 (0.1 - 0.45)</p></td>
+<td><p>0.3</p></td>
+<td><p>0.35</p></td>
+</tr>
+<tr class="row-odd"><td><p>Burnt areas</p></td>
+<td><p>0.3427 (0.1 - 0.55)</p></td>
+<td><p>0.3</p></td>
+<td><p>0.35</p></td>
+</tr>
+<tr class="row-even"><td><p>Glaciers and perpetual snow</p></td>
+<td><p>0</p></td>
+<td><p>0.001</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Allen RG, Pereira LS, Raes D, Smith M (1998) Crop evapotranspiration guidelines for computing
+crop water requirements. FAO Irrig Drain Pap 56. FAO, Rome, p 300</p></li>
+<li><p>Bosco, C., de Rigo, D., Dewitte, O., Poesen, J., and Panagos, P. (2015). Modelling soil
+erosion at European scale: towards harmonization and reproducibility, Nat. Hazards Earth Syst.
+Sci., 15, 225–245, <a class="reference external" href="https://doi.org/10.5194/nhess-15-225-2015">https://doi.org/10.5194/nhess-15-225-2015</a></p></li>
+<li><p>Corbari, C., Ravazzani, G., Galvagno, M., Cremonese, E., &amp; Mancini, M. (2017). Assessing
+crop coefficients for natural vegetated areas using satellite data and eddy covariance
+stations. Sensors, 17(11), 2664.</p></li>
+<li><p>Cronshey, R. (1986). Urban hydrology for small watersheds (No. 55). US Department of Agriculture,
+Soil Conservation Service, Engineering Division.</p></li>
+<li><p>van Dam, J.C., Huygen, J., Wesseling, J.G., Feddes, R.A., Kabat, P., van Walsum, P.E.V., Groenendijk, P.,
+and van Diepen, C.A., 1997. Theory of SWAP version 2.0: Simulation of water flow, solute transport
+and plant growth in the soil-water-atmosphere-plant environment. Wageningen Agricultural
+University, The Netherlands, Report 71.</p></li>
+<li><p>van Dijk, A. I. J. M., &amp; Bruijnzeel, L. A. (2001). Modelling rainfall interception by vegetation
+of variable density using an adapted analytical model. Part 2. Model validation for a tropical
+upland mixed cropping system. Journal of Hydrology, 247(3-4), 239–262.</p></li>
+<li><p>Engman, E. (1986). Roughness coefficients for routing surface runoff. Journal of Irrigation
+and Drainage Engineering, 112(1), 39-53. <a class="reference external" href="https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39">https://doi.org/10.1061/(ASCE)0733-9437(1986)112:1(39</a>)</p></li>
+<li><p>Fan, J., McConkey, B., Wang, H., &amp; Janzen, H. (2016). Root distribution by depth for temperate
+agricultural crops. Field Crops Research, 189, 68–74. <a class="reference external" href="https://doi.org/10.1016/j.fcr.2016.02.013">https://doi.org/10.1016/j.fcr.2016.02.013</a></p></li>
+<li><p>Feddes, R.A., Kowalik, P.J. and Zaradny, H., 1978, Simulation of field water use and crop yield,
+Pudoc, Wageningen, Simulation Monographs.</p></li>
+<li><p>Gericke, A. (2015). Soil loss estimation and empirical relationships for sediment delivery
+ratios of European river catchments. International Journal of River Basin Management,
+13(2), 179–202. <a class="reference external" href="https://doi.org/10.1080/15715124.2014.1003302">https://doi.org/10.1080/15715124.2014.1003302</a></p></li>
+<li><p>van Heemst, H.D.J. (1988). Plant data values required for simple crop growth simulation models,
+review and bibliography. Simulation report CABO-TT No 17. Wageningen.</p></li>
+<li><p>Imhoff, R.O, van Verseveld, W.J., van Osnabrugge, B., Weerts, A.H., 2020. Scaling Point-Scale
+(Pedo)transfer Functions to Seamless Large-Domain Parameter Estimates for High-Resolution
+Distributed Hydrologic Modeling: An Example for the Rhine River. Water Resources Research,
+56, e2019WR026807. <a class="reference external" href="https://doi.org/10.1029/2019WR026807">https://doi.org/10.1029/2019WR026807</a>.</p></li>
+<li><p>Kilgore, J. L. (1997). Development and evaluation of a GIS-based spatially distributed unit
+hydrograph model (MSc thesis). Retrieved from <a class="reference external" href="http://hdl.handle.net/10919/35777">http://hdl.handle.net/10919/35777</a></p></li>
+<li><p>Liu, S. (1998). Estimation of rainfall storage capacity in the canopies of cypress wet lands
+and slash pine uplands in North-Central Florida. Journal of Hydrology, 207(1-2), 32–41.
+<a class="reference external" href="https://doi.org/10.1016/S0022-1694(98)00115-2">https://doi.org/10.1016/S0022-1694(98)00115-2</a></p></li>
+<li><p>Panagos, P., Borrelli, P., Meusburger, K., Alewell, C., Lugato, E., &amp; Montanarella, L. (2015).
+Estimating the soil erosion cover-management factor at the European scale. Land Use Policy,
+48, 38–50. <a class="reference external" href="https://doi.org/10.1016/j.landusepol.2015.05.021">https://doi.org/10.1016/j.landusepol.2015.05.021</a></p></li>
+<li><p>Pereira, L.S., Paredes, P. &amp; Espírito-Santo, D. (2024a). Crop coefficients of natural wetlands
+and riparian vegetation to compute ecosystem evapotranspiration and the water balance.
+Irrig Sci 42, 1171–1197. <a class="reference external" href="https://doi.org/10.1007/s00271-024-00923-9">https://doi.org/10.1007/s00271-024-00923-9</a></p></li>
+<li><p>Pereira, L.S., Paredes, P., Espírito-Santo, D. et al. (2024b). Actual and standard crop
+coefficients for semi-natural and planted grasslands and grasses: a review aimed at
+supporting water management to improve production and ecosystem services. Irrig Sci 42,
+1139–1170. <a class="reference external" href="https://doi.org/10.1007/s00271-023-00867-6">https://doi.org/10.1007/s00271-023-00867-6</a></p></li>
+<li><p>Pereira, L.S., Paredes, P., Oliveira, C.M. et al. (2024c). Single and basal crop coefficients
+for estimation of water use of tree and vine woody crops with consideration of fraction of
+ground cover, height, and training system for Mediterranean and warm temperate fruit and
+leaf crops. Irrig Sci 42, 1019–1058. <a class="reference external" href="https://doi.org/10.1007/s00271-023-00901-7">https://doi.org/10.1007/s00271-023-00901-7</a></p></li>
+<li><p>Pitman, J. (1989). Rainfall interception by bracken in open habitats—Relations between
+leaf area, canopy storage and drainage rate. Journal of Hydrology, 105(3-4), 317–334.
+<a class="reference external" href="https://doi.org/10.1016/0022-1694(89)90111-X">https://doi.org/10.1016/0022-1694(89)90111-X</a></p></li>
+<li><p>Schenk, H. J., &amp; Jackson, R. B. (2002). The global biogeography of roots. Ecological
+Monographs, 72(3), 311–328. <a class="reference external" href="https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2">https://doi.org/10.1890/0012-9615(2002)072[0311:TGBOR]2.0.CO;2</a></p></li>
+<li><p>Singh, R., Van Dam, J. C., &amp; Jhorar, R. K. (2003). Water and salt balances at farmer fields.
+Water productivity of irrigated crops in Sirsa district, India. Integration of remote sensing,
+crop and soil models and geographical information systems.</p></li>
+<li><p>Zhong, F., Jiang, S., van Dijk, A. I. J. M., Ren, L., Schellekens, J., and Miralles, D. G.
+(2022). Revisiting large-scale interception patterns constrained by a synthesis of global
+experimental data, Hydrol. Earth Syst. Sci., 26, 5647–5667. <a class="reference external" href="https://doi.org/10.5194/hess-26-5647-2022">https://doi.org/10.5194/hess-26-5647-2022</a></p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="setup_x.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Setup Method: setup_x</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../6_migration_guide/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Migration Guide</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-lookup-tables">Parameter lookup tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-estimation">Parameter estimation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interception-parameters">Interception parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#kext">kext</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#leaf-and-wood-storage">Leaf and wood storage</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evapotranspiration-parameters">Evapotranspiration parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#crop-factor">Crop factor</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#root-depth">Root depth</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#feddes-root-water-uptake">Feddes root water uptake</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#manning-roughness">Manning Roughness</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#land-cover-parameters">Land cover parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soil-erosion">Soil erosion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
