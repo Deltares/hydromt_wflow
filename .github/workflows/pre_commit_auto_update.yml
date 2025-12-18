@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Setup python for pre-commit
@@ -20,7 +20,7 @@ jobs:
       - name: Update pre-commit hooks
         uses: browniebroke/pre-commit-autoupdate-action@main
       - name: Create PR with updated hook versions
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         if: always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -14,6 +14,7 @@ from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 _supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow": WflowSbmModel,
@@ -66,6 +67,7 @@ def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
 
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
+@pytest.mark.integration
 def test_model_build(tmpdir, model, example_models, example_inis):
     # get model type
     model_type = _supported_models[model]
@@ -112,6 +114,7 @@ def test_base_model_init_should_raise():
 
 
 @pytest.mark.timeout(60)  # max 1 min
+@pytest.mark.integration
 def test_model_clip(
     tmpdir: Path,
     example_wflow_model: WflowSbmModel,

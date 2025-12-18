@@ -798,7 +798,8 @@ def reservoir_parameters(
                 if "volume" in df_rate.columns:
                     gdf.loc[gdf["waterbody_id"] == wid, "reservoir_storage_curve"] = 2
                     df_stor = df_rate[["elevtn", "volume"]].dropna(
-                        subset=["elevtn", "volume"]
+                        subset=["elevtn", "volume"],
+                        ignore_index=True,
                     )
                     df_stor.rename(columns={"elevtn": "H", "volume": "S"}, inplace=True)
                     # add to rating_curves
@@ -812,7 +813,8 @@ def reservoir_parameters(
                 if "discharge" in df_rate.columns:
                     gdf.loc[gdf["waterbody_id"] == wid, "reservoir_rating_curve"] = 1
                     df_rate = df_rate[["elevtn", "discharge"]].dropna(
-                        subset=["elevtn", "discharge"]
+                        subset=["elevtn", "discharge"],
+                        ignore_index=True,
                     )
                     df_rate.rename(
                         columns={"elevtn": "H", "discharge": "Q"},
@@ -946,17 +948,23 @@ def merge_reservoirs(
             mask = ds[id_layer] > 0
 
         # if layer is not in ds, skip it
-        # NaN can be ok: e.g. natural lake does not have reservoir_demand
+        # NaN are not ok - use -1: e.g. natural lake does not have reservoir_demand
         if layer not in ds and layer in ds_like:
-            ds_out[layer] = ds_like[layer]
+            ds_out[layer] = ds_like[layer].where(~mask, -1)
 
-        # if layer is in ds_like, merge it
-        if layer in ds and layer in ds_like:
-            # merge the layer
-            ds_out[layer] = ds[layer].where(mask, ds_like[layer])
-            # ensure the nodata value is set correctly
-            ds_out[layer].raster.set_nodata(ds_like[layer].raster.nodata)
-        # else we just keep ds[layer] as it is
+        if layer in ds:
+            # if layer is in ds_like, merge it
+            if layer in ds_like:
+                # merge the layer
+                ds_out[layer] = ds[layer].where(mask, ds_like[layer])
+                # ensure the nodata value is set correctly
+                ds_out[layer].raster.set_nodata(ds_like[layer].raster.nodata)
+
+            # else update ds[layer] to add -1 for the new locs
+            else:
+                mask_ds_like = ds_like[id_layer] > 0
+                ds_out[layer] = ds[layer].where(~mask_ds_like, -1)
+
     ds_out = set_rating_curve_layer_data_type(ds_out)
     return _check_duplicated_ids_in_merge(ds_out, duplicate_id=duplicate_id)
 

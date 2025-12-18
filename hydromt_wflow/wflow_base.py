@@ -770,6 +770,10 @@ and will soon be removed. '
         and then resampled to the model resolution using the average value, unless noted
         differently.
 
+        For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+        bare soil) should have a crop factor equivalent to the nodata value. After
+        mapping and resampling, the nodata values will be filled with 1.
+
         Currently, if `lulc_fn` is set to the "vito", "globcover", "esa_worldcover"
         "corine" or "glmnco", default lookup tables are available and will be used if
         `lulc_mapping_fn` is not provided.
@@ -909,6 +913,10 @@ and will soon be removed. '
         parameters based on literature. The data is remapped at its original resolution
         and then resampled to the model resolution using the average value, unless noted
         differently.
+
+        For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+        bare soil) should have a crop factor equivalent to the nodata value. After
+        mapping and resampling, the nodata values will be filled with 1.
 
         Adds model layers:
 
@@ -1672,7 +1680,7 @@ one variable and variables list is not provided."
         self.basins
         self.rivers
         self.setup_outlets()
-        exclude_geoms = ["basins", "basins_highres", "region", "rivers", "outlets"]
+        exclude_geoms = ["basins", "meta_basins_highres", "region", "rivers", "outlets"]
         for name, gdf in old_geoms.items():
             if name not in exclude_geoms:
                 logger.debug(f"Clipping geometry {name}..")
@@ -1900,8 +1908,8 @@ one variable and variables list is not provided."
     @property
     def basins_highres(self) -> gpd.GeoDataFrame | None:
         """Returns a high resolution basin(s) geometry."""
-        if "basins_highres" in self.geoms.data:
-            gdf = self.geoms.get("basins_highres")
+        if "meta_basins_highres" in self.geoms.data:
+            gdf = self.geoms.get("meta_basins_highres")
         else:
             gdf = self.basins
         return gdf

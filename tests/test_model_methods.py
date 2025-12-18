@@ -18,6 +18,7 @@ from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
 def test_setup_basemaps(tmpdir: Path):
@@ -285,16 +286,20 @@ def test_setup_reservoirs_no_control(
     example_wflow_model.tables.write()
 
     test_table = example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"]
+    test_table_hq = example_wflow_model.tables.data[f"reservoir_hq_{lake_id}"]
 
     example_wflow_model.tables.data.clear()
     example_wflow_model.root.set(new_root, mode="r")
     example_wflow_model.tables.read()
+    tables_data = example_wflow_model.tables.data
 
-    assert example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_hq_{lake_id}"].equals(test_table_hq)
 
 
 @pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
+@pytest.mark.integration
 def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
@@ -592,13 +597,13 @@ def test_setup_rootzoneclim(example_wflow_model):
 
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_obs_2"
-    ] == pytest.approx(82.85684577620462, abs=0.5)
+    ] == pytest.approx(83.73380337309179, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_hist_2"
-    ] == pytest.approx(82.44039441508069, abs=0.5)
+    ] == pytest.approx(83.46095605283114, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_fut_2"
-    ] == pytest.approx(106.03809681174451, abs=0.5)
+    ] == pytest.approx(107.12276256619255, abs=0.5)
 
 
 def test_setup_outlets(example_wflow_model):
@@ -1225,6 +1230,7 @@ def test_setup_lulc_vector(
         / "hydromt_wflow"
         / "data"
         / "lulc"
+        / "v0.8"
         / "globcover_mapping.csv"
     )
     example_wflow_model.setup_lulcmaps_from_vector(
@@ -1289,7 +1295,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
 
     # Test values for crop coefficient
     assert np.isclose(
-        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 0.8869253
+        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 1.05686426
     )
 
     # Test with a separate paddy_map
