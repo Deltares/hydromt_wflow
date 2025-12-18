@@ -27,7 +27,7 @@ jobs:
           locked: false
           cache: true
 
-      - name: Tests
+      - name: Record and Publish
         run: |
             pixi run --locked -e test-full-py311 benchmark-record
 
