@@ -1,5 +1,6 @@
 """Test plugin model class against hydromt.models.model_api."""
 
+import copy
 from uuid import uuid4
 
 from hydromt_wflow.wflow_sbm import WflowSbmModel
@@ -11,7 +12,7 @@ def inner_benchmark_loop(tmpdir, wflow_ini):
     mod1 = WflowSbmModel(root=root, mode="w", data_libs="artifact_data")
 
     # Build model
-    mod1.build(steps=wflow_ini)
+    mod1.build(steps=copy.deepcopy(wflow_ini))
 
 
 def test_outer_benchmark(tmpdir, wflow_ini, benchmark):
