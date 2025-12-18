@@ -3,6 +3,8 @@ name: Record new benchmark
 on:
   workflow_dispatch:
 
+env:
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   test:
