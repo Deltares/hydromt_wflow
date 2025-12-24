@@ -56,10 +56,5 @@ jobs:
           cache: true
           cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
 
-      - name: Tests
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: |
-            pixi run --locked -e test-full-py${{ matrix.python-version }} test --verbose
+      - name: Run tests
+        run: pixi run --locked -e test-full-py${{ matrix.python-version }} test --verbose
