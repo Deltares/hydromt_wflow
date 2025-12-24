@@ -364,11 +364,12 @@ class WflowSedimentModel(WflowBaseModel):
         """
         # retrieve data for basin
         logger.info("Preparing reservoir maps.")
-        kwargs.setdefault("predicate", "contains")
+        predicate = kwargs.pop("predicate", "contains")
         gdf_res = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
+            predicate=predicate,
             source_kwargs=kwargs,
         )
         # Skip method if no data is returned
