@@ -1,6 +1,7 @@
 """add global fixtures."""
 
 import platform
+import sys
 from os.path import abspath, dirname, join
 from typing import Callable
 
@@ -28,6 +29,23 @@ TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
 # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
 pd.options.mode.copy_on_write = True
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_dask_for_py313():
+    """Configure dask to use synchronous scheduler for Python 3.13 on Linux.
+
+    There's a known issue with dask's threaded scheduler and netCDF4 locking
+    in Python 3.13 on Linux systems that causes timeouts. Using the
+    synchronous scheduler avoids the threading/locking issue.
+    """
+    if sys.version_info >= (3, 13) and platform.system().lower() != "windows":
+        try:
+            import dask
+
+            dask.config.set(scheduler="synchronous")
+        except ImportError:
+            pass
 
 
 ## Models
