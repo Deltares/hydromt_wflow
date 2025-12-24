@@ -2,7 +2,6 @@
 
 import platform
 from os.path import abspath, dirname, join
-from pathlib import Path
 from typing import Callable
 
 import geopandas as gpd
