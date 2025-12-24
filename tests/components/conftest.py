@@ -1,4 +1,5 @@
 import platform
+import sys
 from pathlib import Path
 from typing import Callable
 from unittest.mock import MagicMock, PropertyMock
@@ -18,6 +19,23 @@ SUBDIR = ""
 if platform.system().lower() != "windows":
     SUBDIR = "linux64"
 TEST_COMPONENT_ROOT_FOLDER = Path(__file__).parent
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_dask_for_py313():
+    """Configure dask to use synchronous scheduler for Python 3.13 on Linux.
+
+    There's a known issue with dask's threaded scheduler and netCDF4 locking
+    in Python 3.13 on Linux systems that causes timeouts. Using the
+    synchronous scheduler avoids the threading/locking issue.
+    """
+    if sys.version_info >= (3, 13) and platform.system().lower() != "windows":
+        try:
+            import dask
+
+            dask.config.set(scheduler="synchronous")
+        except ImportError:
+            pass
 
 
 ## OS related fixture
