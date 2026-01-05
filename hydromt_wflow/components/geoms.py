@@ -114,7 +114,7 @@ class WflowGeomsComponent(GeomsComponent):
 
         # Set precision
         if precision is None:
-            if self.crs.is_projected:
+            if self.model.crs.is_projected:
                 _precision = 1
             else:
                 _precision = 6
