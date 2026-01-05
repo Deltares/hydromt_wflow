@@ -53,6 +53,7 @@ jobs:
           path: dist
 
       - name: Generate Pixi environment name
+        shell: bash -l {0}
         run: |
           if [ "${INPUT_USE_WHEEL}" = "true" ]; then
             ENV_NAME="test-wheel-py313"
