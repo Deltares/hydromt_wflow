@@ -13,15 +13,16 @@ on:
         default: ""
         type: string
   push:
-    branches: [main, release/**]
+    branches: [main, release/**, ci/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
       - pixi.lock
       - pyproject.toml
       - .github/workflows/test.yml
+
   pull_request:
-    branches: [main, release/**]
+    branches: [main, release/**, ci/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
