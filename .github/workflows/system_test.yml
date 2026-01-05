@@ -3,15 +3,16 @@ name: System test
 on:
   workflow_call:
     inputs:
-      mode:
-        description: "source or wheel"
+      use-wheel:
+        description: "Run with provided .whl file if true, or with local source installed if false."
         required: false
-        default: source
-        type: string
+        default: false
+        type: boolean
       artifact-name:
         required: false
         default: ""
         type: string
+  workflow_dispatch:
   push:
     branches: [main, release/**, ci/**]
     paths:
@@ -28,7 +29,6 @@ on:
       - pixi.lock
       - pyproject.toml
       - .github/workflows/system_test.yml
-  workflow_dispatch:
 
 jobs:
   julia-test:
@@ -46,23 +46,33 @@ jobs:
           ref: release/v1.0
 
       - name: Download built wheel
-        if: inputs.mode == 'wheel'
+        if: ${{ inputs.use-wheel }}
         uses: actions/download-artifact@v7
         with:
           name: ${{ inputs.artifact-name }}
           path: dist
 
+      - name: Generate Pixi environment name
+        run: |
+          if [ "${INPUT_USE_WHEEL}" = "true" ]; then
+            ENV_NAME="test-wheel-py313"
+          else
+            ENV_NAME="test-full-py313"
+          fi
+          echo "ENV_NAME=$ENV_NAME" >> $GITHUB_ENV
+          echo "Pixi environment: $ENV_NAME"
+
       - name: Setup pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
           pixi-version: "v0.59.0"
-          environments: ${{ inputs.mode == 'wheel' && format('test-wheel-py313') || 'test-full-py313' }}
+          environments: ${{ env.ENV_NAME }}
           activate-environment: true
-          locked: false
+          frozen: true
           cache: true
 
-      - name: Install wheel
-        if: inputs.mode == 'wheel'
+      - name: Install package
+        if: ${{ inputs.use-wheel }}
         run: |
           rm -rf hydromt_wflow
           python -m pip install dist/*.whl --force-reinstall --no-deps
@@ -76,4 +86,4 @@ jobs:
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow
 
       - name: Run system tests
-        run: pixi run --no-install -e ${{ inputs.mode == 'wheel' && 'test-wheel-py313' || 'test-full-py313' }} system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
+        run: pixi run --no-install -e ${{ env.ENV_NAME }} system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
