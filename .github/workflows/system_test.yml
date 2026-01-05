@@ -14,7 +14,7 @@ on:
         type: string
   workflow_dispatch:
   push:
-    branches: [main, release/**, ci/**]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -22,7 +22,7 @@ on:
       - pyproject.toml
       - .github/workflows/system_test.yml
   pull_request:
-    branches: [main, release/**, ci/**]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
