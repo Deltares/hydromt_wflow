@@ -90,10 +90,13 @@ jobs:
           cache: true
 
       - name: Install package
+
         if: ${{ inputs.use-wheel }}
         run: |
-          rm -rf hydromt_wflow
-          python -m pip install dist/*.whl --force-reinstall --no-deps
+          pixi run -e ${{ env.ENV_NAME }} \
+            rm -rf hydromt_wflow
+          pixi run -e ${{ env.ENV_NAME }} \
+            python -m pip install dist/*.whl --force-reinstall --no-deps
 
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
