@@ -329,21 +329,21 @@ python = "3.11.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["editable", "py313", "dev", "docs", "examples", "extra", "test"] }
-docs            = { features = ["editable", "py313", "docs", "examples", "extra"] }
-full            = { features = ["editable", "py313", "extra"] }
-slim            = { features = ["editable", "py313"] }
-test-slim-py313 = { features = ["editable", "py313", "test"] }
-test-slim-py312 = { features = ["editable", "py312", "test"] }
-test-slim-py311 = { features = ["editable", "py311", "test"] }
-test-full-py313 = { features = ["editable", "py313", "extra", "test"] }
-test-full-py312 = { features = ["editable", "py312", "extra", "test"] }
-test-full-py311 = { features = ["editable", "py311", "extra", "test"] }
+default         = { features = ["editable", "py313", "dev", "docs", "examples", "extra", "test"], solve-group="py313" }
+docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
+full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
+slim            = { features = ["editable", "py313"], solve-group="py313" }
+test-slim-py313 = { features = ["editable", "py313", "test"], solve-group="py313" }
+test-slim-py312 = { features = ["editable", "py312", "test"], solve-group="py312" }
+test-slim-py311 = { features = ["editable", "py311", "test"], solve-group="py311" }
+test-full-py313 = { features = ["editable", "py313", "extra", "test"], solve-group="py313" }
+test-full-py312 = { features = ["editable", "py312", "extra", "test"], solve-group="py312" }
+test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-group="py311" }
 
 # Wheel test environments for release validation
-test-wheel-py313 = { features = ["py313", "test"] }
-test-wheel-py312 = { features = ["py312", "test"] }
-test-wheel-py311 = { features = ["py311", "test"] }
+test-wheel-py313 = { features = ["py313", "test"], solve-group="py313" }
+test-wheel-py312 = { features = ["py312", "test"], solve-group="py312" }
+test-wheel-py311 = { features = ["py311", "test"], solve-group="py311" }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
