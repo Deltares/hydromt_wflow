@@ -341,9 +341,9 @@ test-full-py312 = { features = ["editable", "py312", "extra", "test"] }
 test-full-py311 = { features = ["editable", "py311", "extra", "test"] }
 
 # Wheel test environments for release validation
-test-wheel-py313 = { features = ["py313", "extra", "test"] }
-test-wheel-py312 = { features = ["py312", "extra", "test"] }
-test-wheel-py311 = { features = ["py311", "extra", "test"] }
+test-wheel-py313 = { features = ["py313", "test"] }
+test-wheel-py312 = { features = ["py312", "test"] }
+test-wheel-py311 = { features = ["py311", "test"] }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
