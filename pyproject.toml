@@ -227,6 +227,20 @@ clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
+# Julia
+remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
+install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
+run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
+build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
+build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
+system-test = { depends-on = [
+  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
+  { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
+], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
+
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
 generate-sbom = { cmd = [
@@ -285,20 +299,6 @@ serve = { cmd = [
   "-d",
   "docs/_build/html",
 ] }
-
-# Julia
-remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
-install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
-run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
-build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
-build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
-system-test = { depends-on = [
-  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
-  { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
-  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
-  { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
-  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
-], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
 
 ## Dependencies
 [tool.pixi.dependencies]
