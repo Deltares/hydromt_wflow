@@ -69,11 +69,10 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
           pixi-version: "v0.59.0"
-          environments: ${{ inputs.mode == 'wheel' && format('test-wheel-py{}', matrix.python-version) || format('test-full-py{}', matrix.python-version) }}
+          environments: ${{ inputs.mode == 'wheel' && 'test-wheel-py' + matrix.python-version || 'test-full-py' + matrix.python-version }}
           activate-environment: true
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
 
       - name: Install wheel
         if: inputs.mode == 'wheel'
@@ -87,4 +86,4 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --no-install -e ${{ inputs.mode == 'wheel' && format('test-wheel-py{}', matrix.python-version) || format('test-full-py{}', matrix.python-version) }} test --verbose
+            pixi run --no-install -e ${{ inputs.mode == 'wheel' && 'test-wheel-py' + matrix.python-version || 'test-full-py' + matrix.python-version }} test --verbose
