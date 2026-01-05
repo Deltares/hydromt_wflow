@@ -1,8 +1,19 @@
 name: Test Package
 
 on:
+  workflow_call:
+    inputs:
+      mode:
+        description: "source or wheel"
+        required: false
+        default: source
+        type: string
+      artifact-name:
+        required: false
+        default: ""
+        type: string
   push:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -10,7 +21,7 @@ on:
       - pyproject.toml
       - .github/workflows/test.yml
   pull_request:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -32,10 +43,10 @@ jobs:
         os: ["ubuntu-latest", "windows-latest"]
         python-version: ['311', '312', '313']
         include:
-        - os: ubuntu-latest
-          label: linux-64
-        - os: windows-latest
-          label: win-64
+          - os: ubuntu-latest
+            label: linux-64
+          - os: windows-latest
+            label: win-64
 
     name: ${{ matrix.label }} - py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
@@ -47,19 +58,33 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v6
 
+      - name: Download built wheel
+        if: inputs.mode == 'wheel'
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dist
+
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
           pixi-version: "v0.59.0"
-          environments: test-full-py${{ matrix.python-version }}
+          environments: ${{ inputs.mode == 'wheel' && format('test-wheel-py{}', matrix.python-version) || format('test-full-py{}', matrix.python-version) }}
+          activate-environment: true
           locked: false
           cache: true
           cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
 
-      - name: Tests
+      - name: Install wheel
+        if: inputs.mode == 'wheel'
+        run: |
+          rm -rf hydromt_wflow
+          python -m pip install dist/*.whl --force-reinstall --no-deps
+
+      - name: Run tests
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --locked -e test-full-py${{ matrix.python-version }} test --verbose
+            pixi run --no-install -e ${{ inputs.mode == 'wheel' && format('test-wheel-py{}', matrix.python-version) || format('test-full-py{}', matrix.python-version) }} test --verbose

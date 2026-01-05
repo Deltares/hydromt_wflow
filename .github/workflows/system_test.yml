@@ -1,8 +1,19 @@
 name: System test
 
 on:
+  workflow_call:
+    inputs:
+      mode:
+        description: "source or wheel"
+        required: false
+        default: source
+        type: string
+      artifact-name:
+        required: false
+        default: ""
+        type: string
   push:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -10,7 +21,7 @@ on:
       - pyproject.toml
       - .github/workflows/system_test.yml
   pull_request:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -26,6 +37,7 @@ jobs:
     steps:
       - name: Checkout hydromt_wflow
         uses: actions/checkout@v6
+
       - name: Checkout Wflow.jl
         uses: actions/checkout@v6
         with:
@@ -33,17 +45,35 @@ jobs:
           path: Wflow.jl
           ref: release/v1.0
 
+      - name: Download built wheel
+        if: inputs.mode == 'wheel'
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dist
+
       - name: Setup pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          pixi-version: v0.59.0
+          pixi-version: "v0.59.0"
+          environments: ${{ inputs.mode == 'wheel' && format('test-wheel-py313') || 'test-full-py313' }}
+          activate-environment: true
+          locked: false
+          cache: true
+
+      - name: Install wheel
+        if: inputs.mode == 'wheel'
+        run: |
+          rm -rf hydromt_wflow
+          python -m pip install dist/*.whl --force-reinstall --no-deps
+
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
         with:
           version: 1.11.3
 
-      - name: Install Wflow
+      - name: Install Wflow.jl
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow
 
       - name: Run system tests
-        run: pixi run system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
+        run: pixi run --no-install -e ${{ inputs.mode == 'wheel' && 'test-wheel-py313' || 'test-full-py313' }} system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
