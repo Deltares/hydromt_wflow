@@ -106,7 +106,8 @@ jobs:
         if: ${{ inputs.use-wheel }}
         run: |
           pixi run -e $ENV_NAME rm -rf hydromt_wflow
-          pixi run -e $ENV_NAME python -m pip install dist/*.whl --force-reinstall --no-deps
+          WHEEL=$(ls dist/*.whl)
+          pixi run -e $ENV_NAME python -m pip install "${WHEEL}[full]" --force-reinstall
 
       - name: Run tests
         uses: nick-fields/retry@v3
