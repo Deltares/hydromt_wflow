@@ -89,12 +89,13 @@ jobs:
           frozen: true
           cache: true
 
-      - name: Install package
+      - name: Install wheel
         if: ${{ inputs.use-wheel }}
         shell: bash -l {0}
         run: |
           pixi run -e ${{ env.ENV_NAME }} rm -rf hydromt_wflow
-          pixi run -e ${{ env.ENV_NAME }} python -m pip install dist/*.whl --force-reinstall --no-deps
+          WHEEL=$(ls dist/*.whl)
+          pixi run -e ${{ env.ENV_NAME }} python -m pip install "${WHEEL}[full]" --force-reinstall
 
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
