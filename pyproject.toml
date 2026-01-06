@@ -58,6 +58,7 @@ dependencies = [
 
 # Optional dependencies
 [project.optional-dependencies]
+build = ["build", "twine"]
 dev = ["pre-commit", "ruff"]
 docs = [
   "nbsphinx",
@@ -241,6 +242,12 @@ system-test = { depends-on = [
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
 ], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
 
+# Artifact generation
+[tool.pixi.feature.build.tasks]
+clean-artifacts = { cmd = ["rm", "-rf", "dist"] }
+build-artifacts = { cmd = ["python", "-m", "build"], depends-on="clean-artifacts" }
+check-artifacts = { cmd = ["python", "-m", "twine", "check", "dist/*"], depends-on="build-artifacts" }
+
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
 generate-sbom = { cmd = [
@@ -306,7 +313,7 @@ h5py     = "*"
 pip      = "*"
 pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
 # (<2.2 required by numba)
-netcdf4 = "*"
+netcdf4 = "*" # required to prevent errors wrt py313 + linux + dask. See https://github.com/Unidata/netcdf4-python/issues/1452 & https://github.com/Unidata/netcdf4-python/issues/1454
 
 [tool.pixi.feature.editable.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
@@ -329,7 +336,7 @@ python = "3.11.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["editable", "py313", "dev", "docs", "examples", "extra", "test"], solve-group="py313" }
+default         = { features = ["editable", "py313", "dev", "docs", "examples", "extra", "test", "build"], solve-group="py313" }
 docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
 full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
 slim            = { features = ["editable", "py313"], solve-group="py313" }

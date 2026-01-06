@@ -13,8 +13,29 @@ import xarray.testing as xrt
 from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 
-from hydromt_wflow import workflows
+from hydromt_wflow import DATA_DIR, workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
+
+try:
+    import gwwapi  # noqa: F401
+
+    HAS_GWW_API = True
+except ImportError:
+    HAS_GWW_API = False
+
+try:
+    import hydroengine  # noqa: F401
+
+    HAS_HYDROENGINE = True
+except ImportError:
+    HAS_HYDROENGINE = False
+
+try:
+    import wradlib  # noqa: F401
+
+    HAS_WRADLIB = True
+except ImportError:
+    HAS_WRADLIB = False
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
@@ -297,9 +318,23 @@ def test_setup_reservoirs_no_control(
     assert tables_data[f"reservoir_hq_{lake_id}"].equals(test_table_hq)
 
 
+test_reservoirs_simple_control_sources = [
+    pytest.param(
+        "gww",
+        marks=pytest.mark.skipif(not HAS_GWW_API, reason="gwwapi not installed"),
+    ),
+    pytest.param(
+        "jrc",
+        marks=pytest.mark.skipif(
+            not HAS_HYDROENGINE, reason="hydroengine not installed"
+        ),
+    ),
+]
+
+
 @pytest.mark.timeout(120)  # max 2 min
-@pytest.mark.parametrize("source", ["gww", "jrc"])
 @pytest.mark.integration
+@pytest.mark.parametrize("source", test_reservoirs_simple_control_sources)
 def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
@@ -1225,14 +1260,7 @@ def test_setup_lulc_vector(
 ):
     # Test for wflow sbm
     # Use a file directly for lulc_mapping_fn
-    mapping_fn = (
-        Path(abspath(__file__)).parent.parent
-        / "hydromt_wflow"
-        / "data"
-        / "lulc"
-        / "v0.8"
-        / "globcover_mapping.csv"
-    )
+    mapping_fn = DATA_DIR / "lulc" / "v0.8" / "globcover_mapping.csv"
     example_wflow_model.setup_lulcmaps_from_vector(
         lulc_fn=globcover_gdf,
         lulc_mapping_fn=mapping_fn,

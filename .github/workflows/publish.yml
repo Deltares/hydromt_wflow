@@ -22,19 +22,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Python
-        uses: actions/setup-python@v6
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          python-version: '3.13'
-
-      - name: Generate build environment
-        run: pip install build tomli twine wheel
+          pixi-version: "v0.59.0"
+          environments: default
+          activate-environment: true
+          frozen: true
+          cache: true
 
       - name: Build artifacts
-        run: |
-          python -m build --sdist
-          python -m build --wheel
-          python -m twine check dist/*
+        run: pixi run build-artifacts
+
+      - name: Check artifacts
+        run: pixi run check-artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
