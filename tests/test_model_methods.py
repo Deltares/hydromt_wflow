@@ -1035,6 +1035,7 @@ def test_setup_floodplains_2d(
     )
 
 
+@pytest.mark.skipif(not HAS_WRADLIB, reason="wradlib not installed")
 def test_setup_precip_from_point_timeseries(
     example_wflow_model: WflowSbmModel, df_precip_stations, gdf_precip_stations
 ):
