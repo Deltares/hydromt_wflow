@@ -5676,6 +5676,7 @@ packages:
   - python >=3.11,<3.12.0a0
   - python_abi 3.11.* *_cp311
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=compressed-mapping
   size: 432403
@@ -5691,6 +5692,7 @@ packages:
   - python >=3.12,<3.13.0a0
   - python_abi 3.12.* *_cp312
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=compressed-mapping
   size: 426288
@@ -5706,6 +5708,7 @@ packages:
   - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=compressed-mapping
   size: 431021
@@ -5722,6 +5725,7 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=hash-mapping
   size: 376898
@@ -5738,6 +5742,7 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=compressed-mapping
   size: 369457
@@ -5754,6 +5759,7 @@ packages:
   - vc >=14.3,<15
   - vc14_runtime >=14.44.35208
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cftime?source=compressed-mapping
   size: 370441
@@ -7199,7 +7205,7 @@ packages:
 - pypi: ./
   name: hydromt-wflow
   version: 1.0.0.dev0
-  sha256: 8d720a4a961bc05b46f20b7655216210acd559fbcdf45c5a9a14ab6537014f17
+  sha256: e85af9998aca0402abdc2a555a1303497bf92d42bca3eeec27e234e5067d5c49
   requires_dist:
   - dask
   - geopandas>=0.10
@@ -7213,10 +7219,10 @@ packages:
   - shapely
   - xarray
   - pooch
-  - build ; extra == 'build'
-  - twine ; extra == 'build'
-  - pre-commit ; extra == 'dev'
-  - ruff ; extra == 'dev'
+  - build ; extra == 'dist'
+  - twine ; extra == 'dist'
+  - pre-commit ; extra == 'lint'
+  - ruff ; extra == 'lint'
   - nbsphinx ; extra == 'docs'
   - pydata-sphinx-theme ; extra == 'docs'
   - sphinx ; extra == 'docs'
@@ -7236,7 +7242,9 @@ packages:
   - pytest-mock ; extra == 'test'
   - pytest-timeout ; extra == 'test'
   - pytest-benchmark ; extra == 'test'
-  - hydromt-wflow[build,dev,docs,examples,extra,test] ; extra == 'full'
+  - hydromt-wflow[examples,extra] ; extra == 'full'
+  - hydromt-wflow[dist,docs,lint,test] ; extra == 'dev'
+  - hydromt-wflow[dev,full] ; extra == 'all'
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.1-h33c6efd_0.conda

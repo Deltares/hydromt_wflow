@@ -31,11 +31,8 @@ jobs:
           frozen: true
           cache: true
 
-      - name: Build artifacts
-        run: pixi run build-artifacts
-
-      - name: Check artifacts
-        run: pixi run check-artifacts
+      - name: Create artifacts
+        run: pixi run create-artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6

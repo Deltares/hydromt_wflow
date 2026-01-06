@@ -59,8 +59,8 @@ dependencies = [
 
 # Optional dependencies
 [project.optional-dependencies]
-build = ["build", "twine"]
-dev = ["pre-commit", "ruff"]
+dist = ["build", "twine"]
+lint = ["pre-commit", "ruff"]
 docs = [
   "nbsphinx",
   "pydata-sphinx-theme",
@@ -78,7 +78,9 @@ test = [
   "pytest-timeout",
   "pytest-benchmark",
 ]
-full = ["hydromt_wflow[extra,examples,test,docs,dev,build]"]
+full = ["hydromt_wflow[extra,examples]"]
+dev = ["hydromt_wflow[dist,lint,docs,test]"]
+all = ["hydromt_wflow[full,dev]"]
 
 [project.entry-points."hydromt.models"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"
@@ -244,10 +246,11 @@ system-test = { depends-on = [
 ], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
 
 # Artifact generation
-[tool.pixi.feature.build.tasks]
+[tool.pixi.feature.dist.tasks]
 clean-artifacts = { cmd = ["rm", "-rf", "dist", "||", "true"] }
 build-artifacts = { cmd = ["python", "-m", "build"], depends-on="clean-artifacts" }
 check-artifacts = { cmd = ["python", "-m", "twine", "check", "dist/*"], depends-on="build-artifacts" }
+create-artifacts = { depends-on="check-artifacts" }
 
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
@@ -337,7 +340,7 @@ python = "3.11.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["editable", "py313", "dev", "docs", "examples", "extra", "test", "build"], solve-group="py313" }
+default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test" ], solve-group="py313" }
 docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
 full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
 slim            = { features = ["editable", "py313"], solve-group="py313" }
@@ -348,7 +351,7 @@ test-full-py313 = { features = ["editable", "py313", "extra", "test"], solve-gro
 test-full-py312 = { features = ["editable", "py312", "extra", "test"], solve-group="py312" }
 test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-group="py311" }
 
-# Empty test environments for release validation. pip install *.whl[full] into these to test the whl
+# Empty test environments for release validation. pip install *.whl[all] into these to test the whl
 test-wheel-py313 = { features = ["py313"], solve-group="py313" }
 test-wheel-py312 = { features = ["py312"], solve-group="py312" }
 test-wheel-py311 = { features = ["py311"], solve-group="py311" }

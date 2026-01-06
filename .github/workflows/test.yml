@@ -107,7 +107,7 @@ jobs:
         run: |
           pixi run -e $ENV_NAME rm -rf hydromt_wflow
           WHEEL=$(ls dist/*.whl)
-          pixi run -e $ENV_NAME python -m pip install "${WHEEL}[full]" --force-reinstall
+          pixi run -e $ENV_NAME python -m pip install "${WHEEL}[all]" --force-reinstall
 
       - name: Run tests
         uses: nick-fields/retry@v3
