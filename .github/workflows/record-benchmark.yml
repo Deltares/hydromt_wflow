@@ -3,6 +3,8 @@ name: Record new benchmark
 on:
   workflow_dispatch:
 
+env:
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
   test:
@@ -25,14 +27,14 @@ jobs:
           locked: false
           cache: true
 
-      - name: Tests
+      - name: Record and Publish
         run: |
             pixi run --locked -e test-full-py311 benchmark-record
 
-            git checkout -b "chore/record-benchmark"
+            git checkout -B "chore/record-benchmark"
             git config user.name "GitHub Actions Bot"
-            git config user.email "<>"
-            git add .benchmark
+            git config user.email "<github-actions[bot]@users.noreply.github.com>"
+            git add .benchmarks
             git commit -m "record benchmark"
             git push --set-upstream origin "chore/record-benchmark"
 

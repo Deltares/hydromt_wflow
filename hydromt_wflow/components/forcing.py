@@ -177,26 +177,22 @@ class WflowForcingComponent(GridComponent):
         else:
             filepath = (self.root.path / p_input).resolve()
 
-        if filepath.exists():
-            if overwrite:
-                logger.warning(f"Deleting existing forcing file {filepath.as_posix()}")
-                filepath.unlink()
-            else:
-                logger.warning(
-                    f"Netcdf forcing file `{filepath}` already exists and overwriting "
-                    "is not enabled. To overwrite netcdf forcing file: change name "
-                    "`input.path_forcing` in setup_config section of the build "
-                    "inifile or allow overwriting with `overwrite` flag. A default "
-                    "name will be generated."
-                )
-                filepath = self._create_new_filename(
-                    filepath=filepath,
-                    start_time=start_time,
-                    end_time=end_time,
-                    frequency=output_frequency,
-                )
-                if filepath is None:  # should skip writing
-                    return
+        if filepath.exists() and not overwrite:
+            logger.warning(
+                f"Netcdf forcing file `{filepath}` already exists and overwriting "
+                "is not enabled. To overwrite netcdf forcing file: change name "
+                "`input.path_forcing` in setup_config section of the build "
+                "inifile or allow overwriting with `overwrite` flag. A default "
+                "name will be generated."
+            )
+            filepath = self._create_new_filename(
+                filepath=filepath,
+                start_time=start_time,
+                end_time=end_time,
+                frequency=output_frequency,
+            )
+            if filepath is None:  # should skip writing
+                return
 
         # Clean-up forcing and write
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -227,7 +223,7 @@ class WflowForcingComponent(GridComponent):
         # Write the file either in one go
         if output_frequency is None:
             logger.info(f"Writing file {filepath.as_posix()}")
-            write_nc(
+            close_handle = write_nc(
                 ds,
                 file_path=filepath,
                 compress=True,
@@ -238,6 +234,8 @@ class WflowForcingComponent(GridComponent):
                 progressbar=True,
                 to_netcdf_kwargs={"encoding": encoding, **kwargs},
             )
+            if close_handle is not None:
+                self._deferred_file_close_handles.append(close_handle)
         # Or per period
         else:
             logger.info(f"Writing several forcing with freq {output_frequency}")
@@ -248,7 +246,7 @@ class WflowForcingComponent(GridComponent):
                 filepath_freq = Path(filepath.parent, f"{filepath.stem}_{start}.nc")
                 logger.info(f"Writing file {filepath_freq.as_posix()}")
                 # Write to file
-                write_nc(
+                close_handle = write_nc(
                     data_freq,
                     file_path=filepath_freq,
                     compress=True,
@@ -259,6 +257,8 @@ class WflowForcingComponent(GridComponent):
                     progressbar=True,
                     to_netcdf_kwargs={"encoding": encoding, **kwargs},
                 )
+                if close_handle is not None:
+                    self._deferred_file_close_handles.append(close_handle)
             filepath = Path(filepath.parent, f"{filepath.stem}_*{filepath.suffix}")
 
         # Set back to the config
