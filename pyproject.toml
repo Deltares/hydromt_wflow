@@ -47,6 +47,7 @@ dependencies = [
   "geopandas>=0.10",
   "hydromt>=1.3.0",
   "numpy",
+  "rasterio<1.5",
   "pandas",
   "pyflwdir>=0.5.7",
   "pyproj",
@@ -58,7 +59,8 @@ dependencies = [
 
 # Optional dependencies
 [project.optional-dependencies]
-dev = ["pre-commit", "ruff"]
+dist = ["build", "twine"]
+lint = ["pre-commit", "ruff"]
 docs = [
   "nbsphinx",
   "pydata-sphinx-theme",
@@ -76,7 +78,9 @@ test = [
   "pytest-timeout",
   "pytest-benchmark",
 ]
-full = ["hydromt_wflow[extra,examples,test,docs,dev]"]
+full = ["hydromt_wflow[extra,examples]"]
+dev = ["hydromt_wflow[dist,lint,docs,test]"]
+all = ["hydromt_wflow[full,dev]"]
 
 [project.entry-points."hydromt.models"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"
@@ -227,6 +231,27 @@ clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
+# Julia
+remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
+install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
+run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
+build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
+build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
+system-test = { depends-on = [
+  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
+  { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
+  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
+], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
+
+# Artifact generation
+[tool.pixi.feature.dist.tasks]
+clean-artifacts = { cmd = ["rm", "-rf", "dist", "||", "true"] }
+build-artifacts = { cmd = ["python", "-m", "build"], depends-on="clean-artifacts" }
+check-artifacts = { cmd = ["python", "-m", "twine", "check", "dist/*"], depends-on="build-artifacts" }
+create-artifacts = { depends-on="check-artifacts" }
+
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
 generate-sbom = { cmd = [
@@ -286,28 +311,15 @@ serve = { cmd = [
   "docs/_build/html",
 ] }
 
-# Julia
-remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
-install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
-run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
-build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
-build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
-system-test = { depends-on = [
-  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
-  { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
-  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
-  { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
-  { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
-], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
-
 ## Dependencies
 [tool.pixi.dependencies]
 h5py     = "*"
 pip      = "*"
 pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
 # (<2.2 required by numba)
+netcdf4 = "*" # required to prevent errors wrt py313 + linux + dask. See https://github.com/Unidata/netcdf4-python/issues/1452 & https://github.com/Unidata/netcdf4-python/issues/1454
 
-[tool.pixi.pypi-dependencies]
+[tool.pixi.feature.editable.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
 
 [tool.pixi.feature.examples.dependencies]
@@ -328,16 +340,21 @@ python = "3.11.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["py313", "dev", "docs", "examples", "extra", "test"] }
-docs            = { features = ["py313", "docs", "examples", "extra"] }
-full            = { features = ["py313", "extra"] }
-slim            = { features = ["py313"] }
-test-slim-py313 = { features = ["py313", "test"] }
-test-slim-py312 = { features = ["py312", "test"] }
-test-slim-py311 = { features = ["py311", "test"] }
-test-full-py313 = { features = ["py313", "extra", "test"] }
-test-full-py312 = { features = ["py312", "extra", "test"] }
-test-full-py311 = { features = ["py311", "extra", "test"] }
+default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test" ], solve-group="py313" }
+docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
+full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
+slim            = { features = ["editable", "py313"], solve-group="py313" }
+test-slim-py313 = { features = ["editable", "py313", "test"], solve-group="py313" }
+test-slim-py312 = { features = ["editable", "py312", "test"], solve-group="py312" }
+test-slim-py311 = { features = ["editable", "py311", "test"], solve-group="py311" }
+test-full-py313 = { features = ["editable", "py313", "extra", "test"], solve-group="py313" }
+test-full-py312 = { features = ["editable", "py312", "extra", "test"], solve-group="py312" }
+test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-group="py311" }
+
+# Empty test environments for release validation. pip install *.whl[all] into these to test the whl
+test-wheel-py313 = { features = ["py313"], solve-group="py313" }
+test-wheel-py312 = { features = ["py312"], solve-group="py312" }
+test-wheel-py311 = { features = ["py311"], solve-group="py311" }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [

@@ -1,8 +1,20 @@
 name: System test
 
 on:
+  workflow_call:
+    inputs:
+      use-wheel:
+        description: "Run with provided .whl file if true, or with local source installed if false."
+        required: false
+        default: false
+        type: boolean
+      artifact-name:
+        required: false
+        default: ""
+        type: string
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
@@ -10,22 +22,34 @@ on:
       - pyproject.toml
       - .github/workflows/system_test.yml
   pull_request:
-    branches: [main]
+    branches: [main, release/**]
     paths:
       - hydromt_wflow/**/*
       - tests/**/*
       - pixi.lock
       - pyproject.toml
       - .github/workflows/system_test.yml
-  workflow_dispatch:
 
 jobs:
   julia-test:
     runs-on: windows-latest
 
     steps:
+      - name: Generate Pixi environment name
+        shell: bash -l {0}
+        run: |
+          USE_WHEEL="${{ inputs.use-wheel }}"
+          if [ "${USE_WHEEL}" = "true" ]; then
+            ENV_NAME="test-wheel-py313"
+          else
+            ENV_NAME="test-full-py313"
+          fi
+          echo "ENV_NAME=$ENV_NAME" >> $GITHUB_ENV
+          echo "Pixi environment: $ENV_NAME"
+
       - name: Checkout hydromt_wflow
         uses: actions/checkout@v6
+
       - name: Checkout Wflow.jl
         uses: actions/checkout@v6
         with:
@@ -33,17 +57,53 @@ jobs:
           path: Wflow.jl
           ref: release/v1.0
 
+      - name: Download built wheel
+        if: ${{ inputs.use-wheel }}
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dist
+
+      - name: Verify wheel exists
+        if: ${{ inputs.use-wheel }}
+        shell: bash -l {0}
+        run: |
+          shopt -s nullglob
+          wheels=(dist/*.whl)
+
+          if [ ${#wheels[@]} -eq 0 ]; then
+            echo "ERROR: use-wheel=true but no .whl file found in dist/"
+            echo "Contents of dist/:"
+            ls -la dist || true
+            exit 1
+          fi
+
+          echo "Found wheel: ${wheels[0]}"
+
       - name: Setup pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          pixi-version: v0.59.0
+          pixi-version: "v0.59.0"
+          environments: ${{ env.ENV_NAME }}
+          activate-environment: true
+          frozen: true
+          cache: true
+
+      - name: Install wheel
+        if: ${{ inputs.use-wheel }}
+        shell: bash -l {0}
+        run: |
+          pixi run -e ${{ env.ENV_NAME }} rm -rf hydromt_wflow
+          WHEEL=$(ls dist/*.whl)
+          pixi run -e ${{ env.ENV_NAME }} python -m pip install "${WHEEL}[all]" --force-reinstall
+
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
         with:
           version: 1.11.3
 
-      - name: Install Wflow
+      - name: Install Wflow.jl
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow
 
       - name: Run system tests
-        run: pixi run system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
+        run: pixi run --no-install -e ${{ env.ENV_NAME }} system-test ${{ runner.temp }}/wflow_system_test ./Wflow.jl/Wflow
