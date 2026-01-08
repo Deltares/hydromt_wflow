@@ -608,74 +608,74 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-12-18 15:33:36,677 - hydromt - log - INFO - HydroMT version: 1.3.0
-2025-12-18 15:33:36,825 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-12-18 15:33:36,825 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2025-12-18 15:33:37,485 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-12-18 15:33:37,485 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-12-18 15:33:37,499 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-12-18 15:33:37,499 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-12-18 15:33:37,500 - hydromt - log - INFO - HydroMT version: 1.3.0
-2025-12-18 15:33:37,501 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-12-18 15:33:38,343 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
-2025-12-18 15:33:38,343 - hydromt - log - INFO - HydroMT version: 1.3.0
-2025-12-18 15:33:38,345 - hydromt.model.model - model - INFO - update: setup_config
-2025-12-18 15:33:38,346 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 2, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 2, 10, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;input.path_forcing&#39;: &#39;inmaps-chirps.nc&#39;}
-2025-12-18 15:33:38,346 - hydromt.model.model - model - INFO - update: setup_precip_forcing
-2025-12-18 15:33:38,346 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_clim_fn=None
-2025-12-18 15:33:38,346 - hydromt.model.model - model - INFO - setup_precip_forcing.chunksize=None
-2025-12-18 15:33:38,346 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_fn=chirps_global
-2025-12-18 15:33:38,348 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading chirps_global RasterDataset data from /home/runner/.hydromt/artifact_data/latest/chirps_global.nc
-2025-12-18 15:33:38,433 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: precip
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - update: setup_temp_pet_forcing
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.pet_method=debruin
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.press_correction=True
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_correction=True
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_correction=True
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_altitude=10
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.reproj_method=nearest_index
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.fillna_method=None
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.dem_forcing_fn=era5_orography
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.skip_pet=False
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.chunksize=None
-2025-12-18 15:33:38,434 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_pet_fn=era5
-2025-12-18 15:33:38,437 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5.nc
-2025-12-18 15:33:38,491 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5_orography RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5_orography.nc
-2025-12-18 15:33:38,760 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: pet
-2025-12-18 15:33:38,766 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: temp
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - update: forcing.write
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.filename=None
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.output_frequency=M
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.time_chunk=1
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.time_units=days since 1900-01-01T00:00:00
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.decimals=2
-2025-12-18 15:33:38,767 - hydromt.model.model - model - INFO - forcing.write.overwrite=False
-2025-12-18 15:33:38,767 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2025-12-18 15:33:38,768 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Start time 2010-02-01T00:00:00.000000 does not match the beginning of the data. Changing to start of the data: 2010-02-02T00:00:00.000000000.
-2025-12-18 15:33:38,770 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing several forcing with freq M
-2025-12-18 15:33:38,776 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+2026-01-08 08:11:06,032 - hydromt - log - INFO - HydroMT version: 1.3.0
+2026-01-08 08:11:06,184 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2026-01-08 08:11:06,185 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2026-01-08 08:11:06,837 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2026-01-08 08:11:06,837 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-01-08 08:11:06,861 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-01-08 08:11:06,861 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-01-08 08:11:06,863 - hydromt - log - INFO - HydroMT version: 1.3.0
+2026-01-08 08:11:06,864 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-01-08 08:11:07,590 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
+2026-01-08 08:11:07,591 - hydromt - log - INFO - HydroMT version: 1.3.0
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - update: setup_config
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 2, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 2, 10, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;input.path_forcing&#39;: &#39;inmaps-chirps.nc&#39;}
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - update: setup_precip_forcing
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_clim_fn=None
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - setup_precip_forcing.chunksize=None
+2026-01-08 08:11:07,593 - hydromt.model.model - model - INFO - setup_precip_forcing.precip_fn=chirps_global
+2026-01-08 08:11:07,595 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading chirps_global RasterDataset data from /home/runner/.hydromt/artifact_data/latest/chirps_global.nc
+2026-01-08 08:11:07,668 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: precip
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - update: setup_temp_pet_forcing
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.pet_method=debruin
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.press_correction=True
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_correction=True
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_correction=True
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.wind_altitude=10
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.reproj_method=nearest_index
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.fillna_method=None
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.dem_forcing_fn=era5_orography
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.skip_pet=False
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.chunksize=None
+2026-01-08 08:11:07,669 - hydromt.model.model - model - INFO - setup_temp_pet_forcing.temp_pet_fn=era5
+2026-01-08 08:11:07,671 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5.nc
+2026-01-08 08:11:07,715 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading era5_orography RasterDataset data from /home/runner/.hydromt/artifact_data/latest/era5_orography.nc
+2026-01-08 08:11:07,919 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: pet
+2026-01-08 08:11:07,924 - hydromt.model.components.grid - grid - WARNING - Replacing grid map: temp
+2026-01-08 08:11:07,924 - hydromt.model.model - model - INFO - update: forcing.write
+2026-01-08 08:11:07,924 - hydromt.model.model - model - INFO - forcing.write.filename=None
+2026-01-08 08:11:07,924 - hydromt.model.model - model - INFO - forcing.write.output_frequency=M
+2026-01-08 08:11:07,925 - hydromt.model.model - model - INFO - forcing.write.time_chunk=1
+2026-01-08 08:11:07,925 - hydromt.model.model - model - INFO - forcing.write.time_units=days since 1900-01-01T00:00:00
+2026-01-08 08:11:07,925 - hydromt.model.model - model - INFO - forcing.write.decimals=2
+2026-01-08 08:11:07,925 - hydromt.model.model - model - INFO - forcing.write.overwrite=False
+2026-01-08 08:11:07,925 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2026-01-08 08:11:07,925 - hydromt.hydromt_wflow.components.forcing - forcing - WARNING - Start time 2010-02-01T00:00:00.000000 does not match the beginning of the data. Changing to start of the data: 2010-02-02T00:00:00.000000000.
+2026-01-08 08:11:07,927 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing several forcing with freq M
+2026-01-08 08:11:07,932 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
 [########################################] | 100% Completed | 101.46 ms
-2025-12-18 15:33:38,900 - hydromt.model.model - model - INFO - update: staticmaps.write
-2025-12-18 15:33:38,900 - hydromt.model.model - model - INFO - staticmaps.write.filename=None
-2025-12-18 15:33:38,901 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc.
-2025-12-18 15:33:38,959 - hydromt.model.model - model - INFO - update: geoms.write
-2025-12-18 15:33:38,959 - hydromt.model.model - model - INFO - geoms.write.folder=staticgeoms
-2025-12-18 15:33:38,959 - hydromt.model.model - model - INFO - geoms.write.to_wgs84=False
-2025-12-18 15:33:38,959 - hydromt.model.model - model - INFO - geoms.write.precision=None
-2025-12-18 15:33:38,977 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/region.geojson.
-2025-12-18 15:33:38,980 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/basins.geojson.
-2025-12-18 15:33:38,983 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_basins_highres.geojson.
-2025-12-18 15:33:38,996 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/gauges_grdc.geojson.
-2025-12-18 15:33:39,000 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/outlets.geojson.
-2025-12-18 15:33:39,002 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/glaciers.geojson.
-2025-12-18 15:33:39,026 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/rivers.geojson.
-2025-12-18 15:33:39,030 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_reservoirs_no_control.geojson.
-2025-12-18 15:33:39,033 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/reservoirs.geojson.
-2025-12-18 15:33:39,036 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_reservoirs_simple_control.geojson.
-2025-12-18 15:33:39,040 - hydromt.model.model - model - INFO - update: config.write
-2025-12-18 15:33:39,041 - hydromt.model.model - model - INFO - config.write.filename=None
-2025-12-18 15:33:39,041 - hydromt.model.model - model - INFO - config.write.config_root=None
-2025-12-18 15:33:39,041 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
+2026-01-08 08:11:08,054 - hydromt.model.model - model - INFO - update: staticmaps.write
+2026-01-08 08:11:08,054 - hydromt.model.model - model - INFO - staticmaps.write.filename=None
+2026-01-08 08:11:08,054 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc.
+2026-01-08 08:11:08,108 - hydromt.model.model - model - INFO - update: geoms.write
+2026-01-08 08:11:08,108 - hydromt.model.model - model - INFO - geoms.write.folder=staticgeoms
+2026-01-08 08:11:08,108 - hydromt.model.model - model - INFO - geoms.write.to_wgs84=False
+2026-01-08 08:11:08,108 - hydromt.model.model - model - INFO - geoms.write.precision=None
+2026-01-08 08:11:08,128 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/region.geojson.
+2026-01-08 08:11:08,131 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/basins.geojson.
+2026-01-08 08:11:08,133 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_basins_highres.geojson.
+2026-01-08 08:11:08,143 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/gauges_grdc.geojson.
+2026-01-08 08:11:08,146 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/outlets.geojson.
+2026-01-08 08:11:08,147 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/glaciers.geojson.
+2026-01-08 08:11:08,169 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/rivers.geojson.
+2026-01-08 08:11:08,172 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_reservoirs_no_control.geojson.
+2026-01-08 08:11:08,174 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/reservoirs.geojson.
+2026-01-08 08:11:08,178 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticgeoms/meta_reservoirs_simple_control.geojson.
+2026-01-08 08:11:08,181 - hydromt.model.model - model - INFO - update: config.write
+2026-01-08 08:11:08,182 - hydromt.model.model - model - INFO - config.write.filename=None
+2026-01-08 08:11:08,182 - hydromt.model.model - model - INFO - config.write.config_root=None
+2026-01-08 08:11:08,182 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -709,14 +709,14 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-12-18 15:33:41,403 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-12-18 15:33:41,404 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-12-18 15:33:41,432 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-12-18 15:33:41,433 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2025-12-18 15:33:41,434 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
-2025-12-18 15:33:41,435 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-12-18 15:33:41,449 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2025-12-18 15:33:41,450 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
+2026-01-08 08:11:10,057 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2026-01-08 08:11:10,057 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-01-08 08:11:10,084 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-01-08 08:11:10,085 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-01-08 08:11:10,086 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.0.dev0).
+2026-01-08 08:11:10,087 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-01-08 08:11:10,101 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-01-08 08:11:10,101 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
