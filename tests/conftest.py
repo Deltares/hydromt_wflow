@@ -1,8 +1,8 @@
 """add global fixtures."""
 
 import platform
+import sys
 from os.path import abspath, dirname, join
-from pathlib import Path
 from typing import Callable
 
 import geopandas as gpd
@@ -16,7 +16,6 @@ from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
-from hydromt_wflow.data.fetch import fetch_data
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -32,22 +31,24 @@ TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 pd.options.mode.copy_on_write = True
 
 
-## Cached data and models
-@pytest.fixture(scope="session")
-def build_data() -> Path:
-    build_dir = fetch_data("artifact-data")
-    assert build_dir.is_dir()
-    assert Path(build_dir, "era5.nc").is_file()
-    return build_dir
+@pytest.fixture(scope="session", autouse=True)
+def _configure_dask_for_py313():
+    """Configure dask to use synchronous scheduler for Python 3.13 on Linux.
+
+    There's a known issue with dask's threaded scheduler and netCDF4 locking
+    in Python 3.13 on Linux systems that causes timeouts. Using the
+    synchronous scheduler avoids the threading/locking issue.
+    """
+    if sys.version_info >= (3, 13) and platform.system().lower() != "windows":
+        try:
+            import dask
+
+            dask.config.set(scheduler="synchronous")
+        except ImportError:
+            pass
 
 
-@pytest.fixture(scope="session")
-def build_data_catalog(build_data) -> Path:
-    p = Path(build_data, "data_catalog.yml")
-    assert p.is_file()
-    return p
-
-
+## Models
 @pytest.fixture
 def example_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -140,12 +141,11 @@ def example_wflow_outputs() -> WflowSbmModel:
 
 
 @pytest.fixture
-def clipped_wflow_model(build_data_catalog) -> WflowSbmModel:
+def clipped_wflow_model() -> WflowSbmModel:
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod = WflowSbmModel(
         root=root,
         mode="r",
-        data_libs=[build_data_catalog],
     )
     return mod
 
