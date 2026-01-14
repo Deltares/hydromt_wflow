@@ -209,7 +209,7 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
     root = TESTDATADIR / "wflow_v0x" / "sbm_with_lake_files"
     config_fn = "wflow_sbm_v0x.toml"
 
-    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
+    wflow = WflowSbmModel(root, config_filename=config_fn, mode="r+")
 
     # Also test lake files with cyclic inputs
     cyclic = wflow.config.get_value("input.cyclic", [])

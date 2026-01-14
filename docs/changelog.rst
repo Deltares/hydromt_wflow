@@ -21,6 +21,18 @@ Fixed
 Deprecated
 ----------
 
+
+v1.0.1 (8 January 2026)
+==========================
+Added
+-----
+- Artifact test automation in release pipelines (#690)
+
+Fixed
+-----
+- limited rasterio to maximum of v1.4 to prevent threading errors (#690)
+
+
 v1.0.0 (18 December 2025)
 ==========================
 Overview
