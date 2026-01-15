@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - release/*
+      - release/**
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
@@ -16,7 +16,7 @@ on:
   pull_request:
     branches:
       - main
-      - release/*
+      - release/**
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
