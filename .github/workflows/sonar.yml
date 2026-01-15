@@ -5,11 +5,10 @@ on:
   push:
     branches:
       - main
-      - release/*
+      - release/**
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
-      - data/**/*
       - pyproject.toml
       - pixi.lock
       - .github/workflows/sonar.yml
@@ -17,11 +16,10 @@ on:
   pull_request:
     branches:
       - main
-      - release/*
+      - release/**
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
-      - data/**/*
       - pyproject.toml
       - pixi.lock
       - .github/workflows/sonar.yml
@@ -59,4 +57,4 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN_2025 }}
