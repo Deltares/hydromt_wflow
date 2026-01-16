@@ -3,7 +3,7 @@ name: Build Documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main, release/**, feat/private-docs]
+    branches: [main, release/**]
     paths:
       - docs/**
       - examples/**
@@ -11,7 +11,7 @@ on:
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
-    branches: [main, release/**, feat/private-docs]
+    branches: [main, release/**]
     paths:
       - docs/**
       - examples/**
