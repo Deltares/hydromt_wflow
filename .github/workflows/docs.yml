@@ -1,10 +1,9 @@
----
 name: Build Documentation
 
 on:
   workflow_dispatch:
   push:
-    branches: [main, release/**]
+    branches: [main, release/**, feat/private-docs]
     paths:
       - docs/**
       - examples/**
@@ -20,24 +19,20 @@ on:
       - pyproject.toml
       - .github/workflows/docs.yml
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  # Build docs on Linux
   docs:
     defaults:
       run:
         shell: bash -l {0}
     env:
       branch_name: ${{ github.head_ref || github.ref_name }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest"]
-        include:
-        - os: ubuntu-latest
-          label: linux-64
 
-    name: ${{ matrix.label }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
@@ -50,7 +45,6 @@ jobs:
           environments: docs
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'feat/migration-hydromt-core-v1' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
 
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
@@ -76,22 +70,30 @@ jobs:
               exit 1
             fi
 
-            # Are we a dev version or not?
             if echo "$CURRENT_VERSION" | grep -q "dev"; then
-              # If it's a dev version, just echo "dev"
               echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
             else
-              # Otherwise, echo the version number
               echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
             fi
 
-      - name: Upload to GitHub Pages
-        if: ${{ github.event_name != 'pull_request'}}
-        uses: peaceiris/actions-gh-pages@v4.0.0
+      - name: Prepare versioned docs directory
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          mkdir -p site/${DOC_VERSION}
+          cp -r docs/_build/html/* site/${DOC_VERSION}/
+
+      - name: Setup Pages
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-pages-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_build/html
-          exclude_assets: '.buildinfo,_sources/*,_examples/*.ipynb'
-          destination_dir: ./${{ env.DOC_VERSION }}
-          keep_files: false
-          full_commit_message: Deploy ${{ env.DOC_VERSION }} to GitHub Pages
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event_name != 'pull_request' }}
+        id: deployment
+        uses: actions/deploy-pages@v4
+
