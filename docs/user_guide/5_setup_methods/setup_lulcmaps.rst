@@ -383,19 +383,19 @@ the actual vegetation cover fraction (using LAI) to get the actual crop coeffici
 
 In sub-humid and calm wind conditions, :math:`K_{cb full}` is equal to the FAO-56 mid-season
 crop coefficient :math:`K_{cb mid}`. Detailed values of :math:`K_{cb mid}` can be found for
-different crop types in the `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0c.htm>`_. As
+different crop types in the `FAO guidelines Chapter 7 <https://www.fao.org/4/x0490e/x0490e0c.htm>`_. As
 most LULC maps do not distinguish between crop types, an average value representing the most
 common crops in your study area should be used. In the default lookup tables, 1.15 is used for
 cropland areas (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
 
 Detailed values of kc can be found for different crop types in the
-`FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`_. As most LULC
+`FAO guidelines Chapter 6 <https://www.fao.org/4/x0490e/x0490e0b.htm>`_. As most LULC
 maps do not distinguish between crop types, an average value representing the most common crops
 in your study area should be used. In the default lookup tables, 1.10 is used for cropland areas
 (based on an average value for cereals and oil crops), and 1.15 for paddy/rice fields.
 
 For natural vegetation, :math:`K_{cb full}` can be estimated from the vegetation height and
-climate conditions. For example, the `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0f.htm>`_
+climate conditions. For example, the `FAO guidelines Chapter 9 <https://www.fao.org/4/x0490e/x0490e0f.htm>`_
 provide the following equations to estimate :math:`K_{cb full}` for natural vegetation:
 
 ..math::
