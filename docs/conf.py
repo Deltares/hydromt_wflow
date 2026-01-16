@@ -111,7 +111,7 @@ html_theme_options = {
         "page-toc",
     ],
     "switcher": {
-        "json_url": "https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json",
+        "json_url": _rel_path(DOCS_ROOT / "switcher.json"),
         "version_match": doc_version,
     },
 }

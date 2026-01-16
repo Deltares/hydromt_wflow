@@ -50,6 +50,38 @@ jobs:
           locked: false
           cache: true
 
+      - name: Extract version
+        run: |
+          export CURRENT_VERSION=$(grep "__version__" hydromt_wflow/version.py | cut -d= -f 2 | tr -d "\" ")
+
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Could not determine version, exiting..."
+            exit 1
+          fi
+
+          if echo "$CURRENT_VERSION" | grep -q "dev"; then
+            echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
+          else
+            echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check switcher.json for release version
+        if: ${{ env.DOC_VERSION != 'dev' }}
+        run: |
+          SWITCHER_JSON=docs/switcher.json
+
+          if [ ! -f "$SWITCHER_JSON" ]; then
+            echo "Error: switcher.json not found at $SWITCHER_JSON"
+            exit 1
+          fi
+
+          # Check if the current release version exists
+          if ! jq --arg ver "${DOC_VERSION}" 'any(.[]; .version==$ver)' "$SWITCHER_JSON" | grep -q true; then
+            echo "Error: Release version ${DOC_VERSION} is not present in switcher.json.\n"
+            echo "Add it to the list of released versions using the base url 'https://fluffy-happiness-gzowznm.pages.github.io/' and re-run this workflow."
+            exit 1
+          fi
+
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
         uses: nick-fields/retry@v3
@@ -66,21 +98,6 @@ jobs:
           max_attempts: 3
           command: |
             pixi run -e docs docs-build-html
-
-      - name: Extract version
-        run: |
-          export CURRENT_VERSION=$(grep "__version__" hydromt_wflow/version.py | cut -d= -f 2 | tr -d "\" ")
-
-          if [ -z "$CURRENT_VERSION" ]; then
-            echo "Could not determine version, exiting..."
-            exit 1
-          fi
-
-          if echo "$CURRENT_VERSION" | grep -q "dev"; then
-            echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
-          else
-            echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
-          fi
 
       - name: Prepare versioned docs directory
         if: ${{ github.event_name != 'pull_request' }}
