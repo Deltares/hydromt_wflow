@@ -47,7 +47,7 @@ jobs:
           cache: true
 
       - name: Generate dummy docs
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' &&  !startsWith(github.ref_name, 'feat/private-docs') }}
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
@@ -55,7 +55,7 @@ jobs:
           command: pixi run --locked -e docs docs-build-dummy
 
       - name: Generate docs
-        if: ${{ github.event_name != 'pull_request' && !github.event.act }}
+        if: ${{ github.event_name != 'pull_request' && !github.event.act &&  !startsWith(github.ref_name, 'feat/private-docs') }}
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
@@ -77,8 +77,9 @@ jobs:
             fi
 
       - name: Prepare versioned docs directory
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref_name, 'feat/private-docs') }}
         run: |
+          rm -rf site/${DOC_VERSION}
           mkdir -p site/${DOC_VERSION}
           cp -r docs/_build/html/* site/${DOC_VERSION}/
 
