@@ -85,18 +85,20 @@ jobs:
       - name: Prepare versioned docs directory
         if: ${{ github.event_name != 'pull_request' }}
         run: |
+          rm -rf site/${DOC_VERSION}
+          mkdir -p site/${DOC_VERSION}
+          cp -r docs/_build/html/* site/${DOC_VERSION}/
+
           if [ "${DOC_VERSION}" = "dev" ]; then
             # dev version: update /latest alias
-            rm -rf site/${DOC_VERSION} site/latest
-            mkdir -p site/${DOC_VERSION} site/latest
-            cp -r docs/_build/html/* site/${DOC_VERSION}/
-            cp -r site/${DOC_VERSION} site/latest
+            rm -rf site/latest
+            mkdir -p site/latest
+            cp -r site/${DOC_VERSION}/* site/latest/
           else
             # release version: update /stable alias
-            rm -rf site/${DOC_VERSION} site/stable
-            mkdir -p site/${DOC_VERSION} site/stable
-            cp -r docs/_build/html/* site/${DOC_VERSION}/
-            cp -r site/${DOC_VERSION} site/stable
+            rm -rf site/stable
+            mkdir -p site/stable
+            cp -r site/${DOC_VERSION}/* site/stable/
           fi
 
       - name: Setup Pages
