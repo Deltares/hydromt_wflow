@@ -83,7 +83,7 @@ jobs:
           fi
 
       - name: Prepare versioned docs directory
-        if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref_name, 'feat/private-docs') }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
           if [ "${DOC_VERSION}" = "dev" ]; then
             # dev version: update /latest alias
