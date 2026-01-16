@@ -26,6 +26,10 @@ permissions:
 
 jobs:
   docs:
+    concurrency:
+      group: docs-${{ github.ref_name }}
+      cancel-in-progress: true
+
     defaults:
       run:
         shell: bash -l {0}
