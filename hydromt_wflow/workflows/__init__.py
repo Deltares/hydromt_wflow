@@ -13,3 +13,4 @@ from hydromt_wflow.workflows.rootzoneclim import *
 from hydromt_wflow.workflows.soilgrids import *
 from hydromt_wflow.workflows.soilparams import *
 from hydromt_wflow.workflows.states import *
+from hydromt_wflow.workflows.subbasins import *

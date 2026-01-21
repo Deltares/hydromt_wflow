@@ -22,6 +22,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
 - :ref:`Soil grids <api_workflows_soilgrids>` — Generate soil property maps from SoilGrids datasets.
 - :ref:`Soil parameters <api_workflows_soilparams>` — Derive soil hydraulic conductivity and vegetation-based adjustments.
 - :ref:`States <api_workflows_states>` — Prepares cold states for compatibility with Delft-FEWS.
+- :ref:`Subbasins <api_workflows_subbasins>` — Delineate subbasins and create subbasin maps for Wflow models.
 
 .. toctree::
    :hidden:
@@ -41,3 +42,4 @@ kinds of data for Wflow models. The workflows are organized into the following s
    soilgrids
    soilparams
    states
+   subbasins

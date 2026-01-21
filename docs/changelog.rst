@@ -9,8 +9,9 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
-New
----
+Added
+-----
+- **setup_subbasins**: method to delineate subbasins based on streamorder, pfafstetter or area threshold. PR #7
 
 Changed
 -------
@@ -20,7 +21,6 @@ Fixed
 
 Deprecated
 ----------
-
 
 v1.0.1 (8 January 2026)
 ==========================

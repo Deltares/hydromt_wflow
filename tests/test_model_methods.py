@@ -773,6 +773,60 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     assert len(test_stations_gdf) == 3
 
 
+def test_setup_subbasins(example_wflow_model: WflowSbmModel):
+    # 1. Stream order method
+    example_wflow_model.setup_subbasins(
+        method="streamorder",
+        threshold=4,
+    )
+
+    assert "subbasins_streamorder_4" in example_wflow_model.staticmaps.data
+    assert "subbasins_streamorder_4_outlets" not in example_wflow_model.geoms.data
+    assert "subbasins_streamorder_4" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_streamorder_4")
+    assert (gdf["value"].values > 0).all()
+    assert gdf.index.is_unique
+    assert len(gdf) > 1
+    assert len(gdf) == 7
+
+    # 2. Pfafstetter method
+    example_wflow_model.setup_subbasins(
+        method="pfafstetter",
+        threshold=1,
+    )
+
+    assert "subbasins_pfafstetter_1" in example_wflow_model.staticmaps.data
+    assert "subbasins_pfafstetter_1" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_pfafstetter_1")
+    assert len(gdf) > 1
+    # this number should be fixed (linked to pfafstetter definition)
+    assert len(gdf) == 9
+
+    example_wflow_model.setup_subbasins(
+        method="pfafstetter",
+        threshold=2,
+    )
+
+    assert "subbasins_pfafstetter_2" in example_wflow_model.staticmaps.data
+    assert "subbasins_pfafstetter_2" in example_wflow_model.geoms.data
+    gdf2 = example_wflow_model.geoms.get("subbasins_pfafstetter_2")
+    assert len(gdf2) > len(gdf)
+    assert len(gdf2) == 72
+
+    # 3. Area method
+    example_wflow_model.setup_subbasins(
+        method="area",
+        threshold=500,
+        add_outlets_map=True,
+    )
+    assert "subbasins_area_500" in example_wflow_model.staticmaps.data
+    assert "subbasins_area_500_outlets" in example_wflow_model.staticmaps.data
+    assert "subbasins_area_500" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_area_500")
+    assert len(gdf) > 1
+    assert len(gdf) == 6
+
+
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(

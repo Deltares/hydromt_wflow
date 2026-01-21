@@ -1426,6 +1426,84 @@ gauge locations [-] (if derive_subcatch)
             self.geoms.set(gdf_basins, name=mapname)
 
     @hydromt_step
+    def setup_subbasins(
+        self,
+        method: str,
+        threshold: int,
+        output_name: str | None = None,
+        add_outlets_map: bool = False,
+    ):
+        """Create a subbasin map based on the specified method and threshold.
+
+        The subbasin map is derived using the selected method:
+
+        * 'streamorder': creates subbasins at all confluences where each branch has a
+          minimal stream order
+        * 'pfafstetter': creates subbasins with the hierarchical pfafstetter coding
+          system.
+        * 'area': creates subbasins with a minimal area [km2].
+
+        To also save Wflow output for the subbasins, use the
+        :py:meth:`~WflowBaseModel.setup_config_output_timeseries` method after
+        this step.
+
+        Adds model layer:
+
+        * **output_name** map:  output subbasins map
+        * **output_name** geom: output subbasins polygons
+        * **output_name_outlets** map (optional):  output subbasins outlets map
+        * **output_name_outlets** geom (optional): output subbasins outlets points
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
+        Parameters
+        ----------
+        method : str
+            Method to derive subbasins. One of ['streamorder', 'pfafstetter', 'area'].
+        threshold : int
+            Threshold value for the selected method.
+            For 'streamorder', minimum Strahler order of the streams to
+            delineate subbasins.
+            For 'pfafstetter', the Pfafstetter level to delineate subbasins.
+            For 'area', the minimum upstream area [km2] to delineate subbasins.
+        output_name : str, optional
+            The name of the output map. If None (default), the name will be set
+            to the name of subbasins_{method}_{threshold}.
+        add_outlets_map : bool, optional
+            If True, also derive an outlets map for the subbasins, by default False.
+
+        See Also
+        --------
+        workflows.subbasin_map
+        """
+        logger.info(
+            f"Deriving subbasins using method {method} with threshold {threshold}."
+        )
+
+        da_subbasins, da_outlets, gdf_outlets = workflows.subbasin_map(
+            self.staticmaps.data,
+            self.flwdir,
+            method=method,
+            threshold=threshold,
+            add_outlets_map=add_outlets_map,
+        )
+        if output_name is None:
+            output_name = f"subbasins_{method}_{threshold}"
+        outlet_name = f"{output_name}_outlets"
+
+        # Add to staticmaps
+        self.staticmaps.set(da_subbasins, name=output_name)
+        # Add to staticgeoms
+        gdf_basins = self.staticmaps.data[output_name].raster.vectorize()
+        self.geoms.set(gdf_basins, name=output_name)
+
+        if add_outlets_map:
+            self.staticmaps.set(da_outlets, name=outlet_name)
+            self.geoms.set(gdf_outlets, name=outlet_name)
+
+    @hydromt_step
     def setup_constant_pars(self, **kwargs):
         """Generate constant parameter maps for all active model cells.
 

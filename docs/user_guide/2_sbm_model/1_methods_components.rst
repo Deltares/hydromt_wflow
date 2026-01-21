@@ -241,6 +241,9 @@ Defines outlets, gauges, and spatial masks used for reporting model results.
     * - :py:meth:`~WflowSbmModel.setup_gauges`
       - Set the default gauge map based on a gauges_fn data.
       - :py:meth:`~WflowSbmModel.setup_rivers`
+    * - :py:meth:`~WflowSbmModel.setup_subbasins`
+      - Delineate subbasins based on streamorder, pfafstetter or area threshold.
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.setup_areamap`
       -  Setup area map from vector data to save wflow outputs for specific area.
       - :py:meth:`~WflowSbmModel.setup_basemaps`

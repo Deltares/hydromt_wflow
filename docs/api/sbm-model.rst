@@ -135,6 +135,7 @@ Defines outlets, gauges, and spatial masks used for reporting model results.
 
    WflowSbmModel.setup_outlets
    WflowSbmModel.setup_gauges
+   WflowSbmModel.setup_subbasins
    WflowSbmModel.setup_areamap
 
 
