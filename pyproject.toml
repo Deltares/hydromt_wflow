@@ -318,7 +318,6 @@ pip      = "*"
 pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
 # (<2.2 required by numba)
 netcdf4 = "*" # required to prevent errors wrt py313 + linux + dask. See https://github.com/Unidata/netcdf4-python/issues/1452 & https://github.com/Unidata/netcdf4-python/issues/1454
-rasterio = "<1.5" # duplication is necessary to resolve macos issues
 
 [tool.pixi.feature.editable.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
@@ -356,6 +355,11 @@ test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-gro
 test-wheel-py313 = { features = ["py313"], solve-group="py313" }
 test-wheel-py312 = { features = ["py312"], solve-group="py312" }
 test-wheel-py311 = { features = ["py311"], solve-group="py311" }
+
+[tool.pixi.target.osx-arm64.dependencies]
+rasterio = "<1.5"
+libgdal-hdf5 = ">=3.12.1,<4"
+libgdal-netcdf = ">=3.12.1,<4"
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = [
