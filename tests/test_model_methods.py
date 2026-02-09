@@ -1,5 +1,6 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
+import sys
 from itertools import product
 from os.path import abspath, dirname, join
 from pathlib import Path
@@ -448,6 +449,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on macOS")
 def test_setup_lai(example_wflow_model: WflowSbmModel):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data

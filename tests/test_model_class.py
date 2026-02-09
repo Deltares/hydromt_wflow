@@ -1,5 +1,6 @@
 """Test plugin model class against hydromt.models.model_api."""
 
+import sys
 from os.path import abspath, dirname, join
 from pathlib import Path
 
@@ -66,6 +67,7 @@ def _compare_wflow_models(mod0: WflowBaseModel, mod1: WflowBaseModel):
         assert eq, f"config not equal: {errors}"
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on macOS")
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 @pytest.mark.integration
