@@ -1,8 +1,8 @@
 """Test plugin model class against hydromt.models.model_api."""
 
+import sys
 from os.path import abspath, dirname, join
 from pathlib import Path
-import sys
 
 import numpy as np
 import pandas as pd

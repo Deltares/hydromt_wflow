@@ -41,12 +41,14 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        python-version: ['311', '312', '313']
+        python-version: ["311", "312", "313"]
         include:
           - os: ubuntu-latest
             label: linux-64
           - os: windows-latest
             label: win-64
+          - os: macos-latest
+            label: macos
 
     name: ${{ matrix.label }} - py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}

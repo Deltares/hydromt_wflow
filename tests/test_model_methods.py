@@ -1,9 +1,9 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
+import sys
 from itertools import product
 from os.path import abspath, dirname, join
 from pathlib import Path
-import sys
 
 import geopandas as gpd
 import numpy as np
