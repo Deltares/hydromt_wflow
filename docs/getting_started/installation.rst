@@ -98,7 +98,7 @@ This will install optional packages such as:
 - **wradlib** - provides radar rainfall processing and interpolation tools.
 - **pyet** - adds evapotranspiration computation support.
 
-For a list of all the optional dependency groups and their contents, have a look at the `pyproject.toml` file. Use `hydromt_wflow[full]` to install all optional dependencies.
+For a list of all the optional dependency groups and their contents, have a look at the `pyproject.toml` file. Use `hydromt_wflow[all]` to install all optional dependencies.
 
 
 Installing via conda

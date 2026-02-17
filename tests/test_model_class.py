@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+from hydromt_wflow import DATA_DIR
 from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
@@ -73,9 +74,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     model_type = _supported_models[model]
     # create folder to store new model
     root = str(tmpdir.join(model))
-    param_path = (
-        Path(__file__).parent.parent / "hydromt_wflow" / "data" / "parameters_data.yml"
-    )
+    param_path = DATA_DIR / "parameters_data.yml"
     mod1 = model_type(
         root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
     )

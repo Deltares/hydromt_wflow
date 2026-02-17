@@ -1,4 +1,3 @@
----
 name: Build and Upload HydroMT-Wflow to PyPI
 
 on:
@@ -10,6 +9,9 @@ on:
       - v*
   workflow_dispatch:
 
+concurrency:
+  group: build-test-release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-artifacts:
@@ -20,20 +22,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Python
-        uses: actions/setup-python@v6
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          python-version: '3.13'
+          pixi-version: "v0.59.0"
+          environments: default
+          activate-environment: true
+          frozen: true
+          cache: true
 
-      - name: Generate env
-        run: |
-          pip install build tomli twine wheel
-
-      - name: Build artifacts
-        run: |
-          python -m build --sdist
-          python -m build --wheel
-          python -m twine check dist/*
+      - name: Create artifacts
+        run: pixi run create-artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
@@ -41,39 +40,24 @@ jobs:
           name: releases
           path: dist
 
-  test-built-dist:
+  test-wheel:
     needs: build-artifacts
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v6
+    uses: ./.github/workflows/test.yml
+    with:
+      use-wheel: true
+      artifact-name: releases
 
-      - name: Download artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: releases
-          path: dist
-
-      - name: List contents of built dist
-        run: |
-          ls -ltrh
-          ls -ltrh dist
-
-      - name: Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
-
-      - name: Verify the built dist/wheel is valid
-        run: |
-          python -m pip install dist/hydromt_wflow*.whl
-          hydromt --models
+  system-test-wheel:
+    needs: build-artifacts
+    uses: ./.github/workflows/system_test.yml
+    with:
+      use-wheel: true
+      artifact-name: releases
 
   upload-to-test-pypi:
-    needs: test-built-dist
+    needs:
+      - test-wheel
+      - system-test-wheel
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -88,12 +72,14 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_TEST_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
           verbose: true
-          skip_existing: true
+          skip-existing: true
 
   upload-to-pypi:
-    needs: test-built-dist
+    needs:
+      - test-wheel
+      - system-test-wheel
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:

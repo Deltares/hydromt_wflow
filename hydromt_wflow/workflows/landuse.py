@@ -85,6 +85,10 @@ def landuse(
     The parameter maps are prepared based on landuse map and
     mapping table as provided in the generic data folder of hydromt.
 
+    For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+    bare soil) should have a crop factor equivalent to the nodata value. After
+    mapping and resampling, the nodata values will be filled with 1.
+
     Parameters
     ----------
     da : xarray.DataArray
@@ -125,6 +129,10 @@ def landuse(
         ds_out[param] = da_param.raster.reproject_like(
             ds_like, method=method
         )  # then resample
+
+        # For crop factor, fill nodata with 1 (no effect on evapotranspiration)
+        if param == "vegetation_crop_factor":
+            ds_out[param] = ds_out[param].where(ds_out[param] != nodata, 1.0)
 
     return ds_out
 
