@@ -12,6 +12,7 @@ import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.readers import read_workflow_yaml
+from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
@@ -25,10 +26,21 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
-# This is the recommended by pandas and will become default behaviour in pandas 3.0.
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-pd.options.mode.copy_on_write = True
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_pandas_v3():
+    """
+    Configure pandas to use copy-on-write mode for pandas versions < 3.0.
+
+    This is the recommended by pandas and is default behaviour in pandas 3.0.
+
+    See Also
+    --------
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+    """
+    if Version(pd.__version__) < Version("3.0.0"):
+        pd.options.mode.copy_on_write = True
 
 
 @pytest.fixture(scope="session", autouse=True)

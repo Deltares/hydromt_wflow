@@ -603,8 +603,8 @@ def rootzoneclim(
     ds_cc_fut: Optional[xr.Dataset] = None,
     return_period: list = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
     Imax: float = 2.0,
-    start_hydro_year: str = "Sep",
-    start_field_capacity: str = "Apr",
+    start_hydro_year: str = "SEP",
+    start_field_capacity: str = "APR",
     LAI: bool = False,
     rootzone_storage: bool = False,
     correct_cc_deficit: bool = False,
@@ -661,15 +661,15 @@ def rootzoneclim(
     Imax : float
         The maximum interception storage capacity [mm].
         The default is 2 mm.
-    start_hydro_year : str
-        The start month (abbreviated to the first three letters of the month,
-        starting with a capital letter) of the hydrological year.
-        The default is "Sep".
+        start_hydro_year : str
+        The start month of the hydrological year, abbreviated to the first
+        three letters of the month, fully capitalized.
+        The default is "SEP".
     start_field_capacity : str
         The end of the wet season / commencement of dry season. This is the
         moment when the soil is at field capacity, i.e. there is no storage
-        deficit yet.
-        The default is "Apr".
+        deficit yet. Abbreviated to the first three letters of the month,
+        fully capitalized. The default is "APR".
     rootzone_storage : bool
         Boolean to indicate whether the rootzone storage maps
         should be stored in the staticmaps or not. The default is False.
@@ -839,7 +839,7 @@ def rootzoneclim(
 
     # Get year sums of ds_sub
     # a threshold is used to use only years with sufficient data
-    ds_sub_annual = ds_sub.resample(time=f"AS-{start_hydro_year}").sum(
+    ds_sub_annual = ds_sub.resample(time=f"YS-{start_hydro_year}".upper()).sum(
         "time", skipna=True, min_count=missing_days_threshold
     )
 
@@ -893,7 +893,7 @@ def rootzoneclim(
     # are positive)
     storage_deficit_annual = -(
         ds_sub["storage_deficit"]
-        .resample(time=f"AS-{start_field_capacity}")
+        .resample(time=f"YS-{start_field_capacity}".upper())
         .min("time", skipna=True)
     )
 
@@ -901,7 +901,7 @@ def rootzoneclim(
     # data for the Gumbel distribution
     storage_deficit_count = (
         ds_sub["storage_deficit"]
-        .resample(time=f"AS-{start_field_capacity}")
+        .resample(time=f"YS-{start_field_capacity}".upper())
         .count("time")
     )
 
