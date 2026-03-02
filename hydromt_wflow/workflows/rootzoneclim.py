@@ -661,7 +661,7 @@ def rootzoneclim(
     Imax : float
         The maximum interception storage capacity [mm].
         The default is 2 mm.
-        start_hydro_year : str
+    start_hydro_year : str
         The start month of the hydrological year, abbreviated to the first
         three letters of the month, fully capitalized.
         The default is "SEP".
