@@ -6,21 +6,15 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
-
+v1.0.1 (3 March 2026)
+==========================
 New
 ---
-
-Changed
--------
+- Added Pandas 3.0 support (#713)
 
 Fixed
 -----
-
-Deprecated
-----------
-
+- ``workflows.demand.surfacewaterfrac_used`` synchronize nodata value and fill value to prevent skipping interpolation. (#706)
 
 v1.0.1 (8 January 2026)
 ==========================
