@@ -239,6 +239,7 @@ build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
 system-test = { depends-on = [
   { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="install-wflow-julia",         args=["{{ WFLOW_JULIA_REPO }}"] },
   { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
