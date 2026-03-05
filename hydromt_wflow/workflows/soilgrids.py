@@ -417,22 +417,24 @@ def do_curve_fit(x, y):
 
     """
     idx = (~np.isinf(np.log(y))) & (~np.isnan(y))
+
     if len(y[idx]) == 0:
         popt_0 = np.nan
     else:
         try:
             # try curve fitting with certain p0
-            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0]
+            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0][0]
         except RuntimeError:
             try:
                 # try curve fitting with lower p0
-                popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0]
+                popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0][0]
             except RuntimeError:
-                # do linalg  regression instead
+                # do linalg regression instead
                 popt_0 = np.linalg.lstsq(
                     x[idx, np.newaxis], np.log(y[idx]), rcond=None
                 )[0][0]
-    return popt_0
+
+    return float(popt_0)
 
 
 def constrain_M(M, popt_0, M_minmax):
