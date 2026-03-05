@@ -55,7 +55,6 @@ jobs:
         with:
           repository: Deltares/Wflow.jl
           path: Wflow.jl
-          ref: release/v1.0
 
       - name: Download built wheel
         if: ${{ inputs.use-wheel }}
@@ -85,7 +84,6 @@ jobs:
         with:
           pixi-version: "v0.59.0"
           environments: ${{ env.ENV_NAME }}
-          activate-environment: true
           frozen: true
           cache: true
 
