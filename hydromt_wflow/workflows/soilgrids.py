@@ -437,7 +437,10 @@ def do_curve_fit(x, y):
     # Fallback: linear regression in log-space
     logy = np.log(y_valid)
     coef, *_ = np.linalg.lstsq(x_valid[:, None], logy, rcond=None)
-    return float(coef[0])
+
+    # lstsq estimates the slope (b) of the line log(y) = -b * x,
+    # so we return -coef[0] to get the true b.
+    return float(-coef[0])
 
 
 def constrain_M(M, popt_0, M_minmax):
