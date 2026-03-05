@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-v1.0.1 (3 March 2026)
+v1.0.2 (3 March 2026)
 ==========================
 New
 ---
