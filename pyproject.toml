@@ -254,62 +254,15 @@ create-artifacts = { depends-on="check-artifacts" }
 
 # Documentation generation
 [tool.pixi.feature.docs.tasks]
-generate-sbom = { cmd = [
-  "sbom4python",
-  "--module",
-  "hydromt_wflow",
-  "--output-file",
-  "hydromt-wflow-sbom.json",
-  "--sbom",
-  "spdx",
-  "--format",
-  "json",
-] }
-docs-check-links = { cmd = [
-  "sphinx-build",
-  "./docs",
-  "./docs/_build",
-  "-b",
-  "linkcheck",
-  "-W",
-] }
-docs-generate = { cmd = [
-  "sphinx-autogen",
-  "docs/**/*.rst",
-], depends-on = [
-  "clean-docs-gen",
-] }
-docs-build-html = { cmd = [
-  "sphinx-build",
-  "-M",
-  "html",
-  "docs",
-  "docs/_build",
-  "-W",
-  "-w",
-  "docs/_build/warnings.txt",
-], depends-on = ["docs-generate"] }
-docs-build-dummy = { cmd = [
-  "sphinx-build",
-  "./docs",
-  "./docs/_build",
-  "-b",
-  "dummy",
-  "-W",
-], depends-on = [
-  "docs-generate",
-] }
+generate-sbom = { cmd = "sbom4python --module hydromt_wflow --output-file hydromt-wflow-sbom.json --sbom spdx --format json" }
+docs-check-links = { cmd = "sphinx-build ./docs ./docs/_build -b linkcheck -W" }
+docs-generate = { cmd = "sphinx-autogen docs/**/*.rst", depends-on = ["clean-docs-gen"] }
+docs-build-html = { cmd = "sphinx-build -M html docs docs/_build -W -w docs/_build/warnings.txt", depends-on = ["docs-generate"] }
+docs-build-dummy = { cmd = "sphinx-build ./docs ./docs/_build -b dummy -W", depends-on = ["docs-generate"] }
 doc = { depends-on = ["docs-build-html", "docs-check-links"] }
 docs = { depends-on = ["docs-build-html", "docs-check-links"] }
 docs-rebuild = { depends-on = ["clean-docs", "docs"] }
-serve = { cmd = [
-  "python",
-  "-m",
-  "http.server",
-  "8000",
-  "-d",
-  "docs/_build/html",
-] }
+serve = { cmd = "python -m http.server 8000 -d docs/_build/html" }
 
 ## Dependencies
 [tool.pixi.dependencies]
@@ -338,170 +291,52 @@ python = "3.12.*"
 [tool.pixi.feature.py311.dependencies]
 python = "3.11.*"
 
+[tool.pixi.feature.pip.pypi-dependencies]
+pip = "*"
+
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test" ], solve-group="py313" }
+default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test"], solve-group="py313" }
 docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
 full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
 slim            = { features = ["editable", "py313"], solve-group="py313" }
 test-slim-py313 = { features = ["editable", "py313", "test"], solve-group="py313" }
 test-slim-py312 = { features = ["editable", "py312", "test"], solve-group="py312" }
 test-slim-py311 = { features = ["editable", "py311", "test"], solve-group="py311" }
+
 test-full-py313 = { features = ["editable", "py313", "extra", "test"], solve-group="py313" }
 test-full-py312 = { features = ["editable", "py312", "extra", "test"], solve-group="py312" }
 test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-group="py311" }
 
 # Empty test environments for release validation. pip install *.whl[all] into these to test the whl
-test-wheel-py313 = { features = ["py313"], solve-group="py313" }
-test-wheel-py312 = { features = ["py312"], solve-group="py312" }
-test-wheel-py311 = { features = ["py311"], solve-group="py311" }
+test-wheel-py313 = { features = ["py313", "pip"], solve-group="py313", no-default-feature=true }
+test-wheel-py312 = { features = ["py312", "pip"], solve-group="py312", no-default-feature=true }
+test-wheel-py311 = { features = ["py311", "pip"], solve-group="py311", no-default-feature=true }
 
 [tool.pixi.feature.examples.tasks]
-build-example-model-full = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sbm",
-  "./wflow_test_full",
-  "-i",
-  "wflow_build.yml",
-  "-d",
-  "artifact_data",
-  "-vv",
-], cwd = "examples" }
-build-example-model-sbm = { cmd = [
-  "python",
-  "scripts/generate_example_models.py",
-  "sbm"
-] }
-build-example-model-sediment = { cmd = [
-  "python",
-  "scripts/generate_example_models.py",
-  "sediment"
-]}
-build-example-model-clipped = { cmd = [
-  "python",
-  "scripts/generate_example_models.py",
-  "clip"
-]}
-build-example-models = {cmd = [
-  "python",
-  "scripts/generate_example_models.py",
-  "all"
-] }
+build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
+build-example-model-sbm = { cmd = "python scripts/generate_example_models.py sbm" }
+build-example-model-sediment = { cmd = "python scripts/generate_example_models.py sediment" }
+build-example-model-clipped = { cmd = "python scripts/generate_example_models.py clip" }
+build-example-models = {cmd = "python scripts/generate_example_models.py all" }
 
 # Testing
 [tool.pixi.feature.test.tasks]
-test = { cmd = ["pytest"] }
-test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
-build-test-model-simple = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sbm",
-  "./wflow_test_simple",
-  "-r",
-  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-  "-i",
-  "../examples/wflow_build.yml",
-  "-d",
-  "artifact_data",
-  "-vv",
-], cwd = "tests" }
-build-test-model-full = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sbm",
-  "./wflow_test_full",
-  "-r",
-  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-  "-i",
-  "./data/wflow_piave_build_subbasin.yml",
-  "-d",
-  "artifact_data",
-  "-vv",
-], cwd = "tests" }
-build-test-model-sediment = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sediment",
-  "./wflow_test_sediment",
-  "-r",
-  "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}",
-  "-i",
-  "./data/wflow_sediment_piave_build_subbasin.yml",
-  "-d",
-  "artifact_data",
-  "-vv",
-], cwd = "tests" }
-build-test-models = { depends-on = [
-  "build-test-model-simple",
-  "build-test-model-full",
-  "build-test-model-sediment",
-] }
+test = { cmd = "pytest" }
+test-lf = { cmd = "pytest --lf --tb=short" }
+build-test-model-simple = { cmd = "hydromt build wflow_sbm ./wflow_test_simple -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ../examples/wflow_build.yml -d artifact_data -vv", cwd = "tests" }
+build-test-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ./data/wflow_piave_build_subbasin.yml -d artifact_data -vv", cwd = "tests" }
+build-test-model-sediment = { cmd = "hydromt build wflow_sediment ./wflow_test_sediment -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ./data/wflow_sediment_piave_build_subbasin.yml -d artifact_data -vv", cwd = "tests" }
+build-test-models = { depends-on = ["build-test-model-simple", "build-test-model-full", "build-test-model-sediment"] }
 
-build-example-model-piave-subbasin = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sbm",
-  "./examples/wflow_piave_subbasin",
-  "-i",
-  "./tests/data/wflow_piave_build_subbasin.yml",
-  "-d",
-  "artifact_data",
-  "-d",
-  "./hydromt_wflow/data/parameters_data.yml",
-  "-vv",
-] }
-build-example-model-piave-sediment = { cmd = [
-  "hydromt",
-  "build",
-  "wflow_sediment",
-  "./examples/wflow_sediment_piave_subbasin",
-  "-i",
-  "./tests/data/wflow_sediment_piave_build_subbasin.yml",
-  "-d",
-  "artifact_data",
-  "-d",
-  "./hydromt_wflow/data/parameters_data.yml",
-  "-vv",
-] }
-build-example-model-piave-clip = { cmd = [
-  "hydromt",
-  "update",
-  "wflow_sbm",
-  "./examples/wflow_piave_subbasin",
-  "-o",
-  "./examples/wflow_piave_clip_bkp",
-  "-i",
-  "./tests/data/wflow_piave_clip.yml",
-] }
-build-example-model-piave = { depends-on = [
-  "build-example-model-piave-subbasin",
-  "build-example-model-piave-sediment",
-  "build-example-model-piave-clip",
-] }
+build-example-model-piave-subbasin = { cmd = "hydromt build wflow_sbm ./examples/wflow_piave_subbasin -i ./tests/data/wflow_piave_build_subbasin.yml -d artifact_data -d ./hydromt_wflow/data/parameters_data.yml -vv" }
+build-example-model-piave-sediment = { cmd = "hydromt build wflow_sediment ./examples/wflow_sediment_piave_subbasin -i ./tests/data/wflow_sediment_piave_build_subbasin.yml -d artifact_data -d ./hydromt_wflow/data/parameters_data.yml -vv" }
+build-example-model-piave-clip = { cmd = "hydromt update wflow_sbm ./examples/wflow_piave_subbasin -o ./examples/wflow_piave_clip_bkp -i ./tests/data/wflow_piave_clip.yml" }
+build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin", "build-example-model-piave-sediment", "build-example-model-piave-clip"] }
 
-benchmark = { cmd = ["pytest", "--benchmark-only"] }
-benchmark-record = { cmd = [
-  "pytest",
-  "--benchmark-only",
-  "--benchmark-autosave",
-] }
-
-benchmark-compare = { cmd = [
-  "pytest",
-  "--benchmark-only",
-  "--benchmark-compare",
-  "--benchmark-compare-fail=min:25%",
-] }
-unit-test = { cmd = ["pytest", "-m", "not integration"] }
-integration-test = { cmd = ["pytest", "-m", "integration"] }
-test-cov = { cmd = [
-  "pytest",
-  "--cov=hydromt_wflow",
-  "--cov-report={{ report }}",
-  "--cov-branch",
-  "-m",
-  "not integration"
-], args=[
-  { "arg" = "report", default="xml"}
-] }
+benchmark = { cmd = "pytest --benchmark-only" }
+benchmark-record = { cmd = "pytest--benchmark-only--benchmark-autosave" }
+benchmark-compare = { cmd = "pytest --benchmark-only --benchmark-compare --benchmark-compare-fail=min:25%" }
+unit-test = { cmd = "pytest -m 'not integration'" }
+integration-test = { cmd = "pytest -m integration" }
+test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration'", args=[{ "arg" = "report", default="xml"}] }
