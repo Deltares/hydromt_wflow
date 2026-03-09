@@ -231,7 +231,7 @@ clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
-# Julia
+[tool.pixi.feature.julia.tasks]
 remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
 install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
 run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
@@ -296,7 +296,7 @@ pip = "*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test"], solve-group="py313" }
+default         = { features = ["editable", "py313", "dist", "lint", "extra", "examples", "docs", "test", "julia"], solve-group="py313" }
 docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
 full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
 slim            = { features = ["editable", "py313"], solve-group="py313" }
@@ -304,14 +304,14 @@ test-slim-py313 = { features = ["editable", "py313", "test"], solve-group="py313
 test-slim-py312 = { features = ["editable", "py312", "test"], solve-group="py312" }
 test-slim-py311 = { features = ["editable", "py311", "test"], solve-group="py311" }
 
-test-full-py313 = { features = ["editable", "py313", "extra", "test"], solve-group="py313" }
-test-full-py312 = { features = ["editable", "py312", "extra", "test"], solve-group="py312" }
-test-full-py311 = { features = ["editable", "py311", "extra", "test"], solve-group="py311" }
+test-full-py313 = { features = ["editable", "py313", "extra", "test", "julia"], solve-group="py313" }
+test-full-py312 = { features = ["editable", "py312", "extra", "test", "julia"], solve-group="py312" }
+test-full-py311 = { features = ["editable", "py311", "extra", "test", "julia"], solve-group="py311" }
 
 # Empty test environments for release validation. pip install *.whl[all] into these to test the whl
-test-wheel-py313 = { features = ["py313", "pip"], solve-group="py313", no-default-feature=true }
-test-wheel-py312 = { features = ["py312", "pip"], solve-group="py312", no-default-feature=true }
-test-wheel-py311 = { features = ["py311", "pip"], solve-group="py311", no-default-feature=true }
+test-wheel-py313 = { features = ["py313", "pip", "julia", "test"], solve-group="py313", no-default-feature=true }
+test-wheel-py312 = { features = ["py312", "pip", "julia", "test"], solve-group="py312", no-default-feature=true }
+test-wheel-py311 = { features = ["py311", "pip", "julia", "test"], solve-group="py311", no-default-feature=true }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
