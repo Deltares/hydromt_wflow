@@ -1,0 +1,14 @@
+global:
+  config_filename: wflow_sbm_v0x.toml
+
+steps:
+  - upgrade_to_v1_wflow:
+
+  - staticmaps.write:
+      filename: staticmaps_v1.nc
+
+  - config.write:
+      filename: wflow_sbm_v1.toml
+
+  # If you have any lake_*.csv tables, write them too.
+  - tables.write:
