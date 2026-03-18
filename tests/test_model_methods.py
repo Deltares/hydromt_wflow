@@ -1301,7 +1301,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Assert soil_ksat_vertical_factor is written to vertical section in config
     assert (
         example_wflow_model.config.data["input"]["static"][
-            "soil_water__vertical_saturated_hydraulic_conductivity_factor"
+            "soil_layer_water__vertical_saturated_hydraulic_conductivity_factor"
         ]
         == "soil_ksat_vertical_factor"
     )

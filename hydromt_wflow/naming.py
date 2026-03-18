@@ -212,7 +212,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_ksat_vertical_factor": {
         "wflow_v0": "vertical.kvfrac",
-        "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_factor",
+        "wflow_v1": "soil_layer_water__vertical_saturated_hydraulic_conductivity_factor",
     },
     "subsurface_ksat_horizontal_ratio": {
         "wflow_v0": "lateral.subsurface.ksathorfrac",
