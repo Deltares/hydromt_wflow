@@ -33,14 +33,9 @@ jobs:
       branch_name: ${{ github.head_ref || github.ref_name }}
     strategy:
       fail-fast: false
-      matrix:
-        os: ["ubuntu-latest"]
-        include:
-        - os: ubuntu-latest
-          label: linux-64
 
-    name: ${{ matrix.label }}
-    runs-on: ${{ matrix.os }}
+    name: linux-64
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source
@@ -69,24 +64,26 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: |
-            pixi run -e docs docs-build-html
+          command: pixi run --locked -e docs docs-build-html
+      
+      - name: Determine version
+        if: ${{ github.event_name != 'pull_request' && !github.event.act }}
+        run: |
+          export CURRENT_VERSION=$(grep "__version__" hydromt_wflow/version.py | cut -d= -f 2 | tr -d "\" ")
 
-            export CURRENT_VERSION=$(grep "__version__" hydromt_wflow/version.py | cut -d= -f 2 | tr -d "\" ")
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Could not determine version, exiting..."
+            exit 1
+          fi
 
-            if [ -z "$CURRENT_VERSION" ]; then
-              echo "Could not determine version, exiting..."
-              exit 1
-            fi
-
-            # Are we a dev version or not?
-            if echo "$CURRENT_VERSION" | grep -q "dev"; then
-              # If it's a dev version, just echo "dev"
-              echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
-            else
-              # Otherwise, echo the version number
-              echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
-            fi
+          # Are we a dev version or not?
+          if echo "$CURRENT_VERSION" | grep -q "dev"; then
+            # If it's a dev version, just echo "dev"
+            echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
+          else
+            # Otherwise, echo the version number
+            echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
+          fi
 
       - name: Upload to GitHub Pages
         if: ${{ github.event_name != 'pull_request'}}
