@@ -3692,7 +3692,7 @@ using 'variable' argument."
                 is_subdaily = pd.to_timedelta(freq) < pd.to_timedelta("1D")
 
             if is_subdaily:
-                logger.warning(
+                raise RuntimeError(
                     f"pet_method='{pet_method}' requires daily temp_min/temp_max. "
                     f"Source '{temp_pet_fn}' appears to be sub-daily "
                     f"(inferred freq: {source_freq}). Consider pet_method='makkink' "
