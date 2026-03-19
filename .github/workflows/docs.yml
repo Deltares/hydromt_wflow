@@ -65,7 +65,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: pixi run --locked -e docs docs-build-html
-      
+
       - name: Determine version
         if: ${{ github.event_name != 'pull_request' && !github.event.act }}
         run: |
