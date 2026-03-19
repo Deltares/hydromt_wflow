@@ -3523,20 +3523,27 @@ using 'variable' argument."
         skip_pet: bool = False,
         chunksize: int | None = None,
     ) -> None:
-        """Generate gridded temperature and reference evapotranspiration forcing.
+        """
+        Generate gridded temperature and reference evapotranspiration forcing.
 
-        If `temp_correction` is True, the temperature will be reprojected and then
-        downscaled to model resolution using the elevation lapse rate. For better
-        accuracy, you can provide the elevation grid of the climate data in
-        `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('land_elevation').
+        If `temp_correction` is True, the temperature will be reprojected and downscaled
+        to model resolution using the elevation lapse rate. For better accuracy, you can
+        provide the elevation grid of the climate data in `dem_forcing_fn`. If not
+        present, the upscaled elevation grid of the wflow model is used
+        ('land_elevation').
 
-        To compute PET (`skip_pet` is False), several methods are available. Before
-        computation, both the temperature and pressure can be downscaled. Wind speed
-        should be given at 2m altitude and can be corrected if `wind_correction` is True
-        and the wind data altitude is provided in `wind_altitude` [m].
-        Several methods to compute pet are available: {'debruin', 'makkink',
-        'penman-monteith_rh_simple', 'penman-monteith_tdew'}.
+        If `skip_pet` is False, reference evapotranspiration (PET) is computed.
+        Temperature and pressure can be downscaled prior to computation. Wind speed is
+        assumed at 2 m and can be corrected from another height using
+        `wind_altitude`.
+
+        Available PET methods:
+        {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
+
+        Important notes for Penman-Monteith methods:
+        - Requires daily `temp_min` and `temp_max`
+        - Sub-daily inputs may lead to underestimated PET
+        - Use 'makkink' or 'debruin' for sub-daily forcing
 
         Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
         pressure 'press_msl' [hPa], incoming shortwave radiation 'kin' [W/m2], outgoing
@@ -3544,7 +3551,7 @@ using 'variable' argument."
         'rh' [%], dew point temperature 'temp_dew' [°C], wind speed either total 'wind'
         or the U- 'wind10_u' [m/s] and V- 'wind10_v' components [m/s].
 
-        Adds model layer:
+        Adds model layers:
 
         * **pet**: reference evapotranspiration [mm]
         * **temp**: temperature [°C]
@@ -3555,56 +3562,55 @@ using 'variable' argument."
 
         Parameters
         ----------
-        temp_pet_fn : str, xarray.Dataset
+        temp_pet_fn : str | xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration.
 
-            * Required variable for temperature: 'temp' [°C]
+            * Required variable: 'temp' [°C]
 
-            * Required variables for De Bruin reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
+            * Required variables for 'debruin':
+                'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
 
-            * Required variables for Makkink reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin'[W/m2]
+            * Required variables for 'makkink':
+                'press_msl' [hPa], 'kin' [W/m2]
 
-            * Required variables for daily Penman-Monteith \
-reference evapotranspiration: \
-either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%], 'kin' \
-[W/m2]} for 'penman-monteith_rh_simple' or {'temp' [°C], 'temp_min' [°C], 'temp_max' \
-[°C], 'temp_dew' [°C], 'wind' [m/s], 'kin' [W/m2], 'press_msl' [hPa], 'wind10_u' [m/s],\
-"wind10_v" [m/s]} for 'penman-monteith_tdew' (these are the variables available in ERA5)
-        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
-'penman-monteith_tdew'}, optional
+            * Required variables for 'penman-monteith_rh_simple':
+                'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s],
+                'rh' [%], 'kin' [W/m2]
+
+            * Required variables for 'penman-monteith_tdew':
+                'temp_min' [°C], 'temp_max' [°C], 'temp_dew' [°C],
+                'wind10_u' [m/s], 'wind10_v' [m/s],
+                'kin' [W/m2], 'press_msl' [hPa]
+
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple',
+                      'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
-            If penman-monteith is used, requires the installation of the pyet package.
+            Requires the `pyet` package for Penman-Monteith methods.
         press_correction, temp_correction : bool, optional
-            If True pressure, temperature are corrected using elevation lapse rate,
-            by default False.
-        dem_forcing_fn : str, default None
-            Elevation data source with coverage of entire meteorological forcing domain.
-            If temp_correction is True and dem_forcing_fn is provided this is used in
-            combination with elevation at model resolution to correct the temperature.
+            If True, pressure and temperature are corrected using elevation lapse rate,
+            by default True.
+        dem_forcing_fn : str | xr.DataArray, optional
+            Elevation data source covering the meteorological forcing domain.
 
             * Required variable: 'elevtn' [m+REF]
+
         wind_correction : bool, optional
-            If True wind speed is corrected to wind at 2m altitude using
-            ``wind_altitude``. By default True.
+            If True, wind speed is corrected to 2 m altitude using `wind_altitude`,
+            by default True.
         wind_altitude : int, optional
-            Altitude of wind speed [m] variable, by default 10. Only used if
-            ``wind_correction`` is True.
+            Altitude of wind speed variable [m], by default 10.
         skip_pet : bool, optional
-            If True calculate temp only.
+            If True, calculate temperature only.
         reproj_method : str, optional
-            Reprojection method from rasterio.enums.Resampling. to reproject the climate
-            data to the model resolution. By default 'nearest_index'.
-        fillna_method: str, optional
-            Method to fill NaN cells within the active model domain in the
-            temperature data e.g. 'nearest'
-            By default None for no interpolation.
-        chunksize: int, optional
-            Chunksize on time dimension for processing data (not for saving to disk!).
-            If None the data chunksize is used, this can however be optimized for
-            large/small catchments. By default None.
+            Reprojection method from rasterio.enums.Resampling,
+            by default 'nearest_index'.
+        fillna_method : str, optional
+            Method to fill NaN cells within the active model domain in the temperature
+            data (e.g. 'nearest'). By default None.
+        chunksize : int, optional
+            Chunk size along the time dimension for processing.
+            By default None.
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
@@ -3672,9 +3678,27 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=None,  # resample time after pet workflow
         )
 
-        if (
-            "penman-monteith" in pet_method
-        ):  # also downscaled temp_min and temp_max for Penman needed
+        if "penman-monteith" in pet_method:
+            # also downscaled temp_min and temp_max for Penman needed
+            source_freq = pd.infer_freq(ds.time.values[:3])
+            if source_freq is None:
+                logger.warning(
+                    f"Could not infer frequency of source '{temp_pet_fn}'. "
+                    "Assuming it is sub-daily."
+                )
+                is_subdaily = True
+            else:
+                freq = pd.tseries.frequencies.to_offset(source_freq)
+                is_subdaily = pd.to_timedelta(freq) < pd.to_timedelta("1D")
+
+            if is_subdaily:
+                raise RuntimeError(
+                    f"pet_method='{pet_method}' requires daily temp_min/temp_max. "
+                    f"Source '{temp_pet_fn}' appears to be sub-daily "
+                    f"(inferred freq: {source_freq}). Consider pet_method='makkink' "
+                    f"or 'debruin' for sub-daily inputs.",
+                )
+
             temp_max_in = hydromt.model.processes.meteo.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
