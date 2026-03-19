@@ -3532,27 +3532,24 @@ using 'variable' argument."
         present, the upscaled elevation grid of the wflow model is used
         ('land_elevation').
 
-        To compute PET (`skip_pet` is False), several methods are available. Wind speed
-        should be given at 2m altitude and can be corrected if `wind_correction` is True
-        and the wind data altitude is provided in `wind_altitude` [m]. Available
-        methods: {'debruin', 'makkink', 'penman-monteith_rh_simple',
-        'penman-monteith_tdew'}.
+        If `skip_pet` is False, reference evapotranspiration (PET) is computed.
+        Temperature and pressure can be downscaled prior to computation. Wind speed is
+        assumed at 2 m and can be corrected from another height using
+        `wind_altitude`.
 
-        **Important note for Penman-Monteith methods**:
+        Available PET methods:
+        {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
 
-        - The 'penman-monteith_rh_simple' and 'penman-monteith_tdew' methods require
-          **daily** minimum and maximum temperatures (`temp_min`, `temp_max`) to
-          correctly compute saturation vapour pressure and vapour pressure deficit.
-          If the input data is sub-daily (e.g., hourly), a warning will be emitted and
-          PET may be significantly underestimated.
-        - For sub-daily inputs, use 'makkink' or 'debruin' methods instead, which do
-          not rely on daily Tmin/Tmax extremes.
+        Important notes for Penman-Monteith methods:
+        - Requires daily `temp_min` and `temp_max`
+        - Sub-daily inputs may lead to underestimated PET
+        - Use 'makkink' or 'debruin' for sub-daily forcing
 
-        Depending on the method, `temp_pet_fn` should contain temperature 'temp' [°C],
+        Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
         pressure 'press_msl' [hPa], incoming shortwave radiation 'kin' [W/m2], outgoing
         shortwave radiation 'kout' [W/m2], wind speed 'wind' [m/s], relative humidity
-        'rh' [%], dew point temperature 'temp_dew' [°C], and/or U- 'wind10_u' and V-
-        'wind10_v' wind components [m/s].
+        'rh' [%], dew point temperature 'temp_dew' [°C], wind speed either total 'wind'
+        or the U- 'wind10_u' [m/s] and V- 'wind10_v' components [m/s].
 
         Adds model layers:
 
@@ -3565,47 +3562,55 @@ using 'variable' argument."
 
         Parameters
         ----------
-        temp_pet_fn : str, xarray.Dataset
+        temp_pet_fn : str | xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration.
 
-            Required variables depend on the PET method (units above):
+            * Required variable: 'temp' [°C]
 
-            * Temperature: 'temp' (used for temp and PET calculation, and \
-                temperature correction if `temp_correction` is True)
-            * De Bruin PET: 'temp', 'press_msl', 'kin', 'kout'
-            * Makkink PET: 'temp', 'press_msl', 'kin'
-            * 'penman-monteith_rh_simple': 'temp', 'temp_min', 'temp_max', 'wind', \
-                'rh', 'kin'
-            * 'penman-monteith_tdew': 'temp', 'temp_min', 'temp_max', 'temp_dew', \
-                'wind', 'kin', 'press_msl', 'wind10_u', 'wind10_v'
-        pet_method : str, optional
-            Reference evapotranspiration method, one of {'debruin', 'makkink',
-            'penman-monteith_rh_simple', 'penman-monteith_tdew'}, by default 'debruin'.
-            Requires `pyet` package if using Penman-Monteith. See notes above for
-            sub-daily data.
+            * Required variables for 'debruin':
+                'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
+
+            * Required variables for 'makkink':
+                'press_msl' [hPa], 'kin' [W/m2]
+
+            * Required variables for 'penman-monteith_rh_simple':
+                'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s],
+                'rh' [%], 'kin' [W/m2]
+
+            * Required variables for 'penman-monteith_tdew':
+                'temp_min' [°C], 'temp_max' [°C], 'temp_dew' [°C],
+                'wind10_u' [m/s], 'wind10_v' [m/s],
+                'kin' [W/m2], 'press_msl' [hPa]
+
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple',
+                      'penman-monteith_tdew'}, optional
+            Reference evapotranspiration method, by default 'debruin'.
+            Requires the `pyet` package for Penman-Monteith methods.
         press_correction, temp_correction : bool, optional
-            If True, pressure and temperature are corrected using the elevation lapse
-            rate, by default True.
-        dem_forcing_fn : str, xr.DataArray, optional
-            Elevation data source covering the meteorological forcing domain. Required
-            variable: 'elevtn' [m+REF]. Used in combination with model elevation grid
-            if `temp_correction` is True.
+            If True, pressure and temperature are corrected using elevation lapse rate,
+            by default True.
+        dem_forcing_fn : str | xr.DataArray, optional
+            Elevation data source covering the meteorological forcing domain.
+
+            * Required variable: 'elevtn' [m+REF]
+
         wind_correction : bool, optional
-            If True, wind speed is corrected to 2m altitude using `wind_altitude`, by
-            default True.
+            If True, wind speed is corrected to 2 m altitude using `wind_altitude`,
+            by default True.
         wind_altitude : int, optional
-            Altitude [m] of the wind speed variable, by default 10.
+            Altitude of wind speed variable [m], by default 10.
         skip_pet : bool, optional
-            If True, calculate temperature only, without PET.
+            If True, calculate temperature only.
         reproj_method : str, optional
-            Reprojection method from rasterio.enums.Resampling, by default
-            'nearest_index'.
+            Reprojection method from rasterio.enums.Resampling,
+            by default 'nearest_index'.
         fillna_method : str, optional
-            Method to fill NaN values within the active model domain (e.g., 'nearest'),
-            by default None.
+            Method to fill NaN cells within the active model domain in the temperature
+            data (e.g. 'nearest'). By default None.
         chunksize : int, optional
-            Chunk size along the time dimension for processing, by default None.
+            Chunk size along the time dimension for processing.
+            By default None.
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
