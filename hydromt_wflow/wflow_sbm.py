@@ -3609,8 +3609,9 @@ using 'variable' argument."
             Method to fill NaN cells within the active model domain in the temperature
             data (e.g. 'nearest'). By default None.
         chunksize : int, optional
-            Chunk size along the time dimension for processing.
-            By default None.
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
