@@ -16,7 +16,7 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt.error import NoDataStrategy
+from hydromt.error import NoDataStrategy, exec_nodata_strat
 from hydromt.gis import flw
 
 import hydromt_wflow.utils as utils
@@ -3522,6 +3522,7 @@ using 'variable' argument."
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
         chunksize: int | None = None,
+        nodata_strategy: NoDataStrategy = NoDataStrategy.RAISE,
     ) -> None:
         """
         Generate gridded temperature and reference evapotranspiration forcing.
@@ -3541,7 +3542,7 @@ using 'variable' argument."
         {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
 
         Important notes for Penman-Monteith methods:
-        
+
         - Requires daily `temp_min` and `temp_max`
         - Use 'makkink' or 'debruin' for sub-daily forcing
 
@@ -3575,13 +3576,14 @@ using 'variable' argument."
                 'press_msl' [hPa], 'kin' [W/m2]
 
             * Required variables for 'penman-monteith_rh_simple':
-                'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s],
-                'rh' [%], 'kin' [W/m2]
+                'temp_min' [°C], 'temp_max' [°C], 'rh' [%], 'kin' [W/m2], and
+                wind defined as either total 'wind' [m/s] or the components
+                'wind10_u' [m/s] and 'wind10_v' [m/s]
 
             * Required variables for 'penman-monteith_tdew':
                 'temp_min' [°C], 'temp_max' [°C], 'temp_dew' [°C],
-                'wind10_u' [m/s], 'wind10_v' [m/s],
-                'kin' [W/m2], 'press_msl' [hPa]
+                'kin' [W/m2], 'press_msl' [hPa], and wind defined as either total
+                'wind' [m/s] or the components 'wind10_u' [m/s] and 'wind10_v' [m/s]
 
         pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple',
                       'penman-monteith_tdew'}, optional
@@ -3611,6 +3613,9 @@ using 'variable' argument."
         chunksize : int, optional
             Chunk size along the time dimension for processing.
             By default None.
+        nodata_strategy : NoDataStrategy, optional
+            Strategy to handle missing data in the input rasters.
+            Options are: 'warn' or 'raise'. By default 'raise'.
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
@@ -3618,43 +3623,62 @@ using 'variable' argument."
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
-        variables = ["temp"]
-        if not skip_pet:
-            if pet_method == "debruin":
-                variables += ["press_msl", "kin", "kout"]
-            elif pet_method == "makkink":
-                variables += ["press_msl", "kin"]
-            elif pet_method == "penman-monteith_rh_simple":
-                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
-            elif pet_method == "penman-monteith_tdew":
-                variables += [
-                    "temp_min",
-                    "temp_max",
-                    "wind10_u",
-                    "wind10_v",
-                    "temp_dew",
-                    "kin",
-                    "press_msl",
-                ]
-            else:
-                methods = [
-                    "debruin",
-                    "makkink",
-                    "penman-monteith_rh_simple",
-                    "penman-monteith_tdew",
-                ]
-                raise ValueError(
-                    f"Unknown pet method {pet_method}, select from {methods}"
-                )
-
+        # collect entire datatset
         ds = self.data_catalog.get_rasterdataset(
             temp_pet_fn,
             geom=self.region,
             buffer=1,
             time_range=(starttime, endtime),
-            variables=variables,
             single_var_as_array=False,  # always return dataset
         )
+        # Check required variables
+        method_variables = {
+            "debruin": ["temp", "press_msl", "kin", "kout"],
+            "makkink": ["temp", "press_msl", "kin"],
+            "penman-monteith_rh_simple": ["temp", "temp_min", "temp_max", "rh", "kin"],
+            "penman-monteith_tdew": [
+                "temp",
+                "temp_min",
+                "temp_max",
+                "temp_dew",
+                "kin",
+                "press_msl",
+            ],  # noqa: E501
+        }
+        if skip_pet:
+            variables = ["temp"]
+        elif pet_method in method_variables:
+            variables = method_variables[pet_method]
+        else:
+            raise ValueError(
+                f"Unknown pet_method '{pet_method}'. Select from "
+                f"{list(method_variables.keys())}."
+            )
+
+        # select wind variables from what is available
+        if "wind" in ds.data_vars:
+            variables.append("wind")
+        elif "wind10_u" in ds.data_vars and "wind10_v" in ds.data_vars:
+            variables.extend(["wind10_u", "wind10_v"])
+        else:
+            exec_nodata_strat(
+                f"Could not find wind variables. Either 'wind' or 'wind10_u' & "
+                f"'wind10_v' are required for pet_method '{pet_method}' but not found "
+                f"in source '{temp_pet_fn}'.",
+                strategy=nodata_strategy,
+            )
+            return None  # handle nodata warn
+
+        # check if all required variables are present
+        if not all(var in ds.data_vars for var in variables):
+            missing_vars = [var for var in variables if var not in ds.data_vars]
+            exec_nodata_strat(
+                f"Variables {missing_vars} are required for pet_method '{pet_method}' "
+                f"but not found in source '{temp_pet_fn}'.",
+                strategy=nodata_strategy,
+            )
+            return None  # handle nodata warn
+
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
         for var in ds.data_vars:
@@ -3706,7 +3730,7 @@ using 'variable' argument."
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
             )
-            temp_max_in.name = "temp_max"
+            temp_max_in["name"] = "temp_max"
 
             temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
@@ -3715,7 +3739,7 @@ using 'variable' argument."
                 lapse_correction=temp_correction,
                 freq=None,  # resample time after pet workflow
             )
-            temp_min_in.name = "temp_min"
+            temp_min_in["name"] = "temp_min"
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
