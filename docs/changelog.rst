@@ -10,6 +10,7 @@ v1.0.2 (3 March 2026)
 ==========================
 Added
 -----
+- **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
 - **setup_subbasins**: method to delineate subbasins based on streamorder, pfafstetter or area threshold. PR #7
 - Added Pandas 3.0 support (#713)
 

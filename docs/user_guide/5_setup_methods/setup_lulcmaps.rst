@@ -35,7 +35,7 @@ The following methods are available:
   ``soil_brooks_corey_c`` parameter needs to be calculated again. Next, the
   soil_ksat_vertical_factor layer corrects the vertical conductivity
   (by multiplying) such that the bottom of the layer corresponds to a
-  `target_conductivity` for that layer.
+  ``target_conductivity`` for that layer.
 
 
 Parameter lookup tables
@@ -388,14 +388,8 @@ most LULC maps do not distinguish between crop types, an average value represent
 common crops in your study area should be used. In the default lookup tables, 1.15 is used for
 cropland areas (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.
 
-Detailed values of kc can be found for different crop types in the
-`FAO guidelines <https://www.fao.org/4/x0490e/x0490e0b.htm>`_. As most LULC
-maps do not distinguish between crop types, an average value representing the most common crops
-in your study area should be used. In the default lookup tables, 1.10 is used for cropland areas
-(based on an average value for cereals and oil crops), and 1.15 for paddy/rice fields.
-
 For natural vegetation, :math:`K_{cb full}` can be estimated from the vegetation height and
-climate conditions. For example, the `FAO guidelines <https://www.fao.org/4/x0490e/x0490e0f.htm>`_
+climate conditions. For example, `FAO <https://www.fao.org/4/x0490e/x0490e0f.htm>`_
 provide the following equations to estimate :math:`K_{cb full}` for natural vegetation:
 
 ..math::

@@ -2,7 +2,6 @@
 
 import logging
 import os
-from typing import Optional
 
 import geopandas as gpd
 import numpy as np
@@ -23,6 +22,7 @@ __all__ = [
     "lai_from_lulc_mapping",
     "add_paddy_to_landuse",
     "add_planted_forest_to_landuse",
+    "add_agroforestry_to_landuse",
     "validate_lulc_vars",
     "LULC_VARS_MAPPING",
 ]
@@ -78,7 +78,7 @@ def landuse(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[list] = None,
+    params: list | None = None,
 ):
     """Return landuse map and related parameter maps.
 
@@ -141,11 +141,11 @@ def landuse_from_vector(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     df: pd.DataFrame,
-    params: Optional[list] = None,
+    params: list | None = None,
     lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
-    lulc_out: Optional[str] = None,
+    lulc_out: str | None = None,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -450,7 +450,7 @@ def add_paddy_to_landuse(
     paddy_class: int,
     df_mapping: pd.DataFrame,
     df_paddy_mapping: pd.DataFrame,
-    output_paddy_class: Optional[int] = None,
+    output_paddy_class: int | None = None,
 ) -> tuple[xr.DataArray, pd.DataFrame]:
     """
     Burn paddy fields into landuse map and update mapping table.
@@ -564,3 +564,174 @@ def add_planted_forest_to_landuse(
     )
 
     return usle_c
+
+
+def add_agroforestry_to_landuse(
+    agroforestry_data: xr.DataArray | gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    agroforestry_class: int | None,
+    output_agroforestry_class: int | None = None,
+    df_agroforestry_mapping: pd.DataFrame | None = None,
+    df_lulc_mapping: pd.DataFrame | None = None,
+    lulc_mix_classes: list[int] | None = None,
+    lulc_mix_fractions: list[float] | None = None,
+) -> xr.Dataset:
+    """
+    Add agroforestry areas to landuse map and parameters.
+
+    The resulting agroforestry class in the landuse map will have ID
+    output_agroforestry_class if provided and agroforestry_class otherwise.
+
+    Parameters
+    ----------
+    agroforestry_data : xr.DataArray or gpd.GeoDataFrame
+        Agroforestry data as raster or vector data.
+    ds_like : xr.Dataset
+        Dataset at model resolution.
+    agroforestry_class : int, optional
+        ID of the agroforestry class in the agroforestry data. If None,
+        agroforestry mask will be created for all non-nodata values.
+    output_agroforestry_class : int, optional
+        ID of the agroforestry class in the output landuse map. If not provided,
+        the `agroforestry_class` will be used.
+    df_agroforestry_mapping : pd.DataFrame, optional
+        Mapping table with landuse values for agroforestry class.
+        If None, the values will be derived based on a
+        mix of existing landuse classes from the original landuse mapping table.
+    df_lulc_mapping : pd.DataFrame, optional
+        Original mapping table with landuse values. Required if
+        df_agroforestry_mapping is None.
+    lulc_mix_classes : list of int, optional
+        List of landuse classes to mix for the agroforestry class.
+    lulc_mix_fractions : list of float, optional
+        List of fractions for each landuse class in `lulc_mix_classes` to mix.
+
+    Returns
+    -------
+    ds_out : xr.Dataset
+        Dataset containing updated landuse map and related parameter maps.
+    """
+    # Initialise
+    lulc_mix_classes = lulc_mix_classes or []
+    lulc_mix_fractions = lulc_mix_fractions or []
+
+    # Get output agroforestry class
+    if output_agroforestry_class is None:
+        if agroforestry_class is None:
+            raise ValueError(
+                "Either output_agroforestry_class or agroforestry_class must be provided."  # noqa: E501
+            )
+        output_agroforestry_class = int(agroforestry_class)
+
+    # Rasterize agroforestry data if vector
+    if isinstance(agroforestry_data, gpd.GeoDataFrame):
+        logger.info("Rasterizing agroforestry map")
+        col_name = (
+            "agroforestry" if "agroforestry" in agroforestry_data.columns else "index"
+        )
+        agro_da = ds_like.raster.rasterize(
+            gdf=agroforestry_data,
+            col_name=col_name,
+            nodata=-9999,
+            all_touched=False,
+            dtype="int32",
+        )
+    else:
+        # Reproject agroforestry data to model resolution
+        agro_da = agroforestry_data.raster.reproject_like(ds_like, method="mode")
+
+    # Create mask for agroforestry class
+    if agroforestry_class is None:
+        # Use all non-nodata values as agroforestry areas
+        agro_da = agro_da.where(agro_da == agro_da.raster.nodata, 1)
+        agroforestry_class = 1
+    else:
+        agro_da = agro_da.where(agro_da == agroforestry_class, agro_da.raster.nodata)
+
+    # Burn in the agroforestry areas in the landuse map
+    landuse = ds_like["landuse"].where(
+        agro_da != agroforestry_class, output_agroforestry_class
+    )
+    ds_out = landuse.to_dataset(name="landuse")
+
+    # Update or create the mapping table
+    if df_agroforestry_mapping is not None:
+        df_agroforestry_mapping = df_agroforestry_mapping.copy()
+        df_agroforestry_mapping.index = [output_agroforestry_class]
+        df_agroforestry_mapping["landuse"] = output_agroforestry_class
+    else:
+        if df_lulc_mapping is None:
+            raise ValueError(
+                "df_lulc_mapping must be provided if df_agroforestry_mapping is None."
+            )
+        df_agroforestry_mapping = _prepare_agroforestry_mapping(
+            df_lulc=df_lulc_mapping,
+            agro_id=output_agroforestry_class,
+            lulc_mix_classes=lulc_mix_classes,
+            lulc_mix_fractions=lulc_mix_fractions,
+        )
+
+    # Update the parameter maps based on the updated landuse map and mapping table
+    for var in LULC_VARS_MAPPING.keys():
+        if var in ["landuse", "erosion_usle_c"] or var not in ds_like:
+            continue
+        ds_out[var] = ds_like[var].where(
+            agro_da != agroforestry_class,
+            df_agroforestry_mapping.loc[output_agroforestry_class, var],
+        )
+
+    return ds_out
+
+
+def _prepare_agroforestry_mapping(
+    df_lulc: pd.DataFrame,
+    agro_id: int,
+    lulc_mix_classes: list[int],
+    lulc_mix_fractions: list[float],
+):
+    """Update df_lulc with agroforestry class."""
+    # Derive mapping values based on mix of existing landuse classes
+    if not lulc_mix_classes or not lulc_mix_fractions:
+        raise ValueError(
+            "lulc_mix_classes and lulc_mix_fractions must be provided "
+            "if df_agroforestry_mapping is None."
+        )
+    if len(lulc_mix_classes) != len(lulc_mix_fractions):
+        raise ValueError(
+            "lulc_mix_classes and lulc_mix_fractions must have the same length."
+        )
+    if not np.isclose(sum(lulc_mix_fractions), 1.0):
+        raise ValueError("lulc_mix_fractions must sum to 1.0.")
+
+    # Add a new row to the mapping table (in the first position)
+    df_agro = pd.concat([df_lulc.iloc[0:1], df_lulc])
+    # Change the index and landuse value of the first row
+    df_agro.iloc[0, df_agro.columns.get_loc("landuse")] = agro_id
+    df_agro.index = [agro_id] + df_lulc.index.tolist()
+    df_agro.at[agro_id, "landuse"] = agro_id
+    if "description" in df_agro.columns:
+        df_agro.at[agro_id, "description"] = "Agroforestry"
+
+    # Update parameters based on mix of existing landuse classes
+    missing = set(lulc_mix_classes) - set(df_lulc.index)
+    if missing:
+        raise ValueError(f"Landuse classes not found in mapping table: {missing}")
+
+    fractions = np.asarray(lulc_mix_fractions)
+    classes = np.asarray(lulc_mix_classes)
+
+    # Select parameters
+    exclude_params = ["landuse", "description", "vegetation_feddes_alpha_h1"]
+    params = [c for c in df_lulc.columns if c not in exclude_params]
+
+    # Compute weighted averages
+    values = df_lulc.loc[classes, params].to_numpy()
+    mixed = np.matmul(fractions, values)
+    df_agro.loc[agro_id, params] = mixed.astype(np.float32)
+
+    # Use default value for vegetation_feddes_alpha_h1
+    # as crops are present in agroforestry areas
+    if "vegetation_feddes_alpha_h1" in df_agro.columns:
+        df_agro.at[agro_id, "vegetation_feddes_alpha_h1"] = 0
+
+    return df_agro

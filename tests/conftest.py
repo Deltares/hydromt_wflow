@@ -195,6 +195,15 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
+def agroforestry_testdata() -> gpd.GeoDataFrame:
+    bbox1 = [12.059, 45.858, 12.108, 45.891]
+    bbox2 = [12.176, 46.108, 12.225, 46.158]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
+    gdf["agroforestry"] = [1, 1]
+    return gdf
+
+
+@pytest.fixture
 def rivers1d() -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     data = gpd.read_file(

@@ -28,3 +28,4 @@ separately in the **User Guide**.
 
    setup_x
    setup_lulcmaps
+   setup_agroforestry
