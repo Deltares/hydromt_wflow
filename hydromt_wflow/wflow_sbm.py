@@ -3541,8 +3541,8 @@ using 'variable' argument."
         {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
 
         Important notes for Penman-Monteith methods:
+        
         - Requires daily `temp_min` and `temp_max`
-        - Sub-daily inputs may lead to underestimated PET
         - Use 'makkink' or 'debruin' for sub-daily forcing
 
         Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
