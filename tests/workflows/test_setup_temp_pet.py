@@ -78,37 +78,10 @@ def _make_model(ds_override=None):
     return model
 
 
-# ---------------------------------------------------------------------------
-# Fixtures for typical complete datasets per method
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture
-def ds_debruin():
-    return _make_ds("temp", "press_msl", "kin", "kout", "wind")
-
-
-@pytest.fixture
-def ds_makkink():
-    return _make_ds("temp", "press_msl", "kin", "wind")
-
-
-@pytest.fixture
-def ds_pm_rh_simple():
-    return _make_ds("temp", "temp_min", "temp_max", "rh", "kin", "wind")
-
-
-@pytest.fixture
-def ds_pm_tdew():
-    return _make_ds(
-        "temp", "temp_min", "temp_max", "temp_dew", "kin", "press_msl", "wind"
-    )
-
-
 class TestSkipPet:
     """When skip_pet=True the method should only need 'temp' (+ a wind var)."""
 
-    def test_skip_pet_selects_only_temp(self, ds_debruin):
+    def test_skip_pet_selects_only_temp(self):
         """
         Variables list should be built as ['temp'] when skip_pet=True.
 
@@ -215,29 +188,10 @@ class TestPetMethodVariableSelection:
 class TestWindVariableResolution:
     """Logic for selecting wind variable(s) when both total and components are present."""
 
-    def test_total_wind_selected_when_present(self, ds_debruin):
+    def test_total_wind_selected_when_present(self):
         """If 'wind' is present, it should be added to the variables list."""
-        assert "wind" in ds_debruin.data_vars
+        ds = _make_ds("temp", "temp_min", "temp_max", "rh", "kin", "wind")
         # When all required vars including 'wind' are present, no error should fire
-        model = _make_model(ds_override=ds_debruin)
-
-        with (
-            patch("hydromt.model.processes.meteo.temp", return_value=_make_var("temp")),
-            patch("hydromt.model.processes.meteo.pet", return_value=_make_var("pet")),
-            patch(
-                "hydromt.model.processes.meteo.resample_time",
-                return_value=_make_var("temp"),
-            ),
-        ):
-            WflowSbmModel.setup_temp_pet_forcing(
-                model,
-                temp_pet_fn="dummy_source",
-                pet_method="debruin",
-            )
-
-    def test_wind_components_accepted_when_no_total_wind(self):
-        """If 'wind' is absent but 'wind10_u' and 'wind10_v' are present, no error."""
-        ds = _make_ds("temp", "press_msl", "kin", "kout", "wind10_u", "wind10_v")
         model = _make_model(ds_override=ds)
 
         with (
@@ -251,7 +205,28 @@ class TestWindVariableResolution:
             WflowSbmModel.setup_temp_pet_forcing(
                 model,
                 temp_pet_fn="dummy_source",
-                pet_method="debruin",
+                pet_method="penman-monteith_rh_simple",
+            )
+
+    def test_wind_components_accepted_when_no_total_wind(self):
+        """If 'wind' is absent but 'wind10_u' and 'wind10_v' are present, no error."""
+        ds = _make_ds(
+            "temp", "temp_min", "temp_max", "rh", "kin", "wind10_u", "wind10_v"
+        )
+        model = _make_model(ds_override=ds)
+
+        with (
+            patch("hydromt.model.processes.meteo.temp", return_value=_make_var("temp")),
+            patch("hydromt.model.processes.meteo.pet", return_value=_make_var("pet")),
+            patch(
+                "hydromt.model.processes.meteo.resample_time",
+                return_value=_make_var("temp"),
+            ),
+        ):
+            WflowSbmModel.setup_temp_pet_forcing(
+                model,
+                temp_pet_fn="dummy_source",
+                pet_method="penman-monteith_rh_simple",
             )
 
     def test_no_wind_at_all_raises_with_nodata_raise(self):
@@ -263,7 +238,7 @@ class TestWindVariableResolution:
             WflowSbmModel.setup_temp_pet_forcing(
                 model,
                 temp_pet_fn="dummy_source",
-                pet_method="debruin",
+                pet_method="penman-monteith_rh_simple",
                 nodata_strategy=NoDataStrategy.RAISE,
             )
 
@@ -277,7 +252,7 @@ class TestWindVariableResolution:
             result = WflowSbmModel.setup_temp_pet_forcing(
                 model,
                 temp_pet_fn="dummy_source",
-                pet_method="debruin",
+                pet_method="penman-monteith_rh_simple",
                 nodata_strategy=NoDataStrategy.WARN,
             )
             assert result is None
@@ -289,9 +264,11 @@ class TestWindVariableResolution:
         """When both 'wind' and wind components exist, 'wind' should be preferred."""
         ds = _make_ds(
             "temp",
-            "press_msl",
+            "temp",
+            "temp_min",
+            "temp_max",
+            "rh",
             "kin",
-            "kout",
             "wind",
             "wind10_u",
             "wind10_v",
@@ -311,7 +288,7 @@ class TestWindVariableResolution:
             WflowSbmModel.setup_temp_pet_forcing(
                 model,
                 temp_pet_fn="dummy_source",
-                pet_method="debruin",
+                pet_method="penman-monteith_rh_simple",
             )
 
         # The first positional arg to pet() is the slice ds[variables[1:]]
@@ -327,11 +304,11 @@ class TestMissingRequiredVariables:
     @pytest.mark.parametrize(
         ("pet_method", "all_vars", "drop_var"),
         [
-            ("debruin", ["temp", "press_msl", "kin", "kout", "wind"], "press_msl"),
-            ("debruin", ["temp", "press_msl", "kin", "kout", "wind"], "kin"),
-            ("debruin", ["temp", "press_msl", "kin", "kout", "wind"], "kout"),
-            ("makkink", ["temp", "press_msl", "kin", "wind"], "kin"),
-            ("makkink", ["temp", "press_msl", "kin", "wind"], "press_msl"),
+            ("debruin", ["temp", "press_msl", "kin", "kout"], "press_msl"),
+            ("debruin", ["temp", "press_msl", "kin", "kout"], "kin"),
+            ("debruin", ["temp", "press_msl", "kin", "kout"], "kout"),
+            ("makkink", ["temp", "press_msl", "kin"], "kin"),
+            ("makkink", ["temp", "press_msl", "kin"], "press_msl"),
         ],
     )
     def test_missing_var_raises(self, pet_method, all_vars, drop_var):
@@ -350,8 +327,8 @@ class TestMissingRequiredVariables:
     @pytest.mark.parametrize(
         ("pet_method", "all_vars", "drop_var"),
         [
-            ("debruin", ["temp", "press_msl", "kin", "kout", "wind"], "press_msl"),
-            ("makkink", ["temp", "press_msl", "kin", "wind"], "kin"),
+            ("debruin", ["temp", "press_msl", "kin", "kout"], "press_msl"),
+            ("makkink", ["temp", "press_msl", "kin"], "kin"),
         ],
     )
     def test_missing_var_warn_returns_none(

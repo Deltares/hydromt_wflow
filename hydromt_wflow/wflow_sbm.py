@@ -3657,18 +3657,20 @@ using 'variable' argument."
             )
 
         # select wind variables from what is available
-        if "wind" in ds.data_vars:
-            variables.append("wind")
-        elif "wind10_u" in ds.data_vars and "wind10_v" in ds.data_vars:
-            variables.extend(["wind10_u", "wind10_v"])
-        else:
-            exec_nodata_strat(
-                f"Could not find wind variables. Either 'wind' or 'wind10_u' & "
-                f"'wind10_v' are required for pet_method '{pet_method}' but not found "
-                f"in source '{temp_pet_fn}' with variables {list(ds.data_vars)}.",
-                strategy=nodata_strategy,
-            )
-            return None  # handle nodata warn
+        if "penman-monteith" in pet_method:
+            if "wind" in ds.data_vars:
+                variables.append("wind")
+            elif "wind10_u" in ds.data_vars and "wind10_v" in ds.data_vars:
+                variables.extend(["wind10_u", "wind10_v"])
+            else:
+                exec_nodata_strat(
+                    f"Could not find wind variables. Either 'wind' or 'wind10_u' & "
+                    f"'wind10_v' are required for pet_method '{pet_method}' but not "
+                    f"found in source '{temp_pet_fn}' with variables "
+                    f"{list(ds.data_vars)}.",
+                    strategy=nodata_strategy,
+                )
+                return None  # handle nodata warn
 
         # check if all required variables are present
         if not all(var in ds.data_vars for var in variables):
