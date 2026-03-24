@@ -3665,7 +3665,7 @@ using 'variable' argument."
             exec_nodata_strat(
                 f"Could not find wind variables. Either 'wind' or 'wind10_u' & "
                 f"'wind10_v' are required for pet_method '{pet_method}' but not found "
-                f"in source '{temp_pet_fn}'.",
+                f"in source '{temp_pet_fn}' with variables {list(ds.data_vars)}.",
                 strategy=nodata_strategy,
             )
             return None  # handle nodata warn
@@ -3675,7 +3675,8 @@ using 'variable' argument."
             missing_vars = [var for var in variables if var not in ds.data_vars]
             exec_nodata_strat(
                 f"Variables {missing_vars} are required for pet_method '{pet_method}' "
-                f"but not found in source '{temp_pet_fn}'.",
+                f"but not found in source '{temp_pet_fn}' with variables "
+                f"{list(ds.data_vars)}.",
                 strategy=nodata_strategy,
             )
             return None  # handle nodata warn
