@@ -20,6 +20,9 @@ on:
       - pyproject.toml
       - .github/workflows/docs.yml
 
+permissions:
+  contents: write
+
 jobs:
   # Build docs on Linux
   docs:
@@ -54,7 +57,7 @@ jobs:
 
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -62,7 +65,7 @@ jobs:
 
       - name: Generate docs
         if: ${{ github.event_name != 'pull_request' && !github.event.act }}
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
