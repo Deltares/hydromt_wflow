@@ -73,7 +73,19 @@ def _make_model(ds_override=None):
 
     # --- data_catalog ---
     if ds_override is not None:
-        model.data_catalog.get_rasterdataset.return_value = ds_override
+
+        def _get_rasterdataset(*args, variables=None, **kwargs):
+            if variables is not None:
+                variables_list = list(np.atleast_1d(variables))
+                missing = [v for v in variables_list if v not in ds_override.data_vars]
+                if missing:
+                    raise NoDataException(
+                        f"RasterDataset: variables not found {missing}"
+                    )
+                return ds_override[variables_list]
+            return ds_override
+
+        model.data_catalog.get_rasterdataset.side_effect = _get_rasterdataset
 
     return model
 
@@ -229,35 +241,16 @@ class TestWindVariableResolution:
                 pet_method="penman-monteith_rh_simple",
             )
 
-    def test_no_wind_at_all_raises_with_nodata_raise(self):
-        """If neither 'wind' nor wind components are present, strategy=RAISE errors."""
-        ds = _make_ds("temp", "press_msl", "kin", "kout")  # no wind at all
+    def test_no_wind_at_all_raises_value_error(self):
+        """If neither 'wind' nor wind components are present, raise ValueError."""
+        ds = _make_ds("temp", "temp_min", "temp_max", "rh", "kin")  # no wind at all
         model = _make_model(ds_override=ds)
 
-        with pytest.raises(NoDataException, match="wind"):
+        with pytest.raises(ValueError, match="wind"):
             WflowSbmModel.setup_temp_pet_forcing(
                 model,
                 temp_pet_fn="dummy_source",
                 pet_method="penman-monteith_rh_simple",
-                nodata_strategy=NoDataStrategy.RAISE,
-            )
-
-    def test_no_wind_warns_with_nodata_warn(self, caplog: pytest.LogCaptureFixture):
-        """If neither wind variable is found and strategy=WARN, no exception is raised."""
-        ds = _make_ds("temp", "press_msl", "kin", "kout")  # no wind
-        model = _make_model(ds_override=ds)
-
-        # Should return early (returns None) without raising
-        with caplog.at_level("WARNING"):
-            result = WflowSbmModel.setup_temp_pet_forcing(
-                model,
-                temp_pet_fn="dummy_source",
-                pet_method="penman-monteith_rh_simple",
-                nodata_strategy=NoDataStrategy.WARN,
-            )
-            assert result is None
-            assert "not find wind variables" in caplog.text, (
-                "Expected warning about missing wind variable"
             )
 
     def test_wind_total_takes_priority_over_components(self):
@@ -323,30 +316,6 @@ class TestMissingRequiredVariables:
                 pet_method=pet_method,
                 nodata_strategy=NoDataStrategy.RAISE,
             )
-
-    @pytest.mark.parametrize(
-        ("pet_method", "all_vars", "drop_var"),
-        [
-            ("debruin", ["temp", "press_msl", "kin", "kout"], "press_msl"),
-            ("makkink", ["temp", "press_msl", "kin"], "kin"),
-        ],
-    )
-    def test_missing_var_warn_returns_none(
-        self, pet_method, all_vars, drop_var, caplog
-    ):
-        """When a required variable is missing and strategy=WARN, return None and log."""
-        ds = _make_ds(*[v for v in all_vars if v != drop_var])
-        model = _make_model(ds_override=ds)
-
-        with caplog.at_level("WARNING"):
-            result = WflowSbmModel.setup_temp_pet_forcing(
-                model,
-                temp_pet_fn="dummy_source",
-                pet_method=pet_method,
-                nodata_strategy=NoDataStrategy.WARN,
-            )
-            assert result is None
-            assert f"Variables ['{drop_var}'] are required" in caplog.text
 
 
 class TestPenmanMonteithSubdaily:

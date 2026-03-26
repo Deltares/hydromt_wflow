@@ -16,7 +16,7 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt.error import NoDataStrategy, exec_nodata_strat
+from hydromt.error import NoDataException, NoDataStrategy
 from hydromt.gis import flw
 
 import hydromt_wflow.utils as utils
@@ -3624,14 +3624,6 @@ using 'variable' argument."
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
-        # collect entire datatset
-        ds = self.data_catalog.get_rasterdataset(
-            temp_pet_fn,
-            geom=self.region,
-            buffer=1,
-            time_range=(starttime, endtime),
-            single_var_as_array=False,  # always return dataset
-        )
         # Check required variables
         method_variables = {
             "debruin": ["temp", "press_msl", "kin", "kout"],
@@ -3655,33 +3647,46 @@ using 'variable' argument."
                 f"Unknown pet_method '{pet_method}'. Select from "
                 f"{list(method_variables.keys())}."
             )
+        _shared_kwargs = dict(
+            data_like=temp_pet_fn,
+            geom=self.region,
+            buffer=1,
+            time_range=(starttime, endtime),
+            variables=variables,
+            single_var_as_array=False,
+        )
+        # Fetch the required (non-wind) variables
+        ds = self.data_catalog.get_rasterdataset(**_shared_kwargs)
 
-        # select wind variables from what is available
+        # Fetch wind variables separately for penman-monteith methods.
+        # Try total 'wind' first; if not available, fall back to components.
+        # NOTE: get_rasterdataset raises NoDataException for missing variables
+        # regardless of handle_nodata setting.
         if "penman-monteith" in pet_method:
-            if "wind" in ds.data_vars:
-                variables.append("wind")
-            elif "wind10_u" in ds.data_vars and "wind10_v" in ds.data_vars:
-                variables.extend(["wind10_u", "wind10_v"])
-            else:
-                exec_nodata_strat(
-                    f"Could not find wind variables. Either 'wind' or 'wind10_u' & "
-                    f"'wind10_v' are required for pet_method '{pet_method}' but not "
-                    f"found in source '{temp_pet_fn}' with variables "
-                    f"{list(ds.data_vars)}.",
-                    strategy=nodata_strategy,
+            ds_wind = None
+            for wind_variables in (["wind"], ["wind10_u", "wind10_v"]):
+                logger.debug(
+                    f"Fetching wind variables {wind_variables} from source "
+                    f"'{temp_pet_fn}' for pet_method '{pet_method}'."
                 )
-                return None  # handle nodata warn
-
-        # check if all required variables are present
-        if not all(var in ds.data_vars for var in variables):
-            missing_vars = [var for var in variables if var not in ds.data_vars]
-            exec_nodata_strat(
-                f"Variables {missing_vars} are required for pet_method '{pet_method}' "
-                f"but not found in source '{temp_pet_fn}' with variables "
-                f"{list(ds.data_vars)}.",
-                strategy=nodata_strategy,
-            )
-            return None  # handle nodata warn
+                try:
+                    _shared_kwargs["variables"] = wind_variables
+                    ds_wind = self.data_catalog.get_rasterdataset(**_shared_kwargs)
+                    break
+                except NoDataException as e:
+                    logger.warning(
+                        f"Could not find wind variables {wind_variables} in source "
+                        f"'{temp_pet_fn}' for pet_method '{pet_method}'. Error: {e}"
+                    )
+                    continue
+            if ds_wind is None:
+                raise ValueError(
+                    f"Could not find wind variables. Either 'wind' or "
+                    f"'wind10_u' & 'wind10_v' are required for "
+                    f"pet_method '{pet_method}' but not found in "
+                    f"source '{temp_pet_fn}'."
+                )
+            ds = xr.merge([ds, ds_wind])
 
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
@@ -3756,8 +3761,9 @@ using 'variable' argument."
             temp_pet_fn_str = temp_pet_fn
 
         if not skip_pet:
+            pet_vars = [v for v in ds.data_vars if v != "temp"]
             pet_out = hydromt.model.processes.meteo.pet(
-                ds[variables[1:]],
+                ds[pet_vars],
                 temp=temp_in,
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 method=pet_method,
