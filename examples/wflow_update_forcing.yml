@@ -18,7 +18,7 @@ steps:
       skip_pet: False         # if True, only temperature is prepared.
 
   - forcing.write:                # Write forcing and re-write config if forcing filename or times are updated
-      output_frequency: M             # Set frequency at which forcing files are written, following pandas offset aliases
+      output_frequency: ME             # Set frequency at which forcing files are written, following pandas offset aliases
 
   - staticmaps.write:             # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
 
