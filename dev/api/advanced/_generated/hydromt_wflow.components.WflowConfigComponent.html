@@ -41,8 +41,8 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/advanced/_generated/hydromt_wflow.components.WflowConfigComponent';</script>
@@ -669,14 +669,14 @@
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">WflowConfigComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.4.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/hydromt_wflow/components/config.html#WflowConfigComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">WflowConfigComponent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.Model.html#hydromt.model.Model" title="(in HydroMT v1.4.0.dev0)"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_sbm.toml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_template_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/hydromt_wflow/components/config.html#WflowConfigComponent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.model.components.ConfigComponent.html#hydromt.model.components.ConfigComponent" title="(in HydroMT v1.4.0.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigComponent</span></code></a></p>
 <p>Manage the wflow TOML configuration file for model simulations/settings.</p>
 <p><code class="docutils literal notranslate"><span class="pre">WflowConfigComponent</span></code> data is stored in a dictionary. The component
 is used to prepare and update model simulations/settings of the wflow model.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.data">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data" title="Link to this definition">#</a></dt>
 <dd><p>Model config values.</p>
 </dd></dl>
 
@@ -779,7 +779,7 @@ Only yaml and toml files are supported.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.data_catalog">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data_catalog</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.data_catalog.DataCatalog.html#hydromt.data_catalog.DataCatalog" title="(in HydroMT v1.4.0.dev0)"><span class="pre">DataCatalog</span></a></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data_catalog" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">data_catalog</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.data_catalog.DataCatalog.html#hydromt.data_catalog.DataCatalog" title="(in HydroMT v1.4.0.dev0)"><span class="pre">DataCatalog</span></a></span><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.data_catalog" title="Link to this definition">#</a></dt>
 <dd><p>Return the data catalog of the model this component is associated with.</p>
 </dd></dl>
 
@@ -792,19 +792,19 @@ Only yaml and toml files are supported.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.model">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Model</span></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.model" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">model</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Model</span></span><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.model" title="Link to this definition">#</a></dt>
 <dd><p>Return the model object this component is associated with.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.name_in_model">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name_in_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.name_in_model" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name_in_model</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.name_in_model" title="Link to this definition">#</a></dt>
 <dd><p>Find the name of the component in the parent model components.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="hydromt_wflow.components.WflowConfigComponent.root">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ModelRoot</span></em><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.root" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">root</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ModelRoot</span></span><a class="headerlink" href="#hydromt_wflow.components.WflowConfigComponent.root" title="Link to this definition">#</a></dt>
 <dd><p>Return the root of the model this component is associated with.</p>
 </dd></dl>
 
@@ -1007,7 +1007,7 @@ to {“key1”:{“key2”: value}}</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>
