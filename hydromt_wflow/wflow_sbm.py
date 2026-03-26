@@ -3722,7 +3722,7 @@ using 'variable' argument."
                 is_subdaily = True
             else:
                 freq = pd.tseries.frequencies.to_offset(source_freq)
-                is_subdaily = pd.to_timedelta(freq) < pd.to_timedelta("1D")
+                is_subdaily = freq.nanos < pd.to_timedelta("1D").value
 
             if is_subdaily:
                 raise RuntimeError(
