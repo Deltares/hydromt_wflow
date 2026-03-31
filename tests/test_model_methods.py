@@ -1,7 +1,7 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 from itertools import product
-from os.path import abspath, dirname, join
+from os.path import join
 from pathlib import Path
 
 import geopandas as gpd
@@ -13,7 +13,7 @@ import xarray.testing as xrt
 from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 
-from hydromt_wflow import DATA_DIR, workflows
+from hydromt_wflow import workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 try:
@@ -37,8 +37,6 @@ try:
 except ImportError:
     HAS_WRADLIB = False
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
@@ -129,13 +127,13 @@ def test_setup_grid(example_wflow_model):
         )
 
 
-def test_projected_crs(tmpdir: Path):
+def test_projected_crs(tmpdir: Path, test_data_dir: Path):
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
     mod = WflowSbmModel(
         root=root,
         mode="w",
-        data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
+        data_libs=["artifact_data", join(test_data_dir, "merit_utm", "merit_utm.yml")],
     )
 
     # Setup basemaps
@@ -181,7 +179,7 @@ def test_projected_crs(tmpdir: Path):
 
 
 @pytest.mark.parametrize("glacier_fn", ["glaciers_4326", "glaciers_3857"])
-def test_projected_crs_glaciers(glacier_fn, tmpdir):
+def test_projected_crs_glaciers(glacier_fn, tmpdir, test_data_dir: Path):
     # Instantiate wflow model
     root = str(tmpdir.join("wflow_projected"))
     mod = WflowSbmModel(
@@ -189,8 +187,8 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
         mode="w",
         data_libs=[
             "artifact_data",
-            join(TESTDATADIR, "merit_utm", "merit_utm.yml"),
-            join(TESTDATADIR, "glacier", "glacier_utm.yml"),
+            join(test_data_dir, "merit_utm", "merit_utm.yml"),
+            join(test_data_dir, "glacier", "glacier_utm.yml"),
         ],
     )
 
@@ -336,7 +334,6 @@ test_reservoirs_simple_control_sources = [
 @pytest.mark.integration
 @pytest.mark.parametrize("source", test_reservoirs_simple_control_sources)
 def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
-    # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
     example_wflow_model.read()
 
@@ -505,10 +502,10 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
     )
 
 
-def test_setup_rootzoneclim(example_wflow_model):
+def test_setup_rootzoneclim(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
-        join(TESTDATADIR, "df_sub_dummy.csv"),
+        join(test_data_dir, "df_sub_dummy.csv"),
         parse_dates=True,
         dayfirst=True,
         index_col=0,
@@ -659,7 +656,7 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-def test_setup_gauges(example_wflow_model: WflowSbmModel):
+def test_setup_gauges(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     source = example_wflow_model.data_catalog.get_source("grdc")
@@ -685,7 +682,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     )
 
     # 2. Test with/without snapping to mask
-    stations_fn = join(TESTDATADIR, "test_stations.csv")
+    stations_fn = join(test_data_dir, "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_snapping",
@@ -767,7 +764,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     assert np.all(ds_samp["river_mask"].values == 1)
 
     # 4. Test with test_stations.csv file
-    stations_csv_file = join(EXAMPLEDIR, "test_stations.csv")
+    stations_csv_file = join(test_data_dir, "test_stations.csv")
     example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
     test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
     assert len(test_stations_gdf) == 3
@@ -1256,12 +1253,11 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
 
 
 def test_setup_lulc_vector(
-    example_wflow_model: WflowSbmModel,
-    globcover_gdf,
+    example_wflow_model: WflowSbmModel, globcover_gdf, data_dir: Path
 ):
     # Test for wflow sbm
     # Use a file directly for lulc_mapping_fn
-    mapping_fn = DATA_DIR / "lulc" / "v0.8" / "globcover_mapping.csv"
+    mapping_fn = data_dir / "lulc" / "v0.8" / "globcover_mapping.csv"
     example_wflow_model.setup_lulcmaps_from_vector(
         lulc_fn=globcover_gdf,
         lulc_mapping_fn=mapping_fn,
@@ -1372,7 +1368,7 @@ def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmpdir: Path
 
 
 def test_setup_allocation_surfacewaterfrac(
-    example_wflow_model: WflowSbmModel, tmpdir: Path
+    example_wflow_model: WflowSbmModel, tmpdir: Path, test_data_dir: Path
 ):
     # Read the data and set new root
     example_wflow_model.read()
@@ -1383,7 +1379,7 @@ def test_setup_allocation_surfacewaterfrac(
         mode="w",
     )
     # Add lisflood data from test
-    lisflood_yml = join(TESTDATADIR, "demand", "data_catalog.yml")
+    lisflood_yml = join(test_data_dir, "demand", "data_catalog.yml")
     example_wflow_model.data_catalog = example_wflow_model.data_catalog.from_yml(
         lisflood_yml
     )

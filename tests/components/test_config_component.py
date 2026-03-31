@@ -7,7 +7,6 @@ import pytest
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowConfigComponent
-from hydromt_wflow.utils import DATADIR
 
 
 @pytest.fixture
@@ -158,6 +157,7 @@ def test_wflow_config_component_read_default_read_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
+    data_dir: Path,
 ):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
@@ -167,7 +167,7 @@ def test_wflow_config_component_read_default_read_mode(
     # Setup the component
     component = WflowConfigComponent(
         model=mock_model,
-        default_template_filename=str(DATADIR / "wflow_sbm" / "wflow_sbm.toml"),
+        default_template_filename=str(data_dir / "wflow_sbm" / "wflow_sbm.toml"),
     )
     assert component._data is None  # Assert no data or structure yet
 
@@ -179,6 +179,7 @@ def test_wflow_config_component_read_default_write_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
+    data_dir: Path,
 ):
     caplog.set_level(logging.INFO)
     # Reading the template only happens in w and w+ modes
@@ -190,7 +191,7 @@ def test_wflow_config_component_read_default_write_mode(
     # Setup the component
     component = WflowConfigComponent(
         model=mock_model,
-        default_template_filename=str(DATADIR / "wflow_sbm" / "wflow_sbm.toml"),
+        default_template_filename=str(data_dir / "wflow_sbm" / "wflow_sbm.toml"),
     )
     assert component._data is None  # Assert no data or structure yet
 
