@@ -16,7 +16,7 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt.error import NoDataStrategy
+from hydromt.error import NoDataException, NoDataStrategy
 from hydromt.gis import flw
 
 import hydromt_wflow.utils as utils
@@ -3522,21 +3522,29 @@ using 'variable' argument."
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
         chunksize: int | None = None,
+        lapse_rate: float = -0.0065,
     ) -> None:
-        """Generate gridded temperature and reference evapotranspiration forcing.
+        """
+        Generate gridded temperature and reference evapotranspiration forcing.
 
-        If `temp_correction` is True, the temperature will be reprojected and then
-        downscaled to model resolution using the elevation lapse rate. For better
-        accuracy, you can provide the elevation grid of the climate data in
-        `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('land_elevation').
+        If `temp_correction` is True, the temperature will be reprojected and downscaled
+        to model resolution using the elevation lapse rate. For better accuracy, you can
+        provide the elevation grid of the climate data in `dem_forcing_fn`. If not
+        present, the upscaled elevation grid of the wflow model is used
+        ('land_elevation').
 
-        To compute PET (`skip_pet` is False), several methods are available. Before
-        computation, both the temperature and pressure can be downscaled. Wind speed
-        should be given at 2m altitude and can be corrected if `wind_correction` is True
-        and the wind data altitude is provided in `wind_altitude` [m].
-        Several methods to compute pet are available: {'debruin', 'makkink',
-        'penman-monteith_rh_simple', 'penman-monteith_tdew'}.
+        If `skip_pet` is False, reference evapotranspiration (PET) is computed.
+        Temperature and pressure can be downscaled prior to computation. Wind speed is
+        assumed at 2 m and can be corrected from another height using
+        `wind_altitude`.
+
+        Available PET methods:
+        {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
+
+        Important notes for Penman-Monteith methods:
+
+        - Requires daily `temp_min` and `temp_max`
+        - Use 'makkink' or 'debruin' for sub-daily forcing
 
         Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
         pressure 'press_msl' [hPa], incoming shortwave radiation 'kin' [W/m2], outgoing
@@ -3544,7 +3552,7 @@ using 'variable' argument."
         'rh' [%], dew point temperature 'temp_dew' [°C], wind speed either total 'wind'
         or the U- 'wind10_u' [m/s] and V- 'wind10_v' components [m/s].
 
-        Adds model layer:
+        Adds model layers:
 
         * **pet**: reference evapotranspiration [mm]
         * **temp**: temperature [°C]
@@ -3555,56 +3563,59 @@ using 'variable' argument."
 
         Parameters
         ----------
-        temp_pet_fn : str, xarray.Dataset
+        temp_pet_fn : str | xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration.
 
-            * Required variable for temperature: 'temp' [°C]
+            * Required variable: 'temp' [°C]
 
-            * Required variables for De Bruin reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
+            * Required variables for 'debruin':
+                'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
 
-            * Required variables for Makkink reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin'[W/m2]
+            * Required variables for 'makkink':
+                'press_msl' [hPa], 'kin' [W/m2]
 
-            * Required variables for daily Penman-Monteith \
-reference evapotranspiration: \
-either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%], 'kin' \
-[W/m2]} for 'penman-monteith_rh_simple' or {'temp' [°C], 'temp_min' [°C], 'temp_max' \
-[°C], 'temp_dew' [°C], 'wind' [m/s], 'kin' [W/m2], 'press_msl' [hPa], 'wind10_u' [m/s],\
-"wind10_v" [m/s]} for 'penman-monteith_tdew' (these are the variables available in ERA5)
-        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
-'penman-monteith_tdew'}, optional
+            * Required variables for 'penman-monteith_rh_simple':
+                'temp_min' [°C], 'temp_max' [°C], 'rh' [%], 'kin' [W/m2], and
+                wind defined as either total 'wind' [m/s] or the components
+                'wind10_u' [m/s] and 'wind10_v' [m/s]
+
+            * Required variables for 'penman-monteith_tdew':
+                'temp_min' [°C], 'temp_max' [°C], 'temp_dew' [°C],
+                'kin' [W/m2], 'press_msl' [hPa], and wind defined as either total
+                'wind' [m/s] or the components 'wind10_u' [m/s] and 'wind10_v' [m/s]
+
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple',
+                      'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
-            If penman-monteith is used, requires the installation of the pyet package.
+            Requires the `pyet` package for Penman-Monteith methods.
         press_correction, temp_correction : bool, optional
-            If True pressure, temperature are corrected using elevation lapse rate,
-            by default False.
-        dem_forcing_fn : str, default None
-            Elevation data source with coverage of entire meteorological forcing domain.
-            If temp_correction is True and dem_forcing_fn is provided this is used in
-            combination with elevation at model resolution to correct the temperature.
+            If True, pressure and temperature are corrected using elevation lapse rate,
+            by default True.
+        dem_forcing_fn : str | xr.DataArray, optional
+            Elevation data source covering the meteorological forcing domain.
 
             * Required variable: 'elevtn' [m+REF]
+
         wind_correction : bool, optional
-            If True wind speed is corrected to wind at 2m altitude using
-            ``wind_altitude``. By default True.
+            If True, wind speed is corrected to 2 m altitude using `wind_altitude`,
+            by default True.
         wind_altitude : int, optional
-            Altitude of wind speed [m] variable, by default 10. Only used if
-            ``wind_correction`` is True.
+            Altitude of wind speed variable [m], by default 10.
         skip_pet : bool, optional
-            If True calculate temp only.
+            If True, calculate temperature only.
         reproj_method : str, optional
-            Reprojection method from rasterio.enums.Resampling. to reproject the climate
-            data to the model resolution. By default 'nearest_index'.
-        fillna_method: str, optional
-            Method to fill NaN cells within the active model domain in the
-            temperature data e.g. 'nearest'
-            By default None for no interpolation.
-        chunksize: int, optional
+            Reprojection method from rasterio.enums.Resampling,
+            by default 'nearest_index'.
+        fillna_method : str, optional
+            Method to fill NaN cells within the active model domain in the temperature
+            data (e.g. 'nearest'). By default None.
+        chunksize : int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
+        lapse_rate: float, optional
+            Lapse rate of temperature [C m-1] (default: -0.0065)
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
@@ -3612,43 +3623,70 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
-        variables = ["temp"]
-        if not skip_pet:
-            if pet_method == "debruin":
-                variables += ["press_msl", "kin", "kout"]
-            elif pet_method == "makkink":
-                variables += ["press_msl", "kin"]
-            elif pet_method == "penman-monteith_rh_simple":
-                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
-            elif pet_method == "penman-monteith_tdew":
-                variables += [
-                    "temp_min",
-                    "temp_max",
-                    "wind10_u",
-                    "wind10_v",
-                    "temp_dew",
-                    "kin",
-                    "press_msl",
-                ]
-            else:
-                methods = [
-                    "debruin",
-                    "makkink",
-                    "penman-monteith_rh_simple",
-                    "penman-monteith_tdew",
-                ]
-                raise ValueError(
-                    f"Unknown pet method {pet_method}, select from {methods}"
-                )
+        # Check required variables
+        method_variables = {
+            "debruin": ["temp", "press_msl", "kin", "kout"],
+            "makkink": ["temp", "press_msl", "kin"],
+            "penman-monteith_rh_simple": ["temp", "temp_min", "temp_max", "rh", "kin"],
+            "penman-monteith_tdew": [
+                "temp",
+                "temp_min",
+                "temp_max",
+                "temp_dew",
+                "kin",
+                "press_msl",
+            ],
+        }
+        if skip_pet:
+            variables = ["temp"]
+        elif pet_method in method_variables:
+            variables = method_variables[pet_method]
+        else:
+            raise ValueError(
+                f"Unknown pet_method '{pet_method}'. Select from "
+                f"{list(method_variables.keys())}."
+            )
+        _shared_kwargs = {
+            "data_like": temp_pet_fn,
+            "geom": self.region,
+            "buffer": 1,
+            "time_range": (starttime, endtime),
+            "variables": variables,
+            "single_var_as_array": False,
+        }
+        # Fetch the required (non-wind) variables
+        ds = self.data_catalog.get_rasterdataset(**_shared_kwargs)
 
-        ds = self.data_catalog.get_rasterdataset(
-            temp_pet_fn,
-            geom=self.region,
-            buffer=1,
-            time_range=(starttime, endtime),
-            variables=variables,
-            single_var_as_array=False,  # always return dataset
-        )
+        # Fetch wind variables separately for penman-monteith methods.
+        # Try total 'wind' first; if not available, fall back to components.
+        # NOTE: get_rasterdataset raises NoDataException for missing variables
+        # regardless of handle_nodata setting.
+        if "penman-monteith" in pet_method:
+            ds_wind = None
+            for wind_variables in (["wind"], ["wind10_u", "wind10_v"]):
+                logger.debug(
+                    f"Fetching wind variables {wind_variables} from source "
+                    f"'{temp_pet_fn}' for pet_method '{pet_method}'."
+                )
+                try:
+                    _shared_kwargs["variables"] = wind_variables
+                    ds_wind = self.data_catalog.get_rasterdataset(**_shared_kwargs)
+                    break
+                except NoDataException as e:
+                    logger.warning(
+                        f"Could not find wind variables {wind_variables} in source "
+                        f"'{temp_pet_fn}' for pet_method '{pet_method}'. Error: {e}"
+                    )
+                    continue
+            if ds_wind is None:
+                raise ValueError(
+                    f"Could not find wind variables. Either 'wind' or "
+                    f"'wind10_u' & 'wind10_v' are required for "
+                    f"pet_method '{pet_method}' but not found in "
+                    f"source '{temp_pet_fn}'."
+                )
+            ds = xr.merge([ds, ds_wind])
+
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
         for var in ds.data_vars:
@@ -3669,29 +3707,50 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
+            lapse_rate=lapse_rate,
             freq=None,  # resample time after pet workflow
         )
 
-        if (
-            "penman-monteith" in pet_method
-        ):  # also downscaled temp_min and temp_max for Penman needed
+        if "penman-monteith" in pet_method:
+            # also downscaled temp_min and temp_max for Penman needed
+            source_freq = pd.infer_freq(ds.time.values[:3])
+            if source_freq is None:
+                logger.warning(
+                    f"Could not infer frequency of source '{temp_pet_fn}'. "
+                    "Assuming it is sub-daily."
+                )
+                is_subdaily = True
+            else:
+                freq = pd.tseries.frequencies.to_offset(source_freq)
+                is_subdaily = freq.nanos < pd.to_timedelta("1D").value
+
+            if is_subdaily:
+                raise RuntimeError(
+                    f"pet_method='{pet_method}' requires daily temp_min/temp_max. "
+                    f"Source '{temp_pet_fn}' appears to be sub-daily "
+                    f"(inferred freq: {source_freq}). Consider pet_method='makkink' "
+                    f"or 'debruin' for sub-daily inputs.",
+                )
+
             temp_max_in = hydromt.model.processes.meteo.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_max_in.name = "temp_max"
+            temp_max_in["name"] = "temp_max"
 
             temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_min_in.name = "temp_min"
+            temp_min_in["name"] = "temp_min"
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
@@ -3704,8 +3763,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             temp_pet_fn_str = temp_pet_fn
 
         if not skip_pet:
+            pet_vars = [v for v in ds.data_vars if v != "temp"]
             pet_out = hydromt.model.processes.meteo.pet(
-                ds[variables[1:]],
+                ds[pet_vars],
                 temp=temp_in,
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 method=pet_method,
