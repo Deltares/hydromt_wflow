@@ -28,8 +28,10 @@ class Settings(BaseSettings):
     log_file: Path | None = None
     """Log file path. If not set, logs will only be printed to the console."""
 
-    python_version: Version = None
-    """Setting for ``_compare_wflow_models``. We only do exact comparisons for versions greater than or equal to this version, as older versions may have different dependency versions and/or behavior."""
+    _python_version: Version = Version(
+        f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    )
+    """Setting used for ``_compare_wflow_models``. We only do exact comparisons for versions greater than or equal to this version, as older versions may have different dependency versions and/or behavior."""
 
     @field_validator("log_file", "plots_dir", mode="before")
     @classmethod
@@ -60,22 +62,6 @@ class Settings(BaseSettings):
         else:
             raise ValueError(f"log_level must be a string or integer, got {type(v)}")
 
-    @field_validator("python_version", mode="before")
-    @classmethod
-    def _coerce_python_version(cls, v):
-        if v is None:
-            return Version(
-                f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-            )
-        elif isinstance(v, str):
-            return Version(v)
-        elif isinstance(v, Version):
-            return v
-        else:
-            raise ValueError(
-                f"python_version must be a string or Version instance, got {type(v)}"
-            )
-
     @model_validator(mode="after")
     def _ensure_plots_dir_if_debug(self):
         if self.plot_on_error and self.plots_dir is None:
@@ -88,4 +74,4 @@ class Settings(BaseSettings):
         We only assert on the exact comparisons for versions greater than or equal to
         the specified version, as older versions may have different dependency versions and/or behavior.
         """
-        return self.python_version >= min_version
+        return self._python_version >= min_version
