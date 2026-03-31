@@ -82,6 +82,10 @@ class Settings(BaseSettings):
             self.plots_dir = Path.cwd() / "debug_plots"
         return self
 
-    def is_latest_python(self, min_version: Version = Version("3.13")) -> bool:
-        """Check if the current Python version is greater than or equal to the specified minimum version."""
+    def should_assert(self, min_version: Version = Version("3.13")) -> bool:
+        """Whether to do exact comparisons and assertions in ``_compare_wflow_models``.
+
+        We only assert on the exact comparisons for versions greater than or equal to
+        the specified version, as older versions may have different dependency versions and/or behavior.
+        """
         return self.python_version >= min_version

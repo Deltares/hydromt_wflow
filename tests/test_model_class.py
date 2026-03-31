@@ -115,8 +115,8 @@ def _assert_grids_not_empty(model: WflowBaseModel):
         assert eq, f"empty layers in forcing: {empty_layers}"
 
 
-def _assert_on_latest_python(is_latest_python: bool, condition: bool, message: str):
-    if is_latest_python:
+def _assert_or_warn(should_assert: bool, condition: bool, message: str):
+    if should_assert:
         assert condition, message
     else:
         if not condition:
@@ -141,9 +141,7 @@ def _compare_wflow_models(
                 errors,
                 settings.plots_dir,
             )
-        _assert_on_latest_python(
-            settings.is_latest_python(), eq, f"staticmaps not equal: {errors}"
-        )
+        _assert_or_warn(settings.should_assert(), eq, f"staticmaps not equal: {errors}")
 
     # check geoms
     if mod0.geoms._data:
@@ -152,9 +150,7 @@ def _compare_wflow_models(
             _plot_geoms_diff(
                 mod0.geoms.data, mod1.geoms.data, "geoms", settings.plots_dir
             )
-        _assert_on_latest_python(
-            settings.is_latest_python(), eq, f"geoms not equal: {errors}"
-        )
+        _assert_or_warn(settings.should_assert(), eq, f"geoms not equal: {errors}")
 
     if mod0.forcing._data:
         # flatten
@@ -167,9 +163,7 @@ def _compare_wflow_models(
                 errors,
                 settings.plots_dir,
             )
-        _assert_on_latest_python(
-            settings.is_latest_python(), eq, f"forcing not equal: {errors}"
-        )
+        _assert_or_warn(settings.should_assert(), eq, f"forcing not equal: {errors}")
 
     # check config
     if mod0.config._data:
