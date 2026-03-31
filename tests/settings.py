@@ -12,12 +12,12 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Settings for testing purposes, loaded from environment variables or defaults if not set, case-insensitive."""
 
-    debug_mode: bool = False
+    plot_on_error: bool = False
     """Whether to save debug plots when ``_compare_wflow_models`` fails. If True, will save debug plots to the directory specified by ``plots_dir``."""
 
     plots_dir: Path | None = None
     """Directory to save debug plots when ``_compare_wflow_models`` fails.
-    If not set and ``debug_mode`` is True, will default to a "debug_plots" directory in the current working directory."""
+    If not set and ``plot_on_error`` is True, will default to a "debug_plots" directory in the current working directory."""
 
     log_level: int = None
     """Log level for hydromt_wflow logs. If not set, will default to INFO."""
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _ensure_plots_dir_if_debug(self):
-        if self.debug_mode and self.plots_dir is None:
+        if self.plot_on_error and self.plots_dir is None:
             self.plots_dir = Path.cwd() / "debug_plots"
         return self
 

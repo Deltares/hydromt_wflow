@@ -133,7 +133,7 @@ def _compare_wflow_models(
     # check maps
     if mod0.staticmaps._data:
         eq, errors = mod0.staticmaps.test_equal(mod1.staticmaps)
-        if not eq and settings.debug_mode:
+        if not eq and settings.plot_on_error:
             _plot_grid_diff(
                 mod0.staticmaps._data,
                 mod1.staticmaps._data,
@@ -148,7 +148,7 @@ def _compare_wflow_models(
     # check geoms
     if mod0.geoms._data:
         eq, errors = mod0.geoms.test_equal(mod1.geoms)
-        if not eq and settings.debug_mode:
+        if not eq and settings.plot_on_error:
             _plot_geoms_diff(
                 mod0.geoms.data, mod1.geoms.data, "geoms", settings.plots_dir
             )
@@ -159,7 +159,7 @@ def _compare_wflow_models(
     if mod0.forcing._data:
         # flatten
         eq, errors = mod0.forcing.test_equal(mod1.forcing)
-        if not eq and settings.debug_mode:
+        if not eq and settings.plot_on_error:
             _plot_grid_diff(
                 mod0.forcing._data,
                 mod1.forcing._data,
