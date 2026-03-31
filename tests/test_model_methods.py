@@ -12,6 +12,7 @@ import xarray as xr
 import xarray.testing as xrt
 from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
+from packaging.version import Version
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
@@ -38,6 +39,13 @@ except ImportError:
     HAS_WRADLIB = False
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
+
+@pytest.fixture(scope="session")
+def rasterio_version():
+    import rasterio
+
+    return Version(rasterio.__version__)
 
 
 def test_setup_basemaps(tmpdir: Path):
@@ -445,7 +453,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-def test_setup_lai(example_wflow_model: WflowSbmModel):
+def test_setup_lai(example_wflow_model: WflowSbmModel, rasterio_version: Version):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
     da_lai = example_wflow_model.data_catalog.get_rasterdataset(
@@ -479,13 +487,20 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
         sampling_method="q3",
         lulc_zero_classes=[80, 200, 0],
     )
+    if rasterio_version >= Version("1.5.0"):
+        expected_df_lai_mode_samples_20 = 69
+        expected_df_lai_mode_samples_0 = 2
+    else:
+        expected_df_lai_mode_samples_20 = 59
+        expected_df_lai_mode_samples_0 = 3
+
     # Check the number of landuse classes in the mapping tables
     assert len(df_lai_any[df_lai_any.samples == 0]) == 1
-    assert len(df_lai_mode[df_lai_mode.samples == 0]) == 3
+    assert len(df_lai_mode[df_lai_mode.samples == 0]) == expected_df_lai_mode_samples_0
     assert len(df_lai_q3[df_lai_q3.samples == 0]) == 3
     # Check number of samples for landuse class 20 with the different methods
     assert int(df_lai_any.loc[20].samples) == 2481
-    assert int(df_lai_mode.loc[20].samples) == 59
+    assert int(df_lai_mode.loc[20].samples) == expected_df_lai_mode_samples_20
     assert int(df_lai_q3.loc[20].samples) == 4
 
     # Try to use the mapping tables to setup the vegetation_leaf_area_index

@@ -1,6 +1,6 @@
 """add global fixtures."""
 
-import os
+import logging
 import platform
 import sys
 from os.path import join
@@ -14,8 +14,11 @@ import pytest
 import xarray as xr
 from dotenv import find_dotenv, load_dotenv
 from hydromt import DataCatalog
+from hydromt._utils import log
 from hydromt.readers import read_workflow_yaml
 from packaging.version import Version
+from pydantic import field_validator, model_validator
+from pydantic_settings import BaseSettings
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
@@ -27,8 +30,9 @@ pytestmark = pytest.mark.integration  # all tests in this module are integration
 ## Paths
 @pytest.fixture(scope="session")
 def test_data_dir() -> Path:
-    assert DATA_DIR.is_dir()
-    return Path(__file__).parent / "data"
+    path = Path(__file__).parent / "data"
+    assert path.is_dir()
+    return path
 
 
 @pytest.fixture(scope="session")
@@ -68,8 +72,54 @@ def demand_data_catalog_path(example_data_dir: Path) -> Path:
 
 
 ## Configuration
+class TestSettings(BaseSettings):
+    """Settings for testing purposes, loaded from environment variables or defaults if not set, case-insensitive."""
+
+    debug_mode: bool = False
+    plots_dir: Path | None = None
+    log_level: str | int = None
+    log_level_hydromt: str | int = None
+    log_file: Path | None = None
+
+    @field_validator("log_file", "plots_dir")
+    @classmethod
+    def _coerce_str_to_path(cls, v):
+        if v is not None:
+            if isinstance(v, str):
+                v = Path(v).resolve()
+        return v
+
+    @field_validator("log_level", "log_level_hydromt")
+    @classmethod
+    def _coerce_log_level_to_int(cls, v) -> int:
+        if v is None:
+            return logging.INFO
+        elif isinstance(v, int):
+            if v in logging._levelToName:
+                return v
+            else:
+                raise ValueError(
+                    f"log_level must be one of {list(logging._levelToName.keys())}, got {v}"
+                )
+        elif isinstance(v, str):
+            if v.upper() not in logging._nameToLevel:
+                raise ValueError(
+                    f"log_level must be one of {list(logging._nameToLevel.keys())}, got {v}"
+                )
+            return logging._nameToLevel[v.upper()]
+        else:
+            raise ValueError(f"log_level must be a string or integer, got {type(v)}")
+
+    @model_validator(mode="after")
+    def _ensure_plots_dir_if_debug(self):
+        if self.debug_mode and self.plots_dir is None:
+            self.plots_dir = Path.cwd() / "debug_plots"
+        return self
+
+
 @pytest.fixture(scope="session", autouse=True)
 def load_env_from_file():
+    """Load environment variables from a .env file if it exists."""
     path = find_dotenv()
     if path:
         load_dotenv(path)
@@ -78,9 +128,33 @@ def load_env_from_file():
         print("No .env file found, skipping loading environment variables.")
 
 
-@pytest.fixture(scope="session")
-def debug_mode(load_env_from_file) -> bool:
-    return os.environ.get("HYDROMT_WFLOW_DEBUG") is not None
+@pytest.fixture(scope="session", autouse=True)
+def test_settings(load_env_from_file) -> TestSettings:
+    """Load test settings from environment variables."""
+    settings = TestSettings()
+    print(settings)
+    return settings
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_logging(test_settings: TestSettings):
+    """Set up logging for tests based on test settings."""
+    log.initialize_logging()
+    logging.getLogger("hydromt").setLevel(test_settings.log_level_hydromt)
+    root_logger = logging.getLogger("hydromt_wflow")
+    root_logger.setLevel(test_settings.log_level)
+
+    file_handler = None
+    if test_settings.log_file is not None:
+        file_handler = log._add_filehandler(
+            test_settings.log_file,
+            logger=root_logger,
+        )
+
+    yield root_logger
+    if file_handler is not None:
+        root_logger.removeHandler(file_handler)
+        file_handler.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
