@@ -3522,7 +3522,7 @@ using 'variable' argument."
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
         chunksize: int | None = None,
-        nodata_strategy: NoDataStrategy = NoDataStrategy.RAISE,
+        lapse_rate: float = -0.0065,
     ) -> None:
         """
         Generate gridded temperature and reference evapotranspiration forcing.
@@ -3614,9 +3614,8 @@ using 'variable' argument."
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
-        nodata_strategy : NoDataStrategy, optional
-            Strategy to handle missing data in the input rasters.
-            Options are: 'warn' or 'raise'. By default 'raise'.
+        lapse_rate: float, optional
+            Lapse rate of temperature [C m-1] (default: -0.0065)
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
@@ -3636,7 +3635,7 @@ using 'variable' argument."
                 "temp_dew",
                 "kin",
                 "press_msl",
-            ],  # noqa: E501
+            ],
         }
         if skip_pet:
             variables = ["temp"]
@@ -3708,6 +3707,7 @@ using 'variable' argument."
             dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
+            lapse_rate=lapse_rate,
             freq=None,  # resample time after pet workflow
         )
 
@@ -3737,6 +3737,7 @@ using 'variable' argument."
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
             temp_max_in["name"] = "temp_max"
@@ -3746,6 +3747,7 @@ using 'variable' argument."
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
             temp_min_in["name"] = "temp_min"
