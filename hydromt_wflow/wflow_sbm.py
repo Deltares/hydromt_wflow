@@ -3646,14 +3646,14 @@ using 'variable' argument."
                 f"Unknown pet_method '{pet_method}'. Select from "
                 f"{list(method_variables.keys())}."
             )
-        _shared_kwargs = dict(
-            data_like=temp_pet_fn,
-            geom=self.region,
-            buffer=1,
-            time_range=(starttime, endtime),
-            variables=variables,
-            single_var_as_array=False,
-        )
+        _shared_kwargs = {
+            "data_like": temp_pet_fn,
+            "geom": self.region,
+            "buffer": 1,
+            "time_range": (starttime, endtime),
+            "variables": variables,
+            "single_var_as_array": False,
+        }
         # Fetch the required (non-wind) variables
         ds = self.data_catalog.get_rasterdataset(**_shared_kwargs)
 
