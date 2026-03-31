@@ -19,16 +19,16 @@ class Settings(BaseSettings):
     """Directory to save debug plots when ``_compare_wflow_models`` fails.
     If not set and ``debug_mode`` is True, will default to a "debug_plots" directory in the current working directory."""
 
-    log_level: int | None = None
+    log_level: int = None
     """Log level for hydromt_wflow logs. If not set, will default to INFO."""
 
-    log_level_hydromt: int | None = None
+    log_level_hydromt: int = None
     """Log level for hydromt logs. If not set, will use the same log level as log_level."""
 
     log_file: Path | None = None
     """Log file path. If not set, logs will only be printed to the console."""
 
-    python_version: Version
+    python_version: Version = None
     """Setting for ``_compare_wflow_models``. We only do exact comparisons for versions greater than or equal to this version, as older versions may have different dependency versions and/or behavior."""
 
     @field_validator("log_file", "plots_dir", mode="before")
