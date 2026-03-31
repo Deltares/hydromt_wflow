@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from hydromt.error import NoDataException, NoDataStrategy
+from hydromt.error import NoDataException
 
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
@@ -181,7 +181,6 @@ class TestPetMethodVariableSelection:
                 model,
                 temp_pet_fn="dummy_source",
                 pet_method=pet_method,
-                nodata_strategy=NoDataStrategy.RAISE,
             )
 
     def test_unknown_pet_method_raises_value_error(self):
@@ -305,7 +304,7 @@ class TestMissingRequiredVariables:
         ],
     )
     def test_missing_var_raises(self, pet_method, all_vars, drop_var):
-        """When a required variable is missing and strategy=RAISE, raise NoDataException."""
+        """When a required variable is missing, raise NoDataException."""
         ds = _make_ds(*[v for v in all_vars if v != drop_var])
         model = _make_model(ds_override=ds)
 
@@ -314,7 +313,6 @@ class TestMissingRequiredVariables:
                 model,
                 temp_pet_fn="dummy_source",
                 pet_method=pet_method,
-                nodata_strategy=NoDataStrategy.RAISE,
             )
 
 
