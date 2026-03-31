@@ -66,7 +66,7 @@ def test_grid_from_config(demda):
 
 def test_convert_to_wflow_v1_sbm(caplog, test_data_dir: Path, example_data_dir: Path):
     # Initialize wflow model
-    root = join(example_data_dir, "data", "wflow_upgrade", "sbm")
+    root = join(example_data_dir, "wflow_upgrade", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
