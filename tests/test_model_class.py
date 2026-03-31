@@ -1,7 +1,6 @@
 """Test plugin model class against hydromt.models.model_api."""
 
 import logging
-import shutil
 import warnings
 from pathlib import Path
 
@@ -14,7 +13,7 @@ import xarray as xr
 from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
-from tests.conftest import TestSettings
+from tests.conftest import Settings
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 logger = logging.getLogger(__name__)
@@ -24,16 +23,6 @@ _supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow_sediment": WflowSedimentModel,
     "wflow_simple": WflowSbmModel,
 }
-
-
-@pytest.fixture(scope="session")
-def plot_dir(test_data_dir: Path, test_settings: TestSettings) -> Path | None:
-    if not test_settings.debug_mode:
-        return None
-    plot_dir = test_data_dir.parent / ".plots"
-    shutil.rmtree(plot_dir, ignore_errors=True)
-    plot_dir.mkdir(parents=True)
-    return plot_dir
 
 
 @pytest.fixture(scope="session")
@@ -139,40 +128,48 @@ def _assert_on_latest_python(is_latest_python: bool, condition: bool, message: s
 def _compare_wflow_models(
     mod0: WflowBaseModel,
     mod1: WflowBaseModel,
-    out_dir: Path | None = None,
-    debug: bool = False,
-    is_latest_python: bool = False,
+    settings: Settings,
 ):
     # check maps
     if mod0.staticmaps._data:
         eq, errors = mod0.staticmaps.test_equal(mod1.staticmaps)
-        if not eq and debug:
+        if not eq and settings.debug_mode:
             _plot_grid_diff(
                 mod0.staticmaps._data,
                 mod1.staticmaps._data,
                 "staticmaps",
                 errors,
-                out_dir,
+                settings.plots_dir,
             )
         _assert_on_latest_python(
-            is_latest_python, eq, f"staticmaps not equal: {errors}"
+            settings.is_latest_python(), eq, f"staticmaps not equal: {errors}"
         )
 
     # check geoms
     if mod0.geoms._data:
         eq, errors = mod0.geoms.test_equal(mod1.geoms)
-        if not eq and debug:
-            _plot_geoms_diff(mod0.geoms.data, mod1.geoms.data, "geoms", out_dir)
-        _assert_on_latest_python(is_latest_python, eq, f"geoms not equal: {errors}")
+        if not eq and settings.debug_mode:
+            _plot_geoms_diff(
+                mod0.geoms.data, mod1.geoms.data, "geoms", settings.plots_dir
+            )
+        _assert_on_latest_python(
+            settings.is_latest_python(), eq, f"geoms not equal: {errors}"
+        )
 
     if mod0.forcing._data:
         # flatten
         eq, errors = mod0.forcing.test_equal(mod1.forcing)
-        if not eq and debug:
+        if not eq and settings.debug_mode:
             _plot_grid_diff(
-                mod0.forcing._data, mod1.forcing._data, "forcing", errors, out_dir
+                mod0.forcing._data,
+                mod1.forcing._data,
+                "forcing",
+                errors,
+                settings.plots_dir,
             )
-        _assert_on_latest_python(is_latest_python, eq, f"forcing not equal: {errors}")
+        _assert_on_latest_python(
+            settings.is_latest_python(), eq, f"forcing not equal: {errors}"
+        )
 
     # check config
     if mod0.config._data:
@@ -189,10 +186,8 @@ def test_model_build(
     model: str,
     example_models: dict[str, WflowBaseModel],
     example_inis: dict[str, list[str]],
-    plot_dir: Path | None,
-    test_settings: TestSettings,
     data_dir: Path,
-    is_latest_python: bool,
+    test_settings: Settings,
 ):
     # get model type
     model_type = _supported_models[model]
@@ -225,9 +220,7 @@ def test_model_build(
         _compare_wflow_models(
             mod0,
             mod1,
-            out_dir=plot_dir,
-            debug=test_settings.debug_mode,
-            is_latest_python=is_latest_python,
+            settings=test_settings,
         )
 
 
@@ -248,9 +241,7 @@ def test_model_clip(
     tmpdir: Path,
     example_wflow_model: WflowSbmModel,
     clipped_wflow_model: WflowSbmModel,
-    plot_dir: Path | None,
-    test_settings: TestSettings,
-    is_latest_python: bool,
+    test_settings: Settings,
 ):
     model = "wflow"
 
@@ -277,9 +268,7 @@ def test_model_clip(
     _compare_wflow_models(
         clipped_wflow_model,
         mod1,
-        out_dir=plot_dir,
-        debug=test_settings.debug_mode,
-        is_latest_python=is_latest_python,
+        settings=test_settings,
     )
     # check states
     eq, errors = clipped_wflow_model.states.test_equal(mod1.states)
