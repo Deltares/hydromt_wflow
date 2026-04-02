@@ -1,6 +1,7 @@
 """Test plugin model class against hydromt.models.model_api."""
 
 import logging
+import shutil
 import warnings
 from pathlib import Path
 
@@ -42,6 +43,7 @@ def _plot_grid_diff(
 ):
     """Plot expected, actual, and difference for each variable listed in errors."""
     _out_dir = out_dir / label
+    shutil.rmtree(_out_dir, ignore_errors=True)
     _out_dir.mkdir(parents=True, exist_ok=True)
 
     var_names = [k for k in errors if k not in ("__class__", "crs", "dims")]
@@ -51,8 +53,8 @@ def _plot_grid_diff(
     for var in var_names:
         if var not in ds_expected or var not in ds_actual:
             continue
-        expected = ds_expected[var].squeeze()
-        actual = ds_actual[var].squeeze()
+        expected: xr.DataArray = ds_expected[var].squeeze()
+        actual: xr.DataArray = ds_actual[var].squeeze()
         if expected.ndim < 2 or actual.ndim < 2:
             continue
 
@@ -62,7 +64,7 @@ def _plot_grid_diff(
         actual.plot(ax=axes[1])
         axes[1].set_title(f"{var} (actual)")
         diff = actual.astype(float) - expected.astype(float)
-        diff.plot(ax=axes[2], cmap="RdBu_r")
+        diff.plot(ax=axes[2])
         axes[2].set_title(f"{var} (actual - expected)")
         fig.tight_layout()
         out_path = _out_dir / f"{var}.png"
