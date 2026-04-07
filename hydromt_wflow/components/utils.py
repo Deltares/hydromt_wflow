@@ -39,7 +39,7 @@ def _relpath(
     _path = Path(value)
     try:
         if _mount(_path.as_posix()) == _mount(root.as_posix()):
-            _path = _path.relative_to(root)
+            _path = _path.relative_to(root, walk_up=True)
     except ValueError:
         pass  # `_path` path is not relative to root
     return _path.as_posix()
