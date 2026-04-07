@@ -69,7 +69,7 @@ jobs:
       - name: Check switcher.json for release version
         if: ${{ env.DOC_VERSION != 'dev' }}
         run: |
-          SWITCHER_JSON=docs/switcher.json
+          SWITCHER_JSON=docs/_static/switcher.json
 
           if [ ! -f "$SWITCHER_JSON" ]; then
             echo "Error: switcher.json not found at $SWITCHER_JSON"
@@ -78,7 +78,7 @@ jobs:
 
           # Check if the current release version exists
           if ! jq --arg ver "${DOC_VERSION}" 'any(.[]; .version==$ver)' "$SWITCHER_JSON" | grep -q true; then
-            echo "Error: Release version ${DOC_VERSION} is not present in switcher.json.\n"
+            echo "Error: Release version ${DOC_VERSION} is not present in $SWITCHER_JSON.\n"
             echo "Add it to the list of released versions using the base url 'https://fluffy-happiness-gzowznm.pages.github.io/' and re-run this workflow."
             exit 1
           fi

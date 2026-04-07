@@ -32,7 +32,10 @@ copyright = "Deltares"
 author = "Dirk Eilander"
 version = hydromt_wflow.__version__
 bare_version = hydromt_wflow.__version__
-doc_version = bare_version[: bare_version.find("dev") - 1]
+if "dev" in bare_version:
+    doc_version = "latest"
+else:
+    doc_version = f"v{bare_version}"
 
 # -- General configuration ------------------------------------------------
 extensions = [
@@ -111,7 +114,7 @@ html_theme_options = {
         "page-toc",
     ],
     "switcher": {
-        "json_url": _rel_path(DOCS_ROOT / "switcher.json"),
+        "json_url": _rel_path(STATIC_DIR / "switcher.json"),
         "version_match": doc_version,
     },
 }
