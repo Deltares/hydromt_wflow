@@ -42,7 +42,7 @@ def _relpath(
     try:
         if _mount(_path.as_posix()) == _mount(root.as_posix()):
             if sys.version_info >= (3, 12):
-                _path = _path.relative_to(root)
+                _path = _path.relative_to(root, walk_up=True)
             else:
                 # remove when Python 3.11 support is dropped
                 _path = Path(os.path.relpath(_path, root))
