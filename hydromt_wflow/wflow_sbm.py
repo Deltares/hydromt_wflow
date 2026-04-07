@@ -1807,7 +1807,7 @@ setting new flood_depth dimensions"
 
         Required setup methods:
 
-        * :py:meth:`~WflowSbmModel.setup_basemaps`
+        * :py:meth:`~WflowSbmModel.setup_rivers`
 
         Parameters
         ----------

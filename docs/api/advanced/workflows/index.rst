@@ -16,6 +16,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
 - :ref:`Gauges <api_workflows_gauges>` — Handle gauging station locations including upstream area snapping.
 - :ref:`Glaciers <api_workflows_glaciers>` — Derive glacier extent, maps, and attributes.
 - :ref:`Land use <api_workflows_landuse>` — Create and modify land use, land cover, and vegetation-related maps.
+- :ref:`Nature-based solutions <api_workflows_nbs>` — Prepare suitability and ponding level maps for nature-based solution modeling.
 - :ref:`Reservoirs <api_workflows_reservoirs>` — Generate and manage reservoir geometry and parameter data.
 - :ref:`River <api_workflows_river>` — Derive river network attributes such as width, bathymetry, and floodplain volume.
 - :ref:`Root zone climate <api_workflows_rootzoneclim>` — Prepare climatic variables for root zone modeling.
@@ -36,6 +37,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
    gauges
    glaciers
    landuse
+   nbs
    reservoirs
    river
    rootzoneclim

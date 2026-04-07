@@ -31,11 +31,11 @@ def _compute_landslope(elevtn: xr.DataArray) -> xr.DataArray:
         ),
         coords=elevtn.raster.coords,
         dims=elevtn.raster.dims,
-        attrs=dict(
-            long_name="land slope",
-            unit="m.m-1",
-            _FillValue=nodata,
-        ),
+        attrs={
+            "long_name": "land slope",
+            "unit": "m.m-1",
+            "_FillValue": nodata,
+        },
     )
     # Mask possible negative values for slope
     slope = slope.where(slope >= 0, 0)
@@ -56,7 +56,7 @@ def _compute_hand(
     # Get drain mask based on river_upa
     if "uparea" not in hydro_data:
         uparea = flwdir.upstream_area("km2")
-        attrs = dict(_FillValue=-9999, unit="km2")
+        attrs = {"_FillValue": -9999, "unit": "km2"}
         uparea = xr.DataArray(
             name="uparea",
             data=uparea,
@@ -72,7 +72,11 @@ def _compute_hand(
         drain=uparea.values > river_upa,
         elevtn=hydro_data["elevtn"].values,
     )
-    attrs = dict(_FillValue=-9999, long_name="height above nearest drainage", units="m")
+    attrs = {
+        "_FillValue": -9999,
+        "long_name": "height above nearest drainage",
+        "units": "m",
+    }
 
     hand = xr.DataArray(
         name="hand",
@@ -110,14 +114,83 @@ def _compute_nbs_coverage(
 
     area = basin_mask.raster.area_grid()
     area_basin = area.where(basin_mask == 1, np.nan).sum().values / 1e6
-    area_nbs = (
+    area_nbs = round(
         area.where((nbs_map > min_value) & (basin_mask == 1), np.nan).sum().values / 1e6
     )
 
-    area_nbs_perc = area_nbs / area_basin * 100
+    area_nbs_perc = round(area_nbs / area_basin * 100, 2)
     logger.info(
-        f"NBS coverage: {area_nbs:.2f} km2 ({area_nbs_perc:.2f} % of basin area)"
+        f"NBS coverage: {round(area_nbs, 2)} km2 ({area_nbs_perc} % of basin area)"
     )
+
+
+def _landuse_suitability(
+    landuse: xr.DataArray, lulc_classes: list[int]
+) -> xr.DataArray:
+    """Derive land use suitability based on specified land use classes."""
+    # need -1 as nodata and not 0 for mode resampling later on
+    suitability = full_like(landuse, nodata=-1, fill_value=0, dtype=np.int8)
+    for lulc_class in lulc_classes:
+        suitability = suitability.where(landuse != lulc_class, 1)
+    return suitability
+
+
+def _hydrography_suitability(
+    hydro_data: xr.Dataset,
+    elevtn_range: tuple[float, float] | None = None,
+    slope_range: tuple[float, float] | None = None,
+    hand_range: tuple[float, float] | None = None,
+    river_upa: float = 30,
+) -> xr.DataArray:
+    """Derive hydrography suitability based on elevation, slope, and hand criteria."""
+    suitability_hydro = full_like(
+        hydro_data["elevtn"], nodata=-1, fill_value=1, dtype=np.int8
+    )
+    if elevtn_range is not None:
+        suitability_hydro = xr.where(
+            (
+                (hydro_data["elevtn"] >= elevtn_range[0])
+                & (hydro_data["elevtn"] <= elevtn_range[1])
+                & (suitability_hydro == 1)
+            ),
+            1,
+            0,
+        )
+    if slope_range is not None:
+        if "lndslp" not in hydro_data:
+            logger.info("Slope data ('lndslp') not found. Derive from elevation map.")
+            hydro_data["lndslp"] = _compute_landslope(hydro_data["elevtn"])
+
+        suitability_hydro = xr.where(
+            (
+                (hydro_data["lndslp"] >= slope_range[0])
+                & (hydro_data["lndslp"] <= slope_range[1])
+                & (suitability_hydro == 1)
+            ),
+            1,
+            0,
+        )
+    if hand_range is not None:
+        if "hand" not in hydro_data:
+            logger.info(
+                "Hand data ('hand') not found. "
+                "Derive from elevation and flow direction maps."
+            )
+            hydro_data["hand"] = _compute_hand(hydro_data, river_upa=river_upa)
+        suitability_hydro = xr.where(
+            (
+                (hydro_data["hand"] >= hand_range[0])
+                & (hydro_data["hand"] <= hand_range[1])
+                & (suitability_hydro == 1)
+            ),
+            1,
+            0,
+        )
+    suitability_hydro.raster.set_crs(hydro_data.raster.crs)
+    suitability_hydro.raster.set_nodata(-1)
+    suitability_hydro = suitability_hydro.astype(np.int8)
+
+    return suitability_hydro
 
 
 def nbs_suitability_from_thresholds(
@@ -159,63 +232,19 @@ def nbs_suitability_from_thresholds(
     """
     # Start with masking landuse
     if landuse is not None and lulc_classes is not None:
-        # need -1 as nodata and not 0 for mode resampling later on
-        suitability_lulc = full_like(landuse, nodata=-1, fill_value=0, dtype=np.int8)
-        for lulc_class in lulc_classes:
-            suitability_lulc = suitability_lulc.where(landuse != lulc_class, 1)
+        suitability_lulc = _landuse_suitability(landuse, lulc_classes)
     else:
         suitability_lulc = None
 
     # Now elevation related criteria
     if any([elevtn_range, slope_range, hand_range]) and hydro_data is not None:
-        suitability_hydro = full_like(
-            hydro_data["elevtn"], nodata=-1, fill_value=1, dtype=np.int8
+        suitability_hydro = _hydrography_suitability(
+            hydro_data,
+            elevtn_range=elevtn_range,
+            slope_range=slope_range,
+            hand_range=hand_range,
+            river_upa=river_upa,
         )
-        if elevtn_range is not None:
-            suitability_hydro = xr.where(
-                (
-                    (hydro_data["elevtn"] >= elevtn_range[0])
-                    & (hydro_data["elevtn"] <= elevtn_range[1])
-                    & (suitability_hydro == 1)
-                ),
-                1,
-                0,
-            )
-        if slope_range is not None:
-            if "lndslp" not in hydro_data:
-                logger.info(
-                    "Slope data ('lndslp') not found. Derive from elevation map."
-                )
-                hydro_data["lndslp"] = _compute_landslope(hydro_data["elevtn"])
-
-            suitability_hydro = xr.where(
-                (
-                    (hydro_data["lndslp"] >= slope_range[0])
-                    & (hydro_data["lndslp"] <= slope_range[1])
-                    & (suitability_hydro == 1)
-                ),
-                1,
-                0,
-            )
-        if hand_range is not None:
-            if "hand" not in hydro_data:
-                logger.info(
-                    "Hand data ('hand') not found. "
-                    "Derive from elevation and flow direction maps."
-                )
-                hydro_data["hand"] = _compute_hand(hydro_data, river_upa=river_upa)
-            suitability_hydro = xr.where(
-                (
-                    (hydro_data["hand"] >= hand_range[0])
-                    & (hydro_data["hand"] <= hand_range[1])
-                    & (suitability_hydro == 1)
-                ),
-                1,
-                0,
-            )
-        suitability_hydro.raster.set_crs(hydro_data.raster.crs)
-        suitability_hydro.raster.set_nodata(-1)
-        suitability_hydro = suitability_hydro.astype(np.int8)
     else:
         suitability_hydro = None
 
