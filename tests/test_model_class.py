@@ -35,7 +35,6 @@ def _plot_grid_diff(
     """Plot expected, actual, and difference for each variable listed in errors."""
     _out_dir = out_dir / label
     shutil.rmtree(_out_dir, ignore_errors=True)
-    _out_dir.mkdir(parents=True, exist_ok=True)
 
     var_names = [k for k in errors if k not in ("__class__", "crs", "dims")]
     if not var_names:
@@ -58,6 +57,7 @@ def _plot_grid_diff(
         diff.plot(ax=axes[2])
         axes[2].set_title(f"{var} (actual - expected)")
         fig.tight_layout()
+        _out_dir.mkdir(parents=True, exist_ok=True)
         out_path = _out_dir / f"{var}.png"
         fig.savefig(out_path, dpi=150)
         plt.close(fig)
@@ -72,7 +72,7 @@ def _plot_geoms_diff(
 ):
     """Plot expected vs actual geometries side by side."""
     _out_dir = out_dir / label
-    _out_dir.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(_out_dir, ignore_errors=True)
 
     for name in set(geoms_expected) | set(geoms_actual):
         fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -83,6 +83,7 @@ def _plot_geoms_diff(
             geoms_actual[name].plot(ax=axes[1])
         axes[1].set_title(f"{name} (actual)")
         fig.tight_layout()
+        _out_dir.mkdir(parents=True, exist_ok=True)
         out_path = _out_dir / f"{name}.png"
         fig.savefig(out_path, dpi=150)
         plt.close(fig)
