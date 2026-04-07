@@ -133,14 +133,10 @@ def _configure_dask_for_py313():
 def example_wflow_model(
     example_models_dir: Path, demand_data_catalog_path: Path
 ) -> WflowSbmModel:
-    root = str(example_models_dir / "wflow_piave_subbasin")
     mod = WflowSbmModel(
-        root=root,
+        root=str(example_models_dir / "wflow_piave_subbasin"),
         mode="r",
-        data_libs=[
-            "artifact_data",
-            demand_data_catalog_path.as_posix(),
-        ],
+        data_libs=["artifact_data", str(demand_data_catalog_path)],
     )
     return mod
 
@@ -152,10 +148,7 @@ def example_wflow_model_factory(
     def factory(
         root: str = str(example_models_dir / "wflow_piave_subbasin"),
         mode: str = "r",
-        data_libs: list[str] = [
-            "artifact_data",
-            demand_data_catalog_path.as_posix(),
-        ],
+        data_libs: list[str] = ["artifact_data", str(demand_data_catalog_path)],
     ) -> WflowSbmModel:
         return WflowSbmModel(root=root, mode=mode, data_libs=data_libs)
 
@@ -164,9 +157,8 @@ def example_wflow_model_factory(
 
 @pytest.fixture
 def example_sediment_model(example_models_dir: Path) -> WflowSedimentModel:
-    root = str(example_models_dir / "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
-        root=root,
+        root=str(example_models_dir / "wflow_sediment_piave_subbasin"),
         mode="r",
         data_libs=["artifact_data"],
     )
@@ -218,17 +210,18 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 @pytest.fixture
 def example_wflow_outputs(example_models_dir: Path) -> WflowSbmModel:
-    root = str(example_models_dir / "wflow_piave_subbasin")
-    config_fn = str(root / "wflow_sbm_results.toml")
-    mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
+    mod = WflowSbmModel(
+        root=str(example_models_dir / "wflow_piave_subbasin"),
+        mode="r",
+        config_filename="wflow_sbm_results.toml",
+    )
     return mod
 
 
 @pytest.fixture
 def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
-    root = str(example_models_dir / "wflow_piave_clip")
     mod = WflowSbmModel(
-        root=root,
+        root=str(example_models_dir / "wflow_piave_clip"),
         mode="r",
     )
     return mod
@@ -237,13 +230,10 @@ def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
 @pytest.fixture
 def floodplain1d_testdata(test_data_dir: Path) -> xr.Dataset:
     if platform.system().lower() != "windows":
-        _data_dir = str(test_data_dir / "linux64")
+        _data_dir = test_data_dir / "linux64"
     else:
-        _data_dir = str(test_data_dir)
-    data = xr.load_dataset(
-        str(_data_dir / "floodplain_layers.nc"),
-        lock=False,
-    )
+        _data_dir = test_data_dir
+    data = xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
     # Rename testdata variables to match the model
     for var in data.data_vars:
         if "hydrodem" in var:
@@ -273,16 +263,12 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
 @pytest.fixture
 def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
-    return gpd.read_file(
-        str(example_data_dir / "rivers.geojson"),
-    )
+    return gpd.read_file(example_data_dir / "rivers.geojson")
 
 
 @pytest.fixture
 def rivers1d_projected(test_data_dir: Path) -> gpd.GeoDataFrame:
-    return gpd.read_file(
-        str(test_data_dir / "1d-river-3857.geojson"),
-    )
+    return gpd.read_file(test_data_dir / "1d-river-3857.geojson")
 
 
 @pytest.fixture
