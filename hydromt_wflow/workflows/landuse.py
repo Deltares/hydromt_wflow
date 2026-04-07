@@ -1,7 +1,7 @@
 """Landuse workflows for Wflow plugin."""
 
 import logging
-import os
+from pathlib import Path
 from typing import Optional
 
 import geopandas as gpd
@@ -218,7 +218,7 @@ def landuse_from_vector(
     )
     if lulc_out is not None:
         logger.info(f"Saving rasterized landuse map to {lulc_out}")
-        os.makedirs(os.path.dirname(lulc_out), exist_ok=True)
+        Path(lulc_out).parent.mkdir(parents=True, exist_ok=True)
         da.raster.to_raster(lulc_out)
 
     # derive the landuse maps

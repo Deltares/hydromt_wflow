@@ -3,7 +3,6 @@
 import logging
 import platform
 import sys
-from os.path import join
 from pathlib import Path
 from typing import Callable
 
@@ -134,7 +133,7 @@ def _configure_dask_for_py313():
 def example_wflow_model(
     example_models_dir: Path, demand_data_catalog_path: Path
 ) -> WflowSbmModel:
-    root = join(example_models_dir, "wflow_piave_subbasin")
+    root = str(example_models_dir / "wflow_piave_subbasin")
     mod = WflowSbmModel(
         root=root,
         mode="r",
@@ -151,7 +150,7 @@ def example_wflow_model_factory(
     example_models_dir: Path, demand_data_catalog_path: Path
 ) -> Callable[[str, str, list[str]], WflowSbmModel]:
     def factory(
-        root: str = join(example_models_dir, "wflow_piave_subbasin"),
+        root: str = str(example_models_dir / "wflow_piave_subbasin"),
         mode: str = "r",
         data_libs: list[str] = [
             "artifact_data",
@@ -165,7 +164,7 @@ def example_wflow_model_factory(
 
 @pytest.fixture
 def example_sediment_model(example_models_dir: Path) -> WflowSedimentModel:
-    root = join(example_models_dir, "wflow_sediment_piave_subbasin")
+    root = str(example_models_dir / "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
         root=root,
         mode="r",
@@ -188,21 +187,21 @@ def example_models(
 
 @pytest.fixture
 def wflow_ini(test_data_dir: Path):
-    config = join(test_data_dir, "wflow_piave_build_subbasin.yml")
+    config = str(test_data_dir / "wflow_piave_build_subbasin.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
 
 @pytest.fixture
 def sediment_ini(test_data_dir: Path):
-    config = join(test_data_dir, "wflow_sediment_piave_build_subbasin.yml")
+    config = str(test_data_dir / "wflow_sediment_piave_build_subbasin.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
 
 @pytest.fixture
 def wflow_simple_ini(example_dir: Path):
-    config = join(example_dir, "wflow_build.yml")
+    config = str(example_dir / "wflow_build.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
@@ -219,15 +218,15 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 @pytest.fixture
 def example_wflow_outputs(example_models_dir: Path) -> WflowSbmModel:
-    root = join(example_models_dir, "wflow_piave_subbasin")
-    config_fn = join(root, "wflow_sbm_results.toml")
+    root = str(example_models_dir / "wflow_piave_subbasin")
+    config_fn = str(root / "wflow_sbm_results.toml")
     mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
     return mod
 
 
 @pytest.fixture
 def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
-    root = join(example_models_dir, "wflow_piave_clip")
+    root = str(example_models_dir / "wflow_piave_clip")
     mod = WflowSbmModel(
         root=root,
         mode="r",
@@ -238,11 +237,11 @@ def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
 @pytest.fixture
 def floodplain1d_testdata(test_data_dir: Path) -> xr.Dataset:
     if platform.system().lower() != "windows":
-        _data_dir = join(test_data_dir, "linux64")
+        _data_dir = str(test_data_dir / "linux64")
     else:
-        _data_dir = test_data_dir
+        _data_dir = str(test_data_dir)
     data = xr.load_dataset(
-        join(_data_dir, "floodplain_layers.nc"),
+        str(_data_dir / "floodplain_layers.nc"),
         lock=False,
     )
     # Rename testdata variables to match the model
@@ -275,14 +274,14 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
 def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     return gpd.read_file(
-        join(example_data_dir, "rivers.geojson"),
+        str(example_data_dir / "rivers.geojson"),
     )
 
 
 @pytest.fixture
 def rivers1d_projected(test_data_dir: Path) -> gpd.GeoDataFrame:
     return gpd.read_file(
-        join(test_data_dir, "1d-river-3857.geojson"),
+        str(test_data_dir / "1d-river-3857.geojson"),
     )
 
 

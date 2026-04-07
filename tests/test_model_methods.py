@@ -1,7 +1,6 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 from itertools import product
-from os.path import join
 from pathlib import Path
 
 import geopandas as gpd
@@ -141,7 +140,7 @@ def test_projected_crs(tmp_path: Path, test_data_dir: Path):
     mod = WflowSbmModel(
         root=root,
         mode="w",
-        data_libs=["artifact_data", join(test_data_dir, "merit_utm", "merit_utm.yml")],
+        data_libs=["artifact_data", str(test_data_dir / "merit_utm" / "merit_utm.yml")],
     )
 
     # Setup basemaps
@@ -195,8 +194,8 @@ def test_projected_crs_glaciers(glacier_fn, tmp_path: Path, test_data_dir: Path)
         mode="w",
         data_libs=[
             "artifact_data",
-            join(test_data_dir, "merit_utm", "merit_utm.yml"),
-            join(test_data_dir, "glacier", "glacier_utm.yml"),
+            str(test_data_dir / "merit_utm" / "merit_utm.yml"),
+            str(test_data_dir / "glacier" / "glacier_utm.yml"),
         ],
     )
 
@@ -254,7 +253,7 @@ def model_with_rating_curve_data(
         ).set_index("elevtn"),
         on="elevtn",
     )
-    fn_lake = join(tmp_path, f"rating_curve_{lake_id}.csv")
+    fn_lake = str(tmp_path / f"rating_curve_{lake_id}.csv")
     df.to_csv(fn_lake, sep=",", index=False, header=True)
 
     source = create_source(
@@ -520,7 +519,7 @@ def test_setup_lai(example_wflow_model: WflowSbmModel, rasterio_version: Version
 def test_setup_rootzoneclim(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
-        join(test_data_dir, "df_sub_dummy.csv"),
+        str(test_data_dir / "df_sub_dummy.csv"),
         parse_dates=True,
         dayfirst=True,
         index_col=0,
@@ -697,7 +696,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     )
 
     # 2. Test with/without snapping to mask
-    stations_fn = join(test_data_dir, "test_stations.csv")
+    stations_fn = str(test_data_dir / "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_snapping",
@@ -779,7 +778,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     assert np.all(ds_samp["river_mask"].values == 1)
 
     # 4. Test with test_stations.csv file
-    stations_csv_file = join(test_data_dir, "test_stations.csv")
+    stations_csv_file = str(test_data_dir / "test_stations.csv")
     example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
     test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
     assert len(test_stations_gdf) == 3
@@ -1387,7 +1386,7 @@ def test_setup_allocation_surfacewaterfrac(
     example_wflow_model.read()
     example_wflow_model.root.set(tmp_path, mode="w")
     # Add lisflood data from test
-    lisflood_yml = join(test_data_dir, "demand", "data_catalog.yml")
+    lisflood_yml = str(test_data_dir / "demand" / "data_catalog.yml")
     example_wflow_model.data_catalog = example_wflow_model.data_catalog.from_yml(
         lisflood_yml
     )
