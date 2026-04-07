@@ -136,6 +136,9 @@ Output Locations
     * - :py:meth:`~WflowSedimentModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
       - :py:meth:`~WflowSedimentModel.setup_rivers`
+    * - :py:meth:`~WflowSedimentModel.setup_subbasins`
+      - Delineate subbasins based on streamorder, pfafstetter or area threshold.
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`

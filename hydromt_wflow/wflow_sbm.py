@@ -1519,6 +1519,217 @@ setting new flood_depth dimensions"
             logger.info("No paddy fields found, skipping updating soil parameters")
 
     @hydromt_step
+    def setup_agroforestry(
+        self,
+        agroforestry_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        agroforestry_class: int | None = None,
+        output_agroforestry_class: int | None = None,
+        agroforestry_mapping_fn: str | Path | pd.DataFrame | None = None,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        lulc_mix_classes: list[int] | None = None,
+        lulc_mix_fractions: list[float] | None = None,
+        lulcmap_name: str = "meta_landuse",
+        output_names_suffix: str | None = None,
+    ):
+        """
+        Add agroforestry to landuse maps and parameters.
+
+        Agroforestry zones can be provided as a raster or vector dataset that will be
+        reprojected / rasterized to the model resolution.
+
+        For parameter mapping, users have three options:
+
+        - provide directly a mapping table for the agroforestry landuse class with
+          `agroforestry_mapping_fn`
+        - derive values based on a mix of existing landuse classes with
+          `lulc_mix_classes` and `lulc_mix_fractions` and the original landuse mapping
+          table `lulc_mapping_fn`.
+        - If no mapping table is provided either via `agroforestry_mapping_fn` or
+          `lulc_mapping_fn`, a default mapping table for agroforestry will be used.
+
+        Adds model layers:
+
+        * **landuse** map:
+            Landuse class [-]
+        * **vegetation_kext** map:
+            Extinction coefficient in the canopy gap fraction equation [-]
+        * **vegetation_leaf_storage** map:
+            Specific leaf storage [mm]
+        * **vegetation_wood_storage** map:
+            Fraction of wood in the vegetation/plant [-]
+        * **vegetation_root_depth** map:
+            Length of vegetation roots [mm]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of open water per grid cell [-]
+        * **land_manning_n** map:
+            Manning Roughness [-]
+        * **vegetation_crop_factor** map:
+            Crop coefficient [-]
+        * **vegetation_feddes_alpha_h1** map:
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
+        * **vegetation_feddes_h1** map:
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h2** map:
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_high** map:
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_low** map:
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h4** map:
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
+
+        Required setup methods:
+        * :py:meth:`~WflowBaseModel.setup_lulcmaps` or equivalent
+
+        Parameters
+        ----------
+        agroforestry_fn : str, xr.DataArray, gpd.GeoDataFrame
+            RasterDataArray, vector dataset or name in data catalog to the
+            agroforestry data.
+
+            * Optional column if vector: 'agroforestry' [-]
+
+        agroforestry_class : int, optional
+            ID of the agroforestry class in `agroforestry_fn`. If None,
+            agroforestry mask will be created for all non-nodata values.
+        output_agroforestry_class : int, optional
+            Landuse class value for agroforestry fields in the output landuse map.
+            If None (default), the `agroforestry_class` is used.
+        agroforestry_mapping_fn : str, Path, pd.DataFrame, optional
+            Path to a mapping csv file from agroforestry to landuse parameter
+            values.
+        lulc_mapping_fn : str, Path, pd.DataFrame, optional
+            Path to a mapping csv file from landuse class to landuse parameter values.
+        lulc_mix_classes : list[int], optional
+            List of landuse classes to mix for the agroforestry class, by default
+            [].
+        lulc_mix_fractions : list[float], optional
+            List of fractions for each landuse class in `lulc_mix_classes` to mix
+            for the agroforestry class, by default [].
+        lulcmap_name: str
+            Name of the landuse map layer in the wflow model staticmaps. By default
+            'meta_landuse'. Please update if your landuse map has a different name
+            (eg 'meta_landuse_globcover').
+        output_names_suffix : str, optional
+            Suffix to be added to the output names to avoid having to rename all the
+            columns of the mapping tables. For example if the suffix is "agroforestry",
+            all variables in landuse_vars will be renamed to "landuse_agroforestry",
+            "vegetation_kext_agroforestry", etc.
+        """
+        # Check that landuse map is present
+        if lulcmap_name in self.staticmaps.data:
+            # update the internal mapping
+            self._MAPS["landuse"] = lulcmap_name
+        else:
+            raise ValueError(
+                f"Landuse map {lulcmap_name} not found in the model grid. Please "
+                "provide a valid landuse map name or run setup_lulcmaps."
+            )
+        # Check that one of the mapping table option is provided
+        if agroforestry_mapping_fn is None and lulc_mapping_fn is None:
+            logger.info(
+                "No agroforestry or landuse mapping table provided. "
+                "The default agroforestry mapping table will be used."
+            )
+            agroforestry_mapping_fn = "agroforestry_mapping_default"
+
+        # Prepare output names
+        lulc_vars = [
+            k for k in workflows.LULC_VARS_MAPPING.keys() if k != "erosion_usle_c"
+        ]
+        output_names = {
+            workflows.LULC_VARS_MAPPING[k]: f"{k}_{output_names_suffix}"
+            if output_names_suffix
+            else k
+            for k in lulc_vars
+        }
+        self._update_naming(output_names)
+
+        logger.info("Preparing agroforestry parameter maps.")
+
+        # Read data
+        if (
+            isinstance(agroforestry_fn, str)
+            and agroforestry_fn in self.data_catalog.sources
+        ):
+            _data_type = self.data_catalog.get_source(agroforestry_fn).data_type
+            if _data_type == "RasterDataset":
+                agroforestry_data = self.data_catalog.get_rasterdataset(
+                    agroforestry_fn,
+                    geom=self.region,
+                    buffer=2,
+                    single_var_as_array=True,
+                )
+                if not isinstance(agroforestry_data, xr.DataArray):
+                    raise ValueError("Agroforestry data should have a single variable.")
+            elif _data_type == "GeoDataFrame":
+                agroforestry_data = self.data_catalog.get_geodataframe(
+                    agroforestry_fn,
+                    geom=self.region,
+                    predicate="intersects",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+            else:
+                raise ValueError(
+                    f"Data type {_data_type} of {agroforestry_fn} not supported. "
+                    "Agroforestry data should be either a raster or vector dataset."
+                )
+        elif isinstance(agroforestry_fn, str):
+            raise ValueError(
+                f"Agroforestry data {agroforestry_fn} not found in data catalog."
+            )
+        elif not isinstance(agroforestry_fn, (xr.DataArray, gpd.GeoDataFrame)):
+            raise ValueError(
+                "Agroforestry data should be either a name in the data catalog, a "
+                "raster (xarray.DataArray) or a vector dataset (geopandas.GeoDataFrame)"
+            )
+        else:
+            agroforestry_data = agroforestry_fn
+
+        # Read mapping tables
+        if agroforestry_mapping_fn is not None:
+            df_agro_mapping = self.data_catalog.get_dataframe(
+                agroforestry_mapping_fn,
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
+            )
+        else:
+            df_agro_mapping = None
+        if lulc_mapping_fn is not None:
+            df_lulc_mapping = self.data_catalog.get_dataframe(
+                lulc_mapping_fn,
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
+            )
+        else:
+            df_lulc_mapping = None
+
+        # Add agroforestry to landuse maps
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps.data}
+        landuse_maps = workflows.add_agroforestry_to_landuse(
+            agroforestry_data=agroforestry_data,
+            ds_like=self.staticmaps.data.rename(inv_rename),
+            agroforestry_class=agroforestry_class,
+            output_agroforestry_class=output_agroforestry_class,
+            df_agroforestry_mapping=df_agro_mapping,
+            df_lulc_mapping=df_lulc_mapping,
+            lulc_mix_classes=lulc_mix_classes,
+            lulc_mix_fractions=lulc_mix_fractions,
+        )
+
+        self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
+
+    @hydromt_step
     def setup_laimaps(
         self,
         lai_fn: str | xr.DataArray,

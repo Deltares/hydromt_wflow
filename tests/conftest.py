@@ -12,6 +12,7 @@ import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.readers import read_workflow_yaml
+from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
@@ -25,10 +26,21 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
-# This is the recommended by pandas and will become default behaviour in pandas 3.0.
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
-# https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-pd.options.mode.copy_on_write = True
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_pandas_v3():
+    """
+    Configure pandas to use copy-on-write mode for pandas versions < 3.0.
+
+    This is the recommended by pandas and is default behaviour in pandas 3.0.
+
+    See Also
+    --------
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/copy_on_write.html#copy-on-write-chained-assignment
+    # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+    """
+    if Version(pd.__version__) < Version("3.0.0"):
+        pd.options.mode.copy_on_write = True
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -179,6 +191,15 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
     bbox2 = [12.21, 46.07, 12.26, 46.11]
     gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
     gdf["forest_type"] = ["Pine", "Orchard"]
+    return gdf
+
+
+@pytest.fixture
+def agroforestry_testdata() -> gpd.GeoDataFrame:
+    bbox1 = [12.059, 45.858, 12.108, 45.891]
+    bbox2 = [12.176, 46.108, 12.225, 46.158]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
+    gdf["agroforestry"] = [1, 1]
     return gdf
 
 

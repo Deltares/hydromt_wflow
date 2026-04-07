@@ -3,6 +3,10 @@ on:
   workflow_dispatch:
   workflow_call:
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest

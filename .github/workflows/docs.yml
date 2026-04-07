@@ -96,8 +96,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: |
-            pixi run -e docs docs-build-html
+          command: pixi run --locked -e docs docs-build-html
 
       - name: Prepare versioned docs directory
         if: ${{ github.event_name != 'pull_request' }}

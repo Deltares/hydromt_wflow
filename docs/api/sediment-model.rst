@@ -90,6 +90,7 @@ Defines model output points and areas such as outlets, gauges, and spatial masks
 
    WflowSedimentModel.setup_outlets
    WflowSedimentModel.setup_gauges
+   WflowSedimentModel.setup_subbasins
    WflowSedimentModel.setup_areamap
 
 

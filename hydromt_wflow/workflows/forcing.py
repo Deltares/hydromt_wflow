@@ -218,11 +218,7 @@ def spatial_interpolation(
 
     # Perform interpolation using wradlib
     interpolated = wrl.ipol.interpolate(
-        src=src,
-        trg=trg,
-        vals=forcing.values,
-        ipclass=ipclass,
-        **interp_args,
+        src, trg, forcing.values, ipclass, **interp_args
     )
 
     # Reshape interpolated data and create DataArray

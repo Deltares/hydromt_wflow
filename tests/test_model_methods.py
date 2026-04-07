@@ -1,5 +1,6 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
+import sys
 from itertools import product
 from os.path import abspath, dirname, join
 from pathlib import Path
@@ -14,6 +15,7 @@ from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 
 from hydromt_wflow import DATA_DIR, workflows
+from hydromt_wflow.utils import planar_operation_in_utm
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
 try:
@@ -39,7 +41,6 @@ except ImportError:
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
-pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
 def test_setup_basemaps(tmpdir: Path):
@@ -448,6 +449,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="does not run on macOS")
 def test_setup_lai(example_wflow_model: WflowSbmModel):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
@@ -771,6 +773,60 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
     test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
     assert len(test_stations_gdf) == 3
+
+
+def test_setup_subbasins(example_wflow_model: WflowSbmModel):
+    # 1. Stream order method
+    example_wflow_model.setup_subbasins(
+        method="streamorder",
+        threshold=4,
+    )
+
+    assert "subbasins_streamorder_4" in example_wflow_model.staticmaps.data
+    assert "subbasins_streamorder_4_outlets" not in example_wflow_model.geoms.data
+    assert "subbasins_streamorder_4" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_streamorder_4")
+    assert (gdf["value"].values > 0).all()
+    assert gdf.index.is_unique
+    assert len(gdf) > 1
+    assert len(gdf) == 7
+
+    # 2. Pfafstetter method
+    example_wflow_model.setup_subbasins(
+        method="pfafstetter",
+        threshold=1,
+    )
+
+    assert "subbasins_pfafstetter_1" in example_wflow_model.staticmaps.data
+    assert "subbasins_pfafstetter_1" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_pfafstetter_1")
+    assert len(gdf) > 1
+    # this number should be fixed (linked to pfafstetter definition)
+    assert len(gdf) == 9
+
+    example_wflow_model.setup_subbasins(
+        method="pfafstetter",
+        threshold=2,
+    )
+
+    assert "subbasins_pfafstetter_2" in example_wflow_model.staticmaps.data
+    assert "subbasins_pfafstetter_2" in example_wflow_model.geoms.data
+    gdf2 = example_wflow_model.geoms.get("subbasins_pfafstetter_2")
+    assert len(gdf2) > len(gdf)
+    assert len(gdf2) == 72
+
+    # 3. Area method
+    example_wflow_model.setup_subbasins(
+        method="area",
+        threshold=500,
+        add_outlets_map=True,
+    )
+    assert "subbasins_area_500" in example_wflow_model.staticmaps.data
+    assert "subbasins_area_500_outlets" in example_wflow_model.staticmaps.data
+    assert "subbasins_area_500" in example_wflow_model.geoms.data
+    gdf = example_wflow_model.geoms.get("subbasins_area_500")
+    assert len(gdf) > 1
+    assert len(gdf) == 6
 
 
 @pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
@@ -1342,6 +1398,149 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     ds2 = example_wflow_model.staticmaps.data.copy()
 
     assert np.any(ds2["meta_landuse"] == 12)
+
+
+def test_setup_agroforestry(
+    example_wflow_model: WflowSbmModel,
+    tmpdir: Path,
+    agroforestry_testdata: gpd.GeoDataFrame,
+):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.root.set(Path(tmpdir), mode="w")
+
+    # Use the method with geodataframe
+    example_wflow_model.setup_agroforestry(
+        agroforestry_fn=agroforestry_testdata,
+        agroforestry_class=1,
+        output_names_suffix="gdf_default",
+    )
+
+    staticdata = example_wflow_model.staticmaps.data
+
+    assert "vegetation_crop_factor_gdf_default" in example_wflow_model.staticmaps.data
+    centroid = planar_operation_in_utm(
+        agroforestry_testdata, lambda geom: geom.centroid
+    )
+    da = example_wflow_model.staticmaps.data.raster.sample(centroid)
+
+    # Strict equality checking is okay here because no processing is actually happening
+    # and we want to make sure we don't add any rounding errors
+    assert np.all(da["meta_landuse_gdf_default"].values == 1)
+    assert np.all(da["vegetation_crop_factor_gdf_default"].values == 1.09)
+    assert np.all(da["vegetation_feddes_alpha_h1_gdf_default"].values == 0)
+
+    # Test with xarray and mix of class values
+    agroforestry_xr = staticdata.raster.rasterize(
+        gdf=agroforestry_testdata,
+        col_name="agroforestry",
+        nodata=-9999,
+        all_touched=False,
+        dtype="int32",
+    )
+
+    example_wflow_model.setup_agroforestry(
+        agroforestry_fn=agroforestry_xr,
+        output_agroforestry_class=10,
+        lulc_mapping_fn="globcover_mapping_default",
+        lulc_mix_classes=[14, 50, 130],
+        lulc_mix_fractions=[0.75, 0.10, 0.15],
+        output_names_suffix="xr_mix",
+    )
+
+    staticdata = example_wflow_model.staticmaps.data
+    da = staticdata.raster.sample(centroid)
+    assert np.all(da["meta_landuse_xr_mix"].values == 10)
+    assert np.allclose(da["vegetation_crop_factor_xr_mix"].values, 1.1025, atol=1e-4)
+    assert np.all(da["vegetation_feddes_alpha_h1_xr_mix"].values == 0)
+
+
+def test_setup_agroforestry_exceptions(
+    example_wflow_model: WflowSbmModel,
+    tmpdir: Path,
+    agroforestry_testdata: gpd.GeoDataFrame,
+):
+    # Test that exceptions are raised when expected
+    example_wflow_model.read()
+    example_wflow_model.root.set(Path(tmpdir), mode="w")
+
+    # Input options exceptions
+    with pytest.raises(
+        ValueError,
+        match=r"^Either output_agroforestry_class or agroforestry_class must be",
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn=agroforestry_testdata,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="lulc_mix_classes and lulc_mix_fractions must have the same length.",
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn=agroforestry_testdata,
+            output_agroforestry_class=10,
+            lulc_mapping_fn="globcover_mapping_default",
+            lulc_mix_classes=[14, 50],
+            lulc_mix_fractions=[0.75, 0.10, 0.15],
+        )
+
+    with pytest.raises(ValueError, match="lulc_mix_fractions must sum to 1.0."):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn=agroforestry_testdata,
+            output_agroforestry_class=10,
+            lulc_mapping_fn="globcover_mapping_default",
+            lulc_mix_classes=[14, 50, 130],
+            lulc_mix_fractions=[0.75, 0.10, 0.10],
+        )
+
+    # Agroforestry_fn exceptions
+    with pytest.raises(
+        ValueError,
+        match="Agroforestry data should be either a name in the data catalog, a raster",
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn=123,
+            output_agroforestry_class=10,
+        )
+    with pytest.raises(
+        ValueError,
+        match="Agroforestry data nonexistent_name not found in data catalog.",
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn="nonexistent_name",
+            output_agroforestry_class=10,
+        )
+
+    wrong_source = {
+        "agroforestry_dataframe": {
+            "data_type": "DataFrame",
+            "uri": "path/to/dataframe.csv",
+            "driver": {"name": "pandas"},
+        },
+    }
+    example_wflow_model.data_catalog.from_dict(wrong_source)
+
+    with pytest.raises(
+        ValueError,
+        match=r"^Data type DataFrame of agroforestry_dataframe not supported.",
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn="agroforestry_dataframe",
+            output_agroforestry_class=10,
+        )
+
+    # Landuse map missing
+    example_wflow_model.staticmaps._data = example_wflow_model.staticmaps.drop_vars(
+        "meta_landuse"
+    )
+    with pytest.raises(
+        ValueError, match="Landuse map meta_landuse not found in the model grid."
+    ):
+        example_wflow_model.setup_agroforestry(
+            agroforestry_fn=agroforestry_testdata,
+            output_agroforestry_class=10,
+        )
 
 
 def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmpdir: Path):

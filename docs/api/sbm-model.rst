@@ -70,6 +70,7 @@ Defines land use and vegetation properties, including LULC and LAI maps, which i
    WflowSbmModel.setup_lulcmaps
    WflowSbmModel.setup_lulcmaps_from_vector
    WflowSbmModel.setup_lulcmaps_with_paddy
+   WflowSbmModel.setup_agroforestry
    WflowSbmModel.setup_laimaps
    WflowSbmModel.setup_laimaps_from_lulc_mapping
    WflowSbmModel.setup_rootzoneclim
@@ -135,6 +136,7 @@ Defines outlets, gauges, and spatial masks used for reporting model results.
 
    WflowSbmModel.setup_outlets
    WflowSbmModel.setup_gauges
+   WflowSbmModel.setup_subbasins
    WflowSbmModel.setup_areamap
 
 
