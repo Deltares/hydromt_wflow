@@ -2,6 +2,7 @@
 
 import logging
 import shutil
+import sys
 import warnings
 from pathlib import Path
 
@@ -14,7 +15,6 @@ import xarray as xr
 from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
-from tests.settings import Settings
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 logger = logging.getLogger(__name__)
@@ -122,42 +122,44 @@ def _assert_or_warn(should_assert: bool, condition: bool, message: str):
 def _compare_wflow_models(
     mod0: WflowBaseModel,
     mod1: WflowBaseModel,
-    settings: Settings,
+    plot_dir: Path,
 ):
+    # For now, only assert if running on Python 3.13+, where we expect dependencies to return exactly the same results.
+    # In earlier versions, we allow for some small differences and only warn about them.
+    should_assert = sys.version_info >= (3, 13)
+
     # check maps
     if mod0.staticmaps._data:
         eq, errors = mod0.staticmaps.test_equal(mod1.staticmaps)
-        if not eq and settings.plot_on_error:
+        if not eq:
             _plot_grid_diff(
                 mod0.staticmaps._data,
                 mod1.staticmaps._data,
                 "staticmaps",
                 errors,
-                settings.plots_dir,
+                plot_dir,
             )
-        _assert_or_warn(settings.should_assert(), eq, f"staticmaps not equal: {errors}")
+        _assert_or_warn(should_assert, eq, f"staticmaps not equal: {errors}")
 
     # check geoms
     if mod0.geoms._data:
         eq, errors = mod0.geoms.test_equal(mod1.geoms)
-        if not eq and settings.plot_on_error:
-            _plot_geoms_diff(
-                mod0.geoms.data, mod1.geoms.data, "geoms", settings.plots_dir
-            )
-        _assert_or_warn(settings.should_assert(), eq, f"geoms not equal: {errors}")
+        if not eq:
+            _plot_geoms_diff(mod0.geoms.data, mod1.geoms.data, "geoms", plot_dir)
+        _assert_or_warn(should_assert, eq, f"geoms not equal: {errors}")
 
     if mod0.forcing._data:
         # flatten
         eq, errors = mod0.forcing.test_equal(mod1.forcing)
-        if not eq and settings.plot_on_error:
+        if not eq:
             _plot_grid_diff(
                 mod0.forcing._data,
                 mod1.forcing._data,
                 "forcing",
                 errors,
-                settings.plots_dir,
+                plot_dir,
             )
-        _assert_or_warn(settings.should_assert(), eq, f"forcing not equal: {errors}")
+        _assert_or_warn(should_assert, eq, f"forcing not equal: {errors}")
 
     # check config
     if mod0.config._data:
@@ -170,17 +172,17 @@ def _compare_wflow_models(
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 @pytest.mark.integration
 def test_model_build(
-    tmpdir: Path,
+    tmp_path: Path,
     model: str,
     example_models: dict[str, WflowBaseModel],
     example_inis: dict[str, list[str]],
     data_dir: Path,
-    test_settings: Settings,
+    plots_dir: Path,
 ):
     # get model type
     model_type = _supported_models[model]
     # create folder to store new model
-    root = str(tmpdir.join(model))
+    root = str(tmp_path / model)
     param_path = data_dir / "parameters_data.yml"
     mod1 = model_type(
         root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
@@ -208,7 +210,7 @@ def test_model_build(
         _compare_wflow_models(
             mod0,
             mod1,
-            settings=test_settings,
+            plots_dir / f"test_model_build_{model}",
         )
 
 
@@ -226,15 +228,13 @@ def test_base_model_init_should_raise():
 @pytest.mark.timeout(60)  # max 1 min
 @pytest.mark.integration
 def test_model_clip(
-    tmpdir: Path,
+    tmp_path: Path,
+    plots_dir: Path,
     example_wflow_model: WflowSbmModel,
     clipped_wflow_model: WflowSbmModel,
-    test_settings: Settings,
 ):
-    model = "wflow"
-
     # Clip method options
-    destination = str(tmpdir.join(model))
+    destination = str(tmp_path / "wflow")
     region = {
         "subbasin": [12.3006, 46.4324],
         "meta_streamorder": 4,
@@ -253,25 +253,21 @@ def test_model_clip(
     # Read reference clipped model
     clipped_wflow_model.read()
     # compare models
-    _compare_wflow_models(
-        clipped_wflow_model,
-        mod1,
-        settings=test_settings,
-    )
+    _compare_wflow_models(clipped_wflow_model, mod1, plots_dir / "test_model_clip")
     # check states
     eq, errors = clipped_wflow_model.states.test_equal(mod1.states)
     assert eq, f"states not equal: {errors}"
 
 
 def test_model_clip_reservoir(
-    tmpdir: Path,
+    tmp_path: Path,
     example_wflow_model: WflowSbmModel,
     reservoir_rating: dict[str, pd.DataFrame],
 ):
     model = "wflow"
 
     # Clip method options
-    destination = str(tmpdir.join(model))
+    destination = str(tmp_path / model)
     region = {
         "subbasin": [12.3162, 46.1676],
         "meta_streamorder": 3,
@@ -296,13 +292,11 @@ def test_model_clip_reservoir(
 
 
 def test_sediment_model_clip(
-    tmpdir: Path,
+    tmp_path: Path,
     example_sediment_model: WflowSedimentModel,
 ):
-    model = "wflow"
-
     # Clip method options
-    destination = str(tmpdir.join(model))
+    destination = str(tmp_path / "wflow")
     region = {
         "subbasin": [12.3162, 46.1676],
         "meta_streamorder": 3,

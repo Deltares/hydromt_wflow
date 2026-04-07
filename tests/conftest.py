@@ -22,8 +22,6 @@ from shapely.geometry import Point, box
 
 from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
 
-from .settings import Settings
-
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
@@ -71,6 +69,11 @@ def demand_data_catalog_path(example_data_dir: Path) -> Path:
     return path
 
 
+@pytest.fixture(scope="session")
+def plots_dir(test_data_dir: Path) -> Path:
+    return test_data_dir / ".plots"
+
+
 ## Configuration
 @pytest.fixture(scope="session", autouse=True)
 def load_env_from_file():
@@ -84,32 +87,13 @@ def load_env_from_file():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def test_settings(load_env_from_file) -> Settings:
-    """Load test settings from environment variables."""
-    settings = Settings()
-    print(settings)
-    return settings
-
-
-@pytest.fixture(scope="session", autouse=True)
-def _configure_logging(test_settings: Settings):
+def _configure_logging():
     """Set up logging for tests based on test settings."""
     log.initialize_logging()
-    logging.getLogger("hydromt").setLevel(test_settings.log_level_hydromt)
+    logging.getLogger("hydromt").setLevel(logging.INFO)
     root_logger = logging.getLogger("hydromt_wflow")
-    root_logger.setLevel(test_settings.log_level)
-
-    file_handler = None
-    if test_settings.log_file is not None:
-        file_handler = log._add_filehandler(
-            test_settings.log_file,
-            logger=root_logger,
-        )
-
-    yield root_logger
-    if file_handler is not None:
-        root_logger.removeHandler(file_handler)
-        file_handler.close()
+    root_logger.setLevel(logging.INFO)
+    return root_logger
 
 
 @pytest.fixture(scope="session", autouse=True)
