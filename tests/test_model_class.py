@@ -131,7 +131,7 @@ def _compare_wflow_models(
 ):
     # For now, only assert if running on Python 3.13+, where we expect dependencies to return exactly the same results.
     # In earlier versions, we allow for some small differences and only warn about them.
-    should_assert = sys.version_info >= (3, 10)
+    should_assert = sys.version_info >= (3, 13)
 
     # check maps
     if mod0.staticmaps._data:
