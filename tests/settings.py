@@ -10,7 +10,22 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    """Settings for testing purposes, loaded from environment variables or defaults if not set, case-insensitive."""
+    """Settings for testing purposes, loaded from environment variables or defaults if not set, case-insensitive.
+
+    Usage
+    -----
+    When you are encountering a test failure and want to save debug plots,
+    you can choose to set any combination of the following (case-insensitive)
+    environment variables before running the tests:
+
+    ```
+    export PLOT_ON_ERROR=true
+    export PLOTS_DIR=/path/to/save/plots
+    export LOG_LEVEL=DEBUG
+    export LOG_LEVEL_HYDROMT=WARNING
+    export LOG_FILE=/path/to/log/file.log
+    ```
+    """
 
     plot_on_error: bool = False
     """Whether to save debug plots when ``_compare_wflow_models`` fails. If True, will save debug plots to the directory specified by ``plots_dir``."""
@@ -19,10 +34,10 @@ class Settings(BaseSettings):
     """Directory to save debug plots when ``_compare_wflow_models`` fails.
     If not set and ``plot_on_error`` is True, will default to a "debug_plots" directory in the current working directory."""
 
-    log_level: int = None
+    log_level: int | str = logging.INFO
     """Log level for hydromt_wflow logs. If not set, will default to INFO."""
 
-    log_level_hydromt: int = None
+    log_level_hydromt: int | str = logging.INFO
     """Log level for hydromt logs. If not set, will use the same log level as log_level."""
 
     log_file: Path | None = None
@@ -44,9 +59,7 @@ class Settings(BaseSettings):
     @field_validator("log_level", "log_level_hydromt", mode="before")
     @classmethod
     def _coerce_log_level_to_int(cls, v) -> int:
-        if v is None:
-            return logging.INFO
-        elif isinstance(v, int):
+        if isinstance(v, int):
             if v in logging._levelToName:
                 return v
             else:

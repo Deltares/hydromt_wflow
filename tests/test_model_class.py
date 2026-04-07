@@ -14,7 +14,7 @@ import xarray as xr
 from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
-from tests.conftest import Settings
+from tests.settings import Settings
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 logger = logging.getLogger(__name__)
@@ -24,14 +24,6 @@ _supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow_sediment": WflowSedimentModel,
     "wflow_simple": WflowSbmModel,
 }
-
-
-@pytest.fixture(scope="session")
-def is_latest_python() -> bool:
-    """Return True if running on Python 3.13 or later, False otherwise."""
-    import sys
-
-    return sys.version_info >= (3, 13)
 
 
 def _plot_grid_diff(
@@ -124,7 +116,7 @@ def _assert_or_warn(should_assert: bool, condition: bool, message: str):
         if not condition:
             msg = f"{message}. This assertion is strict ONLY in Python 3.13+ due to small differences in what dependencies return."
             warnings.warn(msg, stacklevel=2)
-            logger.warning(msg, exc_info=True, stack_info=True, stacklevel=2)
+            logger.warning(msg, stack_info=True, stacklevel=2)
 
 
 def _compare_wflow_models(
