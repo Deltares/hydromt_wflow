@@ -16,7 +16,7 @@ from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f"hydromt.{__name__}")
 
 _supported_models: dict[str, type[WflowBaseModel]] = {
     "wflow": WflowSbmModel,
@@ -36,16 +36,23 @@ def _plot_grid_diff(
     _out_dir = out_dir / label
     shutil.rmtree(_out_dir, ignore_errors=True)
 
-    var_names = [k for k in errors if k not in ("__class__", "crs", "dims")]
-    if not var_names:
-        var_names = list(set(ds_expected.data_vars) & set(ds_actual.data_vars))
-
+    var_names = list(set(ds_expected.data_vars) & set(ds_actual.data_vars))
     for var in var_names:
         if var not in ds_expected or var not in ds_actual:
+            logger.debug(
+                f"Variable '{var}' is only present in one of the datasets, skipping plot."
+            )
             continue
         expected: xr.DataArray = ds_expected[var].squeeze()
         actual: xr.DataArray = ds_actual[var].squeeze()
         if expected.ndim < 2 or actual.ndim < 2:
+            logger.debug(f"Variable '{var}' is not 2D, skipping plot.")
+            continue
+        diff = actual.astype(float) - expected.astype(float)
+        if np.allclose(diff.values, 0, atol=1e-6):
+            logger.debug(
+                f"Differences in variable '{var}' values are negligible, skipping plot."
+            )
             continue
 
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
@@ -53,7 +60,6 @@ def _plot_grid_diff(
         axes[0].set_title(f"{var} (expected)")
         actual.plot(ax=axes[1])
         axes[1].set_title(f"{var} (actual)")
-        diff = actual.astype(float) - expected.astype(float)
         diff.plot(ax=axes[2])
         axes[2].set_title(f"{var} (actual - expected)")
         fig.tight_layout()
@@ -115,7 +121,7 @@ def _assert_or_warn(should_assert: bool, condition: bool, message: str):
     else:
         if not condition:
             msg = f"{message}. This assertion is strict ONLY in Python 3.13+ due to small differences in what dependencies return."
-            logger.warning(msg, stack_info=True, stacklevel=2)
+            logger.warning(msg, stack_info=True)
 
 
 def _compare_wflow_models(
@@ -125,7 +131,7 @@ def _compare_wflow_models(
 ):
     # For now, only assert if running on Python 3.13+, where we expect dependencies to return exactly the same results.
     # In earlier versions, we allow for some small differences and only warn about them.
-    should_assert = sys.version_info >= (3, 13)
+    should_assert = sys.version_info >= (3, 10)
 
     # check maps
     if mod0.staticmaps._data:
