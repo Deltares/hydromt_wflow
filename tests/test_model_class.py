@@ -3,7 +3,6 @@
 import logging
 import shutil
 import sys
-import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -115,7 +114,6 @@ def _assert_or_warn(should_assert: bool, condition: bool, message: str):
     else:
         if not condition:
             msg = f"{message}. This assertion is strict ONLY in Python 3.13+ due to small differences in what dependencies return."
-            warnings.warn(msg, stacklevel=2)
             logger.warning(msg, stack_info=True, stacklevel=2)
 
 
