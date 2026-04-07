@@ -1656,43 +1656,9 @@ setting new flood_depth dimensions"
         logger.info("Preparing agroforestry parameter maps.")
 
         # Read data
-        if (
-            isinstance(agroforestry_fn, str)
-            and agroforestry_fn in self.data_catalog.sources
-        ):
-            _data_type = self.data_catalog.get_source(agroforestry_fn).data_type
-            if _data_type == "RasterDataset":
-                agroforestry_data = self.data_catalog.get_rasterdataset(
-                    agroforestry_fn,
-                    geom=self.region,
-                    buffer=2,
-                    single_var_as_array=True,
-                )
-                if not isinstance(agroforestry_data, xr.DataArray):
-                    raise ValueError("Agroforestry data should have a single variable.")
-            elif _data_type == "GeoDataFrame":
-                agroforestry_data = self.data_catalog.get_geodataframe(
-                    agroforestry_fn,
-                    geom=self.region,
-                    predicate="intersects",
-                    handle_nodata=NoDataStrategy.IGNORE,
-                )
-            else:
-                raise ValueError(
-                    f"Data type {_data_type} of {agroforestry_fn} not supported. "
-                    "Agroforestry data should be either a raster or vector dataset."
-                )
-        elif isinstance(agroforestry_fn, str):
-            raise ValueError(
-                f"Agroforestry data {agroforestry_fn} not found in data catalog."
-            )
-        elif not isinstance(agroforestry_fn, (xr.DataArray, gpd.GeoDataFrame)):
-            raise ValueError(
-                "Agroforestry data should be either a name in the data catalog, a "
-                "raster (xarray.DataArray) or a vector dataset (geopandas.GeoDataFrame)"
-            )
-        else:
-            agroforestry_data = agroforestry_fn
+        agroforestry_data = self._get_raster_or_vector_data(
+            agroforestry_fn, data_name="Agroforestry"
+        )
 
         # Read mapping tables
         if agroforestry_mapping_fn is not None:
@@ -1728,6 +1694,228 @@ setting new flood_depth dimensions"
         )
 
         self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
+
+    @hydromt_step
+    def setup_ponding_from_map(
+        self,
+        pond_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        pond_level: float = 0.2,
+        min_pond_level: float = 0.0,
+        output_name: str = "ponding_level",
+    ):
+        """
+        Set up ponding level map based on provided pond location map.
+
+        The pond location map can be provided as a raster or vector dataset that will
+        be reprojected / rasterized to the model resolution. The ponding level will be
+        assigned to the cells where ponding is present, and the minimum ponding level
+        will be assigned to the cells where ponding is not present.
+
+        For raster data, all non-nodata values will be considered as pond locations.
+        For vector data, all geometries will be considered as pond locations.
+
+        Adds model layers:
+
+        * **ponding_level** map: Ponding level [m]
+            Based on provided pond location map.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
+        Parameters
+        ----------
+        pond_fn : str, Path, xr.DataArray, gpd.GeoDataFrame
+            RasterDataArray, GeoDataFrame or name in data catalog to the ponding
+            location data.
+        pond_level : float, optional
+            Ponding level to be assigned to cells where ponding is present [m], by
+            default 0.2 m.
+        min_pond_level : float, optional
+            Minimum ponding level to be assigned to cells where ponding is not present
+            [m], by default 0.0 m.
+        output_name : str, optional
+            Name of the output ponding level map, by default "ponding_level".
+        """
+        logger.info("Preparing ponding map based on provided pond location map.")
+        # TODO: update wflow_var to the correct variable name
+        # once it is implemented in wflow
+        wflow_var = "land_surface_water__depth_threshold"
+
+        # Read ponding location data
+        pond_data = self._get_raster_or_vector_data(
+            pond_fn, data_name="Ponding location"
+        )
+
+        # Rasterize ponding data if vector
+        if isinstance(pond_data, gpd.GeoDataFrame):
+            pond_data = self.staticmaps.data.raster.rasterize(
+                pond_data,
+                col_name="index",
+                nodata=-9999,
+                all_touched=False,
+            )
+
+        # Create pond mask
+        pond_mask = pond_data != pond_data.raster.nodata
+
+        # Create ponding level map
+        # TODO: check if min_pond_level should be derived from river routing method
+        ponding_level = workflows.ponding_level_from_suitability(
+            suitability=pond_mask,
+            ds_like=self.staticmaps.data,
+            pond_level=pond_level,
+            min_pond_level=min_pond_level,
+            basin_mask_name=self._MAPS["basins"],
+        )
+
+        self._update_naming({wflow_var: output_name})
+        # Set the grid
+        self.staticmaps.set(ponding_level.rename(output_name))
+
+        # Update config
+        self.config.set("model.reinfiltration", True)  # TODO: check final name in wflow
+        self._update_config_variable_name(output_name)
+
+    @hydromt_step
+    def setup_ponding_from_thresholds(
+        self,
+        lulc_fn: str | Path | xr.DataArray,
+        hydrography_fn: str | Path | xr.DataArray | xr.Dataset | None = None,
+        lulc_classes: list[int] | None = None,
+        elevtn_range: tuple[float, float] | None = None,
+        slope_range: tuple[float, float] | None = None,
+        hand_range: tuple[float, float] | None = None,
+        pond_level: float = 0.2,
+        min_pond_level: float = 0.0,
+        river_upa: float | None = None,
+        output_name: str = "ponding_level",
+    ):
+        """
+        Set up ponding map based on suitability thresholds.
+
+        The ponding map is derived based on a combination of topographic and landuse
+        criteria. The topographic criteria are based on the elevation, slope and hand
+        maps, and the landuse criteria are based on the landuse map. For each criterion,
+        a range of suitable values can be defined, and the final ponding suitability is
+        determined by the intersection of all criteria.
+
+        Adds model layers:
+
+        * **ponding_level** map: Ponding level [m]
+            Derived from topographic and landuse criteria.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
+        Parameters
+        ----------
+        lulc_fn : str, Path, xr.DataArray
+            RasterDataset or name in data catalog / path to landuse map. This is used to
+            derive the landuse criteria if `lulc_classes` are provided.
+        hydrography_fn : str, Path, xr.DataArray, xr.Dataset
+            RasterDataset or name in data catalog / path to hydrography data. This is
+            used to derive the slope and hand maps if slope_range and hand_range are
+            provided.
+
+            * Required variables: 'elevtn' [m]
+            * Optional variables: 'flwdir', 'lndslp' [m/m], 'hand' [m], 'uparea' [km2]
+
+        lulc_classes : list[int], optional
+            List of landuse classes that are suitable for ponding, by default None (no
+            criterion).
+
+            * Required variable: 'landuse' [-]
+
+        elevtn_range : tuple[float, float], optional
+            Range of suitable elevation values for ponding [m], by default None (no
+            criterion).
+        slope_range : tuple[float, float], optional
+            Range of suitable slope values for ponding [m/m], by default None (no
+            criterion).
+        hand_range : tuple[float, float], optional
+            Range of suitable hand values for ponding [m], by default None (no
+            criterion).
+        pond_level : float, optional
+            Ponding level to be assigned to suitable cells, by default 0.2 m.
+        min_pond_level : float, optional
+            Minimum ponding level to be assigned to cells that are not suitable based on
+            the criteria, by default 0.0 m.
+        river_upa : float, optional
+            Upstream area threshold for river cells [km2], by default None as it should
+            be determined from staticmaps. Used to define drains for hand calculation.
+        output_name : str, optional
+            Name of the output ponding level map, by default "ponding_level".
+        """
+        logger.info("Preparing ponding map based on suitability thresholds.")
+        # TODO: update wflow_var to the correct variable name
+        # once it is implemented in wflow
+        wflow_var = "land_surface_water__depth_threshold"
+
+        # Read hydrography data if needed
+        if any([elevtn_range, slope_range, hand_range]):
+            if hydrography_fn is None:
+                raise ValueError(
+                    "Hydrography data is required to apply elevation, slope or hand "
+                    "criteria. Please provide a hydrography dataset with the "
+                    "`hydrography_fn` argument."
+                )
+            else:
+                hydro_data = self.data_catalog.get_rasterdataset(
+                    hydrography_fn,
+                    geom=self.region,
+                    buffer=2,
+                    single_var_as_array=False,
+                )
+        else:
+            hydro_data = None
+
+        # Read landuse data if needed
+        if lulc_classes is not None:
+            landuse = self.data_catalog.get_rasterdataset(
+                lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
+            )
+
+        # Check for river_upa
+        wflow_river_upa = self.staticmaps.data[self._MAPS["rivmsk"]].attrs.get(
+            "river_upa", river_upa
+        )
+        if river_upa is not None and wflow_river_upa != river_upa:
+            logger.warning(
+                f"Provided river_upa value {river_upa} is different from the one in "
+                f"staticmaps {wflow_river_upa}. The value from staticmaps will be used."
+            )
+
+        # Derive ponding suitability based on criteria
+        ponding_suitability = workflows.nbs_suitability_from_thresholds(
+            landuse=landuse if lulc_classes is not None else None,
+            hydro_data=hydro_data,
+            lulc_classes=lulc_classes,
+            elevtn_range=elevtn_range,
+            slope_range=slope_range,
+            hand_range=hand_range,
+            river_upa=wflow_river_upa,
+            basin_mask=self.staticmaps.data[self._MAPS["basins"]],
+        )
+
+        # Assign ponding level based on suitability
+        # TODO: check if min_pond_level should be derived from river routing method
+        ponding_level = workflows.ponding_level_from_suitability(
+            suitability=ponding_suitability,
+            ds_like=self.staticmaps.data,
+            pond_level=pond_level,
+            min_pond_level=min_pond_level,
+            basin_mask_name=self._MAPS["basins"],
+        )
+
+        self._update_naming({wflow_var: output_name})
+        # Set the grid
+        self.staticmaps.set(ponding_level.rename(output_name))
+
+        # Update config
+        self.config.set("model.reinfiltration", True)  # TODO: check final name in wflow
+        self._update_config_variable_name(output_name)
 
     @hydromt_step
     def setup_laimaps(
