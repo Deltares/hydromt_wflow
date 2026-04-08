@@ -148,6 +148,7 @@ Additional high-level utilities to modify model geometry, link external models, 
    :toctree: _generated
 
    WflowSbmModel.setup_grid_from_raster
+   WflowSbmModel.setup_grid_from_geodataset
    WflowSbmModel.setup_1dmodel_connection
    WflowSbmModel.upgrade_to_v1_wflow
    WflowSbmModel.clip

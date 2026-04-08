@@ -102,6 +102,7 @@ Additional high-level utilities to manage model geometry, upgrade versions, or m
    :toctree: _generated
 
    WflowSedimentModel.setup_grid_from_raster
+   WflowSedimentModel.setup_grid_from_geodataset
    WflowSedimentModel.upgrade_to_v1_wflow
    WflowSedimentModel.clip
 
