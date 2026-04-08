@@ -8,21 +8,19 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
-
 Added
 -----
 - **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
 - **setup_subbasins**: method to delineate subbasins based on streamorder, pfafstetter or area threshold. PR #7
 - **setup_ponding_from_map** and **setup_ponding_from_thresholds**: methods to prepare ponding level based on a raster/vector
   location map or based on landuse/hydrography thresholds. PR #22
-
+- **setup_grid_from_geodataset**: method to set static/cyclic/forcing grid data from a geodataset. PR #20
 
 Changed
 -------
 
 Fixed
 -----
-
 
 v1.0.2 (3 March 2026)
 =====================

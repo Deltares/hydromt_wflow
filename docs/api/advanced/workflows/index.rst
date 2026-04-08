@@ -15,6 +15,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
 - :ref:`Forcing <api_workflows_forcing>` — Create meteorological forcing data such as precipitation and PET.
 - :ref:`Gauges <api_workflows_gauges>` — Handle gauging station locations including upstream area snapping.
 - :ref:`Glaciers <api_workflows_glaciers>` — Derive glacier extent, maps, and attributes.
+- :ref:`Grid <api_workflows_grid>` — Create generic grid based data.
 - :ref:`Land use <api_workflows_landuse>` — Create and modify land use, land cover, and vegetation-related maps.
 - :ref:`Nature-based solutions <api_workflows_nbs>` — Prepare suitability and ponding level maps for nature-based solution modeling.
 - :ref:`Reservoirs <api_workflows_reservoirs>` — Generate and manage reservoir geometry and parameter data.
@@ -36,6 +37,7 @@ kinds of data for Wflow models. The workflows are organized into the following s
    forcing
    gauges
    glaciers
+   grid
    landuse
    nbs
    reservoirs
