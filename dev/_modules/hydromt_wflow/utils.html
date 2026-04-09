@@ -968,7 +968,9 @@
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; centroid = planar_operation_in_utm(</span>
 <span class="sd">        ...     gdf,</span>
-<span class="sd">        ...     lambda geom: geom.centroid,</span>
+<span class="sd">        ...     lambda geom: (</span>
+<span class="sd">        ...         geom.centroid</span>
+<span class="sd">        ...     ),</span>
 <span class="sd">        ... )</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>

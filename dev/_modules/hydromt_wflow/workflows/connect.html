@@ -816,11 +816,11 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connecting rivers after basin clipping.&quot;</span><span class="p">)</span>
         <span class="c1"># we turn these into LineStrings again using its points</span>
         <span class="n">gdf_riv</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="n">LineString</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">coord</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+            <span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">LineString</span><span class="p">([</span><span class="n">coord</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">coords</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">geom</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">)</span>
-            <span class="k">else</span> <span class="n">geom</span>
         <span class="p">)</span>
 
         <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">gdf_riv</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiLineString&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
