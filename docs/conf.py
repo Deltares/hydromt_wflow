@@ -5,6 +5,10 @@ import shutil
 import sys
 import hydromt_wflow
 
+# URL to the switcher.json file for version switching in the docs. See https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/version-dropdown.html
+# This should point to a stable URL where the switcher.json file is hosted. (e.g. the static files of the latest published docs build)
+SWITCHER_JSON_URL = "https://fluffy-happiness-gzowznm.pages.github.io/latest/_static/switcher.json"
+
 # -- Path setup --------------------------------------------------------------
 DOCS_ROOT = Path(__file__).parent.resolve()
 sys.path.insert(0, DOCS_ROOT.as_posix())
@@ -20,9 +24,9 @@ def _rel_path(target: Path, relative_to: Path = DOCS_ROOT) -> str:
 
 # Copy notebooks to include in docs
 shutil.rmtree(EXAMPLES_DOCS, ignore_errors=True)
-# shutil.copytree(EXAMPLES_SRC, EXAMPLES_DOCS)
+shutil.copytree(EXAMPLES_SRC, EXAMPLES_DOCS)
 
-for path in [DOCS_ROOT, STATIC_DIR, TEMPLATES_DIR]:#, EXAMPLES_DOCS]:
+for path in [DOCS_ROOT, STATIC_DIR, TEMPLATES_DIR, EXAMPLES_DOCS]:
     if not path.exists():
         raise FileNotFoundError(f"Expected documentation folder not found: {path.as_posix()}. Check your setup.")
 
@@ -114,9 +118,10 @@ html_theme_options = {
         "page-toc",
     ],
     "switcher": {
-        "json_url": "https://fluffy-happiness-gzowznm.pages.github.io/latest/_static/switcher.json",
+        "json_url": SWITCHER_JSON_URL,
         "version_match": doc_version,
     },
+    "check_switcher": False, # to prevent errors when building docs locally without being authenticated
 }
 html_context = {
     "github_url": "https://github.com",
