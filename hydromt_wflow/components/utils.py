@@ -1,7 +1,8 @@
 """Utility of the wflow components."""
 
+import os
 import re
-from os.path import relpath
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -37,13 +38,17 @@ def _relpath(
     """
     if not isinstance(value, (Path, str)) or not Path(value).is_absolute():
         return value
-    value = Path(value)
+    _path = Path(value)
     try:
-        if _mount(value.as_posix()) == _mount(root.as_posix()):
-            value = Path(relpath(value, root))
+        if _mount(_path.as_posix()) == _mount(root.as_posix()):
+            if sys.version_info >= (3, 12):
+                _path = _path.relative_to(root, walk_up=True)
+            else:
+                # remove when Python 3.11 support is dropped
+                _path = Path(os.path.relpath(_path, root))
     except ValueError:
-        pass  # `value` path is not relative to root
-    return value.as_posix()
+        pass  # `_path` path is not relative to root
+    return _path.as_posix()
 
 
 def make_config_paths_relative(

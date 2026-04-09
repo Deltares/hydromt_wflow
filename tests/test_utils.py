@@ -1,7 +1,6 @@
 """Tests for the utils module."""
 
 import logging
-from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
@@ -9,9 +8,6 @@ import pytest
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
-
-TESTDATADIR = Path(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = Path(dirname(abspath(__file__)), "..", "examples", "data")
 
 
 def test_grid_from_config(demda):
@@ -67,9 +63,9 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
-def test_convert_to_wflow_v1_sbm(caplog):
+def test_convert_to_wflow_v1_sbm(caplog, test_data_dir: Path, example_data_dir: Path):
     # Initialize wflow model
-    root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
+    root = str(example_data_dir / "wflow_upgrade" / "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
@@ -78,7 +74,7 @@ def test_convert_to_wflow_v1_sbm(caplog):
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
-    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
+    config_fn_v1 = str(test_data_dir / "wflow_v0x" / "sbm" / "wflow_sbm_v1.toml")
     wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
 
     # Set kinematic_wave__adaptive_time_step_flag to false to mirror settings in wflow
@@ -119,9 +115,11 @@ def test_convert_to_wflow_v1_sbm(caplog):
     assert wflow.config.get_value("model.cold_start__flag") is True
 
 
-def test_convert_to_wflow_v1_sbm_with_exceptions():
+def test_convert_to_wflow_v1_sbm_with_exceptions(
+    test_data_dir: Path, example_data_dir: Path
+):
     # Initialize wflow model
-    root = join(EXAMPLEDIR, "wflow_upgrade", "sbm")
+    root = str(example_data_dir / "wflow_upgrade" / "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
@@ -139,7 +137,7 @@ def test_convert_to_wflow_v1_sbm_with_exceptions():
     wflow.upgrade_to_v1_wflow()
 
     # Check with a test config
-    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
+    config_fn_v1 = str(test_data_dir / "wflow_v0x" / "sbm" / "wflow_sbm_v1.toml")
     wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
 
     # Set kinematic_wave__adaptive_time_step_flag to false to mirror settings in wflow
@@ -148,9 +146,9 @@ def test_convert_to_wflow_v1_sbm_with_exceptions():
     assert wflow.config.test_equal(wflow_v1.config)[0]
 
 
-def test_convert_to_wflow_v1_sediment():
+def test_convert_to_wflow_v1_sediment(test_data_dir: Path, example_data_dir: Path):
     # Initialize wflow model
-    root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
+    root = str(example_data_dir / "wflow_upgrade" / "sediment")
     config_fn = "wflow_sediment_v0x.toml"
 
     wflow = WflowSedimentModel(
@@ -162,7 +160,9 @@ def test_convert_to_wflow_v1_sediment():
     )
 
     # Check with a test config
-    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
+    config_fn_v1 = str(
+        test_data_dir / "wflow_v0x" / "sediment" / "wflow_sediment_v1.toml"
+    )
     wflow_v1 = WflowSedimentModel(root, config_filename=config_fn_v1, mode="r")
 
     assert wflow.config.test_equal(wflow_v1.config)[0]
@@ -204,9 +204,9 @@ def test_config_toml_overwrite(tmp_path: Path):
 
 
 @pytest.mark.integration
-def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
+def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path, test_data_dir: Path):
     # Initialize wflow model
-    root = TESTDATADIR / "wflow_v0x" / "sbm_with_lake_files"
+    root = test_data_dir / "wflow_v0x" / "sbm_with_lake_files"
     config_fn = "wflow_sbm_v0x.toml"
 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r+")
@@ -225,8 +225,8 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path):
     assert (tmp_path / "staticmaps" / "reservoir_hq_2.csv").is_file()
 
     # Check with a test config
-    config_fn_v1 = join(
-        TESTDATADIR, "wflow_v0x", "sbm_with_lake_files", "wflow_sbm_v1.toml"
+    config_fn_v1 = str(
+        test_data_dir / "wflow_v0x" / "sbm_with_lake_files" / "wflow_sbm_v1.toml"
     )
     wflow_v1 = WflowSbmModel(root, config_filename=config_fn_v1, mode="r")
 

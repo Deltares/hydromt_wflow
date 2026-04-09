@@ -1,7 +1,6 @@
 import glob
 import logging
-import os
-from os.path import basename, join
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -30,10 +29,10 @@ class WflowTablesComponent(TablesComponent):
         self._initialize_tables(skip_read=True)
         logger.info("Reading model table files.")
         fn = filename or self._filename
-        filenames = glob.glob(join(self.root.path, fn.format(name="*")))
+        filenames = glob.glob(str(self.root.path / fn.format(name="*")))
         if len(filenames) > 0:
             for fn in filenames:
-                name = basename(fn).split(".")[0]
+                name = Path(fn).stem
                 if "_hq_" in name:
                     tbl = self._read_hq_table(fn)
                 else:
@@ -52,7 +51,7 @@ class WflowTablesComponent(TablesComponent):
         if static_maps_path is None:
             return None
 
-        static_maps_folder = os.path.dirname(static_maps_path)
+        static_maps_folder = Path(static_maps_path).parent
         if not static_maps_folder:
             static_maps_folder = "."
 

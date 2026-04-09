@@ -1,15 +1,11 @@
 """Unit tests for hydromt_wflow sediment methods and workflows."""
 
-from os.path import abspath, dirname, join
-
 import geopandas as gpd
 import numpy as np
 import pytest
 
 from hydromt_wflow.utils import planar_operation_in_utm
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 

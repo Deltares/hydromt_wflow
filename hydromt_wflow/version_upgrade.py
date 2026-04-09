@@ -1,7 +1,6 @@
 """Some utilities to upgrade Wflow model versions."""
 
 import logging
-from os.path import abspath, dirname, join
 from pathlib import Path
 
 import xarray as xr
@@ -26,7 +25,7 @@ from hydromt_wflow.workflows.reservoirs import (
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATADIR = Path(join(dirname(abspath(__file__)), "data"))
+DATADIR = Path(__file__).parent / "data"
 
 __all__ = [
     "convert_to_wflow_v1_sbm",

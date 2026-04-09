@@ -2,8 +2,6 @@
 
 # Implement model class following model API
 import logging
-import os
-from os.path import isfile, join
 from pathlib import Path
 from typing import Any
 
@@ -1029,7 +1027,7 @@ and will soon be removed. '
         )
 
         if save_raster_lulc:
-            lulc_out = join(self.root.path, "maps", "landuse_raster.tif")
+            lulc_out = str(self.root.path / "maps" / "landuse_raster.tif")
         else:
             lulc_out = None
 
@@ -1261,7 +1259,7 @@ gauge locations [-] (if derive_subcatch)
             gdf_gauges = gauges_fn
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
-        elif isfile(gauges_fn):
+        elif Path(gauges_fn).is_file():
             # hydromt#1243
             # try to get epsg number directly, important when writing back data_catalog
             if hasattr(self.crs, "to_epsg"):
@@ -1311,7 +1309,7 @@ gauge locations [-] (if derive_subcatch)
 
         # Create basename
         if basename is None:
-            basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
+            basename = Path(gauges_fn).stem.replace("_", "-")
 
         # Check if there is data found
         if gdf_gauges is None:
