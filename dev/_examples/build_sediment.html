@@ -649,177 +649,177 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-04-09 12:56:11,560 - hydromt - log - INFO - HydroMT version: 1.3.1
-2026-04-09 12:56:11,708 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2026-04-09 12:56:11,708 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2026-04-09 12:56:12,369 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.3.dev0).
-2026-04-09 12:56:12,369 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-04-09 12:56:12,385 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-04-09 12:56:12,385 - hydromt.hydromt_wflow.components.config - config - INFO - Reading default config file from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml.
-2026-04-09 12:56:12,385 - hydromt - log - INFO - HydroMT version: 1.3.1
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - build: setup_config
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: &#39;2010-02-02T00:00:00&#39;, &#39;time.endtime&#39;: &#39;2010-02-10T00:00:00&#39;, &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment__suspended_mass_concentration&#39;: &#39;suspended_solids&#39;}
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - build: setup_basemaps
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.basin_index_fn=merit_hydro_index
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.res=0.00833
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.upscale_method=ihu
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.output_names={&#39;basin__local_drain_direction&#39;: &#39;local_drain_direction&#39;, &#39;subbasin_location__count&#39;: &#39;subcatchment&#39;, &#39;land_surface__slope&#39;: &#39;land_slope&#39;}
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.hydrography_fn=merit_hydro
-2026-04-09 12:56:12,386 - hydromt.model.model - model - INFO - setup_basemaps.region={&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2026-04-09 12:56:12,386 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing base hydrography basemaps.
-2026-04-09 12:56:12,386 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro RasterDataset data from /home/runner/.hydromt/artifact_data/latest/merit_hydro/{variable}.tif
-2026-04-09 12:56:12,482 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro_index GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/merit_hydro_index.gpkg
-2026-04-09 12:56:15,172 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
-2026-04-09 12:56:15,235 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - (Sub)basin at original resolution has 664756 cells.
-2026-04-09 12:56:15,355 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
-2026-04-09 12:56:26,586 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Derive stream order.
-2026-04-09 12:56:26,741 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Map shape: (106, 116); active cells: 6637.
-2026-04-09 12:56:26,741 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Outlet coordinates (1/1): (12.20750,45.83583).
-2026-04-09 12:56:26,760 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding basin shape to staticgeoms.
-2026-04-09 12:56:26,774 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Derive elevation and slope.
-2026-04-09 12:56:26,915 - hydromt.model.model - model - INFO - build: setup_rivers
-2026-04-09 12:56:26,915 - hydromt.model.model - model - INFO - setup_rivers.river_geom_fn=hydro_rivers_lin
-2026-04-09 12:56:26,915 - hydromt.model.model - model - INFO - setup_rivers.river_upa=30
-2026-04-09 12:56:26,915 - hydromt.model.model - model - INFO - setup_rivers.slope_len=2000
-2026-04-09 12:56:26,915 - hydromt.model.model - model - INFO - setup_rivers.min_rivlen_ratio=0.0
-2026-04-09 12:56:26,916 - hydromt.model.model - model - INFO - setup_rivers.min_rivwth=30
-2026-04-09 12:56:26,916 - hydromt.model.model - model - INFO - setup_rivers.smooth_len=5000
-2026-04-09 12:56:26,916 - hydromt.model.model - model - INFO - setup_rivers.output_names={&#39;river_location__mask&#39;: &#39;river_mask&#39;, &#39;river__length&#39;: &#39;river_length&#39;, &#39;river__width&#39;: &#39;river_width&#39;, &#39;river__slope&#39;: &#39;river_slope&#39;}
-2026-04-09 12:56:26,916 - hydromt.model.model - model - INFO - setup_rivers.hydrography_fn=merit_hydro
-2026-04-09 12:56:26,916 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing river maps.
-2026-04-09 12:56:26,919 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro RasterDataset data from /home/runner/.hydromt/artifact_data/latest/merit_hydro/{variable}.tif
-2026-04-09 12:56:26,996 - hydromt.hydromt_wflow.workflows.river - river - INFO - Set river mask (min uparea: 30 km2) and prepare flow dirs.
-2026-04-09 12:56:27,138 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive river length.
-2026-04-09 12:56:30,017 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive river slope.
-2026-04-09 12:56:30,561 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_rivers_lin GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/rivers_lin2019_v1.gpkg
-2026-04-09 12:56:30,728 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive [&#39;rivwth&#39;] from shapefile.
-2026-04-09 12:56:30,774 - hydromt.hydromt_wflow.workflows.river - river - INFO - Valid for 381/655 river cells (max dist: 392 m).
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - build: setup_reservoirs
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - setup_reservoirs.overwrite_existing=False
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - setup_reservoirs.duplicate_id=error
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - setup_reservoirs.min_area=1.0
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - setup_reservoirs.trapping_default=1.0
-2026-04-09 12:56:33,194 - hydromt.model.model - model - INFO - setup_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2026-04-09 12:56:33,195 - hydromt.model.model - model - INFO - setup_reservoirs.geom_name=meta_reservoirs
-2026-04-09 12:56:33,195 - hydromt.model.model - model - INFO - setup_reservoirs.reservoirs_fn=hydro_reservoirs
-2026-04-09 12:56:33,195 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
-2026-04-09 12:56:33,195 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_reservoirs GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_reservoirs.gpkg
-2026-04-09 12:56:33,217 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - build: setup_natural_reservoirs
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.overwrite_existing=False
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.duplicate_id=error
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.min_area=1.0
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.geom_name=meta_natural_reservoirs
-2026-04-09 12:56:33,217 - hydromt.model.model - model - INFO - setup_natural_reservoirs.reservoirs_fn=hydro_lakes
-2026-04-09 12:56:33,218 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
-2026-04-09 12:56:33,218 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_lakes GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_lakes.gpkg
-2026-04-09 12:56:33,229 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 1 reservoir(s) of sufficient size found within region.
-2026-04-09 12:56:33,380 - hydromt.model.model - model - INFO - build: setup_riverbedsed
-2026-04-09 12:56:33,380 - hydromt.model.model - model - INFO - setup_riverbedsed.bedsed_mapping_fn=None
-2026-04-09 12:56:33,380 - hydromt.model.model - model - INFO - setup_riverbedsed.strord_name=meta_streamorder
-2026-04-09 12:56:33,380 - hydromt.model.model - model - INFO - setup_riverbedsed.output_names={&#39;river_bottom_and_bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom_and_bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom_and_bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom_and_bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom_and_bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a_coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b_coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c_coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d_coefficient&#39;: &#39;river_kodatie_d&#39;}
-2026-04-09 12:56:33,380 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2026-04-09 12:56:33,381 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2026-04-09 12:56:33,387 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,391 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,395 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,400 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,404 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,408 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
-2026-04-09 12:56:33,412 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
-2026-04-09 12:56:33,417 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
-2026-04-09 12:56:33,421 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - build: setup_lulcmaps
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=globcover_mapping_default
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_fn=None
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;soil_compacted_fraction&#39;, &#39;erosion_usle_c&#39;, &#39;land_water_fraction&#39;]
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_c=0.0881
-2026-04-09 12:56:33,441 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_name=Orchard
-2026-04-09 12:56:33,442 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_c=0.2188
-2026-04-09 12:56:33,442 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=None
-2026-04-09 12:56:33,442 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=globcover_2009
-2026-04-09 12:56:33,442 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
-2026-04-09 12:56:33,444 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_2009 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/globcover.tif
-2026-04-09 12:56:33,454 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/globcover_mapping.csv
-2026-04-09 12:56:33,463 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=230).
-2026-04-09 12:56:33,522 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,541 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,559 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:33,585 - hydromt.model.model - model - INFO - build: setup_canopymaps
-2026-04-09 12:56:33,585 - hydromt.model.model - model - INFO - setup_canopymaps.output_name=vegetation_height
-2026-04-09 12:56:33,585 - hydromt.model.model - model - INFO - setup_canopymaps.canopy_fn=simard
-2026-04-09 12:56:33,585 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing canopy height map.
-2026-04-09 12:56:33,588 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading simard RasterDataset data from /home/runner/.hydromt/artifact_data/latest/simard.tif
-2026-04-09 12:56:33,636 - hydromt.model.model - model - INFO - build: setup_soilmaps
-2026-04-09 12:56:33,637 - hydromt.model.model - model - INFO - setup_soilmaps.soil_fn=soilgrids
-2026-04-09 12:56:33,637 - hydromt.model.model - model - INFO - setup_soilmaps.usle_k_method=renard
-2026-04-09 12:56:33,637 - hydromt.model.model - model - INFO - setup_soilmaps.add_aggregates=True
-2026-04-09 12:56:33,637 - hydromt.model.model - model - INFO - setup_soilmaps.output_names={&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_small_aggregates__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_large_aggregates__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
-2026-04-09 12:56:33,637 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
-2026-04-09 12:56:33,639 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
-2026-04-09 12:56:34,516 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
-2026-04-09 12:56:34,539 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
-2026-04-09 12:56:34,573 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
-2026-04-09 12:56:34,612 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
-2026-04-09 12:56:34,659 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
-2026-04-09 12:56:34,676 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
-2026-04-09 12:56:34,694 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
-2026-04-09 12:56:34,714 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
-2026-04-09 12:56:34,736 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
-2026-04-09 12:56:34,783 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
-2026-04-09 12:56:34,805 - hydromt.model.model - model - INFO - build: setup_outlets
-2026-04-09 12:56:34,805 - hydromt.model.model - model - INFO - setup_outlets.river_only=True
-2026-04-09 12:56:34,805 - hydromt.model.model - model - INFO - setup_outlets.toml_output=csv
-2026-04-09 12:56:34,805 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_header=[&#39;suspended_solids&#39;]
-2026-04-09 12:56:34,805 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_param=[&#39;river_water_sediment__suspended_mass_concentration&#39;]
-2026-04-09 12:56:34,805 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
-2026-04-09 12:56:34,820 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
-2026-04-09 12:56:34,820 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - build: setup_gauges
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.basename=None
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;suspended_solids&#39;]
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;]
-2026-04-09 12:56:34,820 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=grdc
-2026-04-09 12:56:34,821 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading grdc GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/grdc.csv
-2026-04-09 12:56:34,830 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 grdc gauge locations found within domain
-2026-04-09 12:56:35,135 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
-2026-04-09 12:56:35,135 - hydromt.model.model - model - INFO - build: setup_constant_pars
-2026-04-09 12:56:35,135 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_coefficient=1.75e-05
-2026-04-09 12:56:35,135 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_exponent=1.4
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__answers_overland_flow_factor=0.9
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__eurosem_exponent=2.0
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.sediment__particle_density=2650
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.clay__mean_diameter=2
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.silt__mean_diameter=10
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_small_aggregates__mean_diameter=30
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.sand__mean_diameter=200
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_large_aggregates__mean_diameter=500
-2026-04-09 12:56:35,136 - hydromt.model.model - model - INFO - setup_constant_pars.gravel__mean_diameter=2000
-2026-04-09 12:56:35,136 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
-2026-04-09 12:56:35,146 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc.
-2026-04-09 12:56:35,221 - hydromt.model.components.spatial - spatial - INFO - wflow_sediment.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/region.geojson.
-2026-04-09 12:56:35,238 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/meta_basins_highres.geojson.
-2026-04-09 12:56:35,249 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/basins.geojson.
-2026-04-09 12:56:35,252 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/rivers.geojson.
-2026-04-09 12:56:35,256 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/meta_natural_reservoirs.geojson.
-2026-04-09 12:56:35,259 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/reservoirs.geojson.
-2026-04-09 12:56:35,261 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/outlets.geojson.
-2026-04-09 12:56:35,263 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/gauges_grdc.geojson.
-2026-04-09 12:56:35,266 - hydromt.model.components.tables - tables - INFO - wflow_sediment.tables: No tables found, skip writing.
-2026-04-09 12:56:35,266 - hydromt.model.components.grid - grid - INFO - wflow_sediment.states: No grid data found, skip writing.
-2026-04-09 12:56:35,266 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml.
+2026-04-09 12:58:28,417 - hydromt - log - INFO - HydroMT version: 1.3.1
+2026-04-09 12:58:28,567 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2026-04-09 12:58:28,567 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2026-04-09 12:58:29,205 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.3.dev0).
+2026-04-09 12:58:29,205 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-04-09 12:58:29,221 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-04-09 12:58:29,221 - hydromt.hydromt_wflow.components.config - config - INFO - Reading default config file from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml.
+2026-04-09 12:58:29,221 - hydromt - log - INFO - HydroMT version: 1.3.1
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - build: setup_config
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: &#39;2010-02-02T00:00:00&#39;, &#39;time.endtime&#39;: &#39;2010-02-10T00:00:00&#39;, &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment__suspended_mass_concentration&#39;: &#39;suspended_solids&#39;}
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - build: setup_basemaps
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.basin_index_fn=merit_hydro_index
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.res=0.00833
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.upscale_method=ihu
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.output_names={&#39;basin__local_drain_direction&#39;: &#39;local_drain_direction&#39;, &#39;subbasin_location__count&#39;: &#39;subcatchment&#39;, &#39;land_surface__slope&#39;: &#39;land_slope&#39;}
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.hydrography_fn=merit_hydro
+2026-04-09 12:58:29,222 - hydromt.model.model - model - INFO - setup_basemaps.region={&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2026-04-09 12:58:29,223 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing base hydrography basemaps.
+2026-04-09 12:58:29,223 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro RasterDataset data from /home/runner/.hydromt/artifact_data/latest/merit_hydro/{variable}.tif
+2026-04-09 12:58:29,317 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro_index GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/merit_hydro_index.gpkg
+2026-04-09 12:58:31,951 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2026-04-09 12:58:32,010 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - (Sub)basin at original resolution has 664756 cells.
+2026-04-09 12:58:32,128 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2026-04-09 12:58:42,930 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Derive stream order.
+2026-04-09 12:58:43,079 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Map shape: (106, 116); active cells: 6637.
+2026-04-09 12:58:43,079 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Outlet coordinates (1/1): (12.20750,45.83583).
+2026-04-09 12:58:43,098 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding basin shape to staticgeoms.
+2026-04-09 12:58:43,111 - hydromt.hydromt_wflow.workflows.basemaps - basemaps - INFO - Derive elevation and slope.
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - build: setup_rivers
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.river_geom_fn=hydro_rivers_lin
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.river_upa=30
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.slope_len=2000
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.min_rivlen_ratio=0.0
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.min_rivwth=30
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.smooth_len=5000
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.output_names={&#39;river_location__mask&#39;: &#39;river_mask&#39;, &#39;river__length&#39;: &#39;river_length&#39;, &#39;river__width&#39;: &#39;river_width&#39;, &#39;river__slope&#39;: &#39;river_slope&#39;}
+2026-04-09 12:58:43,252 - hydromt.model.model - model - INFO - setup_rivers.hydrography_fn=merit_hydro
+2026-04-09 12:58:43,252 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing river maps.
+2026-04-09 12:58:43,255 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading merit_hydro RasterDataset data from /home/runner/.hydromt/artifact_data/latest/merit_hydro/{variable}.tif
+2026-04-09 12:58:43,330 - hydromt.hydromt_wflow.workflows.river - river - INFO - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2026-04-09 12:58:43,468 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive river length.
+2026-04-09 12:58:46,352 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive river slope.
+2026-04-09 12:58:46,879 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_rivers_lin GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/rivers_lin2019_v1.gpkg
+2026-04-09 12:58:47,044 - hydromt.hydromt_wflow.workflows.river - river - INFO - Derive [&#39;rivwth&#39;] from shapefile.
+2026-04-09 12:58:47,090 - hydromt.hydromt_wflow.workflows.river - river - INFO - Valid for 381/655 river cells (max dist: 392 m).
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - build: setup_reservoirs
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.overwrite_existing=False
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.duplicate_id=error
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.min_area=1.0
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.trapping_default=1.0
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.geom_name=meta_reservoirs
+2026-04-09 12:58:49,426 - hydromt.model.model - model - INFO - setup_reservoirs.reservoirs_fn=hydro_reservoirs
+2026-04-09 12:58:49,426 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
+2026-04-09 12:58:49,427 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_reservoirs GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_reservoirs.gpkg
+2026-04-09 12:58:49,448 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - build: setup_natural_reservoirs
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - setup_natural_reservoirs.overwrite_existing=False
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - setup_natural_reservoirs.duplicate_id=error
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - setup_natural_reservoirs.min_area=1.0
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - setup_natural_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2026-04-09 12:58:49,448 - hydromt.model.model - model - INFO - setup_natural_reservoirs.geom_name=meta_natural_reservoirs
+2026-04-09 12:58:49,449 - hydromt.model.model - model - INFO - setup_natural_reservoirs.reservoirs_fn=hydro_lakes
+2026-04-09 12:58:49,449 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
+2026-04-09 12:58:49,449 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_lakes GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_lakes.gpkg
+2026-04-09 12:58:49,460 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 1 reservoir(s) of sufficient size found within region.
+2026-04-09 12:58:49,608 - hydromt.model.model - model - INFO - build: setup_riverbedsed
+2026-04-09 12:58:49,608 - hydromt.model.model - model - INFO - setup_riverbedsed.bedsed_mapping_fn=None
+2026-04-09 12:58:49,608 - hydromt.model.model - model - INFO - setup_riverbedsed.strord_name=meta_streamorder
+2026-04-09 12:58:49,608 - hydromt.model.model - model - INFO - setup_riverbedsed.output_names={&#39;river_bottom_and_bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom_and_bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom_and_bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom_and_bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom_and_bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a_coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b_coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c_coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d_coefficient&#39;: &#39;river_kodatie_d&#39;}
+2026-04-09 12:58:49,608 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2026-04-09 12:58:49,608 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2026-04-09 12:58:49,614 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,619 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,623 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,627 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,631 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,636 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
+2026-04-09 12:58:49,640 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
+2026-04-09 12:58:49,644 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
+2026-04-09 12:58:49,649 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - build: setup_lulcmaps
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=globcover_mapping_default
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_fn=None
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;soil_compacted_fraction&#39;, &#39;erosion_usle_c&#39;, &#39;land_water_fraction&#39;]
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_c=0.0881
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_name=Orchard
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_c=0.2188
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=None
+2026-04-09 12:58:49,669 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=globcover_2009
+2026-04-09 12:58:49,670 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
+2026-04-09 12:58:49,671 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_2009 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/globcover.tif
+2026-04-09 12:58:49,681 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/globcover_mapping.csv
+2026-04-09 12:58:49,689 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=230).
+2026-04-09 12:58:49,748 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,767 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,784 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:49,810 - hydromt.model.model - model - INFO - build: setup_canopymaps
+2026-04-09 12:58:49,810 - hydromt.model.model - model - INFO - setup_canopymaps.output_name=vegetation_height
+2026-04-09 12:58:49,810 - hydromt.model.model - model - INFO - setup_canopymaps.canopy_fn=simard
+2026-04-09 12:58:49,810 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing canopy height map.
+2026-04-09 12:58:49,812 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading simard RasterDataset data from /home/runner/.hydromt/artifact_data/latest/simard.tif
+2026-04-09 12:58:49,859 - hydromt.model.model - model - INFO - build: setup_soilmaps
+2026-04-09 12:58:49,859 - hydromt.model.model - model - INFO - setup_soilmaps.soil_fn=soilgrids
+2026-04-09 12:58:49,859 - hydromt.model.model - model - INFO - setup_soilmaps.usle_k_method=renard
+2026-04-09 12:58:49,859 - hydromt.model.model - model - INFO - setup_soilmaps.add_aggregates=True
+2026-04-09 12:58:49,859 - hydromt.model.model - model - INFO - setup_soilmaps.output_names={&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_small_aggregates__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_large_aggregates__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
+2026-04-09 12:58:49,859 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
+2026-04-09 12:58:49,862 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
+2026-04-09 12:58:50,735 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
+2026-04-09 12:58:50,756 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
+2026-04-09 12:58:50,789 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
+2026-04-09 12:58:50,826 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
+2026-04-09 12:58:50,863 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
+2026-04-09 12:58:50,880 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
+2026-04-09 12:58:50,896 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
+2026-04-09 12:58:50,915 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
+2026-04-09 12:58:50,936 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
+2026-04-09 12:58:50,980 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
+2026-04-09 12:58:51,001 - hydromt.model.model - model - INFO - build: setup_outlets
+2026-04-09 12:58:51,001 - hydromt.model.model - model - INFO - setup_outlets.river_only=True
+2026-04-09 12:58:51,001 - hydromt.model.model - model - INFO - setup_outlets.toml_output=csv
+2026-04-09 12:58:51,001 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_header=[&#39;suspended_solids&#39;]
+2026-04-09 12:58:51,001 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_param=[&#39;river_water_sediment__suspended_mass_concentration&#39;]
+2026-04-09 12:58:51,001 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
+2026-04-09 12:58:51,015 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
+2026-04-09 12:58:51,015 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - build: setup_gauges
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.basename=None
+2026-04-09 12:58:51,015 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2026-04-09 12:58:51,016 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;suspended_solids&#39;]
+2026-04-09 12:58:51,016 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;]
+2026-04-09 12:58:51,016 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=grdc
+2026-04-09 12:58:51,016 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading grdc GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/grdc.csv
+2026-04-09 12:58:51,025 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 grdc gauge locations found within domain
+2026-04-09 12:58:51,325 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
+2026-04-09 12:58:51,325 - hydromt.model.model - model - INFO - build: setup_constant_pars
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_coefficient=1.75e-05
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_exponent=1.4
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__answers_overland_flow_factor=0.9
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__eurosem_exponent=2.0
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.sediment__particle_density=2650
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.clay__mean_diameter=2
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.silt__mean_diameter=10
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_small_aggregates__mean_diameter=30
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.sand__mean_diameter=200
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_large_aggregates__mean_diameter=500
+2026-04-09 12:58:51,326 - hydromt.model.model - model - INFO - setup_constant_pars.gravel__mean_diameter=2000
+2026-04-09 12:58:51,326 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
+2026-04-09 12:58:51,336 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc.
+2026-04-09 12:58:51,414 - hydromt.model.components.spatial - spatial - INFO - wflow_sediment.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/region.geojson.
+2026-04-09 12:58:51,431 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/meta_basins_highres.geojson.
+2026-04-09 12:58:51,442 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/basins.geojson.
+2026-04-09 12:58:51,445 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/rivers.geojson.
+2026-04-09 12:58:51,449 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/meta_natural_reservoirs.geojson.
+2026-04-09 12:58:51,452 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/reservoirs.geojson.
+2026-04-09 12:58:51,454 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/outlets.geojson.
+2026-04-09 12:58:51,456 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticgeoms/gauges_grdc.geojson.
+2026-04-09 12:58:51,459 - hydromt.model.components.tables - tables - INFO - wflow_sediment.tables: No tables found, skip writing.
+2026-04-09 12:58:51,459 - hydromt.model.components.grid - grid - INFO - wflow_sediment.states: No grid data found, skip writing.
+2026-04-09 12:58:51,459 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt build</strong> with:</p>
@@ -976,159 +976,159 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-04-09 12:56:38,437 - hydromt - log - INFO - HydroMT version: 1.3.1
-2026-04-09 12:56:38,576 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2026-04-09 12:56:38,576 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2026-04-09 12:56:39,214 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.3.dev0).
-2026-04-09 12:56:39,214 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-04-09 12:56:39,229 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-04-09 12:56:39,229 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
-2026-04-09 12:56:39,229 - hydromt - log - INFO - HydroMT version: 1.3.1
-2026-04-09 12:56:39,230 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
-2026-04-09 12:56:40,154 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
-2026-04-09 12:56:40,155 - hydromt - log - INFO - HydroMT version: 1.3.1
-2026-04-09 12:56:40,157 - hydromt.model.model - model - INFO - update: config.read
-2026-04-09 12:56:40,157 - hydromt.model.model - model - INFO - config.read.filename=/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_sediment.toml
-2026-04-09 12:56:40,157 - hydromt.hydromt_wflow.components.config - config - INFO - Reading user defined config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_sediment.toml.
-2026-04-09 12:56:40,157 - hydromt.model.model - model - INFO - update: setup_config
-2026-04-09 12:56:40,158 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 1, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 3, 31, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment__suspended_mass_concentration&#39;: &#39;suspended_solids&#39;}
-2026-04-09 12:56:40,158 - hydromt.model.model - model - INFO - update: setup_riverbedsed
-2026-04-09 12:56:40,158 - hydromt.model.model - model - INFO - setup_riverbedsed.bedsed_mapping_fn=None
-2026-04-09 12:56:40,158 - hydromt.model.model - model - INFO - setup_riverbedsed.strord_name=meta_streamorder
-2026-04-09 12:56:40,158 - hydromt.model.model - model - INFO - setup_riverbedsed.output_names={&#39;river_bottom_and_bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom_and_bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom_and_bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom_and_bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom_and_bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a_coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b_coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c_coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d_coefficient&#39;: &#39;river_kodatie_d&#39;}
-2026-04-09 12:56:40,158 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2026-04-09 12:56:40,158 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2026-04-09 12:56:40,166 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,170 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,175 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,179 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,183 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,188 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
-2026-04-09 12:56:40,192 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
-2026-04-09 12:56:40,196 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
-2026-04-09 12:56:40,200 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
-2026-04-09 12:56:40,228 - hydromt.model.model - model - INFO - update: setup_reservoirs
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.overwrite_existing=False
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.duplicate_id=error
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.min_area=1.0
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.trapping_default=1.0
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.geom_name=meta_reservoirs
-2026-04-09 12:56:40,229 - hydromt.model.model - model - INFO - setup_reservoirs.reservoirs_fn=hydro_reservoirs
-2026-04-09 12:56:40,229 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
-2026-04-09 12:56:40,229 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_reservoirs GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_reservoirs.gpkg
-2026-04-09 12:56:40,259 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - update: setup_natural_reservoirs
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - setup_natural_reservoirs.overwrite_existing=False
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - setup_natural_reservoirs.duplicate_id=error
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - setup_natural_reservoirs.min_area=10.0
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - setup_natural_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
-2026-04-09 12:56:40,259 - hydromt.model.model - model - INFO - setup_natural_reservoirs.geom_name=meta_natural_reservoirs
-2026-04-09 12:56:40,260 - hydromt.model.model - model - INFO - setup_natural_reservoirs.reservoirs_fn=hydro_lakes
-2026-04-09 12:56:40,260 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
-2026-04-09 12:56:40,260 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_lakes GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_lakes.gpkg
-2026-04-09 12:56:40,274 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
-2026-04-09 12:56:40,274 - hydromt.model.model - model - INFO - update: setup_lulcmaps
-2026-04-09 12:56:40,274 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=globcover_mapping_default
-2026-04-09 12:56:40,274 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_fn=None
-2026-04-09 12:56:40,274 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;soil_compacted_fraction&#39;, &#39;erosion_usle_c&#39;, &#39;land_water_fraction&#39;]
-2026-04-09 12:56:40,274 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_c=0.0881
-2026-04-09 12:56:40,275 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_name=Orchard
-2026-04-09 12:56:40,275 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_c=0.2188
-2026-04-09 12:56:40,275 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=None
-2026-04-09 12:56:40,275 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=globcover_2009
-2026-04-09 12:56:40,275 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
-2026-04-09 12:56:40,277 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_2009 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/globcover.tif
-2026-04-09 12:56:40,308 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/globcover_mapping.csv
-2026-04-09 12:56:40,318 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=230).
-2026-04-09 12:56:40,360 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,380 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,398 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
-2026-04-09 12:56:40,417 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: meta_landuse
-2026-04-09 12:56:40,419 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: soil_compacted_fraction
-2026-04-09 12:56:40,424 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: land_water_fraction
-2026-04-09 12:56:40,427 - hydromt.model.model - model - INFO - update: setup_canopymaps
-2026-04-09 12:56:40,427 - hydromt.model.model - model - INFO - setup_canopymaps.output_name=vegetation_height
-2026-04-09 12:56:40,427 - hydromt.model.model - model - INFO - setup_canopymaps.canopy_fn=simard
-2026-04-09 12:56:40,427 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing canopy height map.
-2026-04-09 12:56:40,430 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading simard RasterDataset data from /home/runner/.hydromt/artifact_data/latest/simard.tif
-2026-04-09 12:56:40,483 - hydromt.model.model - model - INFO - update: setup_soilmaps
-2026-04-09 12:56:40,483 - hydromt.model.model - model - INFO - setup_soilmaps.soil_fn=soilgrids
-2026-04-09 12:56:40,483 - hydromt.model.model - model - INFO - setup_soilmaps.usle_k_method=renard
-2026-04-09 12:56:40,483 - hydromt.model.model - model - INFO - setup_soilmaps.add_aggregates=True
-2026-04-09 12:56:40,483 - hydromt.model.model - model - INFO - setup_soilmaps.output_names={&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_small_aggregates__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_large_aggregates__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
-2026-04-09 12:56:40,483 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
-2026-04-09 12:56:40,486 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
-2026-04-09 12:56:41,399 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
-2026-04-09 12:56:41,420 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
-2026-04-09 12:56:41,453 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
-2026-04-09 12:56:41,495 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
-2026-04-09 12:56:41,542 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
-2026-04-09 12:56:41,557 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
-2026-04-09 12:56:41,573 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
-2026-04-09 12:56:41,590 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
-2026-04-09 12:56:41,610 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
-2026-04-09 12:56:41,654 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
-2026-04-09 12:56:41,681 - hydromt.model.model - model - INFO - update: setup_outlets
-2026-04-09 12:56:41,681 - hydromt.model.model - model - INFO - setup_outlets.river_only=True
-2026-04-09 12:56:41,681 - hydromt.model.model - model - INFO - setup_outlets.toml_output=csv
-2026-04-09 12:56:41,681 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_header=[&#39;suspended_solids&#39;]
-2026-04-09 12:56:41,681 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_param=[&#39;river_water_sediment__suspended_mass_concentration&#39;]
-2026-04-09 12:56:41,681 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
-2026-04-09 12:56:42,344 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: outlets
-2026-04-09 12:56:42,353 - hydromt.model.components.geoms - geoms - WARNING - Replacing geom: outlets
-2026-04-09 12:56:42,357 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
-2026-04-09 12:56:42,358 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - update: setup_gauges
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.mask=None
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.basename=None
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;suspended_solids&#39;]
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;]
-2026-04-09 12:56:42,358 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=grdc
-2026-04-09 12:56:42,359 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading grdc GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/grdc.csv
-2026-04-09 12:56:42,368 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 grdc gauge locations found within domain
-2026-04-09 12:56:43,168 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: gauges_grdc
-2026-04-09 12:56:43,181 - hydromt.model.components.geoms - geoms - WARNING - Replacing geom: gauges_grdc
-2026-04-09 12:56:43,185 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - update: setup_constant_pars
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_coefficient=1.75e-05
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_exponent=1.4
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__answers_overland_flow_factor=0.9
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__eurosem_exponent=2.0
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.sediment__particle_density=2650
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.clay__mean_diameter=2
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.silt__mean_diameter=10
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_small_aggregates__mean_diameter=30
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.sand__mean_diameter=200
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_large_aggregates__mean_diameter=500
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.gravel__mean_diameter=2000
-2026-04-09 12:56:43,186 - hydromt.model.model - model - INFO - setup_constant_pars.reservoir_water_sediment__bedload_trapping_efficiency=1.0
-2026-04-09 12:56:43,186 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
-2026-04-09 12:56:43,194 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc.
-2026-04-09 12:56:43,283 - hydromt.model.components.spatial - spatial - INFO - wflow_sediment.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/region.geojson.
-2026-04-09 12:56:43,311 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/basins.geojson.
-2026-04-09 12:56:43,313 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_reservoirs_no_control.geojson.
-2026-04-09 12:56:43,316 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_basins_highres.geojson.
-2026-04-09 12:56:43,327 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/region.geojson.
-2026-04-09 12:56:43,329 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/outlets.geojson.
-2026-04-09 12:56:43,331 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/gauges_grdc.geojson.
-2026-04-09 12:56:43,334 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/reservoirs.geojson.
-2026-04-09 12:56:43,336 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/rivers.geojson.
-2026-04-09 12:56:43,339 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/glaciers.geojson.
-2026-04-09 12:56:43,361 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_reservoirs_simple_control.geojson.
-2026-04-09 12:56:43,366 - hydromt.model.components.tables - tables - INFO - wflow_sediment.tables: No tables found, skip writing.
-2026-04-09 12:56:43,366 - hydromt.model.components.grid - grid - INFO - wflow_sediment.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/instate/instates.nc.
-2026-04-09 12:56:43,389 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml.
+2026-04-09 12:58:54,477 - hydromt - log - INFO - HydroMT version: 1.3.1
+2026-04-09 12:58:54,609 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2026-04-09 12:58:54,610 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2026-04-09 12:58:55,243 - hydromt.model.model - model - INFO - Initializing wflow_sediment model from hydromt_wflow (v1.0.3.dev0).
+2026-04-09 12:58:55,243 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-04-09 12:58:55,259 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-04-09 12:58:55,259 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
+2026-04-09 12:58:55,259 - hydromt - log - INFO - HydroMT version: 1.3.1
+2026-04-09 12:58:55,260 - hydromt.hydromt_wflow.components.config - config - WARNING - No config was found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml. It wil be initialized as empty dict
+2026-04-09 12:58:56,127 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
+2026-04-09 12:58:56,129 - hydromt - log - INFO - HydroMT version: 1.3.1
+2026-04-09 12:58:56,131 - hydromt.model.model - model - INFO - update: config.read
+2026-04-09 12:58:56,131 - hydromt.model.model - model - INFO - config.read.filename=/home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_sediment.toml
+2026-04-09 12:58:56,131 - hydromt.hydromt_wflow.components.config - config - INFO - Reading user defined config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/wflow_sediment.toml.
+2026-04-09 12:58:56,131 - hydromt.model.model - model - INFO - update: setup_config
+2026-04-09 12:58:56,131 - hydromt.model.model - model - INFO - setup_config.data={&#39;time.starttime&#39;: datetime.datetime(2010, 1, 1, 0, 0), &#39;time.endtime&#39;: datetime.datetime(2010, 3, 31, 0, 0), &#39;time.timestepsecs&#39;: 86400, &#39;output.netcdf_grid.path&#39;: &#39;output.nc&#39;, &#39;output.netcdf_grid.compressionlevel&#39;: 1, &#39;output.netcdf_grid.variables.soil_erosion__mass_flow_rate&#39;: &#39;soil_loss&#39;, &#39;output.netcdf_grid.variables.river_water_sediment__suspended_mass_concentration&#39;: &#39;suspended_solids&#39;}
+2026-04-09 12:58:56,131 - hydromt.model.model - model - INFO - update: setup_riverbedsed
+2026-04-09 12:58:56,132 - hydromt.model.model - model - INFO - setup_riverbedsed.bedsed_mapping_fn=None
+2026-04-09 12:58:56,132 - hydromt.model.model - model - INFO - setup_riverbedsed.strord_name=meta_streamorder
+2026-04-09 12:58:56,132 - hydromt.model.model - model - INFO - setup_riverbedsed.output_names={&#39;river_bottom_and_bank_sediment__median_diameter&#39;: &#39;river_bed_sediment_d50&#39;, &#39;river_bottom_and_bank_clay__mass_fraction&#39;: &#39;river_bed_clay_fraction&#39;, &#39;river_bottom_and_bank_silt__mass_fraction&#39;: &#39;river_bed_silt_fraction&#39;, &#39;river_bottom_and_bank_sand__mass_fraction&#39;: &#39;river_bed_sand_fraction&#39;, &#39;river_bottom_and_bank_gravel__mass_fraction&#39;: &#39;river_bed_gravel_fraction&#39;, &#39;river_water_sediment__kodatie_transport_capacity_a_coefficient&#39;: &#39;river_kodatie_a&#39;, &#39;river_water_sediment__kodatie_transport_capacity_b_coefficient&#39;: &#39;river_kodatie_b&#39;, &#39;river_water_sediment__kodatie_transport_capacity_c_coefficient&#39;: &#39;river_kodatie_c&#39;, &#39;river_water_sediment__kodatie_transport_capacity_d_coefficient&#39;: &#39;river_kodatie_d&#39;}
+2026-04-09 12:58:56,132 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2026-04-09 12:58:56,132 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading riverbedsed_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2026-04-09 12:58:56,139 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sediment_d50 using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,144 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_clay_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,148 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_silt_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,152 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_sand_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,156 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_bed_gravel_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,160 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_a using average resampling (nodata=nan).
+2026-04-09 12:58:56,164 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_b using average resampling (nodata=nan).
+2026-04-09 12:58:56,168 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_c using average resampling (nodata=nan).
+2026-04-09 12:58:56,173 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving river_kodatie_d using average resampling (nodata=nan).
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - update: setup_reservoirs
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.overwrite_existing=False
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.duplicate_id=error
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.min_area=1.0
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.trapping_default=1.0
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.geom_name=meta_reservoirs
+2026-04-09 12:58:56,200 - hydromt.model.model - model - INFO - setup_reservoirs.reservoirs_fn=hydro_reservoirs
+2026-04-09 12:58:56,200 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
+2026-04-09 12:58:56,201 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_reservoirs GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_reservoirs.gpkg
+2026-04-09 12:58:56,232 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - update: setup_natural_reservoirs
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.overwrite_existing=False
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.duplicate_id=error
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.min_area=10.0
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.output_names={&#39;reservoir_area__count&#39;: &#39;reservoir_area_id&#39;, &#39;reservoir_location__count&#39;: &#39;reservoir_outlet_id&#39;, &#39;reservoir_surface__area&#39;: &#39;reservoir_area&#39;, &#39;reservoir_water_sediment__bedload_trapping_efficiency&#39;: &#39;reservoir_trapping_efficiency&#39;}
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.geom_name=meta_natural_reservoirs
+2026-04-09 12:58:56,232 - hydromt.model.model - model - INFO - setup_natural_reservoirs.reservoirs_fn=hydro_lakes
+2026-04-09 12:58:56,232 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing reservoir maps.
+2026-04-09 12:58:56,232 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading hydro_lakes GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/hydro_lakes.gpkg
+2026-04-09 12:58:56,246 - hydromt.hydromt_wflow.workflows.reservoirs - reservoirs - INFO - 0 reservoir(s) of sufficient size found within region.
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - update: setup_lulcmaps
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=globcover_mapping_default
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_fn=None
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;soil_compacted_fraction&#39;, &#39;erosion_usle_c&#39;, &#39;land_water_fraction&#39;]
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.planted_forest_c=0.0881
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_name=Orchard
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.orchard_c=0.2188
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=None
+2026-04-09 12:58:56,246 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=globcover_2009
+2026-04-09 12:58:56,246 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
+2026-04-09 12:58:56,248 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_2009 RasterDataset data from /home/runner/.hydromt/artifact_data/latest/globcover.tif
+2026-04-09 12:58:56,278 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading globcover_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/globcover_mapping.csv
+2026-04-09 12:58:56,287 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=230).
+2026-04-09 12:58:56,328 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,347 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving erosion_usle_c using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,365 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
+2026-04-09 12:58:56,383 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: meta_landuse
+2026-04-09 12:58:56,386 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: soil_compacted_fraction
+2026-04-09 12:58:56,391 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: land_water_fraction
+2026-04-09 12:58:56,393 - hydromt.model.model - model - INFO - update: setup_canopymaps
+2026-04-09 12:58:56,393 - hydromt.model.model - model - INFO - setup_canopymaps.output_name=vegetation_height
+2026-04-09 12:58:56,393 - hydromt.model.model - model - INFO - setup_canopymaps.canopy_fn=simard
+2026-04-09 12:58:56,393 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing canopy height map.
+2026-04-09 12:58:56,395 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading simard RasterDataset data from /home/runner/.hydromt/artifact_data/latest/simard.tif
+2026-04-09 12:58:56,447 - hydromt.model.model - model - INFO - update: setup_soilmaps
+2026-04-09 12:58:56,447 - hydromt.model.model - model - INFO - setup_soilmaps.soil_fn=soilgrids
+2026-04-09 12:58:56,447 - hydromt.model.model - model - INFO - setup_soilmaps.usle_k_method=renard
+2026-04-09 12:58:56,447 - hydromt.model.model - model - INFO - setup_soilmaps.add_aggregates=True
+2026-04-09 12:58:56,447 - hydromt.model.model - model - INFO - setup_soilmaps.output_names={&#39;soil_clay__mass_fraction&#39;: &#39;soil_clay_fraction&#39;, &#39;soil_silt__mass_fraction&#39;: &#39;soil_silt_fraction&#39;, &#39;soil_sand__mass_fraction&#39;: &#39;soil_sand_fraction&#39;, &#39;soil_small_aggregates__mass_fraction&#39;: &#39;soil_sagg_fraction&#39;, &#39;soil_large_aggregates__mass_fraction&#39;: &#39;soil_lagg_fraction&#39;, &#39;soil_erosion__rainfall_soil_detachability_factor&#39;: &#39;erosion_soil_detachability&#39;, &#39;soil_erosion__usle_k_factor&#39;: &#39;erosion_usle_k&#39;, &#39;land_surface_sediment__median_diameter&#39;: &#39;soil_sediment_d50&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_coefficient&#39;: &#39;land_govers_c&#39;, &#39;land_surface_water_sediment__govers_transport_capacity_exponent&#39;: &#39;land_govers_n&#39;}
+2026-04-09 12:58:56,447 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Preparing soil parameter maps.
+2026-04-09 12:58:56,450 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soilgrids RasterDataset data from /home/runner/.hydromt/artifact_data/latest/soilgrids/{variable}.tif
+2026-04-09 12:58:57,349 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for erosion_soil_detachability
+2026-04-09 12:58:57,371 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for usle_k
+2026-04-09 12:58:57,402 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sediment_d50
+2026-04-09 12:58:57,439 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_c
+2026-04-09 12:58:57,476 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for land_govers_n
+2026-04-09 12:58:57,491 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_clay_fraction
+2026-04-09 12:58:57,506 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_silt_fraction
+2026-04-09 12:58:57,523 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sagg_fraction
+2026-04-09 12:58:57,543 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_sand_fraction
+2026-04-09 12:58:57,587 - hydromt.hydromt_wflow.workflows.soilgrids - soilgrids - INFO - Interpolate NAN values for soil_lagg_fraction
+2026-04-09 12:58:57,614 - hydromt.model.model - model - INFO - update: setup_outlets
+2026-04-09 12:58:57,614 - hydromt.model.model - model - INFO - setup_outlets.river_only=True
+2026-04-09 12:58:57,614 - hydromt.model.model - model - INFO - setup_outlets.toml_output=csv
+2026-04-09 12:58:57,614 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_header=[&#39;suspended_solids&#39;]
+2026-04-09 12:58:57,614 - hydromt.model.model - model - INFO - setup_outlets.gauge_toml_param=[&#39;river_water_sediment__suspended_mass_concentration&#39;]
+2026-04-09 12:58:57,614 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
+2026-04-09 12:58:58,232 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: outlets
+2026-04-09 12:58:58,241 - hydromt.model.components.geoms - geoms - WARNING - Replacing geom: outlets
+2026-04-09 12:58:58,245 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
+2026-04-09 12:58:58,245 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
+2026-04-09 12:58:58,245 - hydromt.model.model - model - INFO - update: setup_gauges
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.index_col=None
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.snap_to_river=True
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.mask=None
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.snap_uparea=False
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.max_dist=10000.0
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.wdw=3
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.rel_error=0.05
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.abs_error=50.0
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.fillna=False
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.derive_subcatch=False
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.basename=None
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.toml_output=csv
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_header=[&#39;river_q&#39;, &#39;suspended_solids&#39;]
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.gauge_toml_param=[&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;]
+2026-04-09 12:58:58,246 - hydromt.model.model - model - INFO - setup_gauges.gauges_fn=grdc
+2026-04-09 12:58:58,246 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading grdc GeoDataFrame data from /home/runner/.hydromt/artifact_data/latest/grdc.csv
+2026-04-09 12:58:58,255 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - 3 grdc gauge locations found within domain
+2026-04-09 12:58:58,988 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: gauges_grdc
+2026-04-09 12:58:59,000 - hydromt.model.components.geoms - geoms - WARNING - Replacing geom: gauges_grdc
+2026-04-09 12:58:59,004 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;river_water_sediment__suspended_mass_concentration&#39;] to csv section of toml.
+2026-04-09 12:58:59,004 - hydromt.model.model - model - INFO - update: setup_constant_pars
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_coefficient=1.75e-05
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.river_water_sediment__bagnold_transport_capacity_exponent=1.4
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__answers_overland_flow_factor=0.9
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.soil_erosion__eurosem_exponent=2.0
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.sediment__particle_density=2650
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.clay__mean_diameter=2
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.silt__mean_diameter=10
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_small_aggregates__mean_diameter=30
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.sand__mean_diameter=200
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.sediment_large_aggregates__mean_diameter=500
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.gravel__mean_diameter=2000
+2026-04-09 12:58:59,005 - hydromt.model.model - model - INFO - setup_constant_pars.reservoir_water_sediment__bedload_trapping_efficiency=1.0
+2026-04-09 12:58:59,005 - hydromt.hydromt_wflow.wflow_sediment - wflow_sediment - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2026-04-09 12:58:59,012 - hydromt.model.components.grid - grid - INFO - wflow_sediment.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc.
+2026-04-09 12:58:59,099 - hydromt.model.components.spatial - spatial - INFO - wflow_sediment.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/region.geojson.
+2026-04-09 12:58:59,126 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/basins.geojson.
+2026-04-09 12:58:59,128 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_reservoirs_no_control.geojson.
+2026-04-09 12:58:59,131 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_basins_highres.geojson.
+2026-04-09 12:58:59,142 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/region.geojson.
+2026-04-09 12:58:59,143 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/outlets.geojson.
+2026-04-09 12:58:59,145 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/gauges_grdc.geojson.
+2026-04-09 12:58:59,148 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/reservoirs.geojson.
+2026-04-09 12:58:59,150 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/rivers.geojson.
+2026-04-09 12:58:59,153 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/glaciers.geojson.
+2026-04-09 12:58:59,176 - hydromt.model.components.geoms - geoms - INFO - wflow_sediment.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticgeoms/meta_reservoirs_simple_control.geojson.
+2026-04-09 12:58:59,180 - hydromt.model.components.tables - tables - INFO - wflow_sediment.tables: No tables found, skip writing.
+2026-04-09 12:58:59,180 - hydromt.model.components.grid - grid - INFO - wflow_sediment.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/instate/instates.nc.
+2026-04-09 12:58:59,202 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt update</strong> with:</p>
