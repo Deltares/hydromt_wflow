@@ -534,7 +534,9 @@ def planar_operation_in_utm(
         ... )
         >>> centroid = planar_operation_in_utm(
         ...     gdf,
-        ...     lambda geom: geom.centroid,
+        ...     lambda geom: (
+        ...         geom.centroid
+        ...     ),
         ... )
 
     """
