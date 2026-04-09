@@ -20,9 +20,9 @@ def _rel_path(target: Path, relative_to: Path = DOCS_ROOT) -> str:
 
 # Copy notebooks to include in docs
 shutil.rmtree(EXAMPLES_DOCS, ignore_errors=True)
-shutil.copytree(EXAMPLES_SRC, EXAMPLES_DOCS)
+# shutil.copytree(EXAMPLES_SRC, EXAMPLES_DOCS)
 
-for path in [DOCS_ROOT, STATIC_DIR, TEMPLATES_DIR, EXAMPLES_DOCS]:
+for path in [DOCS_ROOT, STATIC_DIR, TEMPLATES_DIR]:#, EXAMPLES_DOCS]:
     if not path.exists():
         raise FileNotFoundError(f"Expected documentation folder not found: {path.as_posix()}. Check your setup.")
 
@@ -114,7 +114,7 @@ html_theme_options = {
         "page-toc",
     ],
     "switcher": {
-        "json_url": _rel_path(STATIC_DIR / "switcher.json"),
+        "json_url": "https://fluffy-happiness-gzowznm.pages.github.io/latest/_static/switcher.json",
         "version_match": doc_version,
     },
 }
