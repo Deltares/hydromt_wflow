@@ -394,11 +394,11 @@ def subbasin_preprocess_river_geometry(
         logger.info("Connecting rivers after basin clipping.")
         # we turn these into LineStrings again using its points
         gdf_riv["geometry"] = gdf_riv.geometry.apply(
-            lambda geom: LineString(
-                [coord for line in geom.geoms for coord in line.coords]
+            lambda geom: (
+                LineString([coord for line in geom.geoms for coord in line.coords])
+                if isinstance(geom, MultiLineString)
+                else geom
             )
-            if isinstance(geom, MultiLineString)
-            else geom
         )
 
         assert not (gdf_riv.geom_type == "MultiLineString").any()
