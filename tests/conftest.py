@@ -16,7 +16,7 @@ from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import WflowSbmModel, WflowSedimentModel
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel, utils
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -312,6 +312,19 @@ def reservoir_rating() -> dict[str, pd.DataFrame]:
     rating["reservoir_hq_3367"] = rating["reservoir_hq_169986"].copy()
 
     return rating
+
+
+@pytest.fixture
+def reservoir_outlets(example_wflow_model: WflowSbmModel) -> gpd.GeoDataFrame:
+    """Geodataframe of the reservoir outlets for testing purposes."""
+    res = example_wflow_model.staticmaps.data["reservoir_outlet_id"]
+    res_outlets = res.raster.vectorize()
+    centroid = utils.planar_operation_in_utm(res_outlets, lambda geom: geom.centroid)
+    res_outlets["geometry"] = centroid
+    # After rasterize use col value for index and reapply dtype
+    res_outlets.index = res_outlets["value"].astype(res.dtype)
+
+    return res_outlets
 
 
 @pytest.fixture
