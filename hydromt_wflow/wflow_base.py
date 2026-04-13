@@ -1027,7 +1027,7 @@ and will soon be removed. '
         )
 
         if save_raster_lulc:
-            lulc_out = str(self.root.path / "maps" / "landuse_raster.tif")
+            lulc_out = self.root.path / "maps" / "landuse_raster.tif"
         else:
             lulc_out = None
 

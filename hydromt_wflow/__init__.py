@@ -1,5 +1,7 @@
 """HydroMT plugin for wflow models."""
 
+import warnings
+
 try:
     # Rasterio 1.5 installs a broken sys.excepthook that recurses infinitely
     # on interpreter shutdown. Reset it to a safe version that prints the exception
@@ -12,20 +14,21 @@ try:
     _original_excepthook = _sys.excepthook
 
     def safe_excepthook(exc_type, exc_value, exc_tb):
-        print("REAL EXCEPTION:", file=_sys.stderr)
-        _traceback.print_exception(exc_type, exc_value, exc_tb, file=_sys.stderr)
         try:
             _original_excepthook(exc_type, exc_value, exc_tb)
         except Exception:
-            pass  # suppress the broken hook
+            _traceback.print_exception(exc_type, exc_value, exc_tb, file=_sys.stderr)
 
     _sys.excepthook = safe_excepthook
 
 except Exception:
-    print(
-        "Failed to reset broken exception hook installed by rasterio 1.5. "
-        "You may encounter issues with exception handling.",
-        file=_sys.stderr,
+    warnings.warn(
+        "Failed to patch the broken sys.excepthook installed by rasterio 1.5. "
+        "This may cause a harmless, but annoying recursive error on interpreter "
+        "shutdown. To fix this, upgrade rasterio to a version that resolves the issue "
+        "or downgrade to rasterio <1.5. You can safely ignore this warning if you do "
+        "not experience shutdown errors.",
+        category=RuntimeWarning,
     )
 
 from pathlib import Path

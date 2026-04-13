@@ -145,7 +145,7 @@ def landuse_from_vector(
     lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
-    lulc_out: Optional[str] = None,
+    lulc_out: str | Path | None = None,
 ):
     """
     Derive several wflow maps based on vector landuse-landcover (LULC) data.
