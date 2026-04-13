@@ -1,8 +1,9 @@
 """add global fixtures."""
 
+import logging
 import platform
 import sys
-from os.path import abspath, dirname, join
+from pathlib import Path
 from typing import Callable
 
 import geopandas as gpd
@@ -10,21 +11,88 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from dotenv import find_dotenv, load_dotenv
 from hydromt import DataCatalog
+from hydromt._utils import log
 from hydromt.readers import read_workflow_yaml
 from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import WflowSbmModel, WflowSedimentModel
+from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
 
-SUBDIR = ""
-if platform.system().lower() != "windows":
-    SUBDIR = "linux64"
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
-TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
+
+## Paths
+@pytest.fixture(scope="session")
+def test_data_dir() -> Path:
+    path = Path(__file__).parent / "data"
+    assert path.is_dir()
+    return path
+
+
+@pytest.fixture(scope="session")
+def data_dir() -> Path:
+    assert DATA_DIR.is_dir()
+    return DATA_DIR
+
+
+@pytest.fixture(scope="session")
+def example_dir() -> Path:
+    path = Path(__file__).parents[1] / "examples"
+    assert path.is_dir()
+    return path
+
+
+@pytest.fixture(scope="session")
+def example_models_dir(example_dir: Path) -> Path:
+    path = example_dir
+    if platform.system().lower() != "windows":
+        path = path / "linux64"
+    assert path.is_dir()
+    return path
+
+
+@pytest.fixture(scope="session")
+def example_data_dir(example_dir: Path) -> Path:
+    path = example_dir / "data"
+    assert path.is_dir()
+    return path
+
+
+@pytest.fixture(scope="session")
+def demand_data_catalog_path(example_data_dir: Path) -> Path:
+    path = example_data_dir / "demand" / "data_catalog.yml"
+    assert path.is_file()
+    return path
+
+
+@pytest.fixture(scope="session")
+def plots_dir(test_data_dir: Path) -> Path:
+    return test_data_dir / ".plots"
+
+
+## Configuration
+@pytest.fixture(scope="session", autouse=True)
+def load_env_from_file():
+    """Load environment variables from a .env file if it exists."""
+    path = find_dotenv()
+    if path:
+        load_dotenv(path)
+        print(f"Loading environment variables from {path}")
+    else:
+        print("No .env file found, skipping loading environment variables.")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _configure_logging():
+    """Set up logging for tests based on test settings."""
+    log.initialize_logging()
+    logging.getLogger("hydromt").setLevel(logging.INFO)
+    root_logger = logging.getLogger("hydromt_wflow")
+    root_logger.setLevel(logging.INFO)
+    return root_logger
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -62,28 +130,25 @@ def _configure_dask_for_py313():
 
 ## Models
 @pytest.fixture
-def example_wflow_model():
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+def example_wflow_model(
+    example_models_dir: Path, demand_data_catalog_path: Path
+) -> WflowSbmModel:
     mod = WflowSbmModel(
-        root=root,
+        root=str(example_models_dir / "wflow_piave_subbasin"),
         mode="r",
-        data_libs=[
-            "artifact_data",
-            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
-        ],
+        data_libs=["artifact_data", str(demand_data_catalog_path)],
     )
     return mod
 
 
 @pytest.fixture
-def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowSbmModel]:
+def example_wflow_model_factory(
+    example_models_dir: Path, demand_data_catalog_path: Path
+) -> Callable[[str, str, list[str]], WflowSbmModel]:
     def factory(
-        root: str = join(EXAMPLEDIR, "wflow_piave_subbasin"),
+        root: str = str(example_models_dir / "wflow_piave_subbasin"),
         mode: str = "r",
-        data_libs: list[str] = [
-            "artifact_data",
-            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
-        ],
+        data_libs: list[str] = ["artifact_data", str(demand_data_catalog_path)],
     ) -> WflowSbmModel:
         return WflowSbmModel(root=root, mode=mode, data_libs=data_libs)
 
@@ -91,10 +156,9 @@ def example_wflow_model_factory() -> Callable[[str, str, list[str]], WflowSbmMod
 
 
 @pytest.fixture
-def example_sediment_model() -> WflowSedimentModel:
-    root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
+def example_sediment_model(example_models_dir: Path) -> WflowSedimentModel:
     mod = WflowSedimentModel(
-        root=root,
+        root=str(example_models_dir / "wflow_sediment_piave_subbasin"),
         mode="r",
         data_libs=["artifact_data"],
     )
@@ -114,22 +178,22 @@ def example_models(
 
 
 @pytest.fixture
-def wflow_ini():
-    config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
+def wflow_ini(test_data_dir: Path):
+    config = str(test_data_dir / "wflow_piave_build_subbasin.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
 
 @pytest.fixture
-def sediment_ini():
-    config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
+def sediment_ini(test_data_dir: Path):
+    config = str(test_data_dir / "wflow_sediment_piave_build_subbasin.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
 
 @pytest.fixture
-def wflow_simple_ini():
-    config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
+def wflow_simple_ini(example_dir: Path):
+    config = str(example_dir / "wflow_build.yml")
     _, _, steps = read_workflow_yaml(config)
     return steps
 
@@ -145,29 +209,31 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_outputs() -> WflowSbmModel:
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-    mod = WflowSbmModel(root=root, mode="r", config_filename=config_fn)
+def example_wflow_outputs(example_models_dir: Path) -> WflowSbmModel:
+    mod = WflowSbmModel(
+        root=str(example_models_dir / "wflow_piave_subbasin"),
+        mode="r",
+        config_filename="wflow_sbm_results.toml",
+    )
     return mod
 
 
 @pytest.fixture
-def clipped_wflow_model() -> WflowSbmModel:
-    root = join(EXAMPLEDIR, "wflow_piave_clip")
+def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
     mod = WflowSbmModel(
-        root=root,
+        root=str(example_models_dir / "wflow_piave_clip"),
         mode="r",
     )
     return mod
 
 
 @pytest.fixture
-def floodplain1d_testdata() -> xr.Dataset:
-    data = xr.load_dataset(
-        join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
-        lock=False,
-    )
+def floodplain1d_testdata(test_data_dir: Path) -> xr.Dataset:
+    if platform.system().lower() != "windows":
+        _data_dir = test_data_dir / "linux64"
+    else:
+        _data_dir = test_data_dir
+    data = xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
     # Rename testdata variables to match the model
     for var in data.data_vars:
         if "hydrodem" in var:
@@ -195,20 +261,14 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
-def rivers1d() -> gpd.GeoDataFrame:
+def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
-    data = gpd.read_file(
-        join(dirname(abspath(__file__)), "..", "examples", "data", "rivers.geojson"),
-    )
-    return data
+    return gpd.read_file(example_data_dir / "rivers.geojson")
 
 
 @pytest.fixture
-def rivers1d_projected() -> gpd.GeoDataFrame:
-    data = gpd.read_file(
-        join(dirname(abspath(__file__)), "data", "1d-river-3857.geojson"),
-    )
-    return data
+def rivers1d_projected(test_data_dir: Path) -> gpd.GeoDataFrame:
+    return gpd.read_file(test_data_dir / "1d-river-3857.geojson")
 
 
 @pytest.fixture

@@ -2,9 +2,7 @@
 
 # Implement model class following model API
 import logging
-import os
 import tomllib
-from os.path import isfile, join
 from pathlib import Path
 from typing import Any
 
@@ -784,7 +782,7 @@ setting new flood_depth dimensions"
                     i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or self.data_catalog.contains_source(
+                    if Path(rating_fn).is_file() or self.data_catalog.contains_source(
                         rating_fn
                     ):
                         logger.info(
@@ -1446,11 +1444,10 @@ setting new flood_depth dimensions"
             )
 
             if save_high_resolution_lulc:
-                output_dir = join(self.root.path, "maps")
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                landuse.raster.to_raster(join(output_dir, "landuse_with_paddy.tif"))
-                df_mapping.to_csv(join(output_dir, "landuse_with_paddy_mapping.csv"))
+                output_dir = self.root.path / "maps"
+                output_dir.mkdir(exist_ok=True)
+                landuse.raster.to_raster(str(output_dir / "landuse_with_paddy.tif"))
+                df_mapping.to_csv(str(output_dir / "landuse_with_paddy_mapping.csv"))
 
         # Prepare landuse parameters
         landuse_maps = workflows.landuse(
@@ -1612,11 +1609,11 @@ setting new flood_depth dimensions"
                 lulc_zero_classes=lulc_zero_classes,
             )
             # Save to csv
-            if isinstance(lulc_fn, str) and not isfile(lulc_fn):
+            if isinstance(lulc_fn, str) and not Path(lulc_fn).is_file():
                 df_fn = f"lai_per_lulc_{lulc_fn}.csv"
             else:
                 df_fn = "lai_per_lulc.csv"
-            df_lai_mapping.to_csv(join(self.root.path, df_fn))
+            df_lai_mapping.to_csv(str(self.root.path / df_fn))
 
         # Resample LAI data to wflow model resolution
         da_lai = workflows.lai(
