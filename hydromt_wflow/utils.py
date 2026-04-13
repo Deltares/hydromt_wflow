@@ -2,7 +2,6 @@
 
 import functools
 import logging
-import os
 from pathlib import Path
 from typing import Any, Callable, Union
 
@@ -108,8 +107,7 @@ def get_config(
                 raise ValueError(
                     "root path is required to get absolute path from relative path"
                 )
-            value = Path(os.path.abspath(os.path.join(root, value)))
-
+            value = Path(root, value).resolve()
     return value
 
 

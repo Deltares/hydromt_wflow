@@ -41,13 +41,13 @@ classifiers = [
 ]
 
 # Core dependencies
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
   "dask",
   "geopandas>=0.10",
   "hydromt>=1.3.1",
   "numpy",
-  "rasterio<1.5",
+  "rasterio",
   "pandas<4",
   "pyflwdir>=0.5.7",
   "pyproj",
@@ -77,6 +77,8 @@ test = [
   "pytest-mock",
   "pytest-timeout",
   "pytest-benchmark",
+  "matplotlib",
+  "python-dotenv",
 ]
 full = ["hydromt_wflow[extra,examples]"]
 dev = ["hydromt_wflow[dist,lint,docs,test]"]
