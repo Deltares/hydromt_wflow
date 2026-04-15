@@ -290,7 +290,6 @@ def ponding_level_from_suitability(
     suitability: xr.DataArray,
     ds_like: xr.Dataset,
     pond_level: float = 0.2,
-    min_pond_level: float = 0.0,
     basin_mask_name: str = "basins",
 ) -> xr.DataArray:
     """Assign ponding level based on NBS suitability map.
@@ -303,8 +302,6 @@ def ponding_level_from_suitability(
         Wflow staticmaps for reprojection.
     pond_level : float, optional
         Ponding level to assign to suitable areas, by default 0.2
-    min_pond_level : float, optional
-        Minimum ponding level to assign to unsuitable areas, by default 0.0
 
     Returns
     -------
@@ -312,7 +309,7 @@ def ponding_level_from_suitability(
         Array with assigned ponding levels based on suitability.
     """
     # Create ponding level map based on suitability
-    ponding_level = xr.where(suitability == 1, pond_level, min_pond_level)
+    ponding_level = xr.where(suitability == 1, pond_level, 0.0)
     ponding_level.name = "ponding_level"
     ponding_level.attrs["long_name"] = "ponding level"
     if "long_name" in suitability.attrs:
@@ -328,6 +325,6 @@ def ponding_level_from_suitability(
     if basin_mask_name in ds_like:
         logger.info("Calculating ponding coverage at model resolution.")
         basin_mask = ds_like[basin_mask_name].copy()
-        _compute_nbs_coverage(ponding_level, basin_mask, min_value=min_pond_level)
+        _compute_nbs_coverage(ponding_level, basin_mask, min_value=0.0)
 
     return ponding_level

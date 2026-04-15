@@ -58,8 +58,7 @@ Setup ponding from map
 ^^^^^^^^^^^^^^^^^^^^^^
 In this example, we will set up ponding in a Wflow model based on a user-defined ponding map
 (vector file). We will specify a ponding level that determines the maximum depth at which
-water will pond on the surface and a minimum depth of 0.001 m for the other cells (to avoid
-computation issues with the local inertial routing equation).
+water will pond on the surface.
 
 .. tab-set::
 
@@ -82,7 +81,6 @@ computation issues with the local inertial routing equation).
               - setup_ponding_from_map:
                   pond_fn: "./path/to/pond_locations.shp" # polygons with pond locations
                   pond_level: 0.1 # ponding level in m
-                  min_pond_level: 0.001 # minimum ponding level for other cells in m
                   output_name: "ponding_level" # name of the output variable in the model staticmaps
 
     .. tab-item:: Python API
@@ -103,7 +101,6 @@ computation issues with the local inertial routing equation).
             model.setup_ponding_from_map(
                 pond_fn="./path/to/pond_locations.shp", # polygons with pond locations
                 pond_level=0.1, # ponding level in m
-                min_pond_level=0.001, # minimum ponding level for other cells in m
                 output_name="ponding_level", # name of the output variable in the model staticmaps
             )
 
@@ -138,7 +135,6 @@ criteria derived from landuse and hydrography maps. For example in the case of s
                   slope_range: (0.129, 0.3) # slope range in m/m
                   hand_range: (5.9, 20) # hand range in m
                   pond_level: 0.02 # ponding level in m
-                  min_pond_level: 0.0 # minimum ponding level for other cells in m
                   output_name: "ponding_level_forested_hillslope" # name of the output variable in the model staticmaps
 
     .. tab-item:: Python API
@@ -165,6 +161,5 @@ criteria derived from landuse and hydrography maps. For example in the case of s
                 slope_range=(0.129, 0.3), # slope range in m/m
                 hand_range=(5.9, 20), # hand range in m
                 pond_level=0.02, # ponding level in m
-                min_pond_level=0.0, # minimum ponding level for other cells in m
                 output_name="ponding_level_forested_hillslope", # name of the output variable in the model staticmaps
             )

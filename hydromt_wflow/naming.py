@@ -344,7 +344,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v1": "land_surface__slope",
         "hydromt_name": "lndslp",
     },
-    "land_pond_threshold": {  # TODO: check final name in wflow
+    "land_pond_threshold": {
         "wflow_v0": "lateral.land.h_thresh",
         "wflow_v1": "land_surface_water__depth_threshold",
     },

@@ -1700,7 +1700,6 @@ setting new flood_depth dimensions"
         self,
         pond_fn: str | xr.DataArray | gpd.GeoDataFrame,
         pond_level: float = 0.2,
-        min_pond_level: float = 0.0,
         output_name: str = "ponding_level",
     ):
         """
@@ -1731,15 +1730,10 @@ setting new flood_depth dimensions"
         pond_level : float, optional
             Ponding level to be assigned to cells where ponding is present [m], by
             default 0.2 m.
-        min_pond_level : float, optional
-            Minimum ponding level to be assigned to cells where ponding is not present
-            [m], by default 0.0 m.
         output_name : str, optional
             Name of the output ponding level map, by default "ponding_level".
         """
         logger.info("Preparing ponding map based on provided pond location map.")
-        # TODO: update wflow_var to the correct variable name
-        # once it is implemented in wflow
         wflow_var = "land_surface_water__depth_threshold"
 
         # Read ponding location data
@@ -1760,12 +1754,10 @@ setting new flood_depth dimensions"
         pond_mask = pond_data != pond_data.raster.nodata
 
         # Create ponding level map
-        # TODO: check if min_pond_level should be derived from river routing method
         ponding_level = workflows.ponding_level_from_suitability(
             suitability=pond_mask,
             ds_like=self.staticmaps.data,
             pond_level=pond_level,
-            min_pond_level=min_pond_level,
             basin_mask_name=self._MAPS["basins"],
         )
 
@@ -1774,7 +1766,7 @@ setting new flood_depth dimensions"
         self.staticmaps.set(ponding_level.rename(output_name))
 
         # Update config
-        self.config.set("model.reinfiltration", True)  # TODO: check final name in wflow
+        self.config.set("model.reinfiltration_surfacewater__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
@@ -1787,7 +1779,6 @@ setting new flood_depth dimensions"
         slope_range: tuple[float, float] | None = None,
         hand_range: tuple[float, float] | None = None,
         pond_level: float = 0.2,
-        min_pond_level: float = 0.0,
         river_upa: float | None = None,
         output_name: str = "ponding_level",
     ):
@@ -1839,9 +1830,6 @@ setting new flood_depth dimensions"
             criterion).
         pond_level : float, optional
             Ponding level to be assigned to suitable cells, by default 0.2 m.
-        min_pond_level : float, optional
-            Minimum ponding level to be assigned to cells that are not suitable based on
-            the criteria, by default 0.0 m.
         river_upa : float, optional
             Upstream area threshold for river cells [km2], by default None as it should
             be determined from staticmaps. Used to define drains for hand calculation.
@@ -1849,8 +1837,6 @@ setting new flood_depth dimensions"
             Name of the output ponding level map, by default "ponding_level".
         """
         logger.info("Preparing ponding map based on suitability thresholds.")
-        # TODO: update wflow_var to the correct variable name
-        # once it is implemented in wflow
         wflow_var = "land_surface_water__depth_threshold"
 
         # Read hydrography data if needed
@@ -1900,12 +1886,10 @@ setting new flood_depth dimensions"
         )
 
         # Assign ponding level based on suitability
-        # TODO: check if min_pond_level should be derived from river routing method
         ponding_level = workflows.ponding_level_from_suitability(
             suitability=ponding_suitability,
             ds_like=self.staticmaps.data,
             pond_level=pond_level,
-            min_pond_level=min_pond_level,
             basin_mask_name=self._MAPS["basins"],
         )
 
@@ -1914,7 +1898,7 @@ setting new flood_depth dimensions"
         self.staticmaps.set(ponding_level.rename(output_name))
 
         # Update config
-        self.config.set("model.reinfiltration", True)  # TODO: check final name in wflow
+        self.config.set("model.reinfiltration_surfacewater__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
