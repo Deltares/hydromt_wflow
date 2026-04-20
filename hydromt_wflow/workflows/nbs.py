@@ -117,7 +117,10 @@ def _compute_nbs_coverage(
     area_nbs = round(
         area.where((nbs_map > min_value) & (basin_mask == 1), np.nan).sum().values / 1e6
     )
-
+    if area_basin == 0:
+        raise ValueError(
+            "Basin mask contains no valid pixels; cannot compute NBS coverage."
+        )
     area_nbs_perc = round(area_nbs / area_basin * 100, 2)
     logger.info(
         f"NBS coverage: {round(area_nbs, 2)} km2 ({area_nbs_perc} % of basin area)"
@@ -276,7 +279,10 @@ def nbs_suitability_from_thresholds(
             f"land use classes {lulc_classes}."
         )
     }
-    suitability.raster.set_crs(hydro_data.raster.crs)
+    if hydro_data is not None:
+        suitability.raster.set_crs(hydro_data.raster.crs)
+    elif landuse is not None:
+        suitability.raster.set_crs(landuse.raster.crs)
     suitability.raster.set_nodata(0)
 
     if basin_mask is not None:
