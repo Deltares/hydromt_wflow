@@ -441,7 +441,7 @@ def test_nbs_long_name_records_criteria(hydro_ds: xr.Dataset):
 
 
 def test_nbs_nodata_is_zero(hydro_ds: xr.Dataset):
-    """Nodata is set to 0, meaning unsuitable pixels and nodata are indistinguishable."""
+    """Nodata is set to 0, unsuitable pixels and nodata are indistinguishable."""
     result = nbs_suitability_from_thresholds(
         hydro_data=hydro_ds, elevtn_range=(0.0, 9999.0)
     )
