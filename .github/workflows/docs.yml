@@ -120,6 +120,26 @@ jobs:
             cp -r site/${DOC_VERSION}/* site/stable/
           fi
 
+      - name: Create root redirect
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          # Accessing the main docs root results in a 404 because there is no root level index.html
+          # This one ONLY redirects visitors of the main docs root to the latest alias:
+          # `https://hydromt-wflow-docs-internal.deltares.nl/` get redirected to `https://hydromt-wflow-docs-internal.deltares.nl/latest/`
+          cat > site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="0; url=./latest/">
+              <link rel="canonical" href="./latest/">
+            </head>
+            <body>
+              <p>Redirecting to <a href="./latest/">latest docs</a>...</p>
+            </body>
+          </html>
+          EOF
+
       - name: Setup Pages
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/configure-pages@v5
