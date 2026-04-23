@@ -7,7 +7,7 @@ import hydromt_wflow
 
 # URL to the switcher.json file for version switching in the docs. See https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/version-dropdown.html
 # This should point to a stable URL where the switcher.json file is hosted. (e.g. the static files of the latest published docs build)
-SWITCHER_JSON_URL = "https://fluffy-happiness-gzowznm.pages.github.io/latest/_static/switcher.json"
+SWITCHER_JSON_URL = "https://hydromt-wflow-docs-internal.deltares.nl/latest/_static/switcher.json"
 
 # -- Path setup --------------------------------------------------------------
 DOCS_ROOT = Path(__file__).parent.resolve()

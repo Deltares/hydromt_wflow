@@ -81,7 +81,7 @@ jobs:
           # Check if the current release version exists
           if ! jq --arg ver "${DOC_VERSION}" 'any(.[]; .version==$ver)' "$SWITCHER_JSON" | grep -q true; then
             echo "Error: Release version ${DOC_VERSION} is not present in $SWITCHER_JSON.\n"
-            echo "Add it to the list of released versions using the base url 'https://fluffy-happiness-gzowznm.pages.github.io/' and re-run this workflow."
+            echo "Add it to the list of released versions using the base url 'https://hydromt-wflow-docs-internal.deltares.nl/' and re-run this workflow."
             exit 1
           fi
 
