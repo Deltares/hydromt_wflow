@@ -478,6 +478,7 @@ skipping adding gauge specific outputs to the toml."
         min_rivwth: float = 30,
         rivdph_method: str | None = "powlaw",
         min_rivdph: float = 1,
+        river_depth_kwargs: dict | None = None,
         output_names: dict = {
             "river_location__mask": "river_mask",
             "river__length": "river_length",
@@ -557,6 +558,8 @@ skipping adding gauge specific outputs to the toml."
             Set to None to skip river depth estimation.
         min_rivdph : float, optional
             Minimum river depth [m], by default 1.0
+        river_depth_kwargs : dict, optional
+            Additional keyword arguments for river_depth method, by default None.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -617,6 +620,7 @@ skipping adding gauge specific outputs to the toml."
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
+                river_depth_kwargs=river_depth_kwargs,
             )
             rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.staticmaps.set(ds_riv1.rename(rmdict))
