@@ -469,6 +469,7 @@ skipping adding gauge specific outputs to the toml."
     @hydromt_step
     def setup_rivers(
         self,
+        *,
         hydrography_fn: str | xr.Dataset,
         river_geom_fn: str | gpd.GeoDataFrame | None = None,
         river_upa: float = 30,
