@@ -66,6 +66,7 @@ class WflowSedimentModel(WflowBaseModel):
             "river__width": "river_width",
             "river__slope": "river_slope",
         },
+        river_depth_kwargs: dict | None = None,
     ):
         """
         Set all river parameter maps.
@@ -136,6 +137,8 @@ class WflowSedimentModel(WflowBaseModel):
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
+        river_depth_kwargs : dict, optional
+            Additional keyword arguments for river_depth method, by default None.
         """
         super().setup_rivers(
             hydrography_fn=hydrography_fn,
@@ -148,6 +151,7 @@ class WflowSedimentModel(WflowBaseModel):
             rivdph_method=None,
             min_rivdph=None,
             output_names=output_names,
+            river_depth_kwargs=river_depth_kwargs,
         )
 
     @hydromt_step

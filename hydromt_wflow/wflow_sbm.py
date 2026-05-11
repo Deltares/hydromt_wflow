@@ -102,6 +102,7 @@ class WflowSbmModel(WflowBaseModel):
             "river__slope": "river_slope",
             "river_bank_water__elevation": "river_bank_elevation",
         },
+        river_depth_kwargs: dict | None = None,
     ):
         """
         Set full river parameter maps including river depth and bank elevation.
@@ -198,6 +199,8 @@ class WflowSbmModel(WflowBaseModel):
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
+        river_depth_kwargs : dict, optional
+            Additional keyword arguments for river_depth method, by default None.
 
         See Also
         --------
@@ -217,6 +220,7 @@ class WflowSbmModel(WflowBaseModel):
             rivdph_method=rivdph_method,
             min_rivdph=min_rivdph,
             output_names=output_names,
+            river_depth_kwargs=river_depth_kwargs,
         )
 
         routing_options = ["kinematic_wave", "local_inertial"]
