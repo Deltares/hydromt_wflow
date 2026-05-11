@@ -262,3 +262,25 @@ def test_wflow_forcing_component_write_lazy_data(
         assert forcing_layer.name in ds.variables
         assert ds[forcing_layer.name].shape == forcing_layer.shape
         assert np.array_equal(ds[forcing_layer.name].values, forcing_layer.values)
+
+
+def test_wflow_forcing_component_write_raises_on_missing_data(
+    mock_model: MagicMock,
+    forcing_layer: xr.DataArray,
+):
+    """Test that write raises ValueError when forcing has NaN on active cells."""
+    component = WflowForcingComponent(mock_model)
+
+    # Introduce NaN at specific timesteps to simulate missing source data
+    data = forcing_layer.copy(deep=True)
+    data.values[5, :, :] = np.nan  # entire slice missing at timestep 5
+    data.values[10, 0, 0] = np.nan  # partial missing at timestep 10
+    component._data = data.to_dataset(promote_attrs=True)
+
+    type(component.model.config).get_value = MagicMock(return_value="")
+
+    with pytest.raises(
+        ValueError,
+        match="Forcing data contains missing values on active model cells",
+    ):
+        component.write(filename="inmaps.nc")

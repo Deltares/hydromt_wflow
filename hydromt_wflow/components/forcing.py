@@ -172,6 +172,9 @@ class WflowForcingComponent(GridComponent):
         logger.info("Write forcing file")
         start_time, end_time = self._validate_timespan(starttime, endtime)
 
+        # Check for missing data on active model cells
+        self._check_forcing_missing_data()
+
         if Path(p_input).is_absolute():
             filepath = Path(p_input)
         else:
@@ -434,6 +437,47 @@ class WflowForcingComponent(GridComponent):
         return len(self.data.data_vars) == 0 or all(
             var.size == 0 for var in self.data.data_vars.values()
         )
+
+    def _check_forcing_missing_data(self) -> None:
+        """Check for missing (NaN) data on active model cells.
+
+        For each forcing variable, determines the expected number of active cells
+        from the maximum valid-cell count across all timesteps, then identifies
+        timesteps where fewer cells have data (indicating missing source data).
+
+        Raises
+        ------
+        ValueError
+            If any forcing variable has timesteps with missing data on active cells.
+        """
+        ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
+        if len(ds.data_vars) == 0 or "time" not in ds.dims:
+            return
+
+        issues: list[str] = []
+        for var_name in ds.data_vars:
+            da = ds[var_name]
+            # Count valid (non-NaN) cells per timestep across spatial dims
+            spatial_dims = [d for d in da.dims if d != "time"]
+            valid_counts = da.notnull().sum(dim=spatial_dims).values
+            expected_count = int(valid_counts.max())
+            if expected_count == 0:
+                continue
+
+            # Timesteps with fewer valid cells than expected
+            missing_mask = valid_counts < expected_count
+            if missing_mask.any():
+                missing_times = da.time.values[missing_mask]
+                timestamps = ", ".join(str(t) for t in missing_times)
+                issues.append(
+                    f"  - '{var_name}': missing data on active cells at: {timestamps}"
+                )
+
+        if issues:
+            raise ValueError(
+                "Forcing data contains missing values on active model cells. "
+                "This will cause errors when running the model.\n" + "\n".join(issues)
+            )
 
     def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
         """Test if two forcing components are equal.
