@@ -70,7 +70,6 @@ Defines land use and vegetation properties, including LULC and LAI maps, which i
    WflowSbmModel.setup_lulcmaps
    WflowSbmModel.setup_lulcmaps_from_vector
    WflowSbmModel.setup_lulcmaps_with_paddy
-   WflowSbmModel.setup_agroforestry
    WflowSbmModel.setup_laimaps
    WflowSbmModel.setup_laimaps_from_lulc_mapping
    WflowSbmModel.setup_rootzoneclim
@@ -87,6 +86,17 @@ Sets up soil-related data including soil maps and hydraulic properties.
    WflowSbmModel.setup_ksathorfrac
    WflowSbmModel.setup_ksatver_vegetation
 
+
+Nature-Based Solutions
+----------------------
+Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSbmModel.setup_agroforestry
+   WflowSbmModel.setup_ponding_from_map
+   WflowSbmModel.setup_ponding_from_thresholds
 
 Water Demands and Allocation
 ============================

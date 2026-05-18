@@ -29,4 +29,5 @@ separately in the **User Guide**.
    setup_x
    setup_lulcmaps
    setup_agroforestry
+   setup_ponding
    setup_grid_from_geodataset

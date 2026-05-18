@@ -2241,3 +2241,44 @@ one variable and variables list is not provided."
         self.staticmaps.set(ds_lulc_maps.rename(rename_dict))
         # Add entries to the config
         self._update_config_variable_name(ds_lulc_maps.rename(rename_dict).data_vars)
+
+    def _get_raster_or_vector_data(
+        self,
+        data_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        data_name: str,
+    ) -> xr.DataArray | gpd.GeoDataFrame:
+        """Get data from a raster or vector source."""
+        if isinstance(data_fn, str) and data_fn in self.data_catalog.sources:
+            _data_type = self.data_catalog.get_source(data_fn).data_type
+            if _data_type == "RasterDataset":
+                data = self.data_catalog.get_rasterdataset(
+                    data_fn,
+                    geom=self.region,
+                    buffer=2,
+                    single_var_as_array=True,
+                )
+                if not isinstance(data, xr.DataArray):
+                    raise ValueError(f"{data_name} data should have a single variable.")
+            elif _data_type == "GeoDataFrame":
+                data = self.data_catalog.get_geodataframe(
+                    data_fn,
+                    geom=self.region,
+                    predicate="intersects",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+            else:
+                raise ValueError(
+                    f"Data type {_data_type} of {data_fn} not supported. "
+                    f"{data_name} data should be either a raster or vector dataset."
+                )
+        elif isinstance(data_fn, str):
+            raise ValueError(f"{data_name} data {data_fn} not found in data catalog.")
+        elif not isinstance(data_fn, (xr.DataArray, gpd.GeoDataFrame)):
+            raise ValueError(
+                f"{data_name} data should be either a name in the data catalog, a "
+                "raster (xarray.DataArray) or a vector dataset (geopandas.GeoDataFrame)"
+            )
+        else:
+            data = data_fn
+
+        return data

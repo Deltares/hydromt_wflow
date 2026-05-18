@@ -116,9 +116,6 @@ Defines land use and vegetation properties, including LULC and LAI maps, which i
     * - :py:meth:`~WflowSbmModel.setup_lulcmaps_with_paddy`
       - Derive several wflow maps based on landuse- landcover (LULC) raster data with paddy rice.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`
-    * - :py:meth:`~WflowSbmModel.setup_agroforestry`
-      - Add agroforestry areas and update landuse and related parameters.
-      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
     * - :py:meth:`~WflowSbmModel.setup_laimaps`
       - Set leaf area index (LAI) climatology maps per month.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
@@ -150,6 +147,28 @@ Sets up soil-related data including soil maps and hydraulic properties.
     * - :py:meth:`~WflowSbmModel.setup_ksatver_vegetation`
       - Prepare ksatver from soil and vegetation parameters.
       - :py:meth:`~WflowSbmModel.setup_soilmaps`, :py:meth:`~WflowSbmModel.setup_laimaps` or equivalent.
+
+Nature-Based Solutions
+----------------------
+Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.
+
+.. list-table::
+    :widths: 20 60 20
+    :header-rows: 1
+    :stub-columns: 1
+
+    * - Method
+      - Explanation
+      - Required Setup Method
+    * - :py:meth:`~WflowSbmModel.setup_agroforestry`
+      - Add agroforestry areas and update landuse and related parameters.
+      - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
+    * - :py:meth:`~WflowSbmModel.setup_ponding_from_map`
+      - Set ponding water levels based on a raster or vector pond location map.
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_ponding_from_thresholds`
+      - Set ponding water levels based on landuse / hydrography threshold values.
+      - :py:meth:`~WflowSbmModel.setup_rivers`
 
 Water demands and Allocation
 ----------------------------
