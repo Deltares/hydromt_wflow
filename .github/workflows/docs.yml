@@ -81,7 +81,7 @@ jobs:
           # Check if the current release version exists
           if ! jq --arg ver "${DOC_VERSION}" 'any(.[]; .version==$ver)' "$SWITCHER_JSON" | grep -q true; then
             echo "Error: Release version ${DOC_VERSION} is not present in $SWITCHER_JSON.\n"
-            echo "Add it to the list of released versions using the base url 'https://fluffy-happiness-gzowznm.pages.github.io/' and re-run this workflow."
+            echo "Add it to the list of released versions using the base url 'https://hydromt-wflow-docs-internal.deltares.nl/' and re-run this workflow."
             exit 1
           fi
 
@@ -119,6 +119,26 @@ jobs:
             mkdir -p site/stable
             cp -r site/${DOC_VERSION}/* site/stable/
           fi
+
+      - name: Create root redirect
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          # Accessing the main docs root results in a 404 because there is no root level index.html
+          # This one ONLY redirects visitors of the main docs root to the latest alias:
+          # `https://hydromt-wflow-docs-internal.deltares.nl/` get redirected to `https://hydromt-wflow-docs-internal.deltares.nl/latest/`
+          cat > site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta http-equiv="refresh" content="0; url=./latest/">
+              <link rel="canonical" href="./latest/">
+            </head>
+            <body>
+              <p>Redirecting to <a href="./latest/">latest docs</a>...</p>
+            </body>
+          </html>
+          EOF
 
       - name: Setup Pages
         if: ${{ github.event_name != 'pull_request' }}
