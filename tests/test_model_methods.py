@@ -425,6 +425,38 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
+def test_setup_rivers_smooth_len_affects_result(example_wflow_model: WflowSbmModel):
+    """Verify that different smooth_len values produce different river widths.
+
+    Before the fix (GH#740), ``min(1, ...)`` was used instead of ``max(1, ...)``,
+    causing nsmooth to always be 1 regardless of smooth_len.  With the fix,
+    a larger smooth_len yields more smoothing and a visibly different result.
+    """
+    common_kwargs = dict(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method=None,
+        min_rivwth=30,
+        slope_len=2000,
+        river_routing="local_inertial",
+        elevtn_map="land_elevation",
+        output_names={},
+    )
+
+    example_wflow_model.setup_rivers(smooth_len=5_000, **common_kwargs)
+    rivwth_small = example_wflow_model.staticmaps.data["river_width"].copy()
+
+    example_wflow_model.setup_rivers(smooth_len=50_000, **common_kwargs)
+    rivwth_large = example_wflow_model.staticmaps.data["river_width"]
+
+    # With the bug both would be identical (nsmooth=1 in both cases).
+    assert not rivwth_small.equals(rivwth_large), (
+        "river_width should differ for smooth_len=5000 vs 50000; "
+        "if equal, nsmooth is likely clamped to 1 (the old min bug)"
+    )
+
+
 def test_setup_rivers_no_subgrid(tmpdir: Path):
     # Instantiate new wflow model
     # Region
