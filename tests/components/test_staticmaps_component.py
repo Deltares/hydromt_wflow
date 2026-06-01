@@ -228,8 +228,9 @@ def test_wflow_staticmaps_component_read_empty(
     tmp_path: Path,
     mock_model: MagicMock,
 ):
+    # Create a dummy file to prevent ModelRoot._cleanup from deleting the tmp_path
+    (tmp_path / "tmp").touch()
     # Set the root to model dir in read mode
-    tmp_path.mkdir(exist_ok=True)
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
     )

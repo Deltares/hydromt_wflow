@@ -159,8 +159,10 @@ def test_wflow_config_component_read_default_read_mode(
     mock_model: MagicMock,
     data_dir: Path,
 ):
+    # Create a dummy file to prevent ModelRoot._cleanup from deleting the tmp_path
+    (tmp_path / "tmp").touch()
+
     # Set it to read mode
-    tmp_path.mkdir(exist_ok=True)
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
     )
