@@ -160,6 +160,7 @@ def test_wflow_config_component_read_default_read_mode(
     data_dir: Path,
 ):
     # Set it to read mode
+    tmp_path.mkdir(exist_ok=True)
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
     )
@@ -280,7 +281,7 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
     # Assert unequal
     eq, errors = component.test_equal(component2)
     assert not eq
-    assert errors == {"config": "Configs are not equal"}
+    assert errors == {"time.spooky": "spooky missing from self"}
 
 
 def test_wflow_config_component_equal_error(mock_model: MagicMock):

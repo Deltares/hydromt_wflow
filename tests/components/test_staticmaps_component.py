@@ -229,6 +229,7 @@ def test_wflow_staticmaps_component_read_empty(
     mock_model: MagicMock,
 ):
     # Set the root to model dir in read mode
+    tmp_path.mkdir(exist_ok=True)
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
     )
