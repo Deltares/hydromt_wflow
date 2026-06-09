@@ -555,15 +555,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_precision</span> <span class="o">=</span> <span class="n">precision</span>
 
-        <span class="n">grid_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">_precision</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">set_precision</span><span class="p">(</span>
-                <span class="n">grid_size</span><span class="o">=</span><span class="n">grid_size</span><span class="p">,</span>
-            <span class="p">)</span>
-
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
             <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">pattern</span><span class="p">),</span>
             <span class="n">to_wgs84</span><span class="o">=</span><span class="n">to_wgs84</span><span class="p">,</span>
+            <span class="n">precision</span><span class="o">=</span><span class="n">_precision</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 
