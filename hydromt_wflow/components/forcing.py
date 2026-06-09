@@ -106,6 +106,7 @@ class WflowForcingComponent(GridComponent):
         time_units="days since 1900-01-01T00:00:00",
         decimals: int = 2,
         overwrite: bool = False,
+        strict_nan_check: bool = True,
         **kwargs,
     ) -> None:
         """Write forcing model data.
@@ -141,6 +142,9 @@ class WflowForcingComponent(GridComponent):
         overwrite : bool, optional
             Whether to overwrite existing files. Default is ``False`` unless the model
             is in w+ mode (FORCED_WRITE).
+        strict_nan_check : bool, optional
+            If True, raise a ValueError when forcing data contains NaN on active
+            model cells. If False (default), log a warning instead. By default True.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
@@ -173,7 +177,7 @@ class WflowForcingComponent(GridComponent):
         start_time, end_time = self._validate_timespan(starttime, endtime)
 
         # Check for missing data on active model cells
-        self._check_forcing_missing_data()
+        self._check_forcing_missing_data(strict=strict_nan_check)
 
         if Path(p_input).is_absolute():
             filepath = Path(p_input)
@@ -452,7 +456,10 @@ class WflowForcingComponent(GridComponent):
         first_var = next(iter(grid_data.data_vars))
         da = grid_data[first_var]
         nodata = da.raster.nodata
-        mask = (da != nodata) if nodata is not None else da.notnull()
+        if nodata is not None and not np.isnan(nodata):
+            mask = da != nodata
+        else:
+            mask = da.notnull()
 
         # Rename mask dims to match forcing spatial dims for broadcasting
         forcing_ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
@@ -467,17 +474,22 @@ class WflowForcingComponent(GridComponent):
 
         return mask
 
-    def _check_forcing_missing_data(self) -> None:
+    def _check_forcing_missing_data(self, *, strict: bool = True) -> None:
         """Check for missing (NaN) data on active model cells.
 
         Uses the active-cell mask from the region component (staticmaps) to
         identify forcing cells that must have data. Any NaN on an active cell
         at any timestep is flagged.
 
+        Parameters
+        ----------
+        strict : bool, optional
+            If True (default), raise a ValueError. If False, log a warning.
+
         Raises
         ------
         ValueError
-            If any forcing variable has NaN values on active model cells.
+            If strict is True and any forcing variable has NaN on active cells.
         """
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
         if len(ds.data_vars) == 0 or "time" not in ds.dims:
@@ -515,10 +527,13 @@ class WflowForcingComponent(GridComponent):
                 )
 
         if issues:
-            raise ValueError(
+            msg = (
                 "Forcing data contains missing values on active model cells. "
                 "This will cause errors when running the model.\n" + "\n".join(issues)
             )
+            if strict:
+                raise ValueError(msg)
+            logger.warning(msg)
 
     def test_equal(self, other: ModelComponent) -> tuple[bool, dict[str, str]]:
         """Test if two forcing components are equal.

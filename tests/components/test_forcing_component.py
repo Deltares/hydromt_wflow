@@ -292,4 +292,4 @@ def test_wflow_forcing_component_write_raises_on_missing_data(
         ValueError,
         match="Forcing data contains missing values on active model cells",
     ):
-        component.write(filename="inmaps.nc")
+        component.write(filename="inmaps.nc", strict_nan_check=True)
