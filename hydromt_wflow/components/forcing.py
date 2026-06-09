@@ -459,15 +459,15 @@ class WflowForcingComponent(GridComponent):
             da = ds[var_name]
             # Count valid (non-NaN) cells per timestep across spatial dims
             spatial_dims = [d for d in da.dims if d != "time"]
-            valid_counts = da.notnull().sum(dim=spatial_dims).values
-            expected_count = int(valid_counts.max())
+            valid_counts = da.notnull().sum(dim=spatial_dims)
+            expected_count = int(valid_counts.max().compute().item())
             if expected_count == 0:
                 continue
 
             # Timesteps with fewer valid cells than expected
-            missing_mask = valid_counts < expected_count
-            if missing_mask.any():
-                missing_times = da.time.values[missing_mask]
+            missing_mask = (valid_counts < expected_count).compute()
+            if bool(missing_mask.any().item()):
+                missing_times = da["time"].where(missing_mask, drop=True).values
                 timestamps = ", ".join(str(t) for t in missing_times)
                 issues.append(
                     f"  - '{var_name}': missing data on active cells at: {timestamps}"
