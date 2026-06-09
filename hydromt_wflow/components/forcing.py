@@ -438,41 +438,77 @@ class WflowForcingComponent(GridComponent):
             var.size == 0 for var in self.data.data_vars.values()
         )
 
+    def _get_active_mask(self) -> xr.DataArray | None:
+        """Get a boolean mask of active model cells from the region component.
+
+        Returns a 2D boolean DataArray (True = active) derived from the first
+        data variable of the region grid, or None if no region component is set.
+        Dims are renamed to match the forcing spatial dims for broadcasting.
+        """
+        if self._region_component is None:
+            return None
+        grid_data = self._get_grid_data()
+        # Take the first data variable and use its nodata to determine active cells
+        first_var = next(iter(grid_data.data_vars))
+        da = grid_data[first_var]
+        nodata = da.raster.nodata
+        mask = (da != nodata) if nodata is not None else da.notnull()
+
+        # Rename mask dims to match forcing spatial dims for broadcasting
+        forcing_ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
+        if len(forcing_ds.data_vars) > 0:
+            forcing_da = forcing_ds[next(iter(forcing_ds.data_vars))]
+            mask = mask.rename(
+                {
+                    mask.raster.y_dim: forcing_da.raster.y_dim,
+                    mask.raster.x_dim: forcing_da.raster.x_dim,
+                }
+            )
+
+        return mask
+
     def _check_forcing_missing_data(self) -> None:
         """Check for missing (NaN) data on active model cells.
 
-        For each forcing variable, determines the expected number of active cells
-        from the maximum valid-cell count across all timesteps, then identifies
-        timesteps where fewer cells have data (indicating missing source data).
+        Uses the active-cell mask from the region component (staticmaps) to
+        identify forcing cells that must have data. Any NaN on an active cell
+        at any timestep is flagged.
 
         Raises
         ------
         ValueError
-            If any forcing variable has timesteps with missing data on active cells.
+            If any forcing variable has NaN values on active model cells.
         """
         ds = self.data.drop_vars(["mask", "idx_out"], errors="ignore")
         if len(ds.data_vars) == 0 or "time" not in ds.dims:
             return
 
+        active_mask = self._get_active_mask()
+
         issues: list[str] = []
         for var_name in ds.data_vars:
             da = ds[var_name]
-            # Count valid (non-NaN) cells per timestep across spatial dims
             spatial_dims = [d for d in da.dims if d != "time"]
-            valid_counts = da.notnull().sum(dim=spatial_dims)
-            expected_count = int(valid_counts.max().compute().item())
-            if expected_count == 0:
-                timestamps = ", ".join(str(t) for t in da.time.values)
-                issues.append(
-                    f"  - '{var_name}': no valid data on active cells for any timestep"
-                    f" ({timestamps})"
-                )
-                continue
 
-            # Timesteps with fewer valid cells than expected
-            missing_mask = (valid_counts < expected_count).compute()
-            if bool(missing_mask.any().item()):
-                missing_times = da["time"].where(missing_mask, drop=True).values
+            if active_mask is not None:
+                # Check for NaN on active cells per timestep
+                nan_on_active = da.isnull() & active_mask
+                has_missing = nan_on_active.any(dim=spatial_dims).compute()
+            else:
+                # Fallback: no mask available, compare per-timestep count to max
+                valid_counts = da.notnull().sum(dim=spatial_dims)
+                expected_count = int(valid_counts.max().compute().item())
+                if expected_count == 0:
+                    timestamps = ", ".join(str(t) for t in da.time.values)
+                    issues.append(
+                        f"  - '{var_name}': no valid data on active cells for any"
+                        f" timestep ({timestamps})"
+                    )
+                    continue
+                has_missing = (valid_counts < expected_count).compute()
+
+            if bool(has_missing.any().item()):
+                missing_times = da["time"].where(has_missing, drop=True).values
                 timestamps = ", ".join(str(t) for t in missing_times)
                 issues.append(
                     f"  - '{var_name}': missing data on active cells at: {timestamps}"
