@@ -264,17 +264,25 @@ def test_wflow_forcing_component_write_lazy_data(
         assert np.array_equal(ds[forcing_layer.name].values, forcing_layer.values)
 
 
+@pytest.mark.parametrize(
+    "corrupt_slice",
+    [
+        pytest.param(np.s_[5, :, :], id="entire_timestep_nan"),
+        pytest.param(np.s_[10, 0, 0], id="single_cell_nan"),
+        pytest.param(np.s_[0, :, :], id="first_timestep_nan"),
+        pytest.param(np.s_[:, :, :], id="all_data_nan"),
+    ],
+)
 def test_wflow_forcing_component_write_raises_on_missing_data(
     mock_model: MagicMock,
     forcing_layer: xr.DataArray,
+    corrupt_slice: slice,
 ):
     """Test that write raises ValueError when forcing has NaN on active cells."""
     component = WflowForcingComponent(mock_model)
 
-    # Introduce NaN at specific timesteps to simulate missing source data
     data = forcing_layer.copy(deep=True)
-    data.values[5, :, :] = np.nan  # entire slice missing at timestep 5
-    data.values[10, 0, 0] = np.nan  # partial missing at timestep 10
+    data.values[corrupt_slice] = np.nan
     component._data = data.to_dataset(promote_attrs=True)
 
     type(component.model.config).get_value = MagicMock(return_value="")
