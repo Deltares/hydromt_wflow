@@ -121,15 +121,10 @@ class WflowGeomsComponent(GeomsComponent):
         else:
             _precision = precision
 
-        grid_size = 10 ** (-_precision)
-        for gdf in self.data.values():
-            gdf.geometry = gdf.geometry.set_precision(
-                grid_size=grid_size,
-            )
-
         super().write(
             filename=str(pattern),
             to_wgs84=to_wgs84,
+            precision=_precision,
             **kwargs,
         )
 

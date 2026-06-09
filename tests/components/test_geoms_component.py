@@ -133,9 +133,12 @@ def test_wflow_geoms_component_set(
     # Check that the geometry matches
     gdf_read = new_comp.get("test_geom")
     assert gdf_read is not None
-    assert gdf_read.geom_equals_exact(mock_geometry, tolerance=1e-7).all(), (
-        "Read geometry does not match the original geometry."
-    )
+
+    assert (
+        gdf_read.geometry.normalize()
+        .geom_equals_exact(mock_geometry.geometry.normalize(), tolerance=1e-5)
+        .all()
+    ), "Read geometry does not match the original geometry."
 
 
 def test_wflow_geoms_component_read_with_pattern(
