@@ -462,6 +462,11 @@ class WflowForcingComponent(GridComponent):
             valid_counts = da.notnull().sum(dim=spatial_dims)
             expected_count = int(valid_counts.max().compute().item())
             if expected_count == 0:
+                timestamps = ", ".join(str(t) for t in da.time.values)
+                issues.append(
+                    f"  - '{var_name}': no valid data on active cells for any timestep"
+                    f" ({timestamps})"
+                )
                 continue
 
             # Timesteps with fewer valid cells than expected
