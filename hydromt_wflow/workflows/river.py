@@ -197,6 +197,7 @@ def river_bathymetry(
     smooth_len: float = 5e3,
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
+    river_depth_kwargs: dict | None = None,
 ) -> xr.Dataset:
     """Get river width and optionally river depth/bankfull discharge.
 
@@ -217,6 +218,8 @@ def river_bathymetry(
         Minimum river depth [m], by default 1.0. Ignored if method=None.
     min_rivwth : float, optional
         Minimum river width [m], by default 30.0.
+    river_depth_kwargs : dict, optional
+        Additional keyword arguments for river_depth method, by default None.
 
     Returns
     -------
@@ -331,6 +334,7 @@ def river_bathymetry(
                 method=method,
                 min_rivdph=min_rivdph,
                 rivzs_name="subelv",
+                **(river_depth_kwargs or {}),
             )
             attrs = dict(_FillValue=-9999, unit="m")
             ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
