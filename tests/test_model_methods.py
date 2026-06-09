@@ -2,6 +2,7 @@
 
 from itertools import product
 from pathlib import Path
+from unittest import mock
 
 import geopandas as gpd
 import numpy as np
@@ -11,6 +12,7 @@ import xarray as xr
 import xarray.testing as xrt
 from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
+from hydromt.model.processes.rivers import river_depth
 from packaging.version import Version
 
 from hydromt_wflow import workflows
@@ -851,12 +853,25 @@ def test_setup_rivers_no_subgrid(tmp_path: Path):
             river_upa=30,
         )
 
-    # Now with correct hydrography
-    mod.setup_rivers(
-        hydrography_fn="merit_hydro_ihu",
-        river_geom_fn="hydro_rivers_lin",
-        river_upa=30,
-    )
+    # Now with correct hydrography and some additional kwargs for river depth
+    with mock.patch(
+        "hydromt_wflow.workflows.river.river_depth",
+        wraps=river_depth,
+    ) as mock_river_depth:
+        mod.setup_rivers(
+            hydrography_fn="merit_hydro_ihu",
+            river_geom_fn="hydro_rivers_lin",
+            river_upa=30,
+            river_depth_kwargs={"hc": 0.4, "hp": 0.9},
+        )
+        mock_river_depth.assert_called_once()
+        called_kwargs = mock_river_depth.call_args.kwargs
+
+        assert "hc" in called_kwargs
+        assert called_kwargs["hc"] == pytest.approx(0.4)
+
+        assert "hp" in called_kwargs
+        assert called_kwargs["hp"] == pytest.approx(0.9)
 
     assert "river_mask" in mod.staticmaps.data
 
