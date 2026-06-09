@@ -144,7 +144,7 @@ class WflowForcingComponent(GridComponent):
             is in w+ mode (FORCED_WRITE).
         strict_nan_check : bool, optional
             If True, raise a ValueError when forcing data contains NaN on active
-            model cells. If False (default), log a warning instead. By default True.
+            model cells. If False, log a warning instead. By default True.
         **kwargs : dict
             Additional keyword arguments to be passed to the `write_nc` method.
         """
