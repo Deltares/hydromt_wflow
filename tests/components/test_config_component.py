@@ -159,6 +159,9 @@ def test_wflow_config_component_read_default_read_mode(
     mock_model: MagicMock,
     data_dir: Path,
 ):
+    # Create a dummy file to prevent ModelRoot._cleanup from deleting the tmp_path
+    (tmp_path / "tmp").touch()
+
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
@@ -280,7 +283,7 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
     # Assert unequal
     eq, errors = component.test_equal(component2)
     assert not eq
-    assert errors == {"config": "Configs are not equal"}
+    assert errors == {"time.spooky": "spooky missing from self"}
 
 
 def test_wflow_config_component_equal_error(mock_model: MagicMock):

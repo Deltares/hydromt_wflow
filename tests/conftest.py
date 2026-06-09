@@ -12,8 +12,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from dotenv import find_dotenv, load_dotenv
-from hydromt import DataCatalog
-from hydromt._utils import log
+from hydromt import DataCatalog, log
 from hydromt.readers import read_workflow_yaml
 from packaging.version import Version
 from pytest_mock import MockerFixture
