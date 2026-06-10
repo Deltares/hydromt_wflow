@@ -485,7 +485,7 @@
 <section id="Import-packages">
 <h2>Import packages<a class="headerlink" href="#Import-packages" title="Link to this heading">#</a></h2>
 <p>In this notebook, we will use some functions of HydroMT to check available datasets and also to plot the landuse maps from the original and updated models. Here are the libraries to import to realize these steps.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -493,6 +493,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">log</span>
+
+<span class="c1"># Configure logging</span>
+<span class="n">log</span><span class="o">.</span><span class="n">initialize_logging</span><span class="p">()</span>
 
 <span class="c1"># for plotting</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
@@ -503,12 +507,20 @@
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2026-06-10 14:14:54,483 - hydromt - log - INFO - HydroMT version: 1.4.0
+</pre></div></div>
+</div>
 </section>
 <section id="Searching-the-data-catalog-for-landuse">
 <h2>Searching the data catalog for landuse<a class="headerlink" href="#Searching-the-data-catalog-for-landuse" title="Link to this heading">#</a></h2>
 <p>In our previous notebook, we built a Wflow model using the <em>GlobCover</em> landuse classification. But we could as well have chosen another one. Let’s what other landuse landcover data are available in HydroMT and choose another landuse classification for our model. For this we will open the data catalog.</p>
 <p>You can also directly open and search the HydroMT yaml library by downloading and opening the data_catalog.yml file in <a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts/releases/tag/v0.0.3">hydromt-artifacts</a> or look at the list of data sources in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_existing_cat.html">documentation</a>.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
@@ -516,6 +528,15 @@
 <span class="n">data_catalog</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">DataCatalog</span><span class="p">(</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2026-06-10 14:14:54,760 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2026-06-10 14:14:54,761 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -818,58 +839,58 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-09 13:02:16,707 - hydromt - log - INFO - HydroMT version: 1.4.0
-2026-06-09 13:02:16,765 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
-2026-06-09 13:02:16,765 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
-2026-06-09 13:02:17,406 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-09 13:02:17,406 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-09 13:02:17,421 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-09 13:02:17,421 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-06-09 13:02:17,422 - hydromt - log - INFO - HydroMT version: 1.4.0
-2026-06-09 13:02:17,423 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-06-09 13:02:18,240 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
-2026-06-09 13:02:18,243 - hydromt.model.model - model - INFO - update: setup_lulcmaps
-2026-06-09 13:02:18,243 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=corine_mapping_default
-2026-06-09 13:02:18,243 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;vegetation_kext&#39;, &#39;land_manning_n&#39;, &#39;soil_compacted_fraction&#39;, &#39;vegetation_root_depth&#39;, &#39;vegetation_leaf_storage&#39;, &#39;vegetation_wood_storage&#39;, &#39;land_water_fraction&#39;, &#39;vegetation_crop_factor&#39;, &#39;vegetation_feddes_alpha_h1&#39;, &#39;vegetation_feddes_h1&#39;, &#39;vegetation_feddes_h2&#39;, &#39;vegetation_feddes_h3_high&#39;, &#39;vegetation_feddes_h3_low&#39;, &#39;vegetation_feddes_h4&#39;]
-2026-06-09 13:02:18,243 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=corine
-2026-06-09 13:02:18,243 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=corine
-2026-06-09 13:02:18,243 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
-2026-06-09 13:02:18,245 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading corine RasterDataset data from /home/runner/.hydromt/artifact_data/latest/corine.tif
-2026-06-09 13:02:18,288 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading corine_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/corine_mapping.csv
-2026-06-09 13:02:18,299 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=999).
-2026-06-09 13:02:18,951 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_kext using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,073 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_manning_n using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,197 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,315 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_root_depth using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,437 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_leaf_storage using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,558 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_wood_storage using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,678 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,799 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_crop_factor using average resampling (nodata=-999.0).
-2026-06-09 13:02:19,919 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_alpha_h1 using mode resampling (nodata=-999).
-2026-06-09 13:02:20,065 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h1 using average resampling (nodata=-999).
-2026-06-09 13:02:20,199 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h2 using average resampling (nodata=-999).
-2026-06-09 13:02:20,339 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h3_high using average resampling (nodata=-999).
-2026-06-09 13:02:20,480 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h3_low using average resampling (nodata=-999).
-2026-06-09 13:02:20,620 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h4 using average resampling (nodata=-999).
-2026-06-09 13:02:20,794 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2026-06-09 13:02:20,797 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc.
-2026-06-09 13:02:20,866 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/region.geojson.
-2026-06-09 13:02:20,874 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_reservoirs_no_control.geojson.
-2026-06-09 13:02:20,877 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_reservoirs_simple_control.geojson.
-2026-06-09 13:02:20,881 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/basins.geojson.
-2026-06-09 13:02:20,884 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/outlets.geojson.
-2026-06-09 13:02:20,886 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/rivers.geojson.
-2026-06-09 13:02:20,889 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/reservoirs.geojson.
-2026-06-09 13:02:20,891 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/glaciers.geojson.
-2026-06-09 13:02:20,923 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_basins_highres.geojson.
-2026-06-09 13:02:20,940 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/gauges_grdc.geojson.
-2026-06-09 13:02:20,942 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/region.geojson.
-2026-06-09 13:02:20,944 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2026-06-09 13:02:20,948 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 100.55 ms
-2026-06-09 13:02:21,064 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
-2026-06-09 13:02:21,065 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/instate/instates.nc.
-2026-06-09 13:02:21,087 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml.
+2026-06-10 14:15:00,142 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-06-10 14:15:00,199 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Reading data catalog artifact_data latest
+2026-06-10 14:15:00,199 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt/artifact_data/v1.0.0/data_catalog.yml
+2026-06-10 14:15:00,889 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-06-10 14:15:00,889 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-06-10 14:15:00,902 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-06-10 14:15:00,903 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-06-10 14:15:00,903 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-06-10 14:15:00,904 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-06-10 14:15:01,721 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
+2026-06-10 14:15:01,724 - hydromt.model.model - model - INFO - update: setup_lulcmaps
+2026-06-10 14:15:01,724 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_mapping_fn=corine_mapping_default
+2026-06-10 14:15:01,724 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_vars=[&#39;landuse&#39;, &#39;vegetation_kext&#39;, &#39;land_manning_n&#39;, &#39;soil_compacted_fraction&#39;, &#39;vegetation_root_depth&#39;, &#39;vegetation_leaf_storage&#39;, &#39;vegetation_wood_storage&#39;, &#39;land_water_fraction&#39;, &#39;vegetation_crop_factor&#39;, &#39;vegetation_feddes_alpha_h1&#39;, &#39;vegetation_feddes_h1&#39;, &#39;vegetation_feddes_h2&#39;, &#39;vegetation_feddes_h3_high&#39;, &#39;vegetation_feddes_h3_low&#39;, &#39;vegetation_feddes_h4&#39;]
+2026-06-10 14:15:01,724 - hydromt.model.model - model - INFO - setup_lulcmaps.output_names_suffix=corine
+2026-06-10 14:15:01,724 - hydromt.model.model - model - INFO - setup_lulcmaps.lulc_fn=corine
+2026-06-10 14:15:01,724 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing LULC parameter maps.
+2026-06-10 14:15:01,726 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading corine RasterDataset data from /home/runner/.hydromt/artifact_data/latest/corine.tif
+2026-06-10 14:15:01,768 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading corine_mapping_default DataFrame data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/v1.0/corine_mapping.csv
+2026-06-10 14:15:01,779 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving landuse using mode resampling (nodata=999).
+2026-06-10 14:15:02,680 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_kext using average resampling (nodata=-999.0).
+2026-06-10 14:15:02,807 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_manning_n using average resampling (nodata=-999.0).
+2026-06-10 14:15:02,937 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving soil_compacted_fraction using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,060 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_root_depth using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,185 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_leaf_storage using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,310 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_wood_storage using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,436 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving land_water_fraction using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,568 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_crop_factor using average resampling (nodata=-999.0).
+2026-06-10 14:15:03,694 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_alpha_h1 using mode resampling (nodata=-999).
+2026-06-10 14:15:03,845 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h1 using average resampling (nodata=-999).
+2026-06-10 14:15:03,984 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h2 using average resampling (nodata=-999).
+2026-06-10 14:15:04,132 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h3_high using average resampling (nodata=-999).
+2026-06-10 14:15:04,278 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h3_low using average resampling (nodata=-999).
+2026-06-10 14:15:04,424 - hydromt.hydromt_wflow.workflows.landuse - landuse - INFO - Deriving vegetation_feddes_h4 using average resampling (nodata=-999).
+2026-06-10 14:15:04,604 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2026-06-10 14:15:04,606 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc.
+2026-06-10 14:15:04,674 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/region.geojson.
+2026-06-10 14:15:04,681 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/gauges_grdc.geojson.
+2026-06-10 14:15:04,684 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/outlets.geojson.
+2026-06-10 14:15:04,685 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/glaciers.geojson.
+2026-06-10 14:15:04,718 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_reservoirs_simple_control.geojson.
+2026-06-10 14:15:04,722 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/rivers.geojson.
+2026-06-10 14:15:04,725 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_basins_highres.geojson.
+2026-06-10 14:15:04,742 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/reservoirs.geojson.
+2026-06-10 14:15:04,744 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/meta_reservoirs_no_control.geojson.
+2026-06-10 14:15:04,747 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/basins.geojson.
+2026-06-10 14:15:04,749 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticgeoms/region.geojson.
+2026-06-10 14:15:04,751 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2026-06-10 14:15:04,755 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 100.60 ms
+2026-06-10 14:15:04,871 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2026-06-10 14:15:04,872 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/instate/instates.nc.
+2026-06-10 14:15:04,893 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -886,7 +907,7 @@ steps:
 <h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Link to this heading">#</a></h2>
 <p>From the information above, you can see that not only was the landuse map updated but also all wflow landuse-related parameters with it: Kext, N, PathFrac, RootingDepth, Sl, Swood and WaterFrac.</p>
 <p>Let’s now have a look at the different landuse maps of our two models and check that they were indeed updated.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
@@ -894,6 +915,17 @@ steps:
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_corine&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2026-06-10 14:15:05,587 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-06-10 14:15:05,588 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-06-10 14:15:05,602 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-06-10 14:15:05,603 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml.
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
