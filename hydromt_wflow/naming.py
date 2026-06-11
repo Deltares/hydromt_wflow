@@ -337,6 +337,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     "land_elevation": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
+        "wflow_v1.1": "land_surface__elevation",
         "hydromt_name": "elevtn",
     },
     "land_slope": {
@@ -562,6 +563,7 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
     "subsurface_q": {
         "wflow_v0": "lateral.subsurface.ssf",
         "wflow_v1": "subsurface_water__volume_flow_rate",
+        "wflow_v1.1": "subsurface_water__instantaneous_volume_flow_rate",
     },
     "river_instantaneous_q": {
         "wflow_v0": "lateral.river.q",
