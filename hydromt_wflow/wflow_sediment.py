@@ -1013,7 +1013,7 @@ class WflowSedimentModel(WflowBaseModel):
             **kwargs,
         )
 
-    def _upgrade_sediment_v0_to_v1(
+    def _upgrade_v0_to_v1(
         self,
         soil_fn: str = "soilgrids",
         usle_k_method: str = "renard",
@@ -1099,16 +1099,16 @@ class WflowSedimentModel(WflowBaseModel):
         else:
             version = Version(str(version_str))
 
-        if version >= Version(WFLOW_LATEST_VERSION):
+        if version >= WFLOW_LATEST_VERSION:
             logger.info("Model is already at the latest version, no upgrade needed.")
             return
 
         if version < Version("1.0"):
-            self._upgrade_sediment_v0_to_v1()
+            self._upgrade_v0_to_v1()
 
         # No changes for v1.0 to v1.1 for sediment
 
-        self.config.set("wflow_version", WFLOW_LATEST_VERSION)
+        self.config.set("wflow_version", str(WFLOW_LATEST_VERSION))
         logger.info(f"Model upgraded to Wflow.jl v{WFLOW_LATEST_VERSION}.")
 
     # I/O

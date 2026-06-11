@@ -4104,11 +4104,14 @@ using 'variable' argument."
                 "v1.0 format. Please run _upgrade_v0_to_v1() first or check the "
                 "config file for the presence of 'wflow_version'."
             )
-        elif version >= Version("1.1"):
+        else:
+            version = Version(str(version))
+
+        if version >= Version("1.1"):
             logger.info("Config is already at v1.1 or later, no upgrade needed.")
         elif Version("1.0") <= version < Version("1.1"):
             logger.info("Upgrading config from v1.0 to v1.1 format.")
-            self.config.data = convert_to_wflow_v1_1_sbm(self.config.data)
+            self.config._data = convert_to_wflow_v1_1_sbm(self.config.data)
             self.config.set("wflow_version", "1.1")
         else:
             raise ValueError(
@@ -4137,7 +4140,7 @@ using 'variable' argument."
         else:
             version = Version(str(version_str))
 
-        if version >= Version(WFLOW_LATEST_VERSION):
+        if version >= WFLOW_LATEST_VERSION:
             logger.info("Model is already at the latest version, no upgrade needed.")
             return
 

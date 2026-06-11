@@ -7,6 +7,7 @@ import pytest
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowConfigComponent
+from hydromt_wflow.version_upgrade import WFLOW_LATEST_VERSION
 
 
 @pytest.fixture
@@ -199,7 +200,8 @@ def test_wflow_config_component_read_default_write_mode(
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 6
+    assert len(component.data) == 7
+    assert component.data["wflow_version"] == str(WFLOW_LATEST_VERSION)
     assert component.data["dir_output"] == "run_default"
     assert "Reading default config file from " in caplog.text
 
