@@ -4101,7 +4101,7 @@ using 'variable' argument."
         if version is None:
             raise ValueError(
                 "No 'wflow_version' found in config. Likely this model is not yet in "
-                "v1.0 format. Please run upgrade_to_v1_wflow() first or check the "
+                "v1.0 format. Please run _upgrade_v0_to_v1() first or check the "
                 "config file for the presence of 'wflow_version'."
             )
         elif version >= Version("1.1"):
@@ -4113,7 +4113,7 @@ using 'variable' argument."
         else:
             raise ValueError(
                 f"Expected wflow_version in config to be '1.0' for upgrade to v1.1, "
-                f"but found '{version}'. Please run upgrade_to_v1_wflow() first."
+                f"but found '{version}'. Please run _upgrade_v0_to_v1() first."
             )
 
     @hydromt_step

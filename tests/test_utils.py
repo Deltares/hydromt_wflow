@@ -71,7 +71,7 @@ def test_convert_to_wflow_v1_sbm(caplog, test_data_dir: Path, example_data_dir: 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
 
     # Convert to v1
-    wflow.upgrade_to_v1_wflow()
+    wflow.upgrade_to_latest()
 
     # Check with a test config
     config_fn_v1 = str(test_data_dir / "wflow_v0x" / "sbm" / "wflow_sbm_v1.toml")
@@ -110,7 +110,7 @@ def test_convert_to_wflow_v1_sbm(caplog, test_data_dir: Path, example_data_dir: 
     wflow = WflowSbmModel(root, config_filename=config_fn, mode="r")
     wflow.config.set("model.reinit", False)
     caplog.set_level(logging.WARNING)
-    wflow.upgrade_to_v1_wflow()
+    wflow._upgrade_v0_to_v1()
     assert "Converting states is not supported by this conversion code" in caplog.text
     assert wflow.config.get_value("model.cold_start__flag") is True
 
@@ -134,7 +134,7 @@ def test_convert_to_wflow_v1_sbm_with_exceptions(
     wflow.config.set("input.vertical.kv₀", kv)
 
     # Convert to v1
-    wflow.upgrade_to_v1_wflow()
+    wflow._upgrade_v0_to_v1()
 
     # Check with a test config
     config_fn_v1 = str(test_data_dir / "wflow_v0x" / "sbm" / "wflow_sbm_v1.toml")
@@ -155,7 +155,7 @@ def test_convert_to_wflow_v1_sediment(test_data_dir: Path, example_data_dir: Pat
         root, config_filename=config_fn, data_libs=["artifact_data"], mode="r"
     )
     # Convert to v1
-    wflow.upgrade_to_v1_wflow(
+    wflow._upgrade_v0_to_v1(
         soil_fn="soilgrids",
     )
 
@@ -217,7 +217,7 @@ def test_convert_to_wflow_v1_with_lake_files(tmp_path: Path, test_data_dir: Path
     wflow.config.set("input.cyclic", cyclic)
 
     # Convert to v1
-    wflow.upgrade_to_v1_wflow()
+    wflow._upgrade_v0_to_v1()
     wflow.root.set(tmp_path, mode="w")
     wflow.write()
 
