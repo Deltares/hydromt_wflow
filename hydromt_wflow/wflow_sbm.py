@@ -16,12 +16,15 @@ import xarray as xr
 from hydromt import hydromt_step
 from hydromt.error import NoDataException, NoDataStrategy
 from hydromt.gis import flw
+from packaging.version import Version
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.version_upgrade import (
+    WFLOW_LATEST_VERSION,
     convert_reservoirs_to_wflow_v1_sbm,
+    convert_to_wflow_v1_1_sbm,
     convert_to_wflow_v1_sbm,
     upgrade_lake_tables_to_reservoir_tables_v1,
 )
@@ -4043,12 +4046,11 @@ using 'variable' argument."
             for k in keys_to_keep:
                 self.tables.set(old_tables[k], name=k)
 
-    @hydromt_step
-    def upgrade_to_v1_wflow(self):
+    def _upgrade_v0_to_v1(self):
         """
-        Upgrade the model to wflow v1 format.
+        Upgrade the model from v0 to wflow v1.0 format.
 
-        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
+        The function reads a TOML from wflow v0x and converts it to wflow v1.0 format.
         The other components stay the same.
 
         Lakes and reservoirs have also been merged into one structure and parameters in
@@ -4057,12 +4059,20 @@ using 'variable' argument."
         This function should be followed by write_config() to write the upgraded file.
         """
         config_v0 = self.config.data.copy()
+        wflow_version = self.config.get_value("wflow_version")
+        if wflow_version is not None and (
+            Version(str(wflow_version)) >= Version("1.0")
+        ):
+            logger.info("Config is already at v1.0 or later, no upgrade needed.")
+            return
         config_out = convert_to_wflow_v1_sbm(self.config.data)
+
         # Update the config
         with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
             self.config._data = tomllib.load(file)
         for option in config_out:
             self.config.set(option, config_out[option])
+        self.config.set("wflow_version", "1.0")
 
         # Merge lakes and reservoirs layers
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
@@ -4078,3 +4088,62 @@ using 'variable' argument."
                 self.config.set(option, config_opt[option])
         # also update tables
         upgrade_lake_tables_to_reservoir_tables_v1(self.tables)
+
+    def _upgrade_v1_to_v1_1(self):
+        """Upgrade the model config from Wflow v1.0 to v1.1 format.
+
+        Currently, only the TOML config is updated.
+        All other model components remain unchanged.
+
+        This function should be followed by write_config() to write the upgraded file.
+        """
+        version = self.config.get_value("wflow_version")
+        if version is None:
+            raise ValueError(
+                "No 'wflow_version' found in config. Likely this model is not yet in "
+                "v1.0 format. Please run upgrade_to_v1_wflow() first or check the "
+                "config file for the presence of 'wflow_version'."
+            )
+        elif version >= Version("1.1"):
+            logger.info("Config is already at v1.1 or later, no upgrade needed.")
+        elif Version("1.0") <= version < Version("1.1"):
+            logger.info("Upgrading config from v1.0 to v1.1 format.")
+            self.config.data = convert_to_wflow_v1_1_sbm(self.config.data)
+            self.config.set("wflow_version", "1.1")
+        else:
+            raise ValueError(
+                f"Expected wflow_version in config to be '1.0' for upgrade to v1.1, "
+                f"but found '{version}'. Please run upgrade_to_v1_wflow() first."
+            )
+
+    @hydromt_step
+    def upgrade_to_latest(self):
+        """Upgrade the model to the latest Wflow.jl version.
+
+        Applies all necessary upgrade steps in order based on the ``wflow_version``
+        key in the config. If absent, the model is assumed to be pre-v1.0 and all
+        upgrade steps are applied.
+
+        This function should be followed by write() to write all upgraded components
+        to disk.
+        """
+        version_str = self.config.data.get("wflow_version")
+        if version_str is None:
+            logger.warning(
+                "No wflow_version found in config, assuming v0.x and applying all "
+                "upgrade steps."
+            )
+            version = Version("0.0")
+        else:
+            version = Version(str(version_str))
+
+        if version >= Version(WFLOW_LATEST_VERSION):
+            logger.info("Model is already at the latest version, no upgrade needed.")
+            return
+
+        if version < Version("1.0"):
+            self._upgrade_v0_to_v1()
+        if version < Version("1.1"):
+            self._upgrade_v1_to_v1_1()
+
+        logger.info(f"Model upgraded to Wflow.jl v{WFLOW_LATEST_VERSION}.")

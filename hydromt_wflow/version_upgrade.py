@@ -1,9 +1,11 @@
 """Some utilities to upgrade Wflow model versions."""
 
+import copy
 import logging
 from pathlib import Path
 
 import xarray as xr
+from packaging.version import Version
 
 from hydromt_wflow.components.tables import WflowTablesComponent
 from hydromt_wflow.naming import (
@@ -26,6 +28,9 @@ from hydromt_wflow.workflows.reservoirs import (
 logger = logging.getLogger(f"hydromt.{__name__}")
 
 DATADIR = Path(__file__).parent / "data"
+
+# The latest Wflow.jl version supported by this hydromt_wflow release
+WFLOW_LATEST_VERSION = Version("1.1")
 
 __all__ = [
     "convert_to_wflow_v1_sbm",
@@ -374,6 +379,7 @@ def _convert_to_wflow_v1(
             else:
                 _warn_str(csv_var["parameter"], "csv")
 
+    config_out["wflow_version"] = "1.0"
     return config_out
 
 
@@ -868,3 +874,26 @@ def upgrade_lake_tables_to_reservoir_tables_v1(tables: WflowTablesComponent) -> 
         new_name = key.replace("lake_", "reservoir_")
         tables.set(data_table, name=new_name)
         logger.debug(f"Renamed table {key} to {new_name}.")
+
+
+def convert_to_wflow_v1_1_sbm(config: dict) -> dict:
+    """Convert the config of a Wflow v1.0 model into a Wflow v1.1 format for SBM."""
+    config_out = copy.deepcopy(config)
+
+    all_vars = {**WFLOW_NAMES, **WFLOW_STATES_NAMES}
+    for variables in all_vars.values():
+        v1 = variables.get("wflow_v1")
+        v1_1 = variables.get("wflow_v1.1")
+        if v1 is None or v1_1 is None:
+            continue
+        # input.static
+        static = config_out.get("input", {}).get("static", {})
+        if v1 in static:
+            static[v1_1] = static.pop(v1)
+        # state.variables
+        state_vars = config_out.get("state", {}).get("variables", {})
+        if v1 in state_vars:
+            state_vars[v1_1] = state_vars.pop(v1)
+
+    config_out["wflow_version"] = "1.1"
+    return config_out
