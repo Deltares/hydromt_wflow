@@ -10,11 +10,13 @@ import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
+from packaging.version import Version
 
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
 from hydromt_wflow.version_upgrade import (
+    WFLOW_LATEST_VERSION,
     convert_reservoirs_to_wflow_v1_sediment,
     convert_to_wflow_v1_sediment,
 )
@@ -1011,8 +1013,7 @@ class WflowSedimentModel(WflowBaseModel):
             **kwargs,
         )
 
-    @hydromt_step
-    def upgrade_to_v1_wflow(
+    def _upgrade_v0_to_v1(
         self,
         soil_fn: str = "soilgrids",
         usle_k_method: str = "renard",
@@ -1052,6 +1053,7 @@ class WflowSedimentModel(WflowBaseModel):
             self.config._data = tomllib.load(file)
         for option in config_out:
             self.config.set(option, config_out[option])
+        self.config.set("wflow_version", "1.0")
 
         # Rerun setup_soilmaps
         self.setup_soilmaps(
@@ -1075,6 +1077,39 @@ class WflowSedimentModel(WflowBaseModel):
             # Update the config with the new names
             for option in config_opt:
                 self.config.set(option, config_opt[option])
+
+    @hydromt_step
+    def upgrade_to_latest(self):
+        """Upgrade the model to the latest Wflow.jl version.
+
+        Applies all necessary upgrade steps in order based on the ``wflow_version``
+        key in the config. If absent, the model is assumed to be pre-v1.0 and all
+        upgrade steps are applied.
+
+        This function should be followed by write() to write all upgraded components
+        to disk.
+        """
+        version_str = self.config.data.get("wflow_version")
+        if version_str is None:
+            logger.warning(
+                "No wflow_version found in config, assuming v0.x and applying all "
+                "upgrade steps."
+            )
+            version = Version("0.0")
+        else:
+            version = Version(str(version_str))
+
+        if version >= WFLOW_LATEST_VERSION:
+            logger.info("Model is already at the latest version, no upgrade needed.")
+            return
+
+        if version < Version("1.0"):
+            self._upgrade_v0_to_v1()
+
+        # No changes for v1.0 to v1.1 for sediment
+
+        self.config.set("wflow_version", str(WFLOW_LATEST_VERSION))
+        logger.info(f"Model upgraded to Wflow.jl v{WFLOW_LATEST_VERSION}.")
 
     # I/O
     @hydromt_step
