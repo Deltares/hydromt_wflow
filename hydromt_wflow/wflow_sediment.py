@@ -1078,11 +1078,12 @@ class WflowSedimentModel(WflowBaseModel):
             for option in config_opt:
                 self.config.set(option, config_opt[option])
 
+    @hydromt_step
     def upgrade_to_latest(
         self,
-        soil_fn: str | None = None,
-        usle_k_method: str | None = None,
-        strord_name: str | None = None,
+        soil_fn: str = "soilgrids",
+        usle_k_method: str = "renard",
+        strord_name: str = "wflow_streamorder",
     ):
         """Upgrade the model to the latest Wflow.jl version.
 
