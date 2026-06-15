@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
+from hydromt_wflow.version_upgrade import WFLOW_LATEST_VERSION
 
 
 @pytest.fixture
@@ -18,18 +19,9 @@ def upgrade_data_dir(test_data_dir: Path) -> Path:
 def assert_configs_equal(
     upgraded: WflowSbmModel | WflowSedimentModel,
     reference: WflowSbmModel | WflowSedimentModel,
-    ignore_keys: set[str] | None = None,
 ) -> None:
-    """Assert two model configs are equal, optionally ignoring specific keys.
-
-    Both models must share the same root so that path-relative config values
-    (e.g. input.path_static) are trivially equal without needing ignore_keys.
-    ignore_keys is kept as an escape hatch for the rare cases where that is
-    not achievable (e.g. the lake-files test that must write to a tmp_path).
-    """
+    """Assert two model configs are equal."""
     _, errors = upgraded.config.test_equal(reference.config)
-    for key in ignore_keys or []:
-        errors.pop(key, None)
     _compare = [
         f"{key}: (upgraded: {upgraded.config.get_value(key)}), (reference: {reference.config.get_value(key)})\n"
         for key in errors
@@ -44,12 +36,11 @@ class V0ToV1Assertions:
     def assert_sbm_config(
         upgraded: WflowSbmModel,
         reference_root: Path,
-        ignore_keys: set[str] | None = None,
     ) -> None:
         reference = WflowSbmModel(
             reference_root, config_filename="wflow_sbm.toml", mode="r"
         )
-        assert_configs_equal(upgraded, reference, ignore_keys)
+        assert_configs_equal(upgraded, reference)
 
     @staticmethod
     def assert_sbm_staticmaps(upgraded: WflowSbmModel) -> None:
@@ -81,12 +72,11 @@ class V0ToV1Assertions:
     def assert_sediment_config(
         upgraded: WflowSedimentModel,
         reference_root: Path,
-        ignore_keys: set[str] | None = None,
     ) -> None:
         reference = WflowSedimentModel(
             reference_root, config_filename="wflow_sediment.toml", mode="r"
         )
-        assert_configs_equal(upgraded, reference, ignore_keys)
+        assert_configs_equal(upgraded, reference)
 
     @staticmethod
     def assert_sediment_staticmaps(upgraded: WflowSedimentModel) -> None:
@@ -113,32 +103,25 @@ class V1ToV1_1Assertions:
     def assert_sbm_config(
         upgraded: WflowSbmModel,
         reference_root: Path,
-        ignore_keys: set[str] | None = None,
     ) -> None:
         reference = WflowSbmModel(
             reference_root, config_filename="wflow_sbm.toml", mode="r"
         )
-        assert_configs_equal(upgraded, reference, ignore_keys)
+        assert_configs_equal(upgraded, reference)
 
     @staticmethod
     def assert_sediment_config(
         upgraded: WflowSedimentModel,
         reference_root: Path,
-        ignore_keys: set[str] | None = None,
     ) -> None:
         reference = WflowSedimentModel(
             reference_root, config_filename="wflow_sediment.toml", mode="r"
         )
-        assert_configs_equal(upgraded, reference, ignore_keys)
+        assert_configs_equal(upgraded, reference)
 
 
 class TestUpgradeV0ToV1:
-    """Tests _upgrade_v0_to_v1 in complete isolation.
-
-    Each test loads a fresh model from vX/, applies only this one upgrade, and
-    asserts against the vX+1/ reference directory — same root, so path_static
-    is equal by construction and no path-related ignore_keys are needed.
-    """
+    """Tests _upgrade_v0_to_v1 in complete isolation."""
 
     def test_sbm_config(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
@@ -266,26 +249,32 @@ class TestUpgradeV1ToV1_1:
             wflow, upgrade_data_dir / "sediment" / "v1_1"
         )
 
+    def test_skips_if_already_latest(self, caplog: pytest.LogCaptureFixture):
+        """_upgrade_v1_to_v1_1 should skip if the model is already at the latest version."""
+        wflow = WflowSbmModel(
+            root=Path("dummy"),
+            config_filename="wflow_sbm.toml",
+            mode="w",
+            data_libs=["artifact_data"],
+        )
+        wflow.config.set("wflow_version", "1.1")
+
+        with caplog.at_level(logging.INFO):
+            wflow._upgrade_v1_to_v1_1()
+        assert "Config is already at v1.1 or later, no upgrade needed" in caplog.text
+
+    def test_raises_on_undefined_version(self):
+        """_upgrade_v1_to_v1_1 should raise if the model version is undefined."""
+        dummy = WflowSbmModel(root=Path("dummy"), mode="w")
+        dummy.config.data  # initalize
+        dummy.config.remove("wflow_version")
+
+        with pytest.raises(ValueError, match="No 'wflow_version' found in config."):
+            dummy._upgrade_v1_to_v1_1()
+
 
 class TestUpgradeToLatest:
-    """Tests upgrade_to_latest() for each model type end-to-end.
-
-    Config is only asserted against the FINAL version directory (v1_1).
-    Intermediate config assertions are intentionally omitted: if a key is
-    modified by more than one upgrade step, asserting an intermediate config
-    state after the full chain has run would produce a false failure.
-    The isolated step tests (TestUpgradeV0ToV1, TestUpgradeV1ToV1_1) already
-    own those intermediate assertions.
-
-    What belongs here:
-    - Final config equality (always the last version directory).
-    - Additive staticmap checks from earlier steps: these assert presence of
-      data that is added but never removed, so they remain valid after any
-      subsequent upgrade step.
-
-    What does NOT belong here:
-    - Intermediate config assertions (V0ToV1Assertions.assert_sbm_config etc.).
-    """
+    """Tests upgrade_to_latest() for each model type end-to-end."""
 
     def test_sbm(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
@@ -298,14 +287,8 @@ class TestUpgradeToLatest:
 
         wflow.upgrade_to_latest()
 
-        # Staticmap checks from v0→v1: additive, safe to check after full chain.
         V0ToV1Assertions.assert_sbm_staticmaps(wflow)
-        # Final config: always assert only against the latest version directory.
         V1ToV1_1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "v1_1")
-
-        # When adding vN → vN+1, replace the line above with:
-        # VNToVN1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "vN_1")
-        # and append any new additive staticmap checks below it.
 
     def test_sediment(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sediment" / "v0x"
@@ -321,4 +304,19 @@ class TestUpgradeToLatest:
         V0ToV1Assertions.assert_sediment_staticmaps(wflow)
         V1ToV1_1Assertions.assert_sediment_config(
             wflow, upgrade_data_dir / "sediment" / "v1_1"
+        )
+
+    def test_skips_if_already_latest(self, caplog: pytest.LogCaptureFixture):
+        """upgrade_to_latest() should skip if the model is already at the latest version."""
+        wflow = WflowSbmModel(
+            root=Path("dummy"),
+            config_filename="wflow_sbm.toml",
+            mode="w",
+            data_libs=["artifact_data"],
+        )
+        assert wflow.config.get_value("wflow_version") == str(WFLOW_LATEST_VERSION)
+        with caplog.at_level(logging.INFO):
+            wflow.upgrade_to_latest()
+        assert (
+            "Model is already at the latest version, no upgrade needed." in caplog.text
         )
