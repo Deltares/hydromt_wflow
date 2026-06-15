@@ -1053,7 +1053,6 @@ class WflowSedimentModel(WflowBaseModel):
             self.config._data = tomllib.load(file)
         for option in config_out:
             self.config.set(option, config_out[option])
-        self.config.set("wflow_version", "1.0")
 
         # Rerun setup_soilmaps
         self.setup_soilmaps(

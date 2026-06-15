@@ -4072,7 +4072,6 @@ using 'variable' argument."
             self.config._data = tomllib.load(file)
         for option in config_out:
             self.config.set(option, config_out[option])
-        self.config.set("wflow_version", "1.0")
 
         # Merge lakes and reservoirs layers
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
@@ -4088,7 +4087,6 @@ using 'variable' argument."
                 self.config.set(option, config_opt[option])
         # also update tables
         upgrade_lake_tables_to_reservoir_tables_v1(self.tables)
-        self.config.set("wflow_version", "1.0")
 
     def _upgrade_v1_to_v1_1(self):
         """Upgrade the model config from Wflow v1.0 to v1.1 format.
@@ -4113,7 +4111,6 @@ using 'variable' argument."
         elif Version("1.0") <= version < Version("1.1"):
             logger.info("Upgrading config from v1.0 to v1.1 format.")
             self.config._data = convert_to_wflow_v1_1_sbm(self.config.data)
-            self.config.set("wflow_version", "1.1")
         else:
             raise ValueError(
                 f"Expected wflow_version in config to be '1.0' for upgrade to v1.1, "
