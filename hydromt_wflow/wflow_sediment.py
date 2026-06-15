@@ -2,6 +2,7 @@
 
 import logging
 import tomllib
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
@@ -1080,6 +1081,17 @@ class WflowSedimentModel(WflowBaseModel):
     def _upgrade_v1_to_v1_1(self):
         """Upgrade the model from wflow v1.0 to v1.1 format."""
         self.config.set("wflow_version", "1.1")
+
+    @hydromt_step
+    def upgrade_to_v1_wflow(self, **kwargs):
+        """Upgrade the model to Wflow v1.0 format."""
+        warnings.warn(
+            "`upgrade_to_v1_wflow()` is deprecated and will be removed in a future "
+            "release, use `upgrade_to_latest()` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.upgrade_to_latest(**kwargs)
 
     @hydromt_step
     def upgrade_to_latest(

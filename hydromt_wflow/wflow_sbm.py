@@ -3,6 +3,7 @@
 # Implement model class following model API
 import logging
 import tomllib
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -4116,6 +4117,17 @@ using 'variable' argument."
                 f"Expected wflow_version in config to be '1.0' for upgrade to v1.1, "
                 f"but found '{version}'. Please run _upgrade_v0_to_v1() first."
             )
+
+    @hydromt_step
+    def upgrade_to_v1_wflow(self):
+        """Upgrade the model to Wflow v1.0 format."""
+        warnings.warn(
+            "`upgrade_to_v1_wflow()` is deprecated and will be removed in a future "
+            "release, use `upgrade_to_latest()` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.upgrade_to_latest()
 
     @hydromt_step
     def upgrade_to_latest(self):
