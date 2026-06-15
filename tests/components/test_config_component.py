@@ -131,8 +131,9 @@ def test_wflow_config_component_read(
 
     # Assert the read data
     assert isinstance(component.data, dict)
-    assert len(component.data) == 7
+    assert len(component.data) == 8
     assert component.data["dir_output"] == "run_default"
+    assert component.data["wflow_version"] == str(WFLOW_LATEST_VERSION)
     assert component.data["input"]
 
 
@@ -150,8 +151,9 @@ def test_wflow_config_component_read_init(
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 7
+    assert len(component.data) == 8
     assert component.data["dir_output"] == "run_default"
+    assert component.data["wflow_version"] == str(WFLOW_LATEST_VERSION)
 
 
 def test_wflow_config_component_read_default_read_mode(

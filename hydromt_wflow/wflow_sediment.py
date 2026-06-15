@@ -1078,8 +1078,12 @@ class WflowSedimentModel(WflowBaseModel):
             for option in config_opt:
                 self.config.set(option, config_opt[option])
 
-    @hydromt_step
-    def upgrade_to_latest(self):
+    def upgrade_to_latest(
+        self,
+        soil_fn: str | None = None,
+        usle_k_method: str | None = None,
+        strord_name: str | None = None,
+    ):
         """Upgrade the model to the latest Wflow.jl version.
 
         Applies all necessary upgrade steps in order based on the ``wflow_version``
@@ -1104,7 +1108,11 @@ class WflowSedimentModel(WflowBaseModel):
             return
 
         if version < Version("1.0"):
-            self._upgrade_v0_to_v1()
+            self._upgrade_v0_to_v1(
+                soil_fn=soil_fn,
+                usle_k_method=usle_k_method,
+                strord_name=strord_name,
+            )
 
         # No changes for v1.0 to v1.1 for sediment
 
