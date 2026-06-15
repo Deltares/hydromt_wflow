@@ -1,0 +1,123 @@
+wflow_version = "1.1"
+dir_output = "run_default"
+
+[time]
+calendar = "proleptic_gregorian"
+starttime = "2010-02-01T00:00:00"
+endtime = "2010-02-10T00:00:00"
+time_units = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
+
+[model]
+type = "sediment"
+cold_start__flag = true
+run_river_model__flag = true
+reservoir__flag = true
+rainfall_erosion = "answers"
+land_transport = "yalinpart"
+river_transport = "bagnold"
+
+[state]
+path_input = "instate/instates.nc"
+path_output = "outstate/outstates.nc"
+
+[state.variables]
+river_water_clay__mass = "clayload"
+river_bed_clay__mass = "claystore"
+river_water_clay__mass_flow_rate = "outclay"
+river_water_gravel__mass = "gravload"
+river_bed_gravel__mass = "gravstore"
+river_water_gravel__mass_flow_rate = "outgrav"
+river_water_large_aggregates__mass = "laggload"
+river_bed_large_aggregates__mass = "laggstore"
+river_water_large_aggregates__mass_flow_rate = "outlagg"
+river_water_small_aggregates__mass = "saggload"
+river_bed_small_aggregates__mass = "saggstore"
+river_water_small_aggregates__mass_flow_rate = "outsagg"
+river_water_sand__mass = "sandload"
+river_bed_sand__mass = "sandstore"
+river_water_sand__mass_flow_rate = "outsand"
+river_water_silt__mass = "siltload"
+river_bed_silt__mass = "siltstore"
+river_water_silt__mass_flow_rate = "outsilt"
+
+[input]
+path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
+basin__local_drain_direction = "wflow_ldd"
+river_location__mask = "wflow_river"
+subbasin_location__count = "wflow_subcatch"
+gauges = "wflow_gauges"
+gauges_grdc = "wflow_gauges_grdc"
+reservoir_area__count = "reservoir_area_id"
+reservoir_location__count = "reservoir_outlet_id"
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = "prec"
+vegetation_canopy_water__interception_volume_flux = "int"
+land_surface_water__depth = "lwl"
+land_surface_water__volume_flow_rate = "lro"
+river_water__depth = "rwl"
+river_water__volume_flow_rate = "rro"
+
+[input.cyclic]
+
+[input.static]
+land_surface__slope = "Slope"
+river__length = "wflow_riverlength"
+river__slope = "RiverSlope"
+river__width = "wflow_riverwidth"
+reservoir_surface__area = "reservoir_area"
+reservoir_water_sediment__bedload_trapping_efficiency = "reservoir_trapping_efficiency"
+vegetation_canopy__height = "CanopyHeight"
+compacted_soil__area_fraction = "PathFrac"
+soil_erosion__rainfall_soil_detachability_factor = "erosion_soil_detachability"
+soil_erosion__eurosem_exponent = "eros_spl_EUROSEM"
+soil_erosion__usle_k_factor = "erosion_usle_k"
+soil_erosion__usle_c_factor = "USLE_C"
+soil_erosion__answers_overland_flow_factor = "eros_ov"
+river_water_sediment__bagnold_transport_capacity_coefficient = "c_Bagnold"
+river_water_sediment__bagnold_transport_capacity_exponent = "exp_Bagnold"
+river_bottom_and_bank_sediment__median_diameter = "river_bed_sediment_d50"
+river_bottom_and_bank_clay__mass_fraction = "river_bed_clay_fraction"
+river_bottom_and_bank_silt__mass_fraction = "river_bed_silt_fraction"
+river_bottom_and_bank_sand__mass_fraction = "river_bed_sand_fraction"
+land_surface_sediment__median_diameter = "soil_sediment_d50"
+land_surface_water_sediment__govers_transport_capacity_coefficient = "land_govers_c"
+land_surface_water_sediment__govers_transport_capacity_exponent = "land_govers_n"
+soil_clay__mass_fraction = "soil_clay_fraction"
+soil_silt__mass_fraction = "soil_silt_fraction"
+soil_small_aggregates__mass_fraction = "soil_sagg_fraction"
+soil_sand__mass_fraction = "soil_sand_fraction"
+soil_large_aggregates__mass_fraction = "soil_lagg_fraction"
+river_bottom_and_bank_gravel__mass_fraction = "river_bed_gravel_fraction"
+river_water_sediment__kodatie_transport_capacity_a_coefficient = "river_kodatie_a"
+river_water_sediment__kodatie_transport_capacity_b_coefficient = "river_kodatie_b"
+river_water_sediment__kodatie_transport_capacity_c_coefficient = "river_kodatie_c"
+river_water_sediment__kodatie_transport_capacity_d_coefficient = "river_kodatie_d"
+
+[output.netcdf_grid]
+path = "output.nc"
+compressionlevel = 1
+
+[output.netcdf_grid.variables]
+soil_erosion__mass_flow_rate = "soilloss"
+river_water_sediment__suspended_mass_concentration = "SSconc"
+
+[output.csv]
+path = "output.csv"
+
+[[output.csv.column]]
+header = "TSS"
+map = "gauges"
+parameter = "river_water_sediment__suspended_mass_concentration"
+
+[[output.csv.column]]
+header = "Q"
+map = "gauges_grdc"
+parameter = "river_water__volume_flow_rate"
+
+[[output.csv.column]]
+header = "TSS"
+map = "gauges_grdc"
+parameter = "river_water_sediment__suspended_mass_concentration"

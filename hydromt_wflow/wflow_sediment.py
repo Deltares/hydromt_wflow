@@ -1020,7 +1020,7 @@ class WflowSedimentModel(WflowBaseModel):
         strord_name: str = "wflow_streamorder",
     ):
         """
-        Upgrade the model to wflow v1 format.
+        Upgrade the model from v0x to wflow v1.0 format.
 
         The function reads a TOML from wflow v0x and converts it to wflow v1x format.
         The other components stay the same.
@@ -1078,6 +1078,10 @@ class WflowSedimentModel(WflowBaseModel):
             for option in config_opt:
                 self.config.set(option, config_opt[option])
 
+    def _upgrade_v1_to_v1_1(self):
+        """Upgrade the model from wflow v1.0 to v1.1 format."""
+        self.config.set("wflow_version", "1.1")
+
     @hydromt_step
     def upgrade_to_latest(
         self,
@@ -1114,11 +1118,12 @@ class WflowSedimentModel(WflowBaseModel):
                 usle_k_method=usle_k_method,
                 strord_name=strord_name,
             )
+        if version < Version("1.1"):
+            self._upgrade_v1_to_v1_1()
 
-        # No changes for v1.0 to v1.1 for sediment
-
-        self.config.set("wflow_version", str(WFLOW_LATEST_VERSION))
-        logger.info(f"Model upgraded to Wflow.jl v{WFLOW_LATEST_VERSION}.")
+        logger.info(
+            f"Model upgraded to Wflow.jl v{self.config.get_value('wflow_version')}."
+        )
 
     # I/O
     @hydromt_step
