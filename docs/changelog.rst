@@ -8,8 +8,9 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
-New
----
+Added
+-----
+- Added upgrade support for the latest Wflow.jl v1.1 (#765)
 
 Fixed
 -----
@@ -19,12 +20,12 @@ Removed
 
 Changed
 -------
-
+- Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
 
 v1.0.2 (3 March 2026)
 ==========================
-New
----
+Added
+-----
 - Added Pandas 3.0 support (#713)
 
 Fixed
