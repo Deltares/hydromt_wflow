@@ -5,13 +5,11 @@ from __future__ import annotations
 import copy
 import logging
 import tomllib
-from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 import xarray as xr
 from packaging.version import Version
 
-from hydromt_wflow import utils
 from hydromt_wflow.components.tables import WflowTablesComponent
 from hydromt_wflow.naming import (
     WFLOW_NAMES,
@@ -19,7 +17,7 @@ from hydromt_wflow.naming import (
     WFLOW_SEDIMENT_STATES_NAMES,
     WFLOW_STATES_NAMES,
 )
-from hydromt_wflow.utils import get_config, set_config
+from hydromt_wflow.utils import DATADIR, get_config, set_config
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
@@ -36,8 +34,6 @@ if TYPE_CHECKING:
     from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 logger = logging.getLogger(f"hydromt.{__name__}")
-
-DATADIR = Path(__file__).parent / "data"
 
 # The latest Wflow.jl version supported by this hydromt_wflow release
 WFLOW_LATEST_VERSION = Version("1.1")
@@ -1013,7 +1009,7 @@ def _upgrade_sediment_v0_to_v1(model: WflowSedimentModel, **kwargs):
     strord_name: str = kwargs.get("strord_name", "wflow_streamorder")
 
     # Update the config
-    with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
+    with open(DATADIR / "default_config_headers.toml", "rb") as file:
         model.config._data = tomllib.load(file)
     for option in config_out:
         model.config.set(option, config_out[option])
@@ -1048,7 +1044,9 @@ def _upgrade_sediment_v1_to_v1_1(model: WflowSedimentModel, **kwargs):
 
 
 class UpgradeFunction(Protocol):
-    def __call__(self, model: WflowSedimentModel | WflowSbmModel, **kwargs) -> None: ...
+    def __call__(
+        self, model: "WflowSedimentModel | WflowSbmModel", **kwargs
+    ) -> None: ...
 
 
 _UPGRADES: dict[str, dict[tuple[Version, Version], UpgradeFunction]] = {
