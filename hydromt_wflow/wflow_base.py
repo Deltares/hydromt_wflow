@@ -67,7 +67,7 @@ class WflowBaseModel(Model):
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _DATADIR: Path = utils.DATADIR
+    _DATADIR: Path = utils.DATA_DIR
 
     def __init__(
         self,

@@ -17,7 +17,7 @@ from hydromt_wflow.naming import (
     WFLOW_SEDIMENT_STATES_NAMES,
     WFLOW_STATES_NAMES,
 )
-from hydromt_wflow.utils import DATADIR, get_config, set_config
+from hydromt_wflow.utils import DATA_DIR, get_config, set_config
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
@@ -1009,7 +1009,7 @@ def _upgrade_sediment_v0_to_v1(model: WflowSedimentModel, **kwargs):
     strord_name: str = kwargs.get("strord_name", "wflow_streamorder")
 
     # Update the config
-    with open(DATADIR / "default_config_headers.toml", "rb") as file:
+    with open(DATA_DIR / "default_config_headers.toml", "rb") as file:
         model.config._data = tomllib.load(file)
     for option in config_out:
         model.config.set(option, config_out[option])
