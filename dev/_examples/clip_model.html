@@ -529,48 +529,48 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-10 14:13:29,322 - hydromt - log - INFO - HydroMT version: 1.4.0
-2026-06-10 14:13:29,348 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-10 14:13:29,348 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-10 14:13:29,374 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-10 14:13:29,374 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-06-10 14:13:29,375 - hydromt - log - INFO - HydroMT version: 1.4.0
-2026-06-10 14:13:29,376 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-06-10 14:13:30,193 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - update: clip
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - clip.inverse_clip=False
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - clip.clip_forcing=True
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - clip.clip_states=True
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - clip.crs=4326
-2026-06-10 14:13:30,195 - hydromt.model.model - model - INFO - clip.region={&#39;subbasin&#39;: [12.3006, 46.4324], &#39;meta_streamorder&#39;: 4}
-2026-06-10 14:13:30,195 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Clipping staticmaps..
-2026-06-10 14:13:30,226 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2026-06-10 14:13:30,239 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - No reservoirs present in the clipped model, removing them from staticmaps.
-2026-06-10 14:13:30,972 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Re-generating/clipping staticgeoms..
-2026-06-10 14:13:30,994 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
-2026-06-10 14:13:30,997 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: outlets
-2026-06-10 14:13:31,006 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
-2026-06-10 14:13:31,006 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to csv section of toml.
-2026-06-10 14:13:31,027 - hydromt.hydromt_wflow.components.states - states - INFO - Clipping state...
-2026-06-10 14:13:31,030 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Clipping forcing...
-2026-06-10 14:13:31,032 - hydromt.hydromt_wflow.wflow_sbm - wflow_sbm - INFO - Updating reservoir tables to match clipped model.
-2026-06-10 14:13:31,032 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2026-06-10 14:13:31,032 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc.
-2026-06-10 14:13:31,079 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/region.geojson.
-2026-06-10 14:13:31,085 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/basins.geojson.
-2026-06-10 14:13:31,088 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/rivers.geojson.
-2026-06-10 14:13:31,090 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/outlets.geojson.
-2026-06-10 14:13:31,091 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/gauges_grdc.geojson.
-2026-06-10 14:13:31,094 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/glaciers.geojson.
-2026-06-10 14:13:31,099 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: meta_reservoirs_simple_control is empty. Skipping...
-2026-06-10 14:13:31,099 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: reservoirs is empty. Skipping...
-2026-06-10 14:13:31,099 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: meta_reservoirs_no_control is empty. Skipping...
-2026-06-10 14:13:31,099 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
-2026-06-10 14:13:31,103 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
-[########################################] | 100% Completed | 101.03 ms
-2026-06-10 14:13:31,216 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
-2026-06-10 14:13:31,217 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/instate/instates.nc.
-2026-06-10 14:13:31,236 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml.
+2026-06-16 15:25:04,026 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-06-16 15:25:04,056 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-06-16 15:25:04,056 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-06-16 15:25:04,089 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-06-16 15:25:04,089 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-06-16 15:25:04,090 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-06-16 15:25:04,090 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-06-16 15:25:04,946 - hydromt.hydromt_wflow.components.tables - tables - INFO - Reading model table files.
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - update: clip
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - clip.inverse_clip=False
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - clip.clip_forcing=True
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - clip.clip_states=True
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - clip.crs=4326
+2026-06-16 15:25:04,948 - hydromt.model.model - model - INFO - clip.region={&#39;subbasin&#39;: [12.3006, 46.4324], &#39;meta_streamorder&#39;: 4}
+2026-06-16 15:25:04,948 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Clipping staticmaps..
+2026-06-16 15:25:04,982 - hydromt.model.processes.basin_mask - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2026-06-16 15:25:04,997 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - No reservoirs present in the clipped model, removing them from staticmaps.
+2026-06-16 15:25:05,752 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Re-generating/clipping staticgeoms..
+2026-06-16 15:25:05,776 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges locations set based on river outlets.
+2026-06-16 15:25:05,779 - hydromt.hydromt_wflow.components.staticmaps - staticmaps - INFO - Replacing grid map: outlets
+2026-06-16 15:25:05,789 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Gauges map based on catchment river outlets added.
+2026-06-16 15:25:05,789 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to csv section of toml.
+2026-06-16 15:25:05,814 - hydromt.hydromt_wflow.components.states - states - INFO - Clipping state...
+2026-06-16 15:25:05,817 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Clipping forcing...
+2026-06-16 15:25:05,819 - hydromt.hydromt_wflow.wflow_sbm - wflow_sbm - INFO - Updating reservoir tables to match clipped model.
+2026-06-16 15:25:05,819 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2026-06-16 15:25:05,820 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc.
+2026-06-16 15:25:05,868 - hydromt.model.components.spatial - spatial - INFO - wflow_sbm.staticmaps: Writing region to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/region.geojson.
+2026-06-16 15:25:05,875 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/basins.geojson.
+2026-06-16 15:25:05,878 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/rivers.geojson.
+2026-06-16 15:25:05,880 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/outlets.geojson.
+2026-06-16 15:25:05,882 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/gauges_grdc.geojson.
+2026-06-16 15:25:05,885 - hydromt.model.components.geoms - geoms - INFO - wflow_sbm.geoms: Writing geoms to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticgeoms/glaciers.geojson.
+2026-06-16 15:25:05,890 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: meta_reservoirs_simple_control is empty. Skipping...
+2026-06-16 15:25:05,890 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: reservoirs is empty. Skipping...
+2026-06-16 15:25:05,890 - hydromt.model.components.geoms - geoms - WARNING - wflow_sbm.geoms: meta_reservoirs_no_control is empty. Skipping...
+2026-06-16 15:25:05,891 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Write forcing file
+2026-06-16 15:25:05,894 - hydromt.hydromt_wflow.components.forcing - forcing - INFO - Writing file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed | 100.42 ms
+2026-06-16 15:25:06,008 - hydromt.model.components.tables - tables - INFO - wflow_sbm.tables: No tables found, skip writing.
+2026-06-16 15:25:06,009 - hydromt.model.components.grid - grid - INFO - wflow_sbm.states: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/instate/instates.nc.
+2026-06-16 15:25:06,030 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt clip</strong> with:</p>
@@ -618,7 +618,7 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-10 14:13:34,093 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-06-16 15:25:08,912 - hydromt - log - INFO - HydroMT version: 1.4.0
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -636,14 +636,14 @@ steps:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-10 14:13:34,115 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-10 14:13:34,115 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-10 14:13:34,142 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-10 14:13:34,143 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-06-10 14:13:34,144 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-10 14:13:34,145 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-10 14:13:34,158 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-10 14:13:34,159 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml.
+2026-06-16 15:25:08,937 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-06-16 15:25:08,938 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-06-16 15:25:08,970 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-06-16 15:25:08,971 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-06-16 15:25:08,972 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-06-16 15:25:08,973 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-06-16 15:25:08,989 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-06-16 15:25:08,989 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml.
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
