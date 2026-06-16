@@ -11,6 +11,7 @@ import pandas as pd
 import pyflwdir
 import pyproj
 import xarray as xr
+from deprecated import deprecated
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
@@ -29,6 +30,7 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
+from hydromt_wflow.version_upgrade import upgrade_to_latest
 
 __all__ = ["WflowBaseModel"]
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -1713,6 +1715,29 @@ one variable and variables list is not provided."
                 input=list(reservoir_maps.values()),
                 state=list(reservoir_states.values()),
             )
+
+    @deprecated(
+        reason="Use `upgrade_to_latest()` instead.",
+        version="1.1.0",
+        category=DeprecationWarning,
+    )
+    @hydromt_step
+    def upgrade_to_v1_wflow(self):
+        """Upgrade the model to Wflow v1.0 format."""
+        self.upgrade_to_latest()
+
+    @hydromt_step
+    def upgrade_to_latest(self, options: dict | None = None):
+        """Upgrade the model to the latest Wflow.jl version.
+
+        Applies all necessary upgrade steps in order based on the ``wflow_version``
+        key in the config. If absent, the model is assumed to be pre-v1.0 and all
+        upgrade steps are applied.
+
+        This function should be followed by write() to write all upgraded components
+        to disk.
+        """
+        upgrade_to_latest(self, options=options)
 
     # I/O
     @hydromt_step

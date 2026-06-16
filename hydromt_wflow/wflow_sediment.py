@@ -1,8 +1,6 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
-import tomllib
-import warnings
 from pathlib import Path
 
 import geopandas as gpd
@@ -11,16 +9,9 @@ import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
-from packaging.version import Version
 
-import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
-from hydromt_wflow.version_upgrade import (
-    WFLOW_LATEST_VERSION,
-    convert_reservoirs_to_wflow_v1_sediment,
-    convert_to_wflow_v1_sediment,
-)
 from hydromt_wflow.wflow_base import WflowBaseModel
 
 __all__ = ["WflowSedimentModel"]
@@ -1012,128 +1003,6 @@ class WflowSedimentModel(WflowBaseModel):
             reservoir_maps=reservoir_maps,
             crs=crs,
             **kwargs,
-        )
-
-    def _upgrade_v0_to_v1(
-        self,
-        soil_fn: str = "soilgrids",
-        usle_k_method: str = "renard",
-        strord_name: str = "wflow_streamorder",
-    ):
-        """
-        Upgrade the model from v0x to wflow v1.0 format.
-
-        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
-        The other components stay the same.
-
-        A few variables that used to be computed within Wflow.jl are now moved to
-        HydroMT to allow more flexibility for the users to update if they do get local
-        data or calibrate some of the parameters specifically. For this, the
-        ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.
-
-        Lakes and reservoirs have also been merged into one structure and parameters in
-        the resulted staticmaps will be combined.
-
-        This function should be followed by ``write_config`` to write the upgraded TOML
-        file and by ``write_grid`` to write the upgraded static netcdf input file.
-
-        Parameters
-        ----------
-        soil_fn : str, optional
-            soil_fn argument of setup_soilmaps method.
-        usle_k_method : str, optional
-            usle_k_method argument of setup_soilmaps method.
-        strord_name : str, optional
-            strord_name argument of setup_riverbedsed method.
-        """
-        config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sediment(self.config.data)
-
-        # Update the config
-        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
-            self.config._data = tomllib.load(file)
-        for option in config_out:
-            self.config.set(option, config_out[option])
-
-        # Rerun setup_soilmaps
-        self.setup_soilmaps(
-            soil_fn=soil_fn,
-            usle_k_method=usle_k_method,
-            add_aggregates=True,
-        )
-
-        # Rerun setup_riverbedsed
-        self.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)
-
-        # Merge lakes and reservoirs layers
-        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
-            self.staticmaps.data, config_v0
-        )
-        if ds_res is not None:
-            # Remove older maps from grid
-            self.staticmaps.drop_vars(vars_to_remove)
-            # Add new reservoir maps to grid
-            self.staticmaps.set(ds_res)
-            # Update the config with the new names
-            for option in config_opt:
-                self.config.set(option, config_opt[option])
-
-    def _upgrade_v1_to_v1_1(self):
-        """Upgrade the model from wflow v1.0 to v1.1 format."""
-        self.config.set("wflow_version", "1.1")
-
-    @hydromt_step
-    def upgrade_to_v1_wflow(self, **kwargs):
-        """Upgrade the model to Wflow v1.0 format."""
-        warnings.warn(
-            "`upgrade_to_v1_wflow()` is deprecated and will be removed in a future "
-            "release, use `upgrade_to_latest()` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.upgrade_to_latest(**kwargs)
-
-    @hydromt_step
-    def upgrade_to_latest(
-        self,
-        soil_fn: str = "soilgrids",
-        usle_k_method: str = "renard",
-        strord_name: str = "wflow_streamorder",
-    ):
-        """Upgrade the model to the latest Wflow.jl version.
-
-        Applies all necessary upgrade steps in order based on the ``wflow_version``
-        key in the config. If absent, the model is assumed to be pre-v1.0 and all
-        upgrade steps are applied.
-
-        This function should be followed by write() to write all upgraded components
-        to disk.
-        """
-        version_str = self.config.data.get("wflow_version")
-        if version_str is None:
-            logger.warning(
-                "No wflow_version found in config, assuming v0.x and applying all "
-                "upgrade steps."
-            )
-            version = Version("0.0")
-        else:
-            version = Version(str(version_str))
-
-        if version >= WFLOW_LATEST_VERSION:
-            logger.info("Model is already at the latest version, no upgrade needed.")
-            return
-
-        if version < Version("1.0"):
-            self._upgrade_v0_to_v1(
-                soil_fn=soil_fn,
-                usle_k_method=usle_k_method,
-                strord_name=strord_name,
-            )
-        if version < Version("1.1"):
-            self._upgrade_v1_to_v1_1()
-
-        logger.info(
-            f"Model upgraded to Wflow.jl v{self.config.get_value('wflow_version')}."
         )
 
     # I/O

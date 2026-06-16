@@ -2,11 +2,14 @@
 
 import copy
 import logging
+import tomllib
 from pathlib import Path
+from typing import Protocol
 
 import xarray as xr
 from packaging.version import Version
 
+from hydromt_wflow import utils
 from hydromt_wflow.components.tables import WflowTablesComponent
 from hydromt_wflow.naming import (
     WFLOW_NAMES,
@@ -15,6 +18,8 @@ from hydromt_wflow.naming import (
     WFLOW_STATES_NAMES,
 )
 from hydromt_wflow.utils import get_config, set_config
+from hydromt_wflow.wflow_sbm import WflowSbmModel
+from hydromt_wflow.wflow_sediment import WflowSedimentModel
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
@@ -897,3 +902,266 @@ def convert_to_wflow_v1_1_sbm(config: dict) -> dict:
 
     config_out["wflow_version"] = "1.1"
     return config_out
+
+
+def _upgrade_sbm_v0_to_v1(model: WflowSbmModel, **kwargs) -> None:
+    """
+    Upgrade the model from v0 to wflow v1.0 format.
+
+    The function reads a TOML from wflow v0x and converts it to wflow v1.0 format.
+    The other components stay the same.
+
+    Lakes and reservoirs have also been merged into one structure and parameters in
+    the resulted staticmaps will be combined.
+
+    This function should be followed by write_config() to write the upgraded file.
+    """
+    if _detect_wflow_version(model.config.data) >= Version("1.0"):
+        logger.info("Config is already at v1.0 or later, no upgrade needed.")
+        return
+
+    logger.info("Upgrading config from v0.x to v1.0 format.")
+    config_v0 = model.config.data.copy()
+    config_out = convert_to_wflow_v1_sbm(model.config.data)
+
+    # Update the config
+    with open(model._DATADIR / "default_config_headers.toml", "rb") as file:
+        model.config._data = tomllib.load(file)
+    for option in config_out:
+        model.config.set(option, config_out[option])
+
+    # Merge lakes and reservoirs layers
+    ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
+        model.staticmaps.data, config_v0
+    )
+    if ds_res is not None:
+        # Remove older maps from grid
+        model.staticmaps.drop_vars(vars_to_remove)
+        # Add new reservoir maps to grid
+        model.staticmaps.set(ds_res)
+        # Update the config with the new names
+        for option in config_opt:
+            model.config.set(option, config_opt[option])
+    # also update tables
+    upgrade_lake_tables_to_reservoir_tables_v1(model.tables)
+
+
+def _upgrade_sbm_v1_to_v1_1(model: WflowSbmModel, **kwargs) -> None:
+    """Upgrade the model config from Wflow v1.0 to v1.1 format.
+
+    Currently, only the TOML config is updated.
+    All other model components remain unchanged.
+
+    This function should be followed by write_config() to write the upgraded file.
+    """
+    version = _detect_wflow_version(model)
+
+    if version < Version("1.0"):
+        raise ValueError(
+            f"Expected a v1.0 model but got v{version}. Run the v0 to v1 upgrade first."
+        )
+    elif version >= Version("1.1"):
+        logger.info(f"Config is already at v{version}, no upgrade needed.")
+        return
+
+    logger.info("Upgrading config from v1.0 to v1.1 format.")
+    model.config._data = convert_to_wflow_v1_1_sbm(model.config.data)
+
+
+def _upgrade_sediment_v0_to_v1(model: WflowSedimentModel, **kwargs):
+    """
+    Upgrade the model from v0x to wflow v1.0 format.
+
+    The function reads a TOML from wflow v0x and converts it to wflow v1x format.
+    The other components stay the same.
+
+    A few variables that used to be computed within Wflow.jl are now moved to
+    HydroMT to allow more flexibility for the users to update if they do get local
+    data or calibrate some of the parameters specifically. For this, the
+    ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.
+
+    Lakes and reservoirs have also been merged into one structure and parameters in
+    the resulted staticmaps will be combined.
+
+    This function should be followed by ``write_config`` to write the upgraded TOML
+    file and by ``write_grid`` to write the upgraded static netcdf input file.
+
+    Parameters
+    ----------
+    model : WflowSedimentModel
+        Model instance to upgrade.
+    **kwargs
+        Optional arguments passed to the setup workflows.
+
+        soil_fn : str, default "soilgrids"
+            Value passed to ``setup_soilmaps``.
+        usle_k_method : str, default "renard"
+            Value passed to ``setup_soilmaps``.
+        strord_name : str, default "wflow_streamorder"
+            Value passed to ``setup_riverbedsed``.
+    """
+    config_v0 = model.config.data.copy()
+    config_out = convert_to_wflow_v1_sediment(model.config.data)
+
+    soil_fn: str = kwargs.get("soil_fn", "soilgrids")
+    usle_k_method: str = kwargs.get("usle_k_method", "renard")
+    strord_name: str = kwargs.get("strord_name", "wflow_streamorder")
+
+    # Update the config
+    with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
+        model.config._data = tomllib.load(file)
+    for option in config_out:
+        model.config.set(option, config_out[option])
+
+    # Rerun setup_soilmaps
+    model.setup_soilmaps(
+        soil_fn=soil_fn,
+        usle_k_method=usle_k_method,
+        add_aggregates=True,
+    )
+
+    # Rerun setup_riverbedsed
+    model.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)
+
+    # Merge lakes and reservoirs layers
+    ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
+        model.staticmaps.data, config_v0
+    )
+    if ds_res is not None:
+        # Remove older maps from grid
+        model.staticmaps.drop_vars(vars_to_remove)
+        # Add new reservoir maps to grid
+        model.staticmaps.set(ds_res)
+        # Update the config with the new names
+        for option in config_opt:
+            model.config.set(option, config_opt[option])
+
+
+def _upgrade_sediment_v1_to_v1_1(model: WflowSedimentModel, **kwargs):
+    """Upgrade the model from wflow v1.0 to v1.1 format."""
+    model.config.set("wflow_version", "1.1")
+
+
+class UpgradeFunction(Protocol):
+    def __call__(self, model: WflowSedimentModel | WflowSbmModel, **kwargs) -> None: ...
+
+
+_UPGRADES: dict[str, dict[str, UpgradeFunction]] = {
+    "wflow_sbm": {
+        "0.x to 1.0": _upgrade_sbm_v0_to_v1,
+        "1.0 to 1.1": _upgrade_sbm_v1_to_v1_1,
+    },
+    "wflow_sediment": {
+        "0.x to 1.0": _upgrade_sediment_v0_to_v1,
+        "1.0 to 1.1": _upgrade_sediment_v1_to_v1_1,
+    },
+}
+
+
+def _is_v1_schema(config: dict) -> bool:
+    """Detect the Wflow v1.0 config schema."""
+    # v1-only sections
+    if "state" in config:
+        return True
+
+    if "logging" in config:
+        return True
+
+    # v1-only model options
+    model_cfg = config.get("model", {})
+
+    v1_keys = {
+        "cold_start__flag",
+        "reservoir__flag",
+        "snow__flag",
+        "cell_length_in_meter__flag",
+        "river_streamorder__min_count",
+        "land_streamorder__min_count",
+    }
+
+    if any(key in model_cfg for key in v1_keys):
+        return True
+
+    # v1 input structure
+    input_cfg = config.get("input", {})
+
+    if any(k in input_cfg for k in ("static", "forcing", "cyclic")):
+        return True
+
+    return False
+
+
+def _detect_wflow_version(model: WflowSbmModel | WflowSedimentModel) -> Version:
+    """Detect the Wflow.jl version of the model."""
+    version = model.config.get_value("wflow_version")
+    if version is not None:
+        # models built from v1.1 an onwards will always have this version in the config.
+        return Version(str(version))
+
+    # v1.0-only config key
+    if _is_v1_schema(model.config.data):
+        return Version("1.0")
+
+    logger.warning(
+        "No 'wflow_version' found in config and no v1.0-only keys detected. "
+        "Assuming pre-v1.0 model."
+    )
+    return Version("0.0")
+
+
+def _validate_options(options: dict | None, model_name: str) -> dict:
+    """Validate the options dictionary for the upgrade functions."""
+    if options is None:
+        return {}
+    if not isinstance(options, dict):
+        raise TypeError(
+            f"Expected 'options' to be a dict but got {type(options).__name__}."
+        )
+    for v, opts in options.items():
+        if not isinstance(opts, dict):
+            raise TypeError(
+                f"Expected 'options[{v}]' to be a dict but got {type(opts).__name__}."
+            )
+        if v not in _UPGRADES[model_name]:
+            raise ValueError(
+                f"Unknown upgrade version '{v}' for model '{model_name}'. "
+                f"Available versions: {list(_UPGRADES[model_name].keys())}."
+            )
+    return options
+
+
+def upgrade_to_latest(
+    model: WflowSbmModel | WflowSedimentModel, options: dict | None = None
+) -> None:
+    """Upgrade the model to the latest Wflow.jl version.
+
+    Applies all necessary upgrade steps in order based on the ``wflow_version``
+    key in the config. If absent, the model is assumed to be pre-v1.0 and all
+    upgrade steps are applied.
+
+    This function should be followed by write() to write all upgraded components
+    to disk.
+
+    Parameters
+    ----------
+    model: WflowSbmModel | WflowSedimentModel
+        The model to upgrade.
+    options: dict, optional
+        A dictionary of options to pass to the upgrade functions. The keys should be
+        two version numbers associated with this upgrade (e.g. "0.x to 1.0" or
+        "1.0 to 1.1") and the values should be dictionaries of options for that version.
+    """
+    version = _detect_wflow_version(model)
+
+    if version >= WFLOW_LATEST_VERSION:
+        logger.info("Model is already at the latest version, no upgrade needed.")
+        return
+
+    options = _validate_options(options, model.name)
+    for v, upgrade_func in _UPGRADES[model.name].items():
+        if version < Version(v):
+            logger.debug(f"Upgrading model from v{version} to v{v}.")
+            upgrade_func(model, **options.get(v, {}))
+            version = Version(model.config.get_value("wflow_version"))
+
+    logger.info(f"Model upgraded to Wflow.jl v{version}.")
