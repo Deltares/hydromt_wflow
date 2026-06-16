@@ -1,10 +1,12 @@
 """Some utilities to upgrade Wflow model versions."""
 
+from __future__ import annotations
+
 import copy
 import logging
 import tomllib
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import xarray as xr
 from packaging.version import Version
@@ -18,8 +20,6 @@ from hydromt_wflow.naming import (
     WFLOW_STATES_NAMES,
 )
 from hydromt_wflow.utils import get_config, set_config
-from hydromt_wflow.wflow_sbm import WflowSbmModel
-from hydromt_wflow.wflow_sediment import WflowSedimentModel
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
@@ -29,6 +29,11 @@ from hydromt_wflow.workflows.reservoirs import (
     merge_reservoirs_sediment,
     set_rating_curve_layer_data_type,
 )
+
+if TYPE_CHECKING:
+    # requires the __future__ import at the top of the file.
+    from hydromt_wflow.wflow_sbm import WflowSbmModel
+    from hydromt_wflow.wflow_sediment import WflowSedimentModel
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
@@ -916,7 +921,7 @@ def _upgrade_sbm_v0_to_v1(model: WflowSbmModel, **kwargs) -> None:
 
     This function should be followed by write_config() to write the upgraded file.
     """
-    if _detect_wflow_version(model.config.data) >= Version("1.0"):
+    if _detect_wflow_version(model) >= Version("1.0"):
         logger.info("Config is already at v1.0 or later, no upgrade needed.")
         return
 
@@ -1046,31 +1051,49 @@ class UpgradeFunction(Protocol):
     def __call__(self, model: WflowSedimentModel | WflowSbmModel, **kwargs) -> None: ...
 
 
-_UPGRADES: dict[str, dict[str, UpgradeFunction]] = {
+_UPGRADES: dict[str, dict[tuple[Version, Version], UpgradeFunction]] = {
     "wflow_sbm": {
-        "0.x to 1.0": _upgrade_sbm_v0_to_v1,
-        "1.0 to 1.1": _upgrade_sbm_v1_to_v1_1,
+        (Version("0.8"), Version("1.0")): _upgrade_sbm_v0_to_v1,
+        (Version("1.0"), Version("1.1")): _upgrade_sbm_v1_to_v1_1,
     },
     "wflow_sediment": {
-        "0.x to 1.0": _upgrade_sediment_v0_to_v1,
-        "1.0 to 1.1": _upgrade_sediment_v1_to_v1_1,
+        (Version("0.8"), Version("1.0")): _upgrade_sediment_v0_to_v1,
+        (Version("1.0"), Version("1.1")): _upgrade_sediment_v1_to_v1_1,
     },
 }
 
 
 def _is_v1_schema(config: dict) -> bool:
     """Detect the Wflow v1.0 config schema."""
-    # v1-only sections
-    if "state" in config:
+    # v1.1+
+    if "wflow_version" in config:
+        logger.debug("Found wflow_version, indicating v1 schema.")
         return True
 
+    # v1 split sections created by converter
     if "logging" in config:
+        logger.debug("Found logging section, indicating v1 schema.")
         return True
 
-    # v1-only model options
-    model_cfg = config.get("model", {})
+    # v1 input structure
+    input_cfg = config.get("input", {})
 
-    v1_keys = {
+    if isinstance(input_cfg.get("static"), dict):
+        logger.debug("Found input.static section, indicating v1 schema.")
+        return True
+
+    # In v0 forcing/cyclic are lists. In v1 they are tables.
+    if isinstance(input_cfg.get("forcing"), dict):
+        logger.debug("Found input.forcing section, indicating v1 schema.")
+        return True
+
+    if isinstance(input_cfg.get("cyclic"), dict):
+        logger.debug("Found input.cyclic section, indicating v1 schema.")
+        return True
+
+    # v1 model names
+    model_cfg = config.get("model", {})
+    v1_model_keys = {
         "cold_start__flag",
         "reservoir__flag",
         "snow__flag",
@@ -1079,13 +1102,15 @@ def _is_v1_schema(config: dict) -> bool:
         "land_streamorder__min_count",
     }
 
-    if any(key in model_cfg for key in v1_keys):
+    if v1_model_keys.intersection(model_cfg):
+        logger.debug("Found v1 model options.")
         return True
 
-    # v1 input structure
-    input_cfg = config.get("input", {})
+    # v1 output structure
+    output_cfg = config.get("output", {})
 
-    if any(k in input_cfg for k in ("static", "forcing", "cyclic")):
+    if "netcdf_grid" in output_cfg or "netcdf_scalar" in output_cfg:
+        logger.debug("Found v1 output structure.")
         return True
 
     return False
@@ -1096,10 +1121,15 @@ def _detect_wflow_version(model: WflowSbmModel | WflowSedimentModel) -> Version:
     version = model.config.get_value("wflow_version")
     if version is not None:
         # models built from v1.1 an onwards will always have this version in the config.
+        logger.debug(f"Detected Wflow version {version} from config.")
         return Version(str(version))
 
     # v1.0-only config key
     if _is_v1_schema(model.config.data):
+        logger.debug(
+            "No 'wflow_version' found in config but v1.0 schema detected. "
+            "Assuming v1.0 model."
+        )
         return Version("1.0")
 
     logger.warning(
@@ -1117,14 +1147,15 @@ def _validate_options(options: dict | None, model_name: str) -> dict:
         raise TypeError(
             f"Expected 'options' to be a dict but got {type(options).__name__}."
         )
-    for v, opts in options.items():
+    for version_tuple, opts in options.items():
         if not isinstance(opts, dict):
             raise TypeError(
-                f"Expected 'options[{v}]' to be a dict but got {type(opts).__name__}."
+                f"Expected 'options[{version_tuple}]' to be a dict "
+                "but got {type(opts).__name__}."
             )
-        if v not in _UPGRADES[model_name]:
+        if version_tuple not in _UPGRADES[model_name]:
             raise ValueError(
-                f"Unknown upgrade version '{v}' for model '{model_name}'. "
+                f"Unknown upgrade versions '{version_tuple}' for model '{model_name}'. "
                 f"Available versions: {list(_UPGRADES[model_name].keys())}."
             )
     return options
@@ -1148,8 +1179,9 @@ def upgrade_to_latest(
         The model to upgrade.
     options: dict, optional
         A dictionary of options to pass to the upgrade functions. The keys should be
-        two version numbers associated with this upgrade (e.g. "0.x to 1.0" or
-        "1.0 to 1.1") and the values should be dictionaries of options for that version.
+        tuples of two version numbers associated with this upgrade (e.g. ("0.x", "1.0")
+        or ("1.0", "1.1")) and the values should be dictionaries of options for that
+        version.
     """
     version = _detect_wflow_version(model)
 
@@ -1158,10 +1190,10 @@ def upgrade_to_latest(
         return
 
     options = _validate_options(options, model.name)
-    for v, upgrade_func in _UPGRADES[model.name].items():
-        if version < Version(v):
-            logger.debug(f"Upgrading model from v{version} to v{v}.")
-            upgrade_func(model, **options.get(v, {}))
+    for (from_version, to_version), upgrade_func in _UPGRADES[model.name].items():
+        if version < to_version:
+            logger.debug(f"Upgrading model from v{from_version} to v{to_version}.")
+            upgrade_func(model, **options.get((from_version, to_version), {}))
             version = Version(model.config.get_value("wflow_version"))
 
     logger.info(f"Model upgraded to Wflow.jl v{version}.")

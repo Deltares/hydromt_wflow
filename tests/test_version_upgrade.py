@@ -7,7 +7,13 @@ import numpy as np
 import pytest
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
-from hydromt_wflow.version_upgrade import WFLOW_LATEST_VERSION
+from hydromt_wflow.version_upgrade import (
+    WFLOW_LATEST_VERSION,
+    _upgrade_sbm_v0_to_v1,
+    _upgrade_sbm_v1_to_v1_1,
+    _upgrade_sediment_v0_to_v1,
+    _upgrade_sediment_v1_to_v1_1,
+)
 
 
 @pytest.fixture
@@ -62,7 +68,7 @@ class V0ToV1Assertions:
     def assert_sbm_cold_start_warning(upgraded: WflowSbmModel, caplog) -> None:
         """reinit=False: upgrade should warn and force cold_start__flag=True."""
         caplog.set_level(logging.WARNING)
-        upgraded._upgrade_v0_to_v1()
+        _upgrade_sbm_v0_to_v1(upgraded)
         assert (
             "Converting states is not supported by this conversion code" in caplog.text
         )
@@ -126,14 +132,13 @@ class TestUpgradeV0ToV1:
     def test_sbm_config(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
         wflow = WflowSbmModel(source, config_filename="wflow_sbm.toml", mode="r")
-        wflow._upgrade_v0_to_v1()
-
+        _upgrade_sbm_v0_to_v1(wflow)
         V0ToV1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "v1_0")
 
     def test_sbm_staticmaps(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
         wflow = WflowSbmModel(source, config_filename="wflow_sbm.toml", mode="r")
-        wflow._upgrade_v0_to_v1()
+        _upgrade_sbm_v0_to_v1(wflow)
 
         V0ToV1Assertions.assert_sbm_staticmaps(wflow)
 
@@ -142,6 +147,7 @@ class TestUpgradeV0ToV1:
         source = upgrade_data_dir / "sbm" / "v0x"
         wflow = WflowSbmModel(source, config_filename="wflow_sbm.toml", mode="r")
         wflow.config.set("model.reinit", False)
+        _upgrade_sbm_v0_to_v1(wflow)
 
         V0ToV1Assertions.assert_sbm_cold_start_warning(wflow, caplog)
 
@@ -158,7 +164,7 @@ class TestUpgradeV0ToV1:
         ]:
             wflow.config.set(unicode_key, wflow.config.remove(ascii_key))
 
-        wflow._upgrade_v0_to_v1()
+        _upgrade_sbm_v0_to_v1(wflow)
 
         V0ToV1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "v1_0")
 
@@ -170,7 +176,7 @@ class TestUpgradeV0ToV1:
             data_libs=["artifact_data"],
             mode="r",
         )
-        wflow._upgrade_v0_to_v1(soil_fn="soilgrids")
+        _upgrade_sediment_v0_to_v1(wflow)
 
         V0ToV1Assertions.assert_sediment_config(
             wflow, upgrade_data_dir / "sediment" / "v1_0"
@@ -184,7 +190,7 @@ class TestUpgradeV0ToV1:
             data_libs=["artifact_data"],
             mode="r",
         )
-        wflow._upgrade_v0_to_v1(soil_fn="soilgrids")
+        _upgrade_sediment_v0_to_v1(wflow)
 
         V0ToV1Assertions.assert_sediment_staticmaps(wflow)
 
@@ -220,7 +226,7 @@ class TestUpgradeV0ToV1:
         cyclic.append("lateral.river.reservoir.targetfullfrac")
         wflow.config.set("input.cyclic", cyclic)
 
-        wflow._upgrade_v0_to_v1()
+        _upgrade_sbm_v0_to_v1(wflow)
         wflow.root.set(tmp_path, mode="w")
         wflow.write()
 
@@ -234,7 +240,7 @@ class TestUpgradeV1ToV1_1:
     def test_sbm_config(self, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v1_0"
         wflow = WflowSbmModel(source, config_filename="wflow_sbm.toml", mode="r")
-        wflow._upgrade_v1_to_v1_1()
+        _upgrade_sbm_v1_to_v1_1(wflow)
 
         V1ToV1_1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "v1_1")
 
@@ -243,7 +249,7 @@ class TestUpgradeV1ToV1_1:
         wflow = WflowSedimentModel(
             source, config_filename="wflow_sediment.toml", mode="r"
         )
-        wflow._upgrade_v1_to_v1_1()
+        _upgrade_sediment_v1_to_v1_1(wflow)
 
         V1ToV1_1Assertions.assert_sediment_config(
             wflow, upgrade_data_dir / "sediment" / "v1_1"
@@ -260,17 +266,20 @@ class TestUpgradeV1ToV1_1:
         wflow.config.set("wflow_version", "1.1")
 
         with caplog.at_level(logging.INFO):
-            wflow._upgrade_v1_to_v1_1()
-        assert "Config is already at v1.1 or later, no upgrade needed" in caplog.text
+            _upgrade_sbm_v1_to_v1_1(wflow)
+        assert "Config is already at v1.1, no upgrade needed." in caplog.text
 
-    def test_raises_on_undefined_version(self):
+    def test_raises_on_unexpected_version(self):
         """_upgrade_v1_to_v1_1 should raise if the model version is undefined."""
         dummy = WflowSbmModel(root=Path("dummy"), mode="w")
         dummy.config.data  # initalize
-        dummy.config.remove("wflow_version")
+        dummy.config.set("wflow_version", "0.8")
 
-        with pytest.raises(ValueError, match="No 'wflow_version' found in config."):
-            dummy._upgrade_v1_to_v1_1()
+        with pytest.raises(
+            ValueError,
+            match="Expected a v1.0 model but got v0.8. Run the v0 to v1 upgrade first.",
+        ):
+            _upgrade_sbm_v1_to_v1_1(dummy)
 
 
 class TestUpgradeToLatest:
