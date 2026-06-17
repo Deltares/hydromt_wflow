@@ -519,11 +519,11 @@ setting new flood_depth dimensions"
                 river_d8=True,
             ).rename(name)
             self.staticmaps.set(ds_out)
-            # Update the bankfull elevation map
+            # Update the bankfull elevation map, and also use this for the ground
+            # elevation
             self.config.set("input.static.river_bank_water__elevation", name)
-            # In this case river_bank_elevation is also used for the ground elevation?
             self.config.set(
-                "input.static.land_surface_water_flow__ground_elevation", elevtn_map
+                "input.static.land_surface_water_flow__ground_elevation", name
             )
 
         # Update config

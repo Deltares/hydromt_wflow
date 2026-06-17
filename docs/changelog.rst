@@ -14,6 +14,7 @@ Added
 
 Fixed
 -----
+- The variable set for land surface elevation when using 2D floodplains was incorrectly set to the elevation, in stead of the D4 conditioned elevation (#765)
 
 Removed
 -------
