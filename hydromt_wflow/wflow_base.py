@@ -124,7 +124,8 @@ class WflowBaseModel(Model):
         self.data_catalog.from_yml(self._DATADIR / "parameters_data.yml")
 
         # Supported Wflow.jl version
-        logger.info("Supported Wflow.jl version v1+")
+        version = self.config.get_value("wflow_version", fallback="1+")
+        logger.info(f"Supported Wflow.jl version v{version}.")
 
     ## Properties
     # Components
@@ -300,6 +301,7 @@ skipping adding gauge specific outputs to the toml."
             "basin__local_drain_direction": "local_drain_direction",
             "subbasin_location__count": "subcatchment",
             "land_surface__slope": "land_slope",
+            "land_surface__elevation": "land_elevation",
         },
     ):
         """
@@ -443,8 +445,6 @@ skipping adding gauge specific outputs to the toml."
             self.geoms.set(_geom, name=name)
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_base.rename(rmdict).data_vars, None)
 
         # Call basins once to set it
@@ -460,8 +460,6 @@ skipping adding gauge specific outputs to the toml."
         self.staticmaps.set(ds_topo.rename(rmdict))
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
 
         # update toml for degree/meters if needed

@@ -334,10 +334,14 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
-    "land_elevation": {
+    "land_elevation_D4": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
-        "wflow_v1.1": "land_surface__elevation",
+        "hydromt_name": "hydrodem_D4",
+    },
+    "land_elevation": {
+        "wflow_v0": "altitude",
+        "wflow_v1": "land_surface__elevation",
         "hydromt_name": "elevtn",
     },
     "land_slope": {
@@ -461,10 +465,6 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "hydromt_name": "reservoir_target_min_fraction",
     },
     # gwf
-    "altitude": {
-        "wflow_v0": "altitude",
-        "wflow_v1": "land_surface__elevation",
-    },
     "groundwater_constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_constant_boundary_condition__hydraulic_head",
@@ -664,6 +664,11 @@ WFLOW_SEDIMENT_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v1": "river_water__volume_flow_rate",
     },
     # land properties
+    "land_elevation": {
+        "wflow_v0": "altitude",
+        "wflow_v1": "land_surface__elevation",
+        "hydromt_name": "elevtn",
+    },
     "land_slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",

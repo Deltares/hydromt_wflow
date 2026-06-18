@@ -3,6 +3,7 @@ import platform
 import shutil
 from pathlib import Path
 
+from hydromt import log
 from hydromt.readers import read_workflow_yaml
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
@@ -68,6 +69,7 @@ if __name__ == "__main__":
         help="Model to generate, options are: sbm, clip, sediment, all",
     )
     args = parser.parse_args()
+    log.initialize_logging()
 
     repo_root = Path(__file__).parent.parent
     if platform.system() == "Linux":
