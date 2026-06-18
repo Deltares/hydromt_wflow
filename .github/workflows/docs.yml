@@ -51,10 +51,10 @@ jobs:
         with:
           pixi-version: "v0.59.0"
           environments: docs
+          activate-environment: true # needed
           locked: false
           cache: true
           cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'feat/migration-hydromt-core-v1' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
-
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
         uses: nick-fields/retry@v4
