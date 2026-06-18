@@ -71,9 +71,9 @@ def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray
     Parameters
     ----------
     river_mask : xarray.DataArray
-        Name of the river mask variable in the ds_like dataset.
-    reservoir_ids : geopandas.GeoDataFrame
-        GeoDataFrame containing reservoirs/lakes geometries and attributes.
+        DataArray containing the river network mask (1 for river, 0 for non-river).
+    reservoir_ids : xarray.DataArray
+        DataArray containing reservoir IDs.
 
     Returns
     -------
@@ -84,6 +84,9 @@ def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray
     outside_reservoirs = reservoir_ids.where(
         (reservoir_ids != -999) & (river_mask == 0), drop=True
     )
+
+    ### TODO: Fix this message, it reports far too many removals...
+    # it would also be good to give the reservoir number
     if outside_reservoirs.size > 0:
         logger.warning(
             f"{outside_reservoirs.size} reservoirs were excluded because no river "
@@ -177,6 +180,18 @@ def reservoir_id_maps(
             f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
             " Consider increasing the lakes min_area threshold."
         )
+
+    ##### TODO: Simplify this a little, it's convoluted.
+    # (Plus make sure it still works when all reservoirs are valid)
+    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
+        ds_like["river_mask"], ds_out["reservoir_area_id"]
+    )
+
+    # Update gdf and res_id to only include reservoirs that survived exclusion
+    res_id_in_raster = np.unique(ds_out["reservoir_area_id"].values)
+    res_id_in_raster = res_id_in_raster[res_id_in_raster > 0]  # Remove nodata value
+    gdf = gdf[gdf["waterbody_id"].isin(res_id_in_raster)]
+    res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
     ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], -999)
