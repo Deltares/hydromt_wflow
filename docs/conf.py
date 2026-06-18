@@ -183,9 +183,6 @@ nbsphinx_prolog = r"""
 """
 nbsphinx_execute = "always"
 nbsphinx_timeout = 300
-nbsphinx_execute_arguments = [
-    "--ExecutePreprocessor.kernel_name=python3",
-]
 
 # -- Linkcheck -------------------------------------------------------------
 # nitpicky = True # warn about all references where the target cannot be found
