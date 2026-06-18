@@ -65,6 +65,38 @@ RESERVOIR_LAYERS_SEDIMENT = [
 ]
 
 
+def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray:
+    """Exclude reservoirs that are not located on the river network.
+
+    Parameters
+    ----------
+    river_mask : xarray.DataArray
+        Name of the river mask variable in the ds_like dataset.
+    reservoir_ids : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoirs/lakes geometries and attributes.
+
+    Returns
+    -------
+    reservoir_ids : xarray.DataArray
+        Reservoir IDs that correspond to the river network.
+    """
+    # Get the reservoir IDs that are not on the river network
+    outside_reservoirs = reservoir_ids.where(
+        (reservoir_ids != -999) & (river_mask == 0), drop=True
+    )
+    if outside_reservoirs.size > 0:
+        logger.warning(
+            f"{outside_reservoirs.size} reservoirs were excluded because no river "
+            "network cell was found within the reservoir. Consider decreasing the "
+            "minimum upstream area threshold."
+        )
+        # Set the reservoir locations that are not on the river network to -999
+        reservoir_locations = reservoir_ids.where(
+            (reservoir_ids == -999) | (river_mask == 1), -999
+        )
+    return reservoir_locations
+
+
 def reservoir_id_maps(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
