@@ -1132,12 +1132,15 @@ def _detect_wflow_version(model: WflowSbmModel | WflowSedimentModel) -> Version:
 
     logger.warning(
         "No 'wflow_version' found in config and no v1.0-only keys detected. "
-        "Assuming pre-v1.0 model."
+        "Assuming pre-v1.0 model with v0.8 schema. Please check the config and update "
+        "the version if needed."
     )
-    return Version("0.0")
+    return Version("0.8")
 
 
-def _validate_options(options: dict | None, model_name: str) -> dict:
+def _validate_options(
+    options: dict[str, dict[str, dict]] | None, model_name: str
+) -> dict[tuple[Version, Version], dict[str, dict]]:
     """Validate the options dictionary for the upgrade functions."""
     if options is None:
         return {}
@@ -1145,18 +1148,30 @@ def _validate_options(options: dict | None, model_name: str) -> dict:
         raise TypeError(
             f"Expected 'options' to be a dict but got {type(options).__name__}."
         )
-    for version_tuple, opts in options.items():
+
+    validated = {}
+    for version_string, opts in options.items():
         if not isinstance(opts, dict):
             raise TypeError(
-                f"Expected 'options[{version_tuple}]' to be a dict "
-                "but got {type(opts).__name__}."
+                f"Expected 'options[{version_string}]' to be a dict "
+                f"but got {type(opts).__name__}."
             )
+        if not isinstance(version_string, str) or "_" not in version_string:
+            raise TypeError(
+                f"Expected 'options' keys to be strings of the format 'from_to' "
+                f"but got {version_string}."
+            )
+        _from, _to = version_string.split("_")
+        _from_v = Version(_from)
+        _to_v = Version(_to)
+        version_tuple = (_from_v, _to_v)
         if version_tuple not in _UPGRADES[model_name]:
             raise ValueError(
                 f"Unknown upgrade versions '{version_tuple}' for model '{model_name}'. "
                 f"Available versions: {list(_UPGRADES[model_name].keys())}."
             )
-    return options
+        validated[version_tuple] = opts
+    return validated
 
 
 def upgrade_to_latest(
@@ -1177,9 +1192,17 @@ def upgrade_to_latest(
         The model to upgrade.
     options: dict, optional
         A dictionary of options to pass to the upgrade functions. The keys should be
-        tuples of two version numbers associated with this upgrade (e.g. ("0.x", "1.0")
-        or ("1.0", "1.1")) and the values should be dictionaries of options for that
-        version.
+        strings of the format "from_to" (e.g. "0.8_1.0") and the values should be dicts
+        of options to pass to the corresponding upgrade function.
+
+    Example yml:
+    ```
+        0.8_1.0:
+            soil_fn: custom_soil_function
+            usle_k_method: custom_k_method
+        1.0_1.1:
+            some_option: some_value
+    ```
     """
     version = _detect_wflow_version(model)
 

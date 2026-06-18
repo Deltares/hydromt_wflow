@@ -5,14 +5,18 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.version_upgrade import (
     WFLOW_LATEST_VERSION,
+    _detect_wflow_version,
+    _is_v1_schema,
     _upgrade_sbm_v0_to_v1,
     _upgrade_sbm_v1_to_v1_1,
     _upgrade_sediment_v0_to_v1,
     _upgrade_sediment_v1_to_v1_1,
+    _validate_options,
 )
 
 
@@ -329,3 +333,136 @@ class TestUpgradeToLatest:
         assert (
             "Model is already at the latest version, no upgrade needed." in caplog.text
         )
+
+    def test_skips_already_applied_steps(
+        self, upgrade_data_dir: Path, caplog: pytest.LogCaptureFixture
+    ):
+        """upgrade_to_latest() should skip steps already applied based on detected version."""
+        source = upgrade_data_dir / "sbm" / "v1_0"
+        wflow = WflowSbmModel(
+            source,
+            config_filename="wflow_sbm.toml",
+            mode="r",
+            data_libs=["artifact_data"],
+        )
+        # Should only apply v1.0 -> v1.1 step, not v0.x -> v1.0
+        with caplog.at_level(logging.INFO):
+            wflow.upgrade_to_latest()
+        assert "Upgrading config from v0.x to v1.0 format" not in caplog.text
+        assert "Upgrading config from v1.0 to v1.1 format" in caplog.text
+
+        V1ToV1_1Assertions.assert_sbm_config(wflow, upgrade_data_dir / "sbm" / "v1_1")
+
+    def test_raises_on_invalid_options(self, upgrade_data_dir: Path):
+        source = upgrade_data_dir / "sbm" / "v0x"
+        wflow = WflowSbmModel(
+            source,
+            config_filename="wflow_sbm.toml",
+            mode="r",
+            data_libs=["artifact_data"],
+        )
+        with pytest.raises(ValueError, match="Unknown upgrade versions"):
+            wflow.upgrade_to_latest(options={"9.9_10.0": {}})
+
+
+@pytest.mark.parametrize(
+    ("config_data", "expected"),
+    [
+        # v1.0 schema: has input.static section
+        (
+            {"input": {"static": {"land_surface__elevation": "land_elevation"}}},
+            True,
+        ),
+        # v1.0 schema: has model section with wflow-v1 keys
+        ({"model": {"snow__flag": True}}, True),
+        # v0 schema: has input.vertical
+        ({"input": {"vertical": {"ksat": "ksat"}}}, False),
+        # v0 schema: has starttime at top level
+        (
+            {"starttime": "2010-01-01T00:00:00", "endtime": "2010-12-31T00:00:00"},
+            False,
+        ),
+        # empty config
+        ({}, False),
+    ],
+)
+def test_schema_detection(config_data: dict, expected: bool):
+    assert _is_v1_schema(config_data) == expected
+
+
+class TestDetectWflowVersion:
+    """Tests for _detect_wflow_version()."""
+
+    @pytest.mark.parametrize("version_str", ["1.1", "1.0", "2.0"])
+    def test_reads_version_from_config(self, version_str: str):
+        wflow = WflowSbmModel(root=Path("dummy"), mode="w")
+        wflow.config.set("wflow_version", version_str)
+        assert _detect_wflow_version(wflow) == Version(version_str)
+
+    def test_detects_v1_schema_when_no_version_key(self):
+        # Model is initialized with v1.1 by default
+        wflow = WflowSbmModel(root=Path("dummy"), mode="w")
+        wflow.config.data.pop("wflow_version", None)
+        # inject a v1.0-only key
+        wflow.config.set("input.static.land_surface__elevation", "land_elevation")
+        assert _detect_wflow_version(wflow) == Version("1.0")
+
+    def test_falls_back_to_v0_when_no_hints(self, caplog):
+        wflow = WflowSbmModel(root=Path("dummy"), mode="w")
+        wflow.config.data.clear()
+        with caplog.at_level(logging.WARNING):
+            version = _detect_wflow_version(wflow)
+        assert version == Version("0.8")
+        assert "Assuming pre-v1.0 model" in caplog.text
+
+
+class TestValidateOptions:
+    """Tests for _validate_options()."""
+
+    @pytest.mark.parametrize(
+        "key",
+        ["0.8_1.0", "1.0_1.1"],
+    )
+    def test_valid_keys_coerced_to_version_tuples(self, key: str):
+        options = {key: {}}
+        result = _validate_options(options, "wflow_sbm")
+        _from, _to = key.split("_")
+        assert result == {(Version(_from), Version(_to)): {}}
+
+    def test_values_preserved(self):
+        options = {"0.8_1.0": {"soil_fn": "soilgrids", "usle_k_method": "renard"}}
+        result = _validate_options(options, "wflow_sbm")
+        assert result[(Version("0.8"), Version("1.0"))] == {
+            "soil_fn": "soilgrids",
+            "usle_k_method": "renard",
+        }
+
+    def test_raises_on_non_dict_input(self):
+        with pytest.raises(TypeError, match="Expected 'options' to be a dict"):
+            _validate_options("not_a_dict", "wflow_sbm")
+
+    def test_raises_on_non_dict_value(self):
+        with pytest.raises(TypeError, match="to be a dict"):
+            _validate_options({"0.8_1.0": "not_a_dict"}, "wflow_sbm")
+
+    def test_raises_on_invalid_key_format(self):
+        with pytest.raises(TypeError, match="format 'from_to'"):
+            _validate_options({"0.8to1.0": {}}, "wflow_sbm")
+
+    def test_raises_on_unknown_version_tuple(self):
+        with pytest.raises(ValueError, match="Unknown upgrade versions"):
+            _validate_options({"9.9_10.0": {}}, "wflow_sbm")
+
+    @pytest.mark.parametrize(
+        ("model_name", "key"),
+        [
+            ("wflow_sbm", "0.8_1.0"),
+            ("wflow_sbm", "1.0_1.1"),
+            ("wflow_sediment", "0.8_1.0"),
+            ("wflow_sediment", "1.0_1.1"),
+        ],
+    )
+    def test_valid_for_both_model_types(self, model_name: str, key: str):
+        result = _validate_options({key: {}}, model_name)
+        _from, _to = key.split("_")
+        assert (Version(_from), Version(_to)) in result

@@ -3,7 +3,9 @@ global:
 
 steps:
   - upgrade_to_latest:
-      soil_fn: soilgrids
+      options:
+        0.8_1.0:
+            soil_fn: soilgrids
 
   - staticmaps.write:
       filename: staticmaps_v1.nc
