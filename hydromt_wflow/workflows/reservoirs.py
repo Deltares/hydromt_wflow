@@ -66,7 +66,7 @@ RESERVOIR_LAYERS_SEDIMENT = [
 
 
 def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray:
-    """Exclude reservoirs that are not located on the river network.
+    """Exclude reservoirs where no cells overlap with the river network.
 
     Parameters
     ----------
@@ -80,24 +80,29 @@ def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray
     reservoir_ids : xarray.DataArray
         Reservoir IDs that correspond to the river network.
     """
-    # Get the reservoir IDs that are not on the river network
-    outside_reservoirs = reservoir_ids.where(
-        (reservoir_ids != -999) & (river_mask == 0), drop=True
-    )
+    # Get unique reservoir IDs and exclude nodata value (-999)
+    res_ids = np.unique(reservoir_ids.values)
+    res_ids = res_ids[res_ids > 0]
 
-    ### TODO: Fix this message, it reports far too many removals...
-    # it would also be good to give the reservoir number
-    if outside_reservoirs.size > 0:
+    # Check for each reservoir if it overlaps with the river
+    overlaps = [
+        (reservoir_ids == res_id).any()
+        & (river_mask.where(reservoir_ids == res_id) == 1).any()
+        for res_id in res_ids
+    ]
+    outside_reservoirs = res_ids[~np.array(overlaps)]
+
+    # Log a warning if any reservoirs are excluded and set their IDs to -999
+    if len(outside_reservoirs) > 0:
         logger.warning(
-            f"{outside_reservoirs.size} reservoirs were excluded because no river "
+            f"{len(outside_reservoirs)} reservoirs were excluded because no river "
             "network cell was found within the reservoir. Consider decreasing the "
             "minimum upstream area threshold."
         )
-        # Set the reservoir locations that are not on the river network to -999
-        reservoir_locations = reservoir_ids.where(
-            (reservoir_ids == -999) | (river_mask == 1), -999
+        reservoir_ids = reservoir_ids.where(
+            ~reservoir_ids.isin(outside_reservoirs), -999
         )
-    return reservoir_locations
+    return reservoir_ids
 
 
 def reservoir_id_maps(
