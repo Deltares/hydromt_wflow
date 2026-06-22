@@ -2,6 +2,8 @@
 
 # Implement model class following model API
 import logging
+import shutil
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -30,7 +32,7 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
-from hydromt_wflow.version_upgrade import upgrade_to_latest
+from hydromt_wflow.version_upgrade import upgrade_model
 
 __all__ = ["WflowBaseModel"]
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -1715,7 +1717,7 @@ one variable and variables list is not provided."
             )
 
     @deprecated(
-        reason="Use `upgrade_to_latest()` instead.",
+        reason="Use `hydromt_wflow.version_upgrade.upgrade_model` instead.",
         version="1.1.0",
         category=DeprecationWarning,
     )
@@ -1725,17 +1727,39 @@ one variable and variables list is not provided."
         self.upgrade_to_latest()
 
     @hydromt_step
-    def upgrade_to_latest(self, options: dict | None = None):
+    def upgrade_to_latest(
+        self,
+        output_dir: str | Path | None = None,
+        options: dict | None = None,
+        data_libs: list[str] | None = None,
+        config_filename: str | None = None,
+    ):
         """Upgrade the model to the latest Wflow.jl version.
 
-        Applies all necessary upgrade steps in order based on the ``wflow_version``
-        key in the config. If absent, the model is assumed to be pre-v1.0 and all
-        upgrade steps are applied.
+        First, copies the model to a new location to keep the original model unchanged.
+        Then, applies all necessary upgrade steps in order based on the
+        ``wflow_version`` key in the config. If absent, the model is assumed to be
+        pre-v1.0 and all upgrade steps are applied.
 
         This function should be followed by write() to write all upgraded components
         to disk.
+
+        Returns
+        -------
+        output_dir : Path
+            Path to the upgraded model directory. If ``output_dir`` is None, a temporary
+            directory is created and returned.
         """
-        upgrade_to_latest(self, options=options)
+        output_dir = Path(output_dir or tempfile.mkdtemp(prefix="wflow_upgrade_"))
+        shutil.copytree(self.root.path, output_dir)
+        upgrade_model(
+            output_dir,
+            model_type=self.name,
+            config_filename=config_filename,
+            data_libs=data_libs,
+            options=options,
+        )
+        return output_dir
 
     # I/O
     @hydromt_step
