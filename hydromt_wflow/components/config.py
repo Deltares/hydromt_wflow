@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Any
 
 from hydromt import hydromt_step
-from hydromt.io.readers import read_toml
-from hydromt.io.writers import write_toml
 from hydromt.model import Model
 from hydromt.model.components import ConfigComponent
+from hydromt.readers import read_toml
+from hydromt.writers import write_toml
 
 from hydromt_wflow import utils
 from hydromt_wflow.components.utils import make_config_paths_relative

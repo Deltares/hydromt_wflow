@@ -1,7 +1,6 @@
 """Workflows to derive river for a wflow model."""
 
 import logging
-from os.path import join
 
 import geopandas as gpd
 import numpy as np
@@ -83,6 +82,22 @@ def river(
     subgrid = True
     if ds_model is None or not np.all([v in ds_model for v in ["x_out", "y_out"]]):
         subgrid = False
+        if ds_model is not None:
+            ds = ds.rename(
+                {
+                    ds.raster.y_dim: ds_model.raster.y_dim,
+                    ds.raster.x_dim: ds_model.raster.x_dim,
+                }
+            )
+            try:
+                ds = ds.sel({dim: ds_model[dim].values for dim in ds_model.raster.dims})
+            except KeyError:
+                raise ValueError(
+                    "It seems model grid was not upscaled during setup_basemaps however"
+                    " model grid does not align with the hydrography data provided for"
+                    " river processing. Make sure you are using the same hydrography"
+                    " dataset for setup_basemaps and setup_rivers."
+                )
         ds_model = ds
         logger.info("River length and slope are calculated at model resolution.")
 
@@ -182,6 +197,7 @@ def river_bathymetry(
     smooth_len: float = 5e3,
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
+    river_depth_kwargs: dict | None = None,
 ) -> xr.Dataset:
     """Get river width and optionally river depth/bankfull discharge.
 
@@ -202,6 +218,8 @@ def river_bathymetry(
         Minimum river depth [m], by default 1.0. Ignored if method=None.
     min_rivwth : float, optional
         Minimum river width [m], by default 30.0.
+    river_depth_kwargs : dict, optional
+        Additional keyword arguments for river_depth method, by default None.
 
     Returns
     -------
@@ -316,6 +334,7 @@ def river_bathymetry(
                 method=method,
                 min_rivdph=min_rivdph,
                 rivzs_name="subelv",
+                **(river_depth_kwargs or {}),
             )
             attrs = dict(_FillValue=-9999, unit="m")
             ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
@@ -595,8 +614,8 @@ def _discharge(ds_like, flwdir, da_precip, da_climate):
     # read clim classes and regression parameters from data dir
     precip_fn = da_precip.name
     climate_fn = da_climate.name
-    fn_regr = join(DATADIR, "rivwth", f"regr_{precip_fn}.csv")
-    fn_clim = join(DATADIR, "rivwth", f"{climate_fn}.csv")
+    fn_regr = DATADIR / "rivwth" / f"regr_{precip_fn}.csv"
+    fn_clim = DATADIR / "rivwth" / f"{climate_fn}.csv"
     clim_map = pd.read_csv(fn_clim, index_col="class")
     regr_map = pd.read_csv(fn_regr, index_col="source").loc[climate_fn]
     regr_map = regr_map.set_index("base_class")

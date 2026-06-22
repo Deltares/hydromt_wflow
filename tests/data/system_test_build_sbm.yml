@@ -1,0 +1,155 @@
+# These workflows are used by the system-test task in pixi.toml
+
+steps:
+  - setup_config:                 # options parsed to wflow toml file <section>.<option>
+      data:
+        time.starttime: 2010-01-01T00:00:00
+        time.endtime: 2010-03-31T00:00:00
+        time.timestepsecs: 86400
+        input.path_forcing: inmaps-era5-2010.nc
+        output.netcdf_grid.path: output.nc
+        output.netcdf_grid.compressionlevel: 1
+        output.netcdf_grid.variables.atmosphere_water__precipitation_volume_flux: precip
+        output.netcdf_grid.variables.vegetation_canopy_water__interception_volume_flux: vegetation_interception
+        output.netcdf_grid.variables.land_surface_water__depth: land_h
+        output.netcdf_grid.variables.land_surface_water__volume_flow_rate: land_q
+        output.netcdf_grid.variables.river_water__depth: river_h
+        output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
+
+  - setup_basemaps:
+      hydrography_fn: merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}
+      basin_index_fn: merit_hydro_index # source of basin index corresponding to hydrography_fn
+      upscale_method: ihu           # upscaling method for flow direction data, by default 'ihu'
+      res: 0.00833           # build the model at a 30 arc sec (~1km) resolution
+      region: # model region
+        basin: [12.2051, 45.8331] # derive the basin belonging to the given x,y coordinates
+
+  - setup_rivers:
+      hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
+      river_geom_fn: hydro_rivers_lin # river source data with river width and bankfull discharge
+      river_upa: 30               # minimum upstream area threshold for the river map [km2]
+      rivdph_method: powlaw           # method to estimate depth {'powlaw', 'manning', 'gvf'}
+      min_rivdph: 1                # minimum river depth [m]
+      min_rivwth: 30               # minimum river width [m]
+      slope_len: 2000             # length over which tp calculate river slope [m]
+      smooth_len: 5000             # length over which to smooth river depth and river width [m]
+      river_routing: kinematic_wave   # {'kinematic_wave', 'local_inertial'}
+
+  - setup_river_roughness:
+
+  - setup_reservoirs_simple_control:
+      reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
+      timeseries_fn: gww           # additional source for reservoir are timeseries to compute reservoirs, Either 'gww' using gwwapi or 'jrc' using hydroengine.
+      min_area: 1.0           # minimum lake area to consider [km2]
+
+  - setup_reservoirs_no_control:
+      reservoirs_fn: hydro_lakes   # source for uncontrolled reservoirs (e.g. lakes) based on hydroLAKES: {hydro_lakes}
+      min_area: 10.0          # minimum reservoir area to consider [km2]
+
+  - setup_glaciers:
+      glaciers_fn: rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}
+      min_area: 0.0           # minimum glacier area to consider [km2]
+
+  - setup_laimaps:
+      lai_fn: modis_lai     # source for Leaf Area Index: {modis_lai}
+
+  - setup_soilmaps:
+      soil_fn: soilgrids     # source for soilmaps: {soilgrids}
+      ptf_ksatver: brakensiek    # pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}
+
+  - setup_outlets:
+      river_only: True
+
+  - setup_gauges:
+      gauges_fn: grdc          # if not None add gaugemap. Either a path or known gauges_fn: {grdc}
+      snap_to_river: True          # if True snaps gauges from source to river
+      derive_subcatch: False         # if True derive subcatch map based on gauges.
+
+  - setup_precip_forcing:
+      precip_fn: era5          # source for precipitation.
+      precip_clim_fn:          # source for high resolution climatology to correct precipitation if any.
+
+  - setup_temp_pet_forcing:
+      temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
+      press_correction: True          # if True temperature is corrected with elevation lapse rate.
+      temp_correction: True          # if True pressure is corrected with elevation lapse rate.
+      dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
+      pet_method: debruin       # method to compute PET: {debruin, makkink}
+      skip_pet: False         # if True, only temperature is prepared.
+
+  - setup_constant_pars:
+      "subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio": 100
+      "snowpack__degree_day_coefficient": 3.75653
+      "soil_surface_water__infiltration_reduction_parameter": 0.038
+      "vegetation_canopy_water__mean_evaporation_to_mean_precipitation_ratio": 0.11
+      "compacted_soil_surface_water__infiltration_capacity": 10
+      "soil_water_saturated_zone_bottom__max_leakage_volume_flux": 0
+      "soil_wet_root__sigmoid_function_shape_parameter": -500
+      "atmosphere_air__snowfall_temperature_threshold": 0
+      "atmosphere_air__snowfall_temperature_interval": 1
+      "snowpack__melting_temperature_threshold": 0
+      "snowpack__liquid_water_holding_capacity": 0.1
+      "glacier_ice__degree_day_coefficient": 3.0
+      "glacier_firn_accumulation__snowpack_dry_snow_leq_depth_fraction": 0.001
+      "glacier_ice__melting_temperature_threshold": 0.0
+
+  - setup_allocation_areas:
+      waterareas_fn: gadm_level2
+      priority_basins: True
+      output_name: allocation_areas_admin2
+
+  - setup_allocation_surfacewaterfrac:
+      gwfrac_fn: lisflood_gwfrac
+      gwbodies_fn: lisflood_gwbodies
+      ncfrac_fn: lisflood_ncfrac
+
+  # Update model with GLCNMO landuse data in order to add the paddies
+  - setup_lulcmaps_with_paddy:
+        lulc_fn: glcnmo
+        paddy_class: 12
+        soil_fn: soilgrids
+        wflow_thicknesslayers:
+            - 50
+            - 100
+            - 50
+            - 200
+            - 800
+        target_conductivity:
+            - null
+            - null
+            - 5
+            - null
+            - null
+        paddy_waterlevels:
+            "demand_paddy_h_min": 20
+            "demand_paddy_h_opt": 50
+            "demand_paddy_h_max": 80
+
+  - setup_domestic_demand:
+        domestic_fn: pcr_globwb
+        population_fn: ghs_pop_2015
+        domestic_fn_original_res: 0.5
+
+  - setup_other_demand:
+        demand_fn: pcr_globwb
+        variables:
+            - industry_gross
+            - industry_net
+            - livestock_gross
+            - livestock_net
+        resampling_method: nearest
+
+  - setup_irrigation:
+        irrigated_area_fn: irrigated_area
+        irrigation_value:
+            - 1
+        cropland_class:
+            - 11
+            - 14
+            - 20
+            - 30
+        paddy_class:
+            - 12
+        area_threshold: 0.6
+        lai_threshold: 0.2
+        lulcmap_name: meta_landuse

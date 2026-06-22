@@ -18,8 +18,6 @@ rainfall_erosion = "answers"
 overland_flow_erosion = "answers"
 land_transport = "yalinpart"
 river_transport = "bagnold"
-reservoir__flag = true
-lake__flag = true
 
 [state]
 path_input = "instate/instates.nc"
@@ -51,10 +49,6 @@ path_static = "staticmaps.nc"
 basin__local_drain_direction = "local_drain_direction"
 subbasin_location__count = "subcatchment"
 river_location__mask = "river_mask"
-reservoir_area__count = "reservoir_area_id"
-reservoir_location__count = "reservoir_outlet_id"
-lake_area__count = "lake_area_id"
-lake_location__count = "lake_outlet_id"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
@@ -64,8 +58,6 @@ land_surface_water__volume_flow_rate = "land_q"
 river_water__depth = "river_h"
 river_water__volume_flow_rate = "river_q"
 
-[input.cyclic]
-
 [input.static]
 land_surface__slope = "land_slope"
 river__length = "river_length"
@@ -73,11 +65,3 @@ river__slope = "river_slope"
 river__width = "river_width"
 reservoir_surface__area = "reservoir_area"
 lake_surface__area = "lake_area"
-
-[output.netcdf_grid]
-
-[output.netcdf_grid.variables]
-
-[output.csv]
-
-[output.netcdf_scalar]

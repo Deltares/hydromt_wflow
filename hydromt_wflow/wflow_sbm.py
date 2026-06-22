@@ -2,9 +2,7 @@
 
 # Implement model class following model API
 import logging
-import os
 import tomllib
-from os.path import isfile, join
 from pathlib import Path
 from typing import Any
 
@@ -16,7 +14,7 @@ import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
-from hydromt.error import NoDataStrategy
+from hydromt.error import NoDataException, NoDataStrategy
 from hydromt.gis import flw
 
 import hydromt_wflow.utils as utils
@@ -35,7 +33,11 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowSbmModel(WflowBaseModel):
-    """Read or Write a wflow model.
+    """Class to read, write, build, update wflow-SBM models.
+
+    This class provides methods to manipulate the wflow-SBM model components
+    and their data. It extends the :py:class:`hydromt_wflow.WflowBaseModel`
+    with specific methods for the setup of the wflow-SBM model schematisation.
 
     Parameters
     ----------
@@ -100,6 +102,7 @@ class WflowSbmModel(WflowBaseModel):
             "river__slope": "river_slope",
             "river_bank_water__elevation": "river_bank_elevation",
         },
+        river_depth_kwargs: dict | None = None,
     ):
         """
         Set full river parameter maps including river depth and bank elevation.
@@ -196,6 +199,8 @@ class WflowSbmModel(WflowBaseModel):
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
+        river_depth_kwargs : dict, optional
+            Additional keyword arguments for river_depth method, by default None.
 
         See Also
         --------
@@ -215,6 +220,7 @@ class WflowSbmModel(WflowBaseModel):
             rivdph_method=rivdph_method,
             min_rivdph=min_rivdph,
             output_names=output_names,
+            river_depth_kwargs=river_depth_kwargs,
         )
 
         routing_options = ["kinematic_wave", "local_inertial"]
@@ -727,16 +733,17 @@ setting new flood_depth dimensions"
             'meta_reservoirs_no_control' for meta_reservoirs_no_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+            hydromt.DataCatalog.get_geodataframe()
         """  # noqa: E501
         # retrieve data for basin
         logger.info("Preparing reservoir maps.")
-        kwargs.setdefault("predicate", "contains")
+        predicate = kwargs.pop("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            predicate=predicate,
+            source_kwargs=kwargs,
         )
         if gdf_org is None:
             logger.info("Skipping method, as no data has been found")
@@ -763,7 +770,7 @@ setting new flood_depth dimensions"
             fns_ids = []
             for fn in rating_curve_fns:
                 try:
-                    fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
+                    fns_ids.append(int(Path(fn).stem.split("_")[-1]))
                 except Exception:
                     logger.warning(
                         "Could not parse integer reservoir index from "
@@ -779,7 +786,7 @@ setting new flood_depth dimensions"
                     i = fns_ids.index(_id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or self.data_catalog.contains_source(
+                    if Path(rating_fn).is_file() or self.data_catalog.contains_source(
                         rating_fn
                     ):
                         logger.info(
@@ -1003,16 +1010,17 @@ setting new flood_depth dimensions"
             "meta_reservoirs_simple_control" for meta_reservoirs_simple_control.geojson.
         kwargs: optional
             Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+            hydromt.DataCatalog.get_geodataframe()
         """  # noqa: E501
         # retrieve data for basin
         logger.info("Preparing reservoir with simple control maps.")
-        kwargs.setdefault("predicate", "contains")
+        predicate = kwargs.pop("predicate", "contains")
         gdf_org = self.data_catalog.get_geodataframe(
             reservoirs_fn,
             geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
-            **kwargs,
+            predicate=predicate,
+            source_kwargs=kwargs,
         )
         # Skip method if no data is returned
         if gdf_org is None:
@@ -1186,6 +1194,7 @@ setting new flood_depth dimensions"
     def setup_lulcmaps_with_paddy(
         self,
         lulc_fn: str | Path | xr.DataArray,
+        *,
         paddy_class: int,
         output_paddy_class: int | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
@@ -1200,24 +1209,24 @@ setting new flood_depth dimensions"
             None,
             None,
         ],
-        lulc_vars: dict = {
-            "landuse": None,
-            "vegetation_kext": "vegetation_canopy__light_extinction_coefficient",
-            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "soil_compacted_fraction": "compacted_soil__area_fraction",
-            "vegetation_root_depth": "vegetation_root__depth",
-            "vegetation_leaf_storage": "vegetation__specific_leaf_storage",
-            "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
-            "land_water_fraction": "land_water_covered__area_fraction",
-            "vegetation_crop_factor": "vegetation__crop_factor",
-            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critical_pressure_head_h1_reduction_coefficient",  # noqa: E501
-            "vegetation_feddes_h1": "vegetation_root__feddes_critical_pressure_head_h1",
-            "vegetation_feddes_h2": "vegetation_root__feddes_critical_pressure_head_h2",
-            "vegetation_feddes_h3_high": "vegetation_root__feddes_critical_pressure_head_h3_high",  # noqa: E501
-            "vegetation_feddes_h3_low": "vegetation_root__feddes_critical_pressure_head_h3_low",  # noqa: E501
-            "vegetation_feddes_h4": "vegetation_root__feddes_critical_pressure_head_h4",
-        },
-        paddy_waterlevels: dict = {
+        lulc_vars: list[str] = [
+            "landuse",
+            "vegetation_kext",
+            "land_manning_n",
+            "soil_compacted_fraction",
+            "vegetation_root_depth",
+            "vegetation_leaf_storage",
+            "vegetation_wood_storage",
+            "land_water_fraction",
+            "vegetation_crop_factor",
+            "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1",
+            "vegetation_feddes_h2",
+            "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low",
+            "vegetation_feddes_h4",
+        ],
+        paddy_waterlevels: dict[str, int] = {
             "demand_paddy_h_min": 20,
             "demand_paddy_h_opt": 50,
             "demand_paddy_h_max": 80,
@@ -1231,6 +1240,10 @@ setting new flood_depth dimensions"
         parameters based on literature. The data is remapped at its original resolution
         and then resampled to the model resolution using the average value, unless noted
         differently.
+
+        For vegetation_crop_factor, land use types without any vegetation (e.g. water,
+        bare soil) should have a crop factor equivalent to the nodata value. After
+        mapping and resampling, the nodata values will be filled with 1.
 
         If paddies are present either directly as a class in the landuse_fn or in a
         separate paddy_fn, the paddy class is used to derive the paddy parameters.
@@ -1323,7 +1336,7 @@ setting new flood_depth dimensions"
         lulc_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from landuse in source name to parameter values
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
-            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            "esa_worldcover", "glcnmo"}, a default mapping is used and this argument
             becomes optional.
         paddy_fn : str, Path, xr.DataArray, optional
             RasterDataset or name in data catalog / path to paddy map.
@@ -1339,22 +1352,26 @@ setting new flood_depth dimensions"
 
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
-
-        wflow_thicknesslayers: list
+        wflow_thicknesslayers: list, optional
             List of soil thickness per layer [mm], by default [50, 100, 50, 200, 800, ]
-        target_conductivity: list
+        target_conductivity: list, optional
             List of target vertical conductivities [mm/day] for each layer in
             ``wflow_thicknesslayers``. Set value to `None` if no specific value is
             required, by default [None, None, 5, None, None].
-        lulc_vars : dict
-            Dictionnary of landuse parameters to prepare. The names are the
-            the columns of the mapping file and the values are the corresponding
-            Wflow.jl variables.
-        paddy_waterlevels : dict
+        lulc_vars : list[str], optional
+            List of landuse parameters to prepare.
+            The names are the columns of the mapping file.
+            Can be a subset of: ["landuse", "vegetation_kext", "land_manning_n",
+            "soil_compacted_fraction", "vegetation_root_depth",
+            "vegetation_leaf_storage", "vegetation_wood_storage", "land_water_fraction",
+            "vegetation_crop_factor", "vegetation_feddes_alpha_h1",
+            "vegetation_feddes_h1", "vegetation_feddes_h2", "vegetation_feddes_h3_high",
+            "vegetation_feddes_h3_low", "vegetation_feddes_h4"]
+        paddy_waterlevels : dict, optional
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
             "demand_paddy_h_max": 80}
-        save_high_resolution_lulc : bool
+        save_high_resolution_lulc : bool, optional
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
         output_names_suffix : str, optional
@@ -1365,10 +1382,14 @@ setting new flood_depth dimensions"
             soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         logger.info("Preparing LULC parameter maps including paddies.")
+
+        workflows.validate_lulc_vars(lulc_vars)
+
         if output_names_suffix is not None:
             # rename lulc_vars with the suffix
             output_names = {
-                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
+                workflows.LULC_VARS_MAPPING[k]: f"{k}_{output_names_suffix}"
+                for k in lulc_vars
             }
             # Add soil_ksat_vertical_factor
             output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
@@ -1376,18 +1397,9 @@ setting new flood_depth dimensions"
             )
 
         else:
-            output_names = {v: k for k, v in lulc_vars.items()}
+            output_names = {workflows.LULC_VARS_MAPPING[k]: k for k in lulc_vars}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
-
-        # As landuse is not a wflow variable, we update the name manually in self._MAPS
-        rmdict = {"landuse": "meta_landuse"} if "landuse" in lulc_vars else {}
-        if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
-            # rename dict for the staticmaps (hydromt names are not used in that case)
-            rmdict = {k: f"{k}_{output_names_suffix}" for k in lulc_vars.keys()}
-            if "landuse" in lulc_vars:
-                rmdict["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.staticmaps.data.data_vars:
@@ -1404,7 +1416,7 @@ setting new flood_depth dimensions"
         )
         df_mapping = self.data_catalog.get_dataframe(
             lulc_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         output_paddy_class = (
             paddy_class if output_paddy_class is None else output_paddy_class
@@ -1420,7 +1432,9 @@ setting new flood_depth dimensions"
                 paddy_mapping_fn = "paddy_mapping_default"
             df_paddy_mapping = self.data_catalog.get_dataframe(
                 paddy_mapping_fn,
-                driver_kwargs={"index_col": 0},
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
             )
 
             landuse, df_mapping = workflows.add_paddy_to_landuse(
@@ -1433,22 +1447,17 @@ setting new flood_depth dimensions"
             )
 
             if save_high_resolution_lulc:
-                output_dir = join(self.root.path, "maps")
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                landuse.raster.to_raster(join(output_dir, "landuse_with_paddy.tif"))
-                df_mapping.to_csv(join(output_dir, "landuse_with_paddy_mapping.csv"))
+                output_dir = self.root.path / "maps"
+                output_dir.mkdir(exist_ok=True)
+                landuse.raster.to_raster(str(output_dir / "landuse_with_paddy.tif"))
+                df_mapping.to_csv(str(output_dir / "landuse_with_paddy_mapping.csv"))
 
         # Prepare landuse parameters
         landuse_maps = workflows.landuse(
-            da=landuse,
-            ds_like=self.staticmaps.data,
-            df=df_mapping,
-            params=list(lulc_vars.keys()),
+            da=landuse, ds_like=self.staticmaps.data, df=df_mapping, params=lulc_vars
         )
-        self.staticmaps.set(landuse_maps.rename(rmdict))
-        # update config
-        self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
+
+        self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
 
         # Update soil parameters if there are paddies in the domain
         # Get paddy pixels at model resolution
@@ -1603,11 +1612,11 @@ setting new flood_depth dimensions"
                 lulc_zero_classes=lulc_zero_classes,
             )
             # Save to csv
-            if isinstance(lulc_fn, str) and not isfile(lulc_fn):
+            if isinstance(lulc_fn, str) and not Path(lulc_fn).is_file():
                 df_fn = f"lai_per_lulc_{lulc_fn}.csv"
             else:
                 df_fn = "lai_per_lulc.csv"
-            df_lai_mapping.to_csv(join(self.root.path, df_fn))
+            df_lai_mapping.to_csv(str(self.root.path / df_fn))
 
         # Resample LAI data to wflow model resolution
         da_lai = workflows.lai(
@@ -1664,7 +1673,7 @@ setting new flood_depth dimensions"
         )
         df_lai_mapping = self.data_catalog.get_dataframe(
             lai_mapping_fn,
-            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+            source_kwargs={"driver": {"name": "pandas", "options": {"index_col": 0}}},
         )
         # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
@@ -1715,7 +1724,7 @@ setting new flood_depth dimensions"
 
         The main assumption is that vegetation adapts its rootzone storage capacity
         to overcome dry spells with a certain return period (typically 20 years for
-        forest ecosystems). In response to a changing climtate,
+        forest ecosystems). In response to a changing climate,
         it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
         This method also allows to estimate the change in rootzone storage capacity
@@ -2677,7 +2686,7 @@ using 'variable' argument."
         lulcmap_name: str = "meta_landuse",
         output_names: dict = {
             "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
+            "irrigated_non_paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -2868,7 +2877,7 @@ using 'variable' argument."
         lai_threshold: float = 0.2,
         output_names: dict = {
             "irrigated_paddy_area__count": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
+            "irrigated_non_paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "irrigated_paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "irrigated_non_paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -3453,7 +3462,7 @@ using 'variable' argument."
                     precip_stations_fn,
                     geom=self.basins,
                     buffer=buffer,
-                    assert_gtype="Point",
+                    # assert_gtype= "Point", hydromt#1243
                     handle_nodata=NoDataStrategy.IGNORE,
                 )
                 # Use station ids from gdf_stations when reading the DataFrame
@@ -3524,21 +3533,29 @@ using 'variable' argument."
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
         chunksize: int | None = None,
+        lapse_rate: float = -0.0065,
     ) -> None:
-        """Generate gridded temperature and reference evapotranspiration forcing.
+        """
+        Generate gridded temperature and reference evapotranspiration forcing.
 
-        If `temp_correction` is True, the temperature will be reprojected and then
-        downscaled to model resolution using the elevation lapse rate. For better
-        accuracy, you can provide the elevation grid of the climate data in
-        `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('land_elevation').
+        If `temp_correction` is True, the temperature will be reprojected and downscaled
+        to model resolution using the elevation lapse rate. For better accuracy, you can
+        provide the elevation grid of the climate data in `dem_forcing_fn`. If not
+        present, the upscaled elevation grid of the wflow model is used
+        ('land_elevation').
 
-        To compute PET (`skip_pet` is False), several methods are available. Before
-        computation, both the temperature and pressure can be downscaled. Wind speed
-        should be given at 2m altitude and can be corrected if `wind_correction` is True
-        and the wind data altitude is provided in `wind_altitude` [m].
-        Several methods to compute pet are available: {'debruin', 'makkink',
-        'penman-monteith_rh_simple', 'penman-monteith_tdew'}.
+        If `skip_pet` is False, reference evapotranspiration (PET) is computed.
+        Temperature and pressure can be downscaled prior to computation. Wind speed is
+        assumed at 2 m and can be corrected from another height using
+        `wind_altitude`.
+
+        Available PET methods:
+        {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}
+
+        Important notes for Penman-Monteith methods:
+
+        - Requires daily `temp_min` and `temp_max`
+        - Use 'makkink' or 'debruin' for sub-daily forcing
 
         Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
         pressure 'press_msl' [hPa], incoming shortwave radiation 'kin' [W/m2], outgoing
@@ -3546,7 +3563,7 @@ using 'variable' argument."
         'rh' [%], dew point temperature 'temp_dew' [°C], wind speed either total 'wind'
         or the U- 'wind10_u' [m/s] and V- 'wind10_v' components [m/s].
 
-        Adds model layer:
+        Adds model layers:
 
         * **pet**: reference evapotranspiration [mm]
         * **temp**: temperature [°C]
@@ -3557,56 +3574,59 @@ using 'variable' argument."
 
         Parameters
         ----------
-        temp_pet_fn : str, xarray.Dataset
+        temp_pet_fn : str | xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration.
 
-            * Required variable for temperature: 'temp' [°C]
+            * Required variable: 'temp' [°C]
 
-            * Required variables for De Bruin reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
+            * Required variables for 'debruin':
+                'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
 
-            * Required variables for Makkink reference evapotranspiration: \
-'temp' [°C], 'press_msl' [hPa], 'kin'[W/m2]
+            * Required variables for 'makkink':
+                'press_msl' [hPa], 'kin' [W/m2]
 
-            * Required variables for daily Penman-Monteith \
-reference evapotranspiration: \
-either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%], 'kin' \
-[W/m2]} for 'penman-monteith_rh_simple' or {'temp' [°C], 'temp_min' [°C], 'temp_max' \
-[°C], 'temp_dew' [°C], 'wind' [m/s], 'kin' [W/m2], 'press_msl' [hPa], 'wind10_u' [m/s],\
-"wind10_v" [m/s]} for 'penman-monteith_tdew' (these are the variables available in ERA5)
-        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
-'penman-monteith_tdew'}, optional
+            * Required variables for 'penman-monteith_rh_simple':
+                'temp_min' [°C], 'temp_max' [°C], 'rh' [%], 'kin' [W/m2], and
+                wind defined as either total 'wind' [m/s] or the components
+                'wind10_u' [m/s] and 'wind10_v' [m/s]
+
+            * Required variables for 'penman-monteith_tdew':
+                'temp_min' [°C], 'temp_max' [°C], 'temp_dew' [°C],
+                'kin' [W/m2], 'press_msl' [hPa], and wind defined as either total
+                'wind' [m/s] or the components 'wind10_u' [m/s] and 'wind10_v' [m/s]
+
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple',
+                      'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
-            If penman-monteith is used, requires the installation of the pyet package.
+            Requires the `pyet` package for Penman-Monteith methods.
         press_correction, temp_correction : bool, optional
-            If True pressure, temperature are corrected using elevation lapse rate,
-            by default False.
-        dem_forcing_fn : str, default None
-            Elevation data source with coverage of entire meteorological forcing domain.
-            If temp_correction is True and dem_forcing_fn is provided this is used in
-            combination with elevation at model resolution to correct the temperature.
+            If True, pressure and temperature are corrected using elevation lapse rate,
+            by default True.
+        dem_forcing_fn : str | xr.DataArray, optional
+            Elevation data source covering the meteorological forcing domain.
 
             * Required variable: 'elevtn' [m+REF]
+
         wind_correction : bool, optional
-            If True wind speed is corrected to wind at 2m altitude using
-            ``wind_altitude``. By default True.
+            If True, wind speed is corrected to 2 m altitude using `wind_altitude`,
+            by default True.
         wind_altitude : int, optional
-            Altitude of wind speed [m] variable, by default 10. Only used if
-            ``wind_correction`` is True.
+            Altitude of wind speed variable [m], by default 10.
         skip_pet : bool, optional
-            If True calculate temp only.
+            If True, calculate temperature only.
         reproj_method : str, optional
-            Reprojection method from rasterio.enums.Resampling. to reproject the climate
-            data to the model resolution. By default 'nearest_index'.
-        fillna_method: str, optional
-            Method to fill NaN cells within the active model domain in the
-            temperature data e.g. 'nearest'
-            By default None for no interpolation.
-        chunksize: int, optional
+            Reprojection method from rasterio.enums.Resampling,
+            by default 'nearest_index'.
+        fillna_method : str, optional
+            Method to fill NaN cells within the active model domain in the temperature
+            data (e.g. 'nearest'). By default None.
+        chunksize : int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
+        lapse_rate: float, optional
+            Lapse rate of temperature [C m-1] (default: -0.0065)
         """
         starttime = self.config.get_value("time.starttime")
         endtime = self.config.get_value("time.endtime")
@@ -3614,43 +3634,70 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.staticmaps.data[self._MAPS["basins"]].values > 0
 
-        variables = ["temp"]
-        if not skip_pet:
-            if pet_method == "debruin":
-                variables += ["press_msl", "kin", "kout"]
-            elif pet_method == "makkink":
-                variables += ["press_msl", "kin"]
-            elif pet_method == "penman-monteith_rh_simple":
-                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
-            elif pet_method == "penman-monteith_tdew":
-                variables += [
-                    "temp_min",
-                    "temp_max",
-                    "wind10_u",
-                    "wind10_v",
-                    "temp_dew",
-                    "kin",
-                    "press_msl",
-                ]
-            else:
-                methods = [
-                    "debruin",
-                    "makkink",
-                    "penman-monteith_rh_simple",
-                    "penman-monteith_tdew",
-                ]
-                raise ValueError(
-                    f"Unknown pet method {pet_method}, select from {methods}"
-                )
+        # Check required variables
+        method_variables = {
+            "debruin": ["temp", "press_msl", "kin", "kout"],
+            "makkink": ["temp", "press_msl", "kin"],
+            "penman-monteith_rh_simple": ["temp", "temp_min", "temp_max", "rh", "kin"],
+            "penman-monteith_tdew": [
+                "temp",
+                "temp_min",
+                "temp_max",
+                "temp_dew",
+                "kin",
+                "press_msl",
+            ],
+        }
+        if skip_pet:
+            variables = ["temp"]
+        elif pet_method in method_variables:
+            variables = method_variables[pet_method]
+        else:
+            raise ValueError(
+                f"Unknown pet_method '{pet_method}'. Select from "
+                f"{list(method_variables.keys())}."
+            )
+        _shared_kwargs = {
+            "data_like": temp_pet_fn,
+            "geom": self.region,
+            "buffer": 1,
+            "time_range": (starttime, endtime),
+            "variables": variables,
+            "single_var_as_array": False,
+        }
+        # Fetch the required (non-wind) variables
+        ds = self.data_catalog.get_rasterdataset(**_shared_kwargs)
 
-        ds = self.data_catalog.get_rasterdataset(
-            temp_pet_fn,
-            geom=self.region,
-            buffer=1,
-            time_range=(starttime, endtime),
-            variables=variables,
-            single_var_as_array=False,  # always return dataset
-        )
+        # Fetch wind variables separately for penman-monteith methods.
+        # Try total 'wind' first; if not available, fall back to components.
+        # NOTE: get_rasterdataset raises NoDataException for missing variables
+        # regardless of handle_nodata setting.
+        if "penman-monteith" in pet_method:
+            ds_wind = None
+            for wind_variables in (["wind"], ["wind10_u", "wind10_v"]):
+                logger.debug(
+                    f"Fetching wind variables {wind_variables} from source "
+                    f"'{temp_pet_fn}' for pet_method '{pet_method}'."
+                )
+                try:
+                    _shared_kwargs["variables"] = wind_variables
+                    ds_wind = self.data_catalog.get_rasterdataset(**_shared_kwargs)
+                    break
+                except NoDataException as e:
+                    logger.warning(
+                        f"Could not find wind variables {wind_variables} in source "
+                        f"'{temp_pet_fn}' for pet_method '{pet_method}'. Error: {e}"
+                    )
+                    continue
+            if ds_wind is None:
+                raise ValueError(
+                    f"Could not find wind variables. Either 'wind' or "
+                    f"'wind10_u' & 'wind10_v' are required for "
+                    f"pet_method '{pet_method}' but not found in "
+                    f"source '{temp_pet_fn}'."
+                )
+            ds = xr.merge([ds, ds_wind])
+
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
         for var in ds.data_vars:
@@ -3671,29 +3718,50 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
+            lapse_rate=lapse_rate,
             freq=None,  # resample time after pet workflow
         )
 
-        if (
-            "penman-monteith" in pet_method
-        ):  # also downscaled temp_min and temp_max for Penman needed
+        if "penman-monteith" in pet_method:
+            # also downscaled temp_min and temp_max for Penman needed
+            source_freq = pd.infer_freq(ds.time.values[:3])
+            if source_freq is None:
+                logger.warning(
+                    f"Could not infer frequency of source '{temp_pet_fn}'. "
+                    "Assuming it is sub-daily."
+                )
+                is_subdaily = True
+            else:
+                freq = pd.tseries.frequencies.to_offset(source_freq)
+                is_subdaily = freq.nanos < pd.to_timedelta("1D").value
+
+            if is_subdaily:
+                raise RuntimeError(
+                    f"pet_method='{pet_method}' requires daily temp_min/temp_max. "
+                    f"Source '{temp_pet_fn}' appears to be sub-daily "
+                    f"(inferred freq: {source_freq}). Consider pet_method='makkink' "
+                    f"or 'debruin' for sub-daily inputs.",
+                )
+
             temp_max_in = hydromt.model.processes.meteo.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_max_in.name = "temp_max"
+            temp_max_in["name"] = "temp_max"
 
             temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
+                lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_min_in.name = "temp_min"
+            temp_min_in["name"] = "temp_min"
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
@@ -3706,8 +3774,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             temp_pet_fn_str = temp_pet_fn
 
         if not skip_pet:
+            pet_vars = [v for v in ds.data_vars if v != "temp"]
             pet_out = hydromt.model.processes.meteo.pet(
-                ds[variables[1:]],
+                ds[pet_vars],
                 temp=temp_in,
                 dem_model=self.staticmaps.data[self._MAPS["elevtn"]],
                 method=pet_method,
@@ -4009,7 +4078,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
             self.staticmaps.data, config_v0
         )
-        upgrade_lake_tables_to_reservoir_tables_v1(self.tables)
         if ds_res is not None:
             # Remove older maps from grid
             self.staticmaps.drop_vars(vars_to_remove)
@@ -4018,3 +4086,5 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             # Update the config with the new names
             for option in config_opt:
                 self.config.set(option, config_opt[option])
+        # also update tables
+        upgrade_lake_tables_to_reservoir_tables_v1(self.tables)

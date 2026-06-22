@@ -101,8 +101,8 @@ reservoir_water_surface__initial_elevation = "reservoir_initial_depth"
 reservoir_water__rating_curve_type_count = "reservoir_rating_curve"
 reservoir_water__storage_curve_type_count = "reservoir_storage_curve"
 reservoir_water__max_volume = "reservoir_max_volume"
-reservoir_water__target_min_volume_fraction = "reservoir_target_min_fraction"
 reservoir_water__target_full_volume_fraction = "reservoir_target_full_fraction"
+reservoir_water__target_min_volume_fraction = "reservoir_target_min_fraction"
 reservoir_water_demand__required_downstream_volume_flow_rate = "reservoir_demand"
 reservoir_water_release_below_spillway__max_volume_flow_rate = "reservoir_max_release"
 reservoir_water__rating_curve_coefficient = "reservoir_b"
@@ -182,6 +182,11 @@ parameter = "river_water__volume_flow_rate"
 header = "lake-volume"
 map = "reservoir_location__count"
 parameter = "reservoir_water__volume"
+
+[[output.csv.column]]
+header = "res-outflow"
+map = "reservoir_location__count"
+parameter = "reservoir_water__outgoing_volume_flow_rate"
 
 [[output.csv.column]]
 header = "P"

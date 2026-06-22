@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - v1
+      - release/*
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
@@ -17,7 +17,7 @@ on:
   pull_request:
     branches:
       - main
-      - v1
+      - release/*
     paths:
       - tests/**/*
       - hydromt_wflow/**/*
@@ -42,21 +42,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.2
+        uses: prefix-dev/setup-pixi@v0.9.6
         with:
-          pixi-version: "v0.47.0"
+          pixi-version: "v0.59.0"
       - name: Run the test suite
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: |
             pixi run --locked -e test-full-py311 test-cov
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

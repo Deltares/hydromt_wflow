@@ -1,14 +1,12 @@
 """Unit tests for hydromt_wflow sediment methods and workflows."""
 
-from os.path import abspath, dirname, join
-
 import geopandas as gpd
 import numpy as np
+import pytest
 
 from hydromt_wflow.utils import planar_operation_in_utm
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
 def test_setup_lulc_sed(
@@ -18,7 +16,7 @@ def test_setup_lulc_sed(
         lulc_fn="globcover_2009",
         lulc_mapping_fn="globcover_mapping_default",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars={"erosion_usle_c": "soil_erosion__usle_c_factor"},
+        lulc_vars=["erosion_usle_c"],
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,

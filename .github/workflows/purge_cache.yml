@@ -3,12 +3,16 @@ on:
   workflow_dispatch:
   workflow_call:
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Cleanup cache
         run: |

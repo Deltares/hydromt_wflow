@@ -1,8 +1,8 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 from itertools import product
-from os.path import abspath, dirname, join
 from pathlib import Path
+from unittest import mock
 
 import geopandas as gpd
 import numpy as np
@@ -12,15 +12,44 @@ import xarray as xr
 import xarray.testing as xrt
 from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
+from hydromt.model.processes.rivers import river_depth
+from packaging.version import Version
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+try:
+    import gwwapi  # noqa: F401
+
+    HAS_GWW_API = True
+except ImportError:
+    HAS_GWW_API = False
+
+try:
+    import hydroengine  # noqa: F401
+
+    HAS_HYDROENGINE = True
+except ImportError:
+    HAS_HYDROENGINE = False
+
+try:
+    import wradlib  # noqa: F401
+
+    HAS_WRADLIB = True
+except ImportError:
+    HAS_WRADLIB = False
+
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
-def test_setup_basemaps(tmpdir: Path):
+@pytest.fixture(scope="session")
+def rasterio_version():
+    import rasterio
+
+    return Version(rasterio.__version__)
+
+
+def test_setup_basemaps(tmp_path: Path):
     # Region
     region = {
         "basin": [12.2051, 45.8331],
@@ -28,7 +57,7 @@ def test_setup_basemaps(tmpdir: Path):
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
     mod = WflowSbmModel(
-        root=tmpdir.join("wflow_base"),
+        root=tmp_path / "wflow_base",
         mode="w",
         data_libs=["artifact_data"],
     )
@@ -107,13 +136,13 @@ def test_setup_grid(example_wflow_model):
         )
 
 
-def test_projected_crs(tmpdir: Path):
+def test_projected_crs(tmp_path: Path, test_data_dir: Path):
     # Instantiate wflow model
-    root = str(tmpdir.join("wflow_projected"))
+    root = str(tmp_path / "wflow_projected")
     mod = WflowSbmModel(
         root=root,
         mode="w",
-        data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
+        data_libs=["artifact_data", str(test_data_dir / "merit_utm" / "merit_utm.yml")],
     )
 
     # Setup basemaps
@@ -159,16 +188,16 @@ def test_projected_crs(tmpdir: Path):
 
 
 @pytest.mark.parametrize("glacier_fn", ["glaciers_4326", "glaciers_3857"])
-def test_projected_crs_glaciers(glacier_fn, tmpdir):
+def test_projected_crs_glaciers(glacier_fn, tmp_path: Path, test_data_dir: Path):
     # Instantiate wflow model
-    root = str(tmpdir.join("wflow_projected"))
+    root = str(tmp_path / "wflow_projected")
     mod = WflowSbmModel(
         root=root,
         mode="w",
         data_libs=[
             "artifact_data",
-            join(TESTDATADIR, "merit_utm", "merit_utm.yml"),
-            join(TESTDATADIR, "glacier", "glacier_utm.yml"),
+            str(test_data_dir / "merit_utm" / "merit_utm.yml"),
+            str(test_data_dir / "glacier" / "glacier_utm.yml"),
         ],
     )
 
@@ -208,7 +237,7 @@ def test_projected_crs_glaciers(glacier_fn, tmpdir):
 
 @pytest.fixture
 def model_with_rating_curve_data(
-    tmpdir: Path, example_wflow_model: WflowSbmModel
+    tmp_path: Path, example_wflow_model: WflowSbmModel
 ) -> tuple[WflowSbmModel, int]:
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms.get("meta_reservoirs_no_control")
@@ -226,7 +255,7 @@ def model_with_rating_curve_data(
         ).set_index("elevtn"),
         on="elevtn",
     )
-    fn_lake = join(tmpdir, f"rating_curve_{lake_id}.csv")
+    fn_lake = str(tmp_path / f"rating_curve_{lake_id}.csv")
     df.to_csv(fn_lake, sep=",", index=False, header=True)
 
     source = create_source(
@@ -236,7 +265,7 @@ def model_with_rating_curve_data(
             "driver": {
                 "name": "pandas",
             },
-            "uri": str(tmpdir / f"rating_curve_{lake_id}.csv"),
+            "uri": str(tmp_path / f"rating_curve_{lake_id}.csv"),
         }
     )
 
@@ -248,7 +277,7 @@ def model_with_rating_curve_data(
 
 
 def test_setup_reservoirs_no_control(
-    tmpdir: Path, model_with_rating_curve_data: tuple[WflowSbmModel, int]
+    tmp_path: Path, model_with_rating_curve_data: tuple[WflowSbmModel, int]
 ):
     example_wflow_model, lake_id = model_with_rating_curve_data
 
@@ -280,28 +309,45 @@ def test_setup_reservoirs_no_control(
             example_wflow_model.staticmaps.data[reservoir_layer]._FillValue, np.int32
         )
     # Write and read back
-    new_root = tmpdir / "wflow_lake_test"
+    new_root = tmp_path / "wflow_lake_test"
     example_wflow_model.root.set(new_root, mode="w")
     example_wflow_model.tables.write()
 
     test_table = example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"]
+    test_table_hq = example_wflow_model.tables.data[f"reservoir_hq_{lake_id}"]
 
     example_wflow_model.tables.data.clear()
     example_wflow_model.root.set(new_root, mode="r")
     example_wflow_model.tables.read()
+    tables_data = example_wflow_model.tables.data
 
-    assert example_wflow_model.tables.data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_sh_{lake_id}"].equals(test_table)
+    assert tables_data[f"reservoir_hq_{lake_id}"].equals(test_table_hq)
+
+
+test_reservoirs_simple_control_sources = [
+    pytest.param(
+        "gww",
+        marks=pytest.mark.skipif(not HAS_GWW_API, reason="gwwapi not installed"),
+    ),
+    pytest.param(
+        "jrc",
+        marks=pytest.mark.skipif(
+            not HAS_HYDROENGINE, reason="hydroengine not installed"
+        ),
+    ),
+]
 
 
 @pytest.mark.timeout(120)  # max 2 min
-@pytest.mark.parametrize("source", ["gww", "jrc"])
-def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
-    # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
+@pytest.mark.integration
+@pytest.mark.parametrize("source", test_reservoirs_simple_control_sources)
+def test_reservoirs_simple_control(source, tmp_path: Path, example_wflow_model):
     model = "wflow"
     example_wflow_model.read()
 
     # Update model (reservoirs only)
-    destination = str(tmpdir.join(model))
+    destination = str(tmp_path / model)
     example_wflow_model.root.set(destination, mode="w")
 
     config = {
@@ -309,7 +355,7 @@ def test_reservoirs_simple_control(source, tmpdir, example_wflow_model):
             "reservoirs_fn": "hydro_reservoirs",
             "timeseries_fn": source,
             "min_area": 0.0,
-            "update_existing": False,
+            "overwrite_existing": False,
         }
     }
 
@@ -361,7 +407,7 @@ number of reservoirs in model area"
         )
 
 
-def test_setup_ksathorfrac(tmpdir, example_wflow_model):
+def test_setup_ksathorfrac(tmp_path: Path, example_wflow_model):
     # Read the modeldata
     model = "wflow"
     example_wflow_model.read()
@@ -373,7 +419,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     da.values = data
     da.name = "subsurface_ksat_horizontal_ratio"
     # Set the output directory
-    destination = str(tmpdir.join(model))
+    destination = str(tmp_path / model)
     example_wflow_model.root.set(destination, mode="w")
 
     # Build the map
@@ -408,7 +454,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-def test_setup_lai(example_wflow_model: WflowSbmModel):
+def test_setup_lai(example_wflow_model: WflowSbmModel, rasterio_version: Version):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
     da_lai = example_wflow_model.data_catalog.get_rasterdataset(
@@ -442,13 +488,20 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
         sampling_method="q3",
         lulc_zero_classes=[80, 200, 0],
     )
+    if rasterio_version >= Version("1.5.0"):
+        expected_df_lai_mode_samples_20 = 69
+        expected_df_lai_mode_samples_0 = 2
+    else:
+        expected_df_lai_mode_samples_20 = 59
+        expected_df_lai_mode_samples_0 = 3
+
     # Check the number of landuse classes in the mapping tables
     assert len(df_lai_any[df_lai_any.samples == 0]) == 1
-    assert len(df_lai_mode[df_lai_mode.samples == 0]) == 3
+    assert len(df_lai_mode[df_lai_mode.samples == 0]) == expected_df_lai_mode_samples_0
     assert len(df_lai_q3[df_lai_q3.samples == 0]) == 3
     # Check number of samples for landuse class 20 with the different methods
     assert int(df_lai_any.loc[20].samples) == 2481
-    assert int(df_lai_mode.loc[20].samples) == 59
+    assert int(df_lai_mode.loc[20].samples) == expected_df_lai_mode_samples_20
     assert int(df_lai_q3.loc[20].samples) == 4
 
     # Try to use the mapping tables to setup the vegetation_leaf_area_index
@@ -465,10 +518,10 @@ def test_setup_lai(example_wflow_model: WflowSbmModel):
     )
 
 
-def test_setup_rootzoneclim(example_wflow_model):
+def test_setup_rootzoneclim(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
-        join(TESTDATADIR, "df_sub_dummy.csv"),
+        str(test_data_dir / "df_sub_dummy.csv"),
         parse_dates=True,
         dayfirst=True,
         index_col=0,
@@ -592,13 +645,13 @@ def test_setup_rootzoneclim(example_wflow_model):
 
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_obs_2"
-    ] == pytest.approx(82.85684577620462, abs=0.5)
+    ] == pytest.approx(83.73380337309179, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_hist_2"
-    ] == pytest.approx(82.44039441508069, abs=0.5)
+    ] == pytest.approx(83.46095605283114, abs=0.5)
     assert example_wflow_model.geoms.get("rootzone_storage").loc[1][
         "rootzone_storage_cc_fut_2"
-    ] == pytest.approx(106.03809681174451, abs=0.5)
+    ] == pytest.approx(107.12276256619255, abs=0.5)
 
 
 def test_setup_outlets(example_wflow_model):
@@ -619,7 +672,7 @@ def test_setup_outlets(example_wflow_model):
     assert count[1] == 1
 
 
-def test_setup_gauges(example_wflow_model: WflowSbmModel):
+def test_setup_gauges(example_wflow_model: WflowSbmModel, test_data_dir: Path):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     source = example_wflow_model.data_catalog.get_source("grdc")
@@ -645,7 +698,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     )
 
     # 2. Test with/without snapping to mask
-    stations_fn = join(TESTDATADIR, "test_stations.csv")
+    stations_fn = str(test_data_dir / "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_snapping",
@@ -727,7 +780,7 @@ def test_setup_gauges(example_wflow_model: WflowSbmModel):
     assert np.all(ds_samp["river_mask"].values == 1)
 
     # 4. Test with test_stations.csv file
-    stations_csv_file = join(EXAMPLEDIR, "test_stations.csv")
+    stations_csv_file = str(test_data_dir / "test_stations.csv")
     example_wflow_model.setup_gauges(gauges_fn=stations_csv_file, basename="test-flow")
     test_stations_gdf = example_wflow_model.geoms.get("gauges_test-flow")
     assert len(test_stations_gdf) == 3
@@ -769,7 +822,61 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
-def test_setup_rivers_depth(tmpdir: Path):
+def test_setup_rivers_no_subgrid(tmp_path: Path):
+    # Instantiate new wflow model
+    # Region
+    region = {
+        "subbasin": [12.5032, 46.5327],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowSbmModel(
+        root=str(tmp_path / "river_no_subgrid"),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+    hydrography = mod.data_catalog.get_rasterdataset("merit_hydro_ihu")
+    # Run setup_basemaps
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn=hydrography.copy(),
+        res=hydrography.raster.res[0],  # no upscaling
+    )
+
+    assert "x_out" not in mod.staticmaps.data
+
+    # Setup rivers with different hydrography (with subgrid = false)
+    with pytest.raises(ValueError, match="It seems model grid was not upscaled"):
+        mod.setup_rivers(
+            hydrography_fn="merit_hydro",
+            river_geom_fn="hydro_rivers_lin",
+            river_upa=30,
+        )
+
+    # Now with correct hydrography and some additional kwargs for river depth
+    with mock.patch(
+        "hydromt_wflow.workflows.river.river_depth",
+        wraps=river_depth,
+    ) as mock_river_depth:
+        mod.setup_rivers(
+            hydrography_fn="merit_hydro_ihu",
+            river_geom_fn="hydro_rivers_lin",
+            river_upa=30,
+            river_depth_kwargs={"hc": 0.4, "hp": 0.9},
+        )
+        mock_river_depth.assert_called_once()
+        called_kwargs = mock_river_depth.call_args.kwargs
+
+        assert "hc" in called_kwargs
+        assert called_kwargs["hc"] == pytest.approx(0.4)
+
+        assert "hp" in called_kwargs
+        assert called_kwargs["hp"] == pytest.approx(0.9)
+
+    assert "river_mask" in mod.staticmaps.data
+
+
+def test_setup_rivers_depth(tmp_path: Path):
     # Instantiate new wflow model
     # Region
     region = {
@@ -778,7 +885,7 @@ def test_setup_rivers_depth(tmpdir: Path):
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
     mod = WflowSbmModel(
-        root=str(tmpdir.join("river_mask")),
+        root=str(tmp_path / "river_mask"),
         mode="w",
         data_libs=["artifact_data"],
     )
@@ -954,6 +1061,7 @@ def test_setup_floodplains_2d(
     )
 
 
+@pytest.mark.skipif(not HAS_WRADLIB, reason="wradlib not installed")
 def test_setup_precip_from_point_timeseries(
     example_wflow_model: WflowSbmModel, df_precip_stations, gdf_precip_stations
 ):
@@ -1174,23 +1282,24 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
 
 
 def test_setup_lulc_vector(
-    example_wflow_model: WflowSbmModel,
-    globcover_gdf,
+    example_wflow_model: WflowSbmModel, globcover_gdf, data_dir: Path
 ):
     # Test for wflow sbm
+    # Use a file directly for lulc_mapping_fn
+    mapping_fn = data_dir / "lulc" / "v0.8" / "globcover_mapping.csv"
     example_wflow_model.setup_lulcmaps_from_vector(
         lulc_fn=globcover_gdf,
-        lulc_mapping_fn="globcover_mapping_default",
+        lulc_mapping_fn=mapping_fn,
         lulc_res=0.0025,
         save_raster_lulc=False,
     )
     assert "meta_landuse" in example_wflow_model.staticmaps.data
 
 
-def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
+def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.root.set(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(tmp_path, mode="w")
 
     layers = [50, 100, 50, 200, 800]
 
@@ -1217,7 +1326,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     # Assert soil_ksat_vertical_factor is written to vertical section in config
     assert (
         example_wflow_model.config.data["input"]["static"][
-            "soil_water__vertical_saturated_hydraulic_conductivity_factor"
+            "soil_layer_water__vertical_saturated_hydraulic_conductivity_factor"
         ]
         == "soil_ksat_vertical_factor"
     )
@@ -1240,7 +1349,7 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
 
     # Test values for crop coefficient
     assert np.isclose(
-        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 0.8869253
+        ds["vegetation_crop_factor"].raster.mask_nodata().mean().values, 1.05686426
     )
 
     # Test with a separate paddy_map
@@ -1260,13 +1369,11 @@ def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
     assert np.any(ds2["meta_landuse"] == 12)
 
 
-def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmpdir: Path):
+def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Read the data and set new root
     example_wflow_model.read()
     example_wflow_model.root.set(
-        Path(
-            tmpdir,
-        ),
+        tmp_path,
         mode="w",
     )
 
@@ -1288,18 +1395,13 @@ def test_setup_allocation_areas(example_wflow_model: WflowSbmModel, tmpdir: Path
 
 
 def test_setup_allocation_surfacewaterfrac(
-    example_wflow_model: WflowSbmModel, tmpdir: Path
+    example_wflow_model: WflowSbmModel, tmp_path: Path, test_data_dir: Path
 ):
     # Read the data and set new root
     example_wflow_model.read()
-    example_wflow_model.root.set(
-        Path(
-            tmpdir,
-        ),
-        mode="w",
-    )
+    example_wflow_model.root.set(tmp_path, mode="w")
     # Add lisflood data from test
-    lisflood_yml = join(TESTDATADIR, "demand", "data_catalog.yml")
+    lisflood_yml = str(test_data_dir / "demand" / "data_catalog.yml")
     example_wflow_model.data_catalog = example_wflow_model.data_catalog.from_yml(
         lisflood_yml
     )
@@ -1346,10 +1448,10 @@ def test_setup_allocation_surfacewaterfrac(
     )
 
 
-def test_setup_non_irrigation(example_wflow_model: WflowSbmModel, tmpdir: Path):
+def test_setup_non_irrigation(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.root.set(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(tmp_path, mode="w")
 
     # Use the method
     example_wflow_model.setup_domestic_demand(
@@ -1454,11 +1556,11 @@ def test_setup_non_irrigation(example_wflow_model: WflowSbmModel, tmpdir: Path):
 
 
 def test_setup_irrigation_nopaddy(
-    example_wflow_model: WflowSbmModel, tmpdir: Path, globcover_gdf: gpd.GeoDataFrame
+    example_wflow_model: WflowSbmModel, tmp_path: Path, globcover_gdf: gpd.GeoDataFrame
 ):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.root.set(Path(tmpdir), mode="w")
+    example_wflow_model.root.set(tmp_path, mode="w")
 
     # Use the method
     example_wflow_model.setup_irrigation(
@@ -1485,7 +1587,7 @@ def test_setup_irrigation_nopaddy(
     )
 
     # There is no paddy in this region
-    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 5
+    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 4
     # Check if more irrigation is allowed during summer than winter
     assert (
         ds["demand_nonpaddy_irrigation_trigger"]
@@ -1522,13 +1624,11 @@ def test_setup_irrigation_nopaddy(
     assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 8
 
 
-def test_setup_irrigation_withpaddy(example_wflow_model: WflowSbmModel, tmpdir: Path):
+def test_setup_irrigation_withpaddy(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.root.set(
-        Path(
-            tmpdir,
-        ),
+        tmp_path,
         mode="w",
     )
 
@@ -1558,7 +1658,7 @@ def test_setup_irrigation_withpaddy(example_wflow_model: WflowSbmModel, tmpdir: 
     assert "demand_paddy_irrigation_trigger" in ds
 
 
-def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmpdir: Path):
+def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Create states
     example_wflow_model.setup_cold_states()
     states = example_wflow_model.states.data.copy()
@@ -1581,13 +1681,13 @@ def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmpdir: Path):
     )
 
     # test write
-    example_wflow_model.root.set(tmpdir / "wflow_cold_states", mode="w")
+    example_wflow_model.root.set(tmp_path / "wflow_cold_states", mode="w")
     example_wflow_model.states.write()
 
-    assert (tmpdir / "wflow_cold_states" / "instate" / "instates.nc").exists()
+    assert (tmp_path / "wflow_cold_states" / "instate" / "instates.nc").exists()
 
     # test read
-    example_wflow_model.root.set(tmpdir / "wflow_cold_states", mode="r+")
+    example_wflow_model.root.set(tmp_path / "wflow_cold_states", mode="r+")
     example_wflow_model.states.read()
 
     xrt.assert_equal(

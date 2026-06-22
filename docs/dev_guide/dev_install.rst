@@ -5,7 +5,9 @@ Developer's environment
 If you want to download the HydroMT-Wflow plugin directly from git to easily have access to the latest developments or
 make changes to the code you can use the following steps.
 
-First, clone the HydroMT-Wflow plugin ``git`` repo from
+First install `pixi <https://pixi.sh/latest/>`, which is a tool to manage python environments and dependencies.
+
+Then, clone the HydroMT-Wflow plugin ``git`` repo from
 `github <https://github.com/Deltares/hydromt_wflow>`_, then navigate into the
 the code folder (where the envs folder and pyproject.toml are located):
 

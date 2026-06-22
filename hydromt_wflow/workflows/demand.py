@@ -500,7 +500,7 @@ def surfacewaterfrac_used(
     # create the dataarray for the fraction
     swfrac = xr.full_like(
         gwfrac_raw_mr,
-        fill_value=np.nan,
+        fill_value=-9999,
         dtype=np.float32,
     ).load()
     swfrac.name = "demand_surface_water_ratio"

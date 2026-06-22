@@ -14,11 +14,6 @@ from pytest_mock import MockerFixture
 from hydromt_wflow import WflowSbmModel
 from hydromt_wflow.components import WflowConfigComponent, WflowStaticmapsComponent
 
-SUBDIR = ""
-if platform.system().lower() != "windows":
-    SUBDIR = "linux64"
-TEST_COMPONENT_ROOT_FOLDER = Path(__file__).parent
-
 
 ## OS related fixture
 @pytest.fixture(scope="session")
@@ -30,15 +25,8 @@ def mount_string() -> str:
 
 ## Data directories
 @pytest.fixture(scope="session")
-def cached_models() -> Path:
-    p = Path(TEST_COMPONENT_ROOT_FOLDER, "..", "..", "examples", SUBDIR)
-    assert p.is_dir()
-    return p.resolve()
-
-
-@pytest.fixture(scope="session")
-def model_subbasin_cached(cached_models: Path) -> Path:
-    p = Path(cached_models, "wflow_piave_subbasin")
+def model_subbasin_cached(example_models_dir: Path) -> Path:
+    p = Path(example_models_dir, "wflow_piave_subbasin")
     assert p.is_dir()
     return p
 

@@ -1,3 +1,4 @@
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -138,6 +139,39 @@ def test_wflow_states_component_read_init(
     # Read at init
     assert len(component.data) == 13
     assert "river_instantaneous_q" in component.data
+
+
+def test_wflow_states_component_read_no_crs(
+    mock_model_factory: Callable[[Path, str], WflowSbmModel],
+    tmp_path: Path,
+    model_subbasin_cached: Path,
+    caplog,
+):
+    # Create a copy of the model files to modify
+    model_copy_path = tmp_path / "model_copy"
+    model_copy_path.mkdir(exist_ok=True)
+
+    shutil.copytree(model_subbasin_cached, model_copy_path, dirs_exist_ok=True)
+
+    # Remove CRS from the states file
+    states_file = model_subbasin_cached / "instate" / "instates.nc"
+    ds = xr.open_dataset(states_file)
+    ds.raster.set_crs(None)  # Remove CRS
+    ds.to_netcdf(model_copy_path / "instate" / "instates.nc")
+
+    # Set it to read mode
+    mock_model = mock_model_factory(path=model_copy_path, mode="r")
+
+    # Setup the component
+    component = WflowStatesComponent(mock_model)
+
+    # Read the data and capture logs
+    with caplog.at_level("WARNING"):
+        component.read()
+
+    # Check for warning about missing CRS
+    assert "CRS not found in states data, setting to model CRS." in caplog.text
+    assert component.data.raster.crs == mock_model.crs
 
 
 def test_wflow_states_component_write(

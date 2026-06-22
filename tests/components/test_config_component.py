@@ -7,7 +7,6 @@ import pytest
 from hydromt.model import ModelRoot
 
 from hydromt_wflow.components import WflowConfigComponent
-from hydromt_wflow.utils import DATADIR
 
 
 @pytest.fixture
@@ -158,7 +157,11 @@ def test_wflow_config_component_read_default_read_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
+    data_dir: Path,
 ):
+    # Create a dummy file to prevent ModelRoot._cleanup from deleting the tmp_path
+    (tmp_path / "tmp").touch()
+
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(tmp_path, mode="r"),
@@ -167,7 +170,7 @@ def test_wflow_config_component_read_default_read_mode(
     # Setup the component
     component = WflowConfigComponent(
         model=mock_model,
-        default_template_filename=str(DATADIR / "wflow_sbm" / "wflow_sbm.toml"),
+        default_template_filename=str(data_dir / "wflow_sbm" / "wflow_sbm.toml"),
     )
     assert component._data is None  # Assert no data or structure yet
 
@@ -179,6 +182,7 @@ def test_wflow_config_component_read_default_write_mode(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
+    data_dir: Path,
 ):
     caplog.set_level(logging.INFO)
     # Reading the template only happens in w and w+ modes
@@ -190,12 +194,12 @@ def test_wflow_config_component_read_default_write_mode(
     # Setup the component
     component = WflowConfigComponent(
         model=mock_model,
-        default_template_filename=str(DATADIR / "wflow_sbm" / "wflow_sbm.toml"),
+        default_template_filename=str(data_dir / "wflow_sbm" / "wflow_sbm.toml"),
     )
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 7
+    assert len(component.data) == 6
     assert component.data["dir_output"] == "run_default"
     assert "Reading default config file from " in caplog.text
 
@@ -279,7 +283,7 @@ def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: 
     # Assert unequal
     eq, errors = component.test_equal(component2)
     assert not eq
-    assert errors == {"config": "Configs are not equal"}
+    assert errors == {"time.spooky": "spooky missing from self"}
 
 
 def test_wflow_config_component_equal_error(mock_model: MagicMock):

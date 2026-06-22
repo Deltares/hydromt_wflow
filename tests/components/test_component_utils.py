@@ -32,7 +32,7 @@ def test__mount():
 
 def test__relpath_abs(tmp_path: Path):
     # Call the function
-    p = _relpath(Path(tmp_path, "tmp/tmp.txt"), tmp_path)
+    p = _relpath(tmp_path / "tmp/tmp.txt", tmp_path)
 
     # Assert the output
     assert isinstance(p, str)

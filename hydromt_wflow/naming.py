@@ -212,7 +212,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "soil_ksat_vertical_factor": {
         "wflow_v0": "vertical.kvfrac",
-        "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_factor",
+        "wflow_v1": "soil_layer_water__vertical_saturated_hydraulic_conductivity_factor",  # noqa: E501
     },
     "subsurface_ksat_horizontal_ratio": {
         "wflow_v0": "lateral.subsurface.ksathorfrac",
@@ -327,7 +327,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
     },
     "demand_nonpaddy_irrigated_mask": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-non-paddy_area__count",
+        "wflow_v1": "irrigated_non_paddy_area__count",
     },
     "demand_nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",

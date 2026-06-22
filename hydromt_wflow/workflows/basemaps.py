@@ -453,6 +453,6 @@ def parse_region(
 
     geometries = {}
     if not math.isclose(scale_ratio, 1):
-        geometries["basins_highres"] = geom
+        geometries["meta_basins_highres"] = geom
 
     return geometries, xy, ds_org

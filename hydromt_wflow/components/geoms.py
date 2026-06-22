@@ -114,22 +114,17 @@ class WflowGeomsComponent(GeomsComponent):
 
         # Set precision
         if precision is None:
-            if self.crs.is_projected:
+            if self.model.crs.is_projected:
                 _precision = 1
             else:
                 _precision = 6
         else:
             _precision = precision
 
-        grid_size = 10 ** (-_precision)
-        for gdf in self.data.values():
-            gdf.geometry = gdf.geometry.set_precision(
-                grid_size=grid_size,
-            )
-
         super().write(
             filename=str(pattern),
             to_wgs84=to_wgs84,
+            precision=_precision,
             **kwargs,
         )
 

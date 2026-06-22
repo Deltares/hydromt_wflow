@@ -1,4 +1,4 @@
-dir_output = "run_default"
+﻿dir_output = "run_default"
 
 [time]
 calendar = "proleptic_gregorian"
@@ -39,12 +39,12 @@ soil_surface__temperature = "soil_temp"
 snowpack_dry_snow__leq_depth = "snow_leq_depth"
 snowpack_liquid_water__depth = "snow_water_depth"
 land_surface_water__instantaneous_volume_flow_rate = "land_instantaneous_q"
-land_surface_water__depth                          = "land_h"
-subsurface_water__volume_flow_rate                 = "subsurface_q"
-river_water__instantaneous_volume_flow_rate        = "river_instantaneous_q"
-river_water__depth                                 = "river_h"
-reservoir_water_surface__elevation                 = "reservoir_water_level"
-glacier_ice__leq_depth                             = "glacier_leq_depth"
+land_surface_water__depth = "land_h"
+subsurface_water__volume_flow_rate = "subsurface_q"
+river_water__instantaneous_volume_flow_rate = "river_instantaneous_q"
+river_water__depth = "river_h"
+reservoir_water_surface__elevation = "reservoir_water_level"
+glacier_ice__leq_depth = "glacier_leq_depth"
 
 [input]
 path_forcing = "inmaps.nc"
@@ -57,14 +57,6 @@ reservoir_location__count = "reservoir_outlet_id"
 reservoir_lower_location__count = "reservoir_lower_id"
 outlets = "outlets"
 gauges_grdc = "gauges_grdc"
-
-[input.forcing]
-atmosphere_water__precipitation_volume_flux = "precip"
-land_surface_water__potential_evaporation_volume_flux = "pet"
-atmosphere_air__temperature = "temp"
-
-[input.cyclic]
-vegetation__leaf_area_index = "vegetation_leaf_area_index"
 
 [input.static]
 land_surface__slope = "land_slope"
@@ -151,6 +143,14 @@ value = 0.001
 [input.static.glacier_ice__melting_temperature_threshold]
 value = 0
 
+[input.cyclic]
+vegetation__leaf_area_index = "vegetation_leaf_area_index"
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = "precip"
+land_surface_water__potential_evaporation_volume_flux = "pet"
+atmosphere_air__temperature = "temp"
+
 [output.netcdf_grid]
 path = "output.nc"
 compressionlevel = 1
@@ -175,5 +175,3 @@ parameter = "river_water__volume_flow_rate"
 header = "precip"
 map = "gauges_grdc"
 parameter = "atmosphere_water__precipitation_volume_flux"
-
-[output.netcdf_scalar]

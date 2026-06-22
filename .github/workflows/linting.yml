@@ -4,12 +4,12 @@ name: Linting
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, release/*]
 
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
       - uses: pre-commit/action@v3.0.1
