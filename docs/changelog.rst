@@ -8,8 +8,10 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+
 Added
 -----
+- Before writing the forcing to disk, throw an error for any missing values (#748)
 - Added upgrade support for the latest Wflow.jl v1.1 (#765)
 
 Fixed
