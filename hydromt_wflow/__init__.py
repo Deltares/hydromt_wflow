@@ -33,7 +33,6 @@ except Exception:
 
 from hydromt_wflow.utils import DATA_DIR
 from hydromt_wflow.version import __version__
-from hydromt_wflow.version_upgrade import upgrade_model
 from hydromt_wflow.wflow_base import WflowBaseModel
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
@@ -43,5 +42,4 @@ __all__ = [
     "WflowSbmModel",
     "WflowSedimentModel",
     "DATA_DIR",
-    "upgrade_model",
 ]

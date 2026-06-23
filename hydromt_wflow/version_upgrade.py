@@ -1182,11 +1182,6 @@ def _convert_sbm_config_v1_to_v1_1(config: dict) -> dict:
 # Helper functions for version detection and validation for the upgrade functions.
 def _is_v1_schema(config: dict) -> bool:
     """Detect the Wflow v1.0 config schema."""
-    # v1.1+
-    if "wflow_version" in config:
-        logger.debug("Found wflow_version, indicating v1 schema.")
-        return True
-
     # v1 split sections created by converter
     if "logging" in config:
         logger.debug("Found logging section, indicating v1 schema.")
