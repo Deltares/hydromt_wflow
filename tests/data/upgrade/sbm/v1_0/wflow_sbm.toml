@@ -1,4 +1,5 @@
 dir_output = "run_default"
+wflow_version = "1.0"
 
 [time]
 calendar = "proleptic_gregorian"
@@ -15,7 +16,7 @@ cold_start__flag = true
 glacier__flag = true
 land_routing = "kinematic_wave"
 river_routing = "kinematic_wave"
-kinematic_wave__adaptive_time_step_flag = false
+kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
 soil_layer__thickness = [100, 300, 800]
@@ -42,7 +43,7 @@ reservoir_water_surface__elevation = "reservoir_water_level"
 
 [input]
 path_forcing = "inmaps.nc"
-path_static = "staticmaps_v0x.nc"
+path_static = "staticmaps.nc"
 gauges = "wflow_gauges"
 basin__local_drain_direction = "wflow_ldd"
 river_location__mask = "wflow_river"

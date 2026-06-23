@@ -8,25 +8,28 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
-New
----
+
+Added
+-----
 - Before writing the forcing to disk, throw an error for any missing values (#748)
+- Added upgrade support for the latest Wflow.jl v1.1 (#765)
 
 Fixed
 -----
 - Fixed `setup_reservoirs_no_control()` to be able to handle both strings and path objects. (#770)
+- The variable set for land surface elevation when using 2D floodplains was incorrectly set to the elevation, in stead of the D4 conditioned elevation (#765)
 
 Removed
 -------
 
 Changed
 -------
-
+- Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
 
 v1.0.2 (3 March 2026)
 ==========================
-New
----
+Added
+-----
 - Added Pandas 3.0 support (#713)
 
 Fixed

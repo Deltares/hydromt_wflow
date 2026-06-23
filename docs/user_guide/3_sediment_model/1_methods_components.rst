@@ -154,8 +154,8 @@ Other methods
     * - :py:meth:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
-    * - :py:meth:`~WflowSedimentModel.upgrade_to_v1_wflow`
-      -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
+    * - :py:meth:`~WflowSedimentModel.upgrade_to_latest`
+      -  Upgrade a model from a Wflow.jl 0.x up to 1.1 .
       -
     * - :py:meth:`~WflowSedimentModel.clip`
       -  Clip a sub-region of an existing model.
