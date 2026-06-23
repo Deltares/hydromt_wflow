@@ -3,13 +3,17 @@
 import logging
 from pathlib import Path
 
-import hydromt.model.processes.region as hmt_region
 import numpy as np
 import xarray as xr
 from hydromt.gis import flw
 from hydromt.model import Model
 from hydromt.model.components import GridComponent, ModelComponent
 from hydromt.model.processes.basin_mask import get_basin_geometry
+from hydromt.model.processes.region import (
+    _parse_region_value,
+    parse_region_bbox,
+    parse_region_geom,
+)
 from hydromt.model.steps import hydromt_step
 
 from hydromt_wflow.components.utils import get_mask_layer, test_equal_grid_data
@@ -311,7 +315,7 @@ class WflowStaticmapsComponent(GridComponent):
         if kind in ["basin", "subbasin"]:
             # parse_region_basin does not return xy, only geom...
             # should be fixed in core
-            region_kwargs = hmt_region._parse_region_value(
+            region_kwargs = _parse_region_value(
                 region.pop(kind),
                 data_catalog=self.data_catalog,
             )
@@ -328,13 +332,13 @@ class WflowStaticmapsComponent(GridComponent):
                 "Kind 'bbox' for the region is not recommended as it can lead "
                 "to mistakes in the catchment delineation. Use carefully."
             )
-            geom = hmt_region.parse_region_bbox(region)
+            geom = parse_region_bbox(region)
         elif kind == "geom":
             logger.warning(
                 "Kind 'geom' for the region is not recommended as it can lead "
                 "to mistakes in the catchment delineation. Use carefully."
             )
-            geom = hmt_region.parse_region_geom(region)
+            geom = parse_region_geom(region)
         else:
             raise ValueError(
                 f"wflow region kind not understood or supported: {kind}. "
