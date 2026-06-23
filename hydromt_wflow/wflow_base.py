@@ -32,6 +32,7 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
+from hydromt_wflow.utils import DATA_DIR
 from hydromt_wflow.version_upgrade import upgrade_model
 
 __all__ = ["WflowBaseModel"]
@@ -69,8 +70,6 @@ class WflowBaseModel(Model):
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _DATADIR: Path = utils.DATA_DIR
-
     def __init__(
         self,
         root: str | None = None,
@@ -86,7 +85,7 @@ class WflowBaseModel(Model):
                 "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
             )
 
-        default_filename = self._DATADIR / self.name / f"{self.name}.toml"
+        default_filename = DATA_DIR / self.name / f"{self.name}.toml"
         if config_filename is None:
             config_filename = default_filename.name
 
@@ -123,7 +122,7 @@ class WflowBaseModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self.data_catalog.from_yml(self._DATADIR / "parameters_data.yml")
+        self.data_catalog.from_yml(DATA_DIR / "parameters_data.yml")
 
         # Supported Wflow.jl version
         version = self.config.get_value("wflow_version", fallback="1+")
@@ -1751,6 +1750,12 @@ one variable and variables list is not provided."
             directory is created and returned.
         """
         output_dir = Path(output_dir or tempfile.mkdtemp(prefix="wflow_upgrade_"))
+        if output_dir.exists() and any(output_dir.iterdir()):
+            logger.warning(
+                f"Output directory {output_dir} already exists and is not empty. "
+                "The upgrade will overwrite existing files."
+            )
+        shutil.rmtree(output_dir, ignore_errors=True)
         shutil.copytree(self.root.path, output_dir)
         upgrade_model(
             output_dir,

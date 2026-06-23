@@ -432,10 +432,9 @@ class TestUpgradeToLatest:
         )
         # Should only apply v1.0 -> v1.1 step, not v0.x -> v1.0
         with caplog.at_level(logging.INFO):
-            wflow.upgrade_to_latest()
+            upgraded_dir = wflow.upgrade_to_latest()
         assert "Upgrading config from v0.x to v1.0 format" not in caplog.text
 
-        upgraded_dir = target.with_name("v1_0_upgraded")
         V1ToV1_1Assertions.assert_sbm_config(
             upgraded_dir / "wflow_sbm.toml",
             upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
