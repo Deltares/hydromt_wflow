@@ -3,7 +3,6 @@
 import logging
 from pathlib import Path
 
-import hydromt
 import numpy as np
 import xarray as xr
 from hydromt.gis import flw
@@ -12,6 +11,8 @@ from hydromt.model.components import GridComponent, ModelComponent
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
+    parse_region_bbox,
+    parse_region_geom,
 )
 from hydromt.model.steps import hydromt_step
 
@@ -331,13 +332,13 @@ class WflowStaticmapsComponent(GridComponent):
                 "Kind 'bbox' for the region is not recommended as it can lead "
                 "to mistakes in the catchment delineation. Use carefully."
             )
-            geom = hydromt.processes.region.parse_region_bbox(region)
+            geom = parse_region_bbox(region)
         elif kind == "geom":
             logger.warning(
                 "Kind 'geom' for the region is not recommended as it can lead "
                 "to mistakes in the catchment delineation. Use carefully."
             )
-            geom = hydromt.processes.region.parse_region_geom(region)
+            geom = parse_region_geom(region)
         else:
             raise ValueError(
                 f"wflow region kind not understood or supported: {kind}. "
