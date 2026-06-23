@@ -10,6 +10,7 @@ Unreleased
 ==========
 New
 ---
+- Before writing the forcing to disk, throw an error for any missing values (#748)
 
 Fixed
 -----
