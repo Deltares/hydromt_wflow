@@ -10,10 +10,12 @@ Unreleased
 ==========
 New
 ---
+- Before writing the forcing to disk, throw an error for any missing values (#748)
 
 Fixed
 -----
 - Fixed `setup_reservoirs_no_control()` to be able to handle both strings and path objects. (#770)
+- Fixed outdated imports in ``hydromt_wflow.components.staticmaps``. (#782)
 
 Removed
 -------
