@@ -221,7 +221,7 @@ def test_wflow_staticmaps_component_read(
     # Assert the data
     assert isinstance(component.data, xr.Dataset)
     assert "meta_landuse" in component.data.data_vars
-    assert len(component.data) == 69  # 69 layers
+    assert len(component.data) == 70  # 70 layers
 
 
 def test_wflow_staticmaps_component_read_empty(
