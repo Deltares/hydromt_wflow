@@ -770,7 +770,7 @@ setting new flood_depth dimensions"
             fns_ids = []
             for fn in rating_curve_fns:
                 try:
-                    fns_ids.append(int(str(fn).split("_")[-1].split(".")[0]))
+                    fns_ids.append(int(Path(fn).stem.split("_")[-1]))
                 except Exception:
                     logger.warning(
                         "Could not parse integer reservoir index from "
