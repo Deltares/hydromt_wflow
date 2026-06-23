@@ -95,9 +95,9 @@ def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray
     # Log a warning if any reservoirs are excluded and set their IDs to -999
     if len(outside_reservoirs) > 0:
         logger.warning(
-            f"{len(outside_reservoirs)} reservoirs were excluded because no river "
-            "network cell was found within the reservoir. Consider decreasing the "
-            "minimum upstream area threshold."
+            f"{len(outside_reservoirs)} reservoirs, {outside_reservoirs.tolist()}, "
+            "were excluded because no cells where found within the river network. "
+            "Consider decreasing the minimum upstream area threshold."
         )
         reservoir_ids = reservoir_ids.where(
             ~reservoir_ids.isin(outside_reservoirs), -999
@@ -165,7 +165,6 @@ def reservoir_id_maps(
 
     ### Compute reservoir maps
     # Rasterize the GeoDataFrame to get the areas mask of reservoirs
-    res_id = gdf["waterbody_id"].values
     da_wbmask = ds_like.raster.rasterize(
         gdf,
         col_name="waterbody_id",
@@ -177,10 +176,9 @@ def reservoir_id_maps(
     da_wbmask = da_wbmask.rename("reservoir_area_id")
     da_wbmask.attrs.update(_FillValue=-999)
     ds_out = da_wbmask.to_dataset()
-    if not np.all(np.isin(res_id, ds_out["reservoir_area_id"])):
-        gdf = gdf.loc[np.isin(res_id, ds_out["reservoir_area_id"])]
-        nskipped = res_id.size - gdf.index.size
-        res_id = gdf["waterbody_id"].values
+    if not np.all(np.isin(gdf["waterbody_id"].values, ds_out["reservoir_area_id"])):
+        gdf = gdf.loc[np.isin(gdf["waterbody_id"].values, ds_out["reservoir_area_id"])]
+        nskipped = gdf["waterbody_id"].values.size - gdf.index.size
         logger.warning(
             f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
             " Consider increasing the lakes min_area threshold."
