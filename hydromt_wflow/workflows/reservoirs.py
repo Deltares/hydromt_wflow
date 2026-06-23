@@ -65,7 +65,9 @@ RESERVOIR_LAYERS_SEDIMENT = [
 ]
 
 
-def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray:
+def exclude_reservoirs_outside_rivers(
+    river_mask: xr.DataArray, reservoir_ids: xr.DataArray
+) -> xr.DataArray:
     """Exclude reservoirs where no cells overlap with the river network.
 
     Parameters
@@ -82,7 +84,7 @@ def exclude_reservoirs_outside_rivers(river_mask, reservoir_ids) -> xr.DataArray
     """
     # Get unique reservoir IDs and exclude nodata value (-999)
     res_ids = np.unique(reservoir_ids.values)
-    res_ids = res_ids[res_ids > 0]
+    res_ids = res_ids[res_ids != -999]
 
     # Check for each reservoir if it overlaps with the river
     overlaps = [
@@ -176,24 +178,27 @@ def reservoir_id_maps(
     da_wbmask = da_wbmask.rename("reservoir_area_id")
     da_wbmask.attrs.update(_FillValue=-999)
     ds_out = da_wbmask.to_dataset()
-    if not np.all(np.isin(gdf["waterbody_id"].values, ds_out["reservoir_area_id"])):
-        gdf = gdf.loc[np.isin(gdf["waterbody_id"].values, ds_out["reservoir_area_id"])]
-        nskipped = gdf["waterbody_id"].values.size - gdf.index.size
+
+    # Filter reservoirs that are too small
+    reservoir_area_ids = ds_out["reservoir_area_id"].values
+    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != -999]
+    areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
+    if not np.all(areas_mask):
+        gdf = gdf.loc[areas_mask]
+        nskipped = (~areas_mask).sum()
         logger.warning(
             f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
             " Consider increasing the lakes min_area threshold."
         )
 
-    ##### TODO: Simplify this a little, it's convoluted.
-    # (Plus make sure it still works when all reservoirs are valid)
+    # Filter reservoirs that do not overlap with the river network & update gdf
     ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
         ds_like["river_mask"], ds_out["reservoir_area_id"]
     )
 
-    # Update gdf and res_id to only include reservoirs that survived exclusion
-    res_id_in_raster = np.unique(ds_out["reservoir_area_id"].values)
-    res_id_in_raster = res_id_in_raster[res_id_in_raster > 0]  # Remove nodata value
-    gdf = gdf[gdf["waterbody_id"].isin(res_id_in_raster)]
+    reservoirs_in_river = np.unique(ds_out["reservoir_area_id"].values)
+    reservoirs_in_river = reservoirs_in_river[reservoirs_in_river != -999]
+    gdf = gdf[gdf["waterbody_id"].isin(reservoirs_in_river)]
     res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
