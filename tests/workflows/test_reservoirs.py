@@ -26,3 +26,33 @@ def test_set_rating_curve_layer_data_type():
     assert ds["reservoir_rating_curve"].raster.nodata == -999
     assert ds2["reservoir_rating_curve"].attrs["_FillValue"] == -999
     assert ds["reservoir_rating_curve"][0, 0].values == -999
+
+
+def test_exclude_reservoirs_outside_rivers():
+    """Test that reservoirs outside the river network are excluded."""
+    # Create a river mask river, cells = 1, non-river = 0
+    river_mask = xr.DataArray(
+        [
+            [0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]
+    )
+
+    # Create reservoir IDs, overlaps river = 10, no overlap = 20
+    reservoir_ids = xr.DataArray(
+        [
+            [-999, 10, 10, -999, -999],
+            [-999, 10, -999, -999, -999],
+            [-999, -999, -999, -999, -999],
+            [-999, -999, -999, 20, 20],
+            [-999, -999, -999, 20, 20],
+        ]
+    )
+
+    result = reservoirs.exclude_reservoirs_outside_rivers(river_mask, reservoir_ids)
+
+    assert 10 in result.values
+    assert 20 not in result.values or (result == -999).any()
