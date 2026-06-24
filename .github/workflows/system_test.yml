@@ -98,9 +98,9 @@ jobs:
           pixi run -e ${{ env.ENV_NAME }} python -m pip install "${WHEEL}[all]" --force-reinstall
 
       - name: Setup Julia
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
-          version: 1.11.3
+          version: 1.12
 
       - name: Install Wflow.jl
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow
