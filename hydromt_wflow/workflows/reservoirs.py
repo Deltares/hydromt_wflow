@@ -97,8 +97,8 @@ def exclude_reservoirs_outside_rivers(
     # Log a warning if any reservoirs are excluded and set their IDs to -999
     if len(outside_reservoirs) > 0:
         logger.warning(
-            f"{len(outside_reservoirs)} reservoirs, {outside_reservoirs.tolist()}, "
-            "were excluded because no cells where found within the river network. "
+            f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
+            "were excluded because no cells were found within the river network. "
             "Consider decreasing the minimum upstream area threshold."
         )
         reservoir_ids = reservoir_ids.where(
