@@ -407,6 +407,109 @@ number of reservoirs in model area"
         )
 
 
+@pytest.fixture
+def example_wflow_model_extra_reservoir(
+    example_wflow_model: WflowSbmModel,
+):
+    """Fixture creating a model with an extra reservoir outside the river network."""
+    from pathlib import Path
+
+    import pandas as pd
+    from hydromt.data_catalog.sources import create_source
+    from shapely import box
+
+    mod = example_wflow_model
+    mod.read()
+
+    # Get an existing reservoir table and clone one row
+    gdf_res = mod.data_catalog.get_geodataframe(
+        "hydro_reservoirs",
+        geom=mod.region,
+        predicate="intersects",
+    )
+    extra = gdf_res.iloc[[0]].copy()
+    extra_id = int(gdf_res["waterbody_id"].max()) + 1
+    extra["waterbody_id"] = extra_id
+
+    # Pick a non-river grid cell inside model domain
+    river = mod.staticmaps.data["river_mask"]
+    x, y = 12.1, 46.45  # Hard coded for current example model region
+    dx = abs(float(river.raster.res[0])) * 0.4
+    dy = abs(float(river.raster.res[1])) * 0.4
+    extra.geometry = [box(x - dx, y - dy, x + dx, y + dy)]
+    extra["xout"], extra["yout"] = x, y
+
+    gdf_aug = pd.concat([gdf_res, extra], ignore_index=True)
+    tests_data = Path(__file__).parent / "data"
+    fn = tests_data / "additional_reservoir.geojson"
+    gdf_aug.to_file(fn, driver="GeoJSON")
+
+    source = create_source(
+        data={
+            "name": "extra_hydro_reservoir",
+            "data_type": "GeoDataFrame",
+            "driver": {"name": "pyogrio"},
+            "uri": str(fn),
+        }
+    )
+    mod.data_catalog.add_source("extra_hydro_reservoir", source)
+    return mod, extra_id
+
+
+@pytest.mark.parametrize(
+    ("setup_method", "setup_kwargs"),
+    [
+        (
+            "setup_reservoirs_no_control",
+            {
+                "reservoirs_fn": "extra_hydro_reservoir",
+                "min_area": 0.0,
+                "overwrite_existing": True,
+            },
+        ),
+        (
+            "setup_reservoirs_simple_control",
+            {
+                "reservoirs_fn": "extra_hydro_reservoir",
+                "min_area": 0.0,
+                "overwrite_existing": True,
+            },
+        ),
+    ],
+    ids=["no_control", "simple_control"],
+)
+def test_outside_reservoir_is_excluded(
+    example_wflow_model_extra_reservoir: tuple[WflowSbmModel, int],
+    caplog: pytest.LogCaptureFixture,
+    setup_method: str,
+    setup_kwargs: dict,
+):
+    """Test that an outside-river reservoir is excluded for both setup pathways."""
+    mod, extra_id = example_wflow_model_extra_reservoir
+    gdf_in = mod.data_catalog.get_geodataframe(
+        "extra_hydro_reservoir",
+        geom=mod.basins_highres,
+    )
+    assert extra_id in gdf_in["waterbody_id"].values
+
+    with caplog.at_level("WARNING"):
+        if setup_method == "setup_reservoirs_no_control":
+            mod.setup_reservoirs_no_control(**setup_kwargs)
+        elif setup_method == "setup_reservoirs_simple_control":
+            mod.setup_reservoirs_simple_control(**setup_kwargs)
+        else:
+            raise ValueError(f"Unknown setup_method: {setup_method}")
+
+    assert extra_id not in np.unique(mod.staticmaps.data["reservoir_area_id"].values)
+    reservoir_warnings = [
+        r.message for r in caplog.records if r.name.endswith("workflows.reservoirs")
+    ]
+    assert any(
+        "were excluded because no cells were found within the river network." in msg
+        for msg in reservoir_warnings
+    )
+
+
 def test_setup_ksathorfrac(tmp_path: Path, example_wflow_model):
     # Read the modeldata
     model = "wflow"
