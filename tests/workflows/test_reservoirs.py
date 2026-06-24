@@ -53,11 +53,35 @@ def example_wflow_model_extra_reservoir(
     return mod, extra_id
 
 
+@pytest.mark.parametrize(
+    ("setup_method", "setup_kwargs"),
+    [
+        (
+            "setup_reservoirs_no_control",
+            {
+                "reservoirs_fn": "extra_hydro_reservoir",
+                "min_area": 0.0,
+                "overwrite_existing": True,
+            },
+        ),
+        (
+            "setup_reservoirs_simple_control",
+            {
+                "reservoirs_fn": "extra_hydro_reservoir",
+                "min_area": 0.0,
+                "overwrite_existing": True,
+            },
+        ),
+    ],
+    ids=["no_control", "simple_control"],
+)
 def test_outside_reservoir_is_excluded(
     example_wflow_model_extra_reservoir: tuple[WflowSbmModel, int],
     caplog: pytest.LogCaptureFixture,
+    setup_method: str,
+    setup_kwargs: dict,
 ):
-    """Test that a reservoir outside the river network is excluded."""
+    """Test that an outside-river reservoir is excluded for both setup pathways."""
     mod, extra_id = example_wflow_model_extra_reservoir
     gdf_in = mod.data_catalog.get_geodataframe(
         "extra_hydro_reservoir",
@@ -66,10 +90,12 @@ def test_outside_reservoir_is_excluded(
     assert extra_id in gdf_in["waterbody_id"].values
 
     with caplog.at_level("WARNING"):
-        mod.setup_reservoirs_no_control(
-            reservoirs_fn="extra_hydro_reservoir",
-            min_area=0.0,
-        )
+        if setup_method == "setup_reservoirs_no_control":
+            mod.setup_reservoirs_no_control(**setup_kwargs)
+        elif setup_method == "setup_reservoirs_simple_control":
+            mod.setup_reservoirs_simple_control(**setup_kwargs)
+        else:
+            raise ValueError(f"Unknown setup_method: {setup_method}")
 
     assert extra_id not in np.unique(mod.staticmaps.data["reservoir_area_id"].values)
     reservoir_warnings = [
