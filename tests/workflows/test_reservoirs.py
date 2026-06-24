@@ -55,4 +55,4 @@ def test_exclude_reservoirs_outside_rivers():
     result = reservoirs.exclude_reservoirs_outside_rivers(river_mask, reservoir_ids)
 
     assert 10 in result.values
-    assert 20 not in result.values or (result == -999).any()
+    assert 20 not in result.values

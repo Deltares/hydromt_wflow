@@ -14,6 +14,7 @@ from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 from hydromt.model.processes.rivers import river_depth
 from packaging.version import Version
+from shapely import box
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
@@ -408,16 +409,11 @@ number of reservoirs in model area"
 
 
 @pytest.fixture
-def example_wflow_model_extra_reservoir(
+def model_with_extra_reservoir(
+    tmp_path: Path,
     example_wflow_model: WflowSbmModel,
 ):
     """Fixture creating a model with an extra reservoir outside the river network."""
-    from pathlib import Path
-
-    import pandas as pd
-    from hydromt.data_catalog.sources import create_source
-    from shapely import box
-
     mod = example_wflow_model
     mod.read()
 
@@ -440,8 +436,7 @@ def example_wflow_model_extra_reservoir(
     extra["xout"], extra["yout"] = x, y
 
     gdf_aug = pd.concat([gdf_res, extra], ignore_index=True)
-    tests_data = Path(__file__).parent / "data"
-    fn = tests_data / "additional_reservoir.geojson"
+    fn = tmp_path / "additional_reservoir.geojson"
     gdf_aug.to_file(fn, driver="GeoJSON")
 
     source = create_source(
@@ -479,13 +474,13 @@ def example_wflow_model_extra_reservoir(
     ids=["no_control", "simple_control"],
 )
 def test_outside_reservoir_is_excluded(
-    example_wflow_model_extra_reservoir: tuple[WflowSbmModel, int],
+    model_with_extra_reservoir: tuple[WflowSbmModel, int],
     caplog: pytest.LogCaptureFixture,
     setup_method: str,
     setup_kwargs: dict,
 ):
     """Test that an outside-river reservoir is excluded for both setup pathways."""
-    mod, extra_id = example_wflow_model_extra_reservoir
+    mod, extra_id = model_with_extra_reservoir
     gdf_in = mod.data_catalog.get_geodataframe(
         "extra_hydro_reservoir",
         geom=mod.basins_highres,
@@ -504,6 +499,7 @@ def test_outside_reservoir_is_excluded(
     reservoir_warnings = [
         r.message for r in caplog.records if r.name.endswith("workflows.reservoirs")
     ]
+
     assert any(
         "were excluded because no cells were found within the river network." in msg
         for msg in reservoir_warnings
