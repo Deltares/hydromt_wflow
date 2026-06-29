@@ -266,7 +266,7 @@ parametrization of distributed hydrological models.
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
+    ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name], mask=True)
     # also mask idx_out coords if present
     if "idx_out" in ds_out:
         ds_out["idx_out"] = ds_out["idx_out"].where(
@@ -448,8 +448,14 @@ def parse_region(
         raise ValueError("wflow region geometry has no CRS")
 
     # Set the basins geometry
-    ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
-    ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
+    ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10, mask=True)
+
+    if "mask" not in ds_org.coords:
+        logger.warning(
+            "No mask coordinate found in the hydrography dataset, "
+            "creating one based on the region geometry. "
+        )
+        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 
     geometries = {}
     if not math.isclose(scale_ratio, 1):
