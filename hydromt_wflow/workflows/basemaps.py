@@ -266,7 +266,7 @@ parametrization of distributed hydrological models.
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name], mask=True)
+    ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
     # also mask idx_out coords if present
     if "idx_out" in ds_out:
         ds_out["idx_out"] = ds_out["idx_out"].where(
