@@ -183,11 +183,11 @@ parametrization of distributed hydrological models.
 
             # Delineate basins from upscaled outflow cells of the fallback mask.
             idxs_pit = flwdir_out.outflow_idxs(mask_out)
-            if idxs_pit.size > 0:
-                basins = flwdir_out.basins(idxs=idxs_pit).astype(np.int32)
-                ds_out.coords["mask"] = xr.Variable(
-                    dims=ds_out.raster.dims, data=basins != 0, attrs=dict(_FillValue=0)
-                )
+            basins = flwdir_out.basins(idxs=idxs_pit).astype(np.int32)
+            ds_out.coords["mask"] = xr.Variable(
+                dims=ds_out.raster.dims, data=basins != 0, attrs=dict(_FillValue=0)
+            )
+
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
         # calculate upstream area using subgrid ucat cell areas
         outidx = np.where(
@@ -451,14 +451,8 @@ def parse_region(
         raise ValueError("wflow region geometry has no CRS")
 
     # Set the basins geometry
-    ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10, mask=True)
-
-    if "mask" not in ds_org.coords:
-        logger.warning(
-            "No mask coordinate found in the hydrography dataset, "
-            "creating one based on the region geometry. "
-        )
-        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
+    ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
+    ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
 
     geometries = {}
     if not math.isclose(scale_ratio, 1):
