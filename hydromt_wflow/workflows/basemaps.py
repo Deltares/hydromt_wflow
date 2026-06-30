@@ -169,17 +169,21 @@ parametrization of distributed hydrological models.
         # derive basins
         if np.any(outbas_pit != 0):
             idxs_pit = idxs_pit0[outbas_pit != 0]
-            basins = flwdir_out.basins(idxs=idxs_pit).astype(np.int32)
-            ds_out.coords["mask"] = xr.Variable(
-                dims=ds_out.raster.dims, data=basins != 0, attrs=dict(_FillValue=0)
-            )
+
         else:
-            # This is a patch for basins which are clipped based on bbox or wrong geom
+            # Basins which are clipped based on bbox or wrong geom
             mask_int = ds["mask"].astype(np.int8)
             mask_int.raster.set_nodata(-1)
             mask_reproj = mask_int.raster.reproject_like(da_flw, method="nearest")
             mask_out = mask_reproj.values > 0
             ds_out.coords["mask"] = xr.Variable(dims=ds_out.raster.dims, data=mask_out)
+            idxs_pit = flwdir_out.outflow_idxs(mask_out)
+
+        # Delineate basins from upscaled outflow cells.
+        basins = flwdir_out.basins(idxs=idxs_pit).astype(np.int32)
+        ds_out.coords["mask"] = xr.Variable(
+            dims=ds_out.raster.dims, data=basins != 0, attrs=dict(_FillValue=0)
+        )
 
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
         # calculate upstream area using subgrid ucat cell areas
