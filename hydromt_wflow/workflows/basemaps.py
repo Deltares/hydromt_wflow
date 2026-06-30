@@ -181,13 +181,6 @@ parametrization of distributed hydrological models.
             mask_out = mask_reproj.values > 0
             ds_out.coords["mask"] = xr.Variable(dims=ds_out.raster.dims, data=mask_out)
 
-            # Delineate basins from upscaled outflow cells of the fallback mask.
-            idxs_pit = flwdir_out.outflow_idxs(mask_out)
-            basins = flwdir_out.basins(idxs=idxs_pit).astype(np.int32)
-            ds_out.coords["mask"] = xr.Variable(
-                dims=ds_out.raster.dims, data=basins != 0, attrs=dict(_FillValue=0)
-            )
-
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
         # calculate upstream area using subgrid ucat cell areas
         outidx = np.where(
