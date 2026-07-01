@@ -66,7 +66,9 @@ RESERVOIR_LAYERS_SEDIMENT = [
 
 
 def exclude_reservoirs_outside_rivers(
-    river_mask: xr.DataArray, reservoir_ids: xr.DataArray
+    river_mask: xr.DataArray,
+    reservoir_ids: xr.DataArray,
+    exclude_outside_reservoirs: bool = False,
 ) -> xr.DataArray:
     """Exclude reservoirs where no cells overlap with the river network.
 
@@ -76,6 +78,9 @@ def exclude_reservoirs_outside_rivers(
         DataArray containing the river network mask (1 for river, 0 for non-river).
     reservoir_ids : xarray.DataArray
         DataArray containing reservoir IDs.
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
 
     Returns
     -------
@@ -95,7 +100,7 @@ def exclude_reservoirs_outside_rivers(
     outside_reservoirs = res_ids[~np.array(overlaps)]
 
     # Log a warning if any reservoirs are excluded and set their IDs to -999
-    if len(outside_reservoirs) > 0:
+    if exclude_outside_reservoirs and len(outside_reservoirs) > 0:
         logger.warning(
             f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
             "were excluded because no cells were found within the river network. "
@@ -104,6 +109,13 @@ def exclude_reservoirs_outside_rivers(
         reservoir_ids = reservoir_ids.where(
             ~reservoir_ids.isin(outside_reservoirs), -999
         )
+    elif not exclude_outside_reservoirs and len(outside_reservoirs) > 0:
+        logger.warning(
+            f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
+            "are outside the river network. "
+            "Set 'exclude_outside_reservoirs=True' to exclude them."
+        )
+        reservoir_ids = reservoir_ids
     return reservoir_ids
 
 
@@ -196,14 +208,15 @@ def reservoir_id_maps(
         )
 
     # Filter reservoirs that do not overlap with the river network & update gdf
-    if exclude_outside_reservoirs:
-        ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
-            ds_like["river_mask"], ds_out["reservoir_area_id"]
-        )
+    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
+        ds_like["river_mask"],
+        ds_out["reservoir_area_id"],
+        exclude_outside_reservoirs=exclude_outside_reservoirs,
+    )
 
-    reservoirs_in_river = np.unique(ds_out["reservoir_area_id"].values)
-    reservoirs_in_river = reservoirs_in_river[reservoirs_in_river != -999]
-    gdf = gdf[gdf["waterbody_id"].isin(reservoirs_in_river)]
+    reservoirs = np.unique(ds_out["reservoir_area_id"].values)
+    reservoirs = reservoirs[reservoirs != -999]
+    gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
     res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
