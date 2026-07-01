@@ -112,6 +112,7 @@ def reservoir_id_maps(
     ds_like: xr.Dataset,
     min_area: float = 0.0,
     uparea_name: str = "uparea",
+    exclude_outside_reservoirs: bool = False,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below).
 
@@ -133,6 +134,9 @@ def reservoir_id_maps(
     uparea_name : str, optional
         Name of uparea variable in ds_like. If None then database coordinates will be
         used to setup outlets
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
 
     Returns
     -------
@@ -192,9 +196,10 @@ def reservoir_id_maps(
         )
 
     # Filter reservoirs that do not overlap with the river network & update gdf
-    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
-        ds_like["river_mask"], ds_out["reservoir_area_id"]
-    )
+    if exclude_outside_reservoirs:
+        ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
+            ds_like["river_mask"], ds_out["reservoir_area_id"]
+        )
 
     reservoirs_in_river = np.unique(ds_out["reservoir_area_id"].values)
     reservoirs_in_river = reservoirs_in_river[reservoirs_in_river != -999]
