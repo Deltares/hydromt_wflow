@@ -52,7 +52,14 @@ def test_exclude_reservoirs_outside_rivers():
         ]
     )
 
-    result = reservoirs.exclude_reservoirs_outside_rivers(river_mask, reservoir_ids)
+    exclude_reservoirs = reservoirs.exclude_reservoirs_outside_rivers(
+        river_mask, reservoir_ids, exclude_outside_reservoirs=True
+    )
+    include_reservoirs = reservoirs.exclude_reservoirs_outside_rivers(
+        river_mask, reservoir_ids
+    )
 
-    assert 10 in result.values
-    assert 20 not in result.values
+    assert 10 in exclude_reservoirs.values
+    assert 20 not in exclude_reservoirs.values
+    assert 10 in include_reservoirs.values
+    assert 20 in include_reservoirs.values
