@@ -115,7 +115,6 @@ def exclude_reservoirs_outside_rivers(
             "are outside the river network. "
             "Set 'exclude_outside_reservoirs=True' to exclude them."
         )
-        reservoir_ids = reservoir_ids
     return reservoir_ids
 
 
