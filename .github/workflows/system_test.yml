@@ -48,10 +48,10 @@ jobs:
           echo "Pixi environment: $ENV_NAME"
 
       - name: Checkout hydromt_wflow
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout Wflow.jl
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: Deltares/Wflow.jl
           path: Wflow.jl
@@ -100,7 +100,7 @@ jobs:
       - name: Setup Julia
         uses: julia-actions/setup-julia@v3
         with:
-          version: 1.11.3
+          version: 1.12
 
       - name: Install Wflow.jl
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow

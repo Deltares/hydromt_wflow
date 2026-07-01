@@ -43,13 +43,21 @@ def _plot_grid_diff(
                 f"Variable '{var}' is only present in one of the datasets, skipping plot."
             )
             continue
-        expected: xr.DataArray = ds_expected[var].squeeze()
-        actual: xr.DataArray = ds_actual[var].squeeze()
+        expected: xr.DataArray = (
+            ds_expected[var].squeeze().raster.mask_nodata().astype(float)
+        )
+        actual: xr.DataArray = (
+            ds_actual[var].squeeze().raster.mask_nodata().astype(float)
+        )
         if expected.ndim < 2 or actual.ndim < 2:
             logger.debug(f"Variable '{var}' is not 2D, skipping plot.")
             continue
-        diff = actual.astype(float) - expected.astype(float)
-        if np.allclose(diff.values, 0, atol=1e-6):
+
+        valid = expected.notnull() & actual.notnull()
+        diff_plot = (actual - expected).where(valid)
+
+        diff_values = diff_plot.values[valid.values]
+        if np.allclose(diff_values, 0, atol=1e-6):
             logger.debug(
                 f"Differences in variable '{var}' values are negligible, skipping plot."
             )
@@ -60,7 +68,7 @@ def _plot_grid_diff(
         axes[0].set_title(f"{var} (expected)")
         actual.plot(ax=axes[1])
         axes[1].set_title(f"{var} (actual)")
-        diff.plot(ax=axes[2])
+        diff_plot.plot(ax=axes[2])
         axes[2].set_title(f"{var} (actual - expected)")
         fig.tight_layout()
         _out_dir.mkdir(parents=True, exist_ok=True)
