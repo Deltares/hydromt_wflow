@@ -91,13 +91,12 @@ def exclude_reservoirs_outside_rivers(
     res_ids = np.unique(reservoir_ids.values)
     res_ids = res_ids[res_ids != -999]
 
-    # Check for each reservoir if it overlaps with the river
-    overlaps = [
-        (reservoir_ids == res_id).any()
-        & (river_mask.where(reservoir_ids == res_id) == 1).any()
-        for res_id in res_ids
-    ]
-    outside_reservoirs = res_ids[~np.array(overlaps)]
+    # Get reservoir IDs that overlap the river network
+    river_res_ids = np.unique(reservoir_ids.where(river_mask == 1).values)
+    river_res_ids = river_res_ids[river_res_ids != -999]
+
+    # Reservoirs with no overlap with the river network
+    outside_reservoirs = np.setdiff1d(res_ids, river_res_ids)
 
     # Log a warning if any reservoirs are excluded and set their IDs to -999
     if exclude_outside_reservoirs and len(outside_reservoirs) > 0:
