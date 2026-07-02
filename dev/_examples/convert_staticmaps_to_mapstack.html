@@ -406,7 +406,7 @@
 <li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Upgrade your model to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/overview/use_case_examples">User's stories</a></li>
+
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">Frequently asked questions</a></li>
 </ul>
 </div>
@@ -502,7 +502,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-30 13:20:02,594 - hydromt - log - INFO - HydroMT version: 1.4.0
+2026-07-02 13:11:49,762 - hydromt - log - INFO - HydroMT version: 1.4.0
 </pre></div></div>
 </div>
 </section>
@@ -525,10 +525,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-30 13:20:02,617 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-30 13:20:02,618 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-30 13:20:02,651 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-30 13:20:02,652 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-07-02 13:11:49,785 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-07-02 13:11:49,786 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-07-02 13:11:49,818 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-07-02 13:11:49,818 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
 &lt;xarray.Dataset&gt; Size: 975kB
 Dimensions:                               (latitude: 53, longitude: 58,
                                            time: 12, layer: 4)
@@ -681,8 +681,8 @@ be changed with the <code class="docutils literal notranslate"><span class="pre"
 &#39;updated_staticmaps/soil_ksat_vertical_updated.tif&#39;
 </pre></div></div>
 </div>
-<p>You will need to find the <code class="docutils literal notranslate"><span class="pre">wflow</span> <span class="pre">variable</span></code> that corresponds to the map you updated, which in the case of <code class="docutils literal notranslate"><span class="pre">soil_ksat_vertical.tif</span></code> is <code class="docutils literal notranslate"><span class="pre">soil_surface_water__vertical_saturated_hydraulic_conductivity</span></code>. For information on the available wflow variables, see the <a class="reference external" href="https://deltares.github.io/Wflow.jl/stable/model_docs/intro/">Wflow documentation</a></p>
-<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowBaseModel.setup_grid_from_raster.html">setup_grid_from_raster</a>.</p>
+<p>You will need to find the <code class="docutils literal notranslate"><span class="pre">wflow</span> <span class="pre">variable</span></code> that corresponds to the map you updated, which in the case of <code class="docutils literal notranslate"><span class="pre">soil_ksat_vertical.tif</span></code> is <code class="docutils literal notranslate"><span class="pre">soil_surface_water__vertical_saturated_hydraulic_conductivity</span></code>. For information on the available wflow variables, see the <a class="reference external" href="https://deltares.github.io/Wflow.jl/stable/model_docs/parameters_intro.html">Wflow documentation</a></p>
+<p>And then you can simply use <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable/api/advanced/_generated/hydromt_wflow.WflowBaseModel.setup_grid_from_raster.html#hydromt_wflow.WflowBaseModel.setup_grid_from_raster">setup_grid_from_raster</a>.</p>
 <p>In the below example, we will use python to update our model. If you wish to update via command line, the steps are:</p>
 <ol class="arabic simple">
 <li><p>Create a data catalog entry for the maps in the “updated_staticmaps” folder</p></li>
@@ -726,17 +726,17 @@ be changed with the <code class="docutils literal notranslate"><span class="pre"
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-06-30 13:20:03,536 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-06-30 13:20:03,537 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-06-30 13:20:03,553 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
-2026-06-30 13:20:03,553 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-07-02 13:11:50,704 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-07-02 13:11:50,705 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-07-02 13:11:50,721 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1+
+2026-07-02 13:11:50,722 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
 Before setup_grid_from_raster: soil_ksat_vertical
-2026-06-30 13:20:03,555 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing grid data from raster source updated_staticmaps/soil_ksat_vertical_updated.tif
-2026-06-30 13:20:03,779 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soil_ksat_vertical_updated.tif RasterDataset data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/updated_staticmaps/soil_ksat_vertical_updated.tif
-2026-06-30 13:20:03,798 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Updating the config for wflow_variables: [&#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;]
+2026-07-02 13:11:50,723 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Preparing grid data from raster source updated_staticmaps/soil_ksat_vertical_updated.tif
+2026-07-02 13:11:50,944 - hydromt.data_catalog.sources.data_source - data_source - INFO - Reading soil_ksat_vertical_updated.tif RasterDataset data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/updated_staticmaps/soil_ksat_vertical_updated.tif
+2026-07-02 13:11:50,963 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Updating the config for wflow_variables: [&#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;]
 After setup_grid_from_raster: soil_ksat_vertical_updated
-2026-06-30 13:20:03,799 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps_updated.nc.
-2026-06-30 13:20:03,856 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm_updated.toml.
+2026-07-02 13:11:50,964 - hydromt.model.components.grid - grid - INFO - wflow_sbm.staticmaps: Writing grid data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps_updated.nc.
+2026-07-02 13:11:51,019 - hydromt.hydromt_wflow.components.config - config - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm_updated.toml.
 </pre></div></div>
 </div>
 </section>
