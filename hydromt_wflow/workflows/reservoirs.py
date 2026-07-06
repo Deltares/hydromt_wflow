@@ -87,18 +87,18 @@ def exclude_reservoirs_outside_rivers(
     reservoir_ids : xarray.DataArray
         Reservoir IDs that correspond to the river network.
     """
-    # Get unique reservoir IDs and exclude nodata value (-999)
+    # Get unique reservoir IDs and exclude nodata value
     res_ids = np.unique(reservoir_ids.values)
-    res_ids = res_ids[res_ids != -999]
+    res_ids = res_ids[res_ids != reservoir_ids.raster.nodata]
 
     # Get reservoir IDs that overlap the river network
     river_res_ids = np.unique(reservoir_ids.where(river_mask == 1).values)
-    river_res_ids = river_res_ids[river_res_ids != -999]
+    river_res_ids = river_res_ids[river_res_ids != reservoir_ids.raster.nodata]
 
     # Reservoirs with no overlap with the river network
     outside_reservoirs = np.setdiff1d(res_ids, river_res_ids)
 
-    # Log a warning if any reservoirs are excluded and set their IDs to -999
+    # Log a warning if any reservoirs are excluded and set their IDs to nodata
     if exclude_outside_reservoirs and len(outside_reservoirs) > 0:
         logger.warning(
             f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
@@ -106,7 +106,7 @@ def exclude_reservoirs_outside_rivers(
             "Consider decreasing the minimum upstream area threshold."
         )
         reservoir_ids = reservoir_ids.where(
-            ~reservoir_ids.isin(outside_reservoirs), -999
+            ~reservoir_ids.isin(outside_reservoirs), reservoir_ids.raster.nodata
         )
     elif not exclude_outside_reservoirs and len(outside_reservoirs) > 0:
         logger.warning(
@@ -181,21 +181,22 @@ def reservoir_id_maps(
 
     ### Compute reservoir maps
     # Rasterize the GeoDataFrame to get the areas mask of reservoirs
+    nodata = -999  # Set nodata value
     da_wbmask = ds_like.raster.rasterize(
         gdf,
         col_name="waterbody_id",
-        nodata=-999,
+        nodata=nodata,
         all_touched=True,
         dtype=None,
         sindex=False,
     )
     da_wbmask = da_wbmask.rename("reservoir_area_id")
-    da_wbmask.attrs.update(_FillValue=-999)
+    da_wbmask.attrs.update(_FillValue=nodata)
     ds_out = da_wbmask.to_dataset()
 
     # Filter reservoirs that are too small
     reservoir_area_ids = ds_out["reservoir_area_id"].values
-    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != -999]
+    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != nodata]
     areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
     if not np.all(areas_mask):
         gdf = gdf.loc[areas_mask]
@@ -213,12 +214,12 @@ def reservoir_id_maps(
     )
 
     reservoirs = np.unique(ds_out["reservoir_area_id"].values)
-    reservoirs = reservoirs[reservoirs != -999]
+    reservoirs = reservoirs[reservoirs != nodata]
     gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
     res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
-    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], -999)
+    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], nodata)
     # If an upstream area map is present in the model, gets outlets coordinates using/
     # the maximum uparea in each reservoir mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
@@ -250,7 +251,7 @@ def reservoir_id_maps(
             outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
         )
         ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
-            outgdf, col_name="waterbody_id", nodata=-999
+            outgdf, col_name="waterbody_id", nodata=nodata
         )
     # Else outlet map is equal to areas mask map
     else:
@@ -261,7 +262,7 @@ def reservoir_id_maps(
         )
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
-    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=-999)
+    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=nodata)
     # fix dtypes
     ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
     ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
