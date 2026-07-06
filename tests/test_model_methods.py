@@ -14,6 +14,7 @@ from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 from hydromt.model.processes.rivers import river_depth
 from packaging.version import Version
+from scipy.ndimage import distance_transform_edt
 from shapely import box
 
 from hydromt_wflow import workflows
@@ -297,12 +298,34 @@ def model_with_extra_reservoir(
     extra["waterbody_id"] = extra_id
 
     river = mod.staticmaps.data["river_mask"]
-    x, y = 12.1, 46.45  # Hard coded coordinates outside the river network
+    catchment = mod.staticmaps.data["subcatchment"]
+    sampling = tuple(map(abs, river.raster.res[::-1]))
+
+    # Distance to nearest river cell & catchment border
+    dist_river = distance_transform_edt((river == 0).values, sampling=sampling)
+    dist_border = distance_transform_edt((catchment > 0).values, sampling=sampling)
+
+    # Mask of valid values
+    mask = (
+        (catchment > 0).values
+        & (river == 0).values
+        & (dist_river >= 0.03)
+        & (dist_border >= 0.05)
+    )
+
+    # Choose a random point and create a reservoir bbox
+    iy, ix = np.where(mask)
+    k = np.random.default_rng(100).integers(iy.size)
+    x, y = float(river.raster.xcoords[ix[k]]), float(river.raster.ycoords[iy[k]])
+
     dx = abs(float(river.raster.res[0])) * 0.4
     dy = abs(float(river.raster.res[1])) * 0.4
+
+    # Update the extra reservoir's geometry and coordinates
     extra.geometry = [box(x - dx, y - dy, x + dx, y + dy)]
     extra["xout"], extra["yout"] = x, y
 
+    # Concatenate with existing reservoirs
     gdf_aug = pd.concat([gdf_res, extra], ignore_index=True)
     fn = tmp_path / "additional_reservoir.geojson"
     gdf_aug.to_file(fn, driver="GeoJSON")
