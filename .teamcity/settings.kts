@@ -6,7 +6,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 
-version = "2025.03"
+version = "2026.1"
 
 project {
     description = "HydroMT Wflow system tests"
