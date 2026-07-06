@@ -43,7 +43,7 @@ object HydromtWflow : GitVcsRoot({
     """.trimIndent()
     authMethod = password {
         userName = "deltares-service-account"
-        password = "credentialsJSON:hydromt-wflow-github-token"
+        password = "%github_deltares-service-account_access_token%"
     }
     agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
     agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
