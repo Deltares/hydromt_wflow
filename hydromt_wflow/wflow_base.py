@@ -3,7 +3,6 @@
 # Implement model class following model API
 import logging
 import shutil
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -1721,14 +1720,14 @@ one variable and variables list is not provided."
         category=DeprecationWarning,
     )
     @hydromt_step
-    def upgrade_to_v1_wflow(self):
+    def upgrade_to_v1_wflow(self, output_dir: str | Path):
         """Upgrade the model to Wflow v1.0 format."""
-        self.upgrade_to_latest()
+        self.upgrade_to_latest(output_dir=output_dir)
 
     @hydromt_step
     def upgrade_to_latest(
         self,
-        output_dir: str | Path | None = None,
+        output_dir: str | Path,
         options: dict | None = None,
         data_libs: list[str] | None = None,
         config_filename: str | None = None,
@@ -1746,16 +1745,14 @@ one variable and variables list is not provided."
         Returns
         -------
         output_dir : Path
-            Path to the upgraded model directory. If ``output_dir`` is None, a temporary
-            directory is created and returned.
+            Path to the upgraded model directory.
         """
-        output_dir = Path(output_dir or tempfile.mkdtemp(prefix="wflow_upgrade_"))
+        output_dir = Path(output_dir)
         if output_dir.exists() and any(output_dir.iterdir()):
-            logger.warning(
+            raise FileExistsError(
                 f"Output directory {output_dir} already exists and is not empty. "
-                "The upgrade will overwrite existing files."
+                "Please provide an empty directory or a new path."
             )
-        shutil.rmtree(output_dir, ignore_errors=True)
         shutil.copytree(self.root.path, output_dir)
         upgrade_model(
             output_dir,

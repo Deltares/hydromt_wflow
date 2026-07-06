@@ -1285,9 +1285,7 @@ def _validate_options(
                 f"but got {version_string}."
             )
         _from, _to = version_string.split("_")
-        _from_v = Version(_from)
-        _to_v = Version(_to)
-        version_tuple = (_from_v, _to_v)
+        version_tuple = (Version(_from), Version(_to))
         if version_tuple not in _UPGRADES:
             raise ValueError(
                 f"Unknown upgrade versions '{version_tuple}'. "
@@ -1386,17 +1384,19 @@ def _upgrade_components_v0_to_v1_sbm(
 
 
 def _upgrade_components_v0_to_v1_sediment(
-    model: WflowSedimentModel, config_v0: dict, **kwargs
+    model: WflowSedimentModel,
+    config_v0: dict,
+    *,
+    soil_fn: str = "soilgrids",
+    usle_k_method: str = "renard",
+    strord_name: str = "wflow_streamorder",
+    **kwargs,
 ) -> None:
     """Perform grid and table operations for the sediment v0tov1 upgrade.
 
     This requires an initialized Model (with valid v1 config) to access
     staticmaps, tables, and run setup workflows.
     """
-    soil_fn: str = kwargs.get("soil_fn", "soilgrids")
-    usle_k_method: str = kwargs.get("usle_k_method", "renard")
-    strord_name: str = kwargs.get("strord_name", "wflow_streamorder")
-
     # Rerun setup workflows that compute new parameters
     model.setup_soilmaps(
         soil_fn=soil_fn,
@@ -1426,10 +1426,12 @@ def upgrade_model(
 ) -> None:
     """Upgrade a wflow model on disk to the latest Wflow.jl version.
 
-    Reads the config file directly from disk, detects the version, and applies
-    all necessary upgrade steps. Unlike ``upgrade_to_latest``, this function does
-    not require a pre-initialized Model object, making it safe to use on models
-    with outdated (v0) config formats.
+    This function:
+
+    - Reads the config file from disk to detect the version
+    - Applies all necessary upgrade steps to the config file and writes it back to disk
+    - Initializes a Model object with the upgraded config
+    - Applies all necessary upgrade steps to the model components (staticmaps, tables)
 
     Parameters
     ----------
@@ -1488,4 +1490,4 @@ def upgrade_model(
             _upgrade_components_v0_to_v1_sediment(model, config_v0, **v0_opts)
         model.write()
 
-    logger.info(f"Model upgraded to Wflow.jl v{WFLOW_LATEST_VERSION}. {model_root=}")
+    logger.info(f"Model upgraded to Wflow.jl v{version}. {model_root=}")

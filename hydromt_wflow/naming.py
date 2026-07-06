@@ -762,39 +762,41 @@ def _create_hydromt_wflow_mapping(
     Parameters
     ----------
     hydromt_dict : dict
-        {hydromt_name: layer_name} for variables HydroMT needs but Wflow doesn't.
+        {hydromt_name: staticmap_name} for variables HydroMT needs but Wflow doesn't.
     model_dict : dict
-        {layer_name: {"wflow_name": ..., "hydromt_name": ...}} canonical registry.
+        {staticmap_name: {"wflow_name": ..., "hydromt_name": ...}} canonical registry.
     config_dict : dict
         The model TOML config (latest version).
 
     Returns
     -------
-    mapping_hydromt : dict
-        {hydromt_name: layer_name} for renaming HydroMT variables to staticmap layers.
-    mapping_wflow : dict
-        {layer_name: wflow_variable} for linking staticmap layers to TOML keys.
+    hydromt_to_staticmap : dict
+        {hydromt_name: staticmap_name} for renaming HydroMT variables to staticmap
+        layers.
+    staticmap_to_wflow : dict
+        {staticmap_name: wflow_variable} for linking staticmap layers to Wflow
+        variables.
     """
-    # 1. Build default {hydromt_name → layer_name} from both sources
-    mapping_hydromt = dict(hydromt_dict)
-    for layer_name, entry in model_dict.items():
+    # 1. Build default {hydromt_name: staticmap_name} from both sources
+    hydromt_to_staticmap = dict(hydromt_dict)
+    for staticmap_name, entry in model_dict.items():
         if not isinstance(entry, dict):
             continue
-        hydromt_name = entry.get("hydromt_name", layer_name)
-        mapping_hydromt[hydromt_name] = layer_name
+        hydromt_name = entry.get("hydromt_name", staticmap_name)
+        hydromt_to_staticmap[hydromt_name] = staticmap_name
 
-    # 2. Build default {wflow_variable → layer_name}
-    wflow_to_layer: dict[str, str] = {}
-    for layer_name, entry in model_dict.items():
+    # 2. Build default {wflow_variable: staticmap_name}
+    wflow_to_staticmap: dict[str, str] = {}
+    for staticmap_name, entry in model_dict.items():
         if not isinstance(entry, dict):
             continue
         wflow_var = entry.get("wflow_name")
         if wflow_var is not None:
-            wflow_to_layer[wflow_var] = layer_name
+            wflow_to_staticmap[wflow_var] = staticmap_name
 
-    # 3. Override layer names from config (users can customize which layer a variable
-    #    reads from in any of: input.<var>, input.static.<var>, input.forcing.<var>,
-    #    input.cyclic.<var>)
+    # 3. Override staticmap names from config (users can customize which staticmap_name
+    #    a variable reads from in any of: input.<var>, input.static.<var>,
+    #    input.forcing.<var>, input.cyclic.<var>)
     if "input" in config_dict:
         for var_type in ("", "forcing", "cyclic", "static"):
             if var_type == "":
@@ -817,26 +819,27 @@ def _create_hydromt_wflow_mapping(
                 if custom_name is None:
                     continue
 
-                default_layer = wflow_to_layer.get(wflow_var)
+                default_layer = wflow_to_staticmap.get(wflow_var)
                 if default_layer == custom_name:
                     continue  # no change
 
                 # Update hydromt mapping: find the entry pointing to the old layer
                 if default_layer is not None:
-                    for _hydromt_name, _layer_name in mapping_hydromt.items():
-                        if _layer_name == default_layer:
-                            mapping_hydromt[_hydromt_name] = custom_name
+                    for _hydromt_name, _staticmap_name in hydromt_to_staticmap.items():
+                        if _staticmap_name == default_layer:
+                            hydromt_to_staticmap[_hydromt_name] = custom_name
                             break
 
-                # Update wflow → layer mapping
-                wflow_to_layer[wflow_var] = custom_name
+                # Update wflow: staticmap mapping
+                wflow_to_staticmap[wflow_var] = custom_name
 
-    # 4. Invert wflow_to_layer to get {layer_name: wflow_variable}
-    mapping_wflow = {
-        layer_name: wflow_var for wflow_var, layer_name in wflow_to_layer.items()
+    # 4. Invert wflow_to_staticmap to get {staticmap_name: wflow_variable}
+    staticmap_to_wflow = {
+        staticmap_name: wflow_var
+        for wflow_var, staticmap_name in wflow_to_staticmap.items()
     }
 
-    return mapping_hydromt, mapping_wflow
+    return hydromt_to_staticmap, staticmap_to_wflow
 
 
 def _create_hydromt_wflow_mapping_sbm(config: dict) -> tuple[dict, dict]:
