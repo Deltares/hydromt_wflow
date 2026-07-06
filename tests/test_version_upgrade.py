@@ -359,19 +359,10 @@ class TestUpgradeToLatest:
     def test_sbm(self, tmp_path: Path, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
         target = tmp_path / "v0x"
-        shutil.copytree(source, target)
+        wflow = WflowSbmModel(source, mode="r")
+        upgraded_dir = wflow.upgrade_to_latest(target, data_libs=["artifact_data"])
 
-        wflow = WflowSbmModel(
-            target,
-            config_filename="wflow_sbm.toml",
-            mode="r",
-            data_libs=["artifact_data"],
-        )
-        upgraded_dir = wflow.upgrade_to_latest()
-
-        upgraded = WflowSbmModel(
-            upgraded_dir, config_filename="wflow_sbm.toml", mode="r"
-        )
+        upgraded = WflowSbmModel(upgraded_dir, mode="r")
         V1ToV1_1Assertions.assert_sbm_config(
             upgraded.config.data,
             upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
@@ -380,15 +371,14 @@ class TestUpgradeToLatest:
     def test_sediment(self, tmp_path: Path, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sediment" / "v0x"
         target = tmp_path / "v0x"
-        shutil.copytree(source, target)
 
         wflow = WflowSedimentModel(
-            target,
+            source,
             config_filename="wflow_sediment.toml",
             mode="r",
             data_libs=["artifact_data"],
         )
-        upgraded_dir = wflow.upgrade_to_latest(data_libs=["artifact_data"])
+        upgraded_dir = wflow.upgrade_to_latest(target, data_libs=["artifact_data"])
 
         upgraded = WflowSedimentModel(
             upgraded_dir, config_filename="wflow_sediment.toml", mode="r"
@@ -411,7 +401,9 @@ class TestUpgradeToLatest:
         wflow.write()
         assert wflow.config.get_value("wflow_version") == str(WFLOW_LATEST_VERSION)
         with caplog.at_level(logging.INFO):
-            wflow.upgrade_to_latest()
+            wflow.upgrade_to_latest(
+                tmp_path / "v1_1_duplicate", data_libs=["artifact_data"]
+            )
         assert (
             "Model is already at the latest version, no upgrade needed." in caplog.text
         )
@@ -422,17 +414,15 @@ class TestUpgradeToLatest:
         """upgrade_to_latest() should skip steps already applied based on detected version."""
         source = upgrade_data_dir / "sbm" / "v1_0"
         target = tmp_path / "v1_0"
-        shutil.copytree(source, target)
 
         wflow = WflowSbmModel(
-            target,
-            config_filename="wflow_sbm.toml",
+            source,
             mode="r",
             data_libs=["artifact_data"],
         )
         # Should only apply v1.0 -> v1.1 step, not v0.x -> v1.0
         with caplog.at_level(logging.INFO):
-            upgraded_dir = wflow.upgrade_to_latest()
+            upgraded_dir = wflow.upgrade_to_latest(target, data_libs=["artifact_data"])
         assert "Upgrading config from v0.x to v1.0 format" not in caplog.text
 
         V1ToV1_1Assertions.assert_sbm_config(
@@ -443,16 +433,15 @@ class TestUpgradeToLatest:
     def test_raises_on_invalid_options(self, tmp_path: Path, upgrade_data_dir: Path):
         source = upgrade_data_dir / "sbm" / "v0x"
         target = tmp_path / "v0x"
-        shutil.copytree(source, target)
 
         wflow = WflowSbmModel(
-            target,
+            source,
             config_filename="wflow_sbm.toml",
             mode="r",
             data_libs=["artifact_data"],
         )
         with pytest.raises(ValueError, match="Unknown upgrade versions"):
-            wflow.upgrade_to_latest(options={"9.9_10.0": {}})
+            wflow.upgrade_to_latest(target, options={"9.9_10.0": {}})
 
 
 @pytest.mark.parametrize(
