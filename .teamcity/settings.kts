@@ -47,8 +47,8 @@ object HydromtWflow : GitVcsRoot({
     }
     agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
     agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
-    checkoutSubmodules = CheckoutSubmodules.CHECKOUT
-    useAlternates = true
+    param("submoduleCheckout", "CHECKOUT")
+    param("useAlternates", "AUTO")
 })
 
 object WflowJl : GitVcsRoot({
@@ -62,8 +62,8 @@ object WflowJl : GitVcsRoot({
     authMethod = anonymous()
     agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
     agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
-    checkoutSubmodules = CheckoutSubmodules.CHECKOUT
-    useAlternates = true
+    param("submoduleCheckout", "CHECKOUT")
+    param("useAlternates", "AUTO")
 })
 
 // =============================================================================
@@ -158,7 +158,7 @@ object GitHubPrTemplate : Template({
                 +:<default>
             """.trimIndent()
             enableQueueOptimization = true
-            quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
+            param("quietPeriodMode", "DO_NOT_USE")
         }
     }
 
@@ -169,21 +169,21 @@ object GitHubPrTemplate : Template({
             publisher = github {
                 githubUrl = "https://api.github.com"
                 authType = vcsRoot()
-                buildName = "%status.check.name%"
             }
+            param("build_custom_name", "%status.check.name%")
         }
         pullRequests {
             id = "BUILD_EXT_PR"
             vcsRootExtId = "${HydromtWflow.id}"
             provider = github {
                 authType = vcsRoot()
-                filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
                 filterTargetBranch = """
                     +:refs/heads/main
                     +:refs/heads/release/*
                 """.trimIndent()
                 ignoreDrafts = true
             }
+            param("filterAuthorRole", "MEMBER")
         }
     }
 })
@@ -201,7 +201,7 @@ object NightlyTriggerTemplate : Template({
                 timezone = "Europe/Amsterdam"
             }
             enableQueueOptimization = true
-            triggerBuildWithPendingChangesOnly = true
+            param("triggerBuildWithPendingChangesOnly", "true")
         }
     }
 })
@@ -246,7 +246,7 @@ object SystemTestDev : BuildType({
                 +:refs/tags/*
             """.trimIndent()
             enableQueueOptimization = true
-            quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
+            param("quietPeriodMode", "DO_NOT_USE")
         }
     }
 
