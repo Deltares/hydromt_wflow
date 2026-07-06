@@ -18,7 +18,6 @@ project {
     }
 
     vcsRoot(HydromtWflow)
-    vcsRoot(WflowJl)
 
     template(SystemTestTemplate)
     template(GitHubPrTemplate)
@@ -45,21 +44,6 @@ object HydromtWflow : GitVcsRoot({
         userName = "deltares-service-account"
         password = "%github_deltares-service-account_access_token%"
     }
-    agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
-    agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
-    param("submoduleCheckout", "CHECKOUT")
-    param("useAlternates", "AUTO")
-})
-
-object WflowJl : GitVcsRoot({
-    name = "Wflow.jl"
-    url = "https://github.com/Deltares/Wflow.jl.git"
-    branch = "master"
-    branchSpec = """
-        +:refs/heads/master
-        +:refs/tags/(v*)
-    """.trimIndent()
-    authMethod = anonymous()
     agentCleanPolicy = AgentCleanPolicy.ON_BRANCH_CHANGE
     agentCleanFilesPolicy = AgentCleanFilesPolicy.ALL_UNTRACKED
     param("submoduleCheckout", "CHECKOUT")
@@ -230,36 +214,9 @@ object SystemTestDev : BuildType({
     templates(SystemTestTemplate, GitHubPrTemplate)
 
     params {
+        param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
         param("system.test.model", "piave")
         param("status.check.name", "System test (Wflow-dev)")
-    }
-
-    vcs {
-        root(WflowJl)
-    }
-
-    triggers {
-        vcs {
-            id = "TRIGGER_WFLOW_JL"
-            branchFilter = """
-                +:refs/heads/master
-                +:refs/tags/*
-            """.trimIndent()
-            enableQueueOptimization = true
-            param("quietPeriodMode", "DO_NOT_USE")
-        }
-    }
-
-    dependencies {
-        artifacts(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            buildRule = sameChain()
-            cleanDestination = true
-            artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
-        }
-        snapshot(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            reuseBuilds = ReuseBuilds.ANY
-            onDependencyFailure = FailureAction.FAIL_TO_START
-        }
     }
 })
 
