@@ -104,7 +104,7 @@ object SystemTestTemplate : Template({
             id = "assert_regression"
             name = "Assert regression"
             workingDir = "hydromt_wflow"
-            scriptContent = """pixi run assert-system-test "%system.test.root%\wflow_sbm""""
+            scriptContent = """pixi run test-regression "%system.test.root%\wflow_sbm""""
         }
     }
 

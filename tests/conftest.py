@@ -20,7 +20,15 @@ from shapely.geometry import Point, box
 
 from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
 
-pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
+## Pytest configuration
+def pytest_addoption(parser):
+    parser.addoption(
+        "--model-root",
+        action="store",
+        default=None,
+        help="Path to the model root directory for regression tests",
+    )
 
 
 ## Paths

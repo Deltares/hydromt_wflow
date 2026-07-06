@@ -1,7 +1,7 @@
 """System regression tests for Wflow model outputs.
 
 Compares model output at a single outlet for a defined period against a baseline.
-Invoked via: pixi run test-regression <MODEL_ROOT>
+Invoked via: pixi run assert-system-test <MODEL_ROOT>
 """
 
 from pathlib import Path
@@ -10,17 +10,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-# Only run these tests when explicitly requested via pytest -m regression
-pytest_mark = pytest.mark.regression
-
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--model-root",
-        action="store",
-        required=True,
-        help="Path to the model root directory containing output.nc",
-    )
+pytestmark = pytest.mark.regression
 
 
 @pytest.fixture

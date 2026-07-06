@@ -131,6 +131,7 @@ addopts = [
 ]
 markers = [
   "integration: slow tests that combine components, workflows and actual data; no Julia execution",
+  "regression: tests that run wflow julia and assert on output",
 ]
 
 [tool.coverage.run]
@@ -341,6 +342,6 @@ build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin"
 benchmark = { cmd = "pytest --benchmark-only" }
 benchmark-record = { cmd = "pytest--benchmark-only--benchmark-autosave" }
 benchmark-compare = { cmd = "pytest --benchmark-only --benchmark-compare --benchmark-compare-fail=min:25%" }
-unit-test = { cmd = "pytest -m 'not integration'" }
+unit-test = { cmd = "pytest -m 'not integration and not system and not regression'" }
 integration-test = { cmd = "pytest -m integration" }
-test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration'", args=[{ "arg" = "report", default="xml"}] }
+test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration and not system and not regression'", args=[{ "arg" = "report", default="xml"}] }
