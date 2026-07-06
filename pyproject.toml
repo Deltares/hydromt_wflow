@@ -247,7 +247,7 @@ system-test = { depends-on = [
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
 ], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
-assert-system-test = { cmd = ["python", "-m", "pytest", "tests/test_system_regression.py", "--model-root={{ MODEL_ROOT }}",  "-v"], args = ["MODEL_ROOT"] }
+test-regression = { cmd = ["pytest", "-m", "regression", "--model-root={{ MODEL_ROOT }}",  "-v"], args = ["MODEL_ROOT"] }
 
 # Artifact generation
 [tool.pixi.feature.dist.tasks]
