@@ -65,11 +65,64 @@ RESERVOIR_LAYERS_SEDIMENT = [
 ]
 
 
+def exclude_reservoirs_outside_rivers(
+    river_mask: xr.DataArray,
+    reservoir_ids: xr.DataArray,
+    exclude_outside_reservoirs: bool = False,
+) -> xr.DataArray:
+    """Exclude reservoirs where no cells overlap with the river network.
+
+    Parameters
+    ----------
+    river_mask : xarray.DataArray
+        DataArray containing the river network mask (1 for river, 0 for non-river).
+    reservoir_ids : xarray.DataArray
+        DataArray containing reservoir IDs.
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
+
+    Returns
+    -------
+    reservoir_ids : xarray.DataArray
+        Reservoir IDs that correspond to the river network.
+    """
+    # Get unique reservoir IDs and exclude nodata value
+    res_ids = np.unique(reservoir_ids.values)
+    res_ids = res_ids[res_ids != reservoir_ids.raster.nodata]
+
+    # Get reservoir IDs that overlap the river network
+    river_res_ids = np.unique(reservoir_ids.where(river_mask == 1).values)
+    river_res_ids = river_res_ids[river_res_ids != reservoir_ids.raster.nodata]
+
+    # Reservoirs with no overlap with the river network
+    outside_reservoirs = np.setdiff1d(res_ids, river_res_ids)
+
+    # Log a warning if any reservoirs are excluded and set their IDs to nodata
+    if exclude_outside_reservoirs and len(outside_reservoirs) > 0:
+        logger.warning(
+            f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
+            "were excluded because no cells were found within the river network. "
+            "Consider decreasing the minimum upstream area threshold."
+        )
+        reservoir_ids = reservoir_ids.where(
+            ~reservoir_ids.isin(outside_reservoirs), reservoir_ids.raster.nodata
+        )
+    elif not exclude_outside_reservoirs and len(outside_reservoirs) > 0:
+        logger.warning(
+            f"{len(outside_reservoirs)} reservoir(s), {outside_reservoirs.tolist()}, "
+            "are outside the river network. "
+            "Set 'exclude_outside_reservoirs=True' to exclude them."
+        )
+    return reservoir_ids
+
+
 def reservoir_id_maps(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     min_area: float = 0.0,
     uparea_name: str = "uparea",
+    exclude_outside_reservoirs: bool = False,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below).
 
@@ -91,6 +144,9 @@ def reservoir_id_maps(
     uparea_name : str, optional
         Name of uparea variable in ds_like. If None then database coordinates will be
         used to setup outlets
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
 
     Returns
     -------
@@ -125,29 +181,45 @@ def reservoir_id_maps(
 
     ### Compute reservoir maps
     # Rasterize the GeoDataFrame to get the areas mask of reservoirs
-    res_id = gdf["waterbody_id"].values
+    nodata = -999  # Set nodata value
     da_wbmask = ds_like.raster.rasterize(
         gdf,
         col_name="waterbody_id",
-        nodata=-999,
+        nodata=nodata,
         all_touched=True,
         dtype=None,
         sindex=False,
     )
     da_wbmask = da_wbmask.rename("reservoir_area_id")
-    da_wbmask.attrs.update(_FillValue=-999)
+    da_wbmask.attrs.update(_FillValue=nodata)
     ds_out = da_wbmask.to_dataset()
-    if not np.all(np.isin(res_id, ds_out["reservoir_area_id"])):
-        gdf = gdf.loc[np.isin(res_id, ds_out["reservoir_area_id"])]
-        nskipped = res_id.size - gdf.index.size
-        res_id = gdf["waterbody_id"].values
+
+    # Filter reservoirs that are too small
+    reservoir_area_ids = ds_out["reservoir_area_id"].values
+    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != nodata]
+    areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
+    if not np.all(areas_mask):
+        gdf = gdf.loc[areas_mask]
+        nskipped = (~areas_mask).sum()
         logger.warning(
             f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
             " Consider increasing the lakes min_area threshold."
         )
 
+    # Filter reservoirs that do not overlap with the river network & update gdf
+    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
+        ds_like["river_mask"],
+        ds_out["reservoir_area_id"],
+        exclude_outside_reservoirs=exclude_outside_reservoirs,
+    )
+
+    reservoirs = np.unique(ds_out["reservoir_area_id"].values)
+    reservoirs = reservoirs[reservoirs != nodata]
+    gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
+    res_id = gdf["waterbody_id"].values
+
     # Initialize the reservoir outlet map
-    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], -999)
+    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], nodata)
     # If an upstream area map is present in the model, gets outlets coordinates using/
     # the maximum uparea in each reservoir mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
@@ -179,7 +251,7 @@ def reservoir_id_maps(
             outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
         )
         ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
-            outgdf, col_name="waterbody_id", nodata=-999
+            outgdf, col_name="waterbody_id", nodata=nodata
         )
     # Else outlet map is equal to areas mask map
     else:
@@ -190,7 +262,7 @@ def reservoir_id_maps(
         )
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
-    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=-999)
+    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=nodata)
     # fix dtypes
     ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
     ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
