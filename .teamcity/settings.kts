@@ -165,10 +165,10 @@ object WflowSystemTestTemplate : Template({
                     echo ERROR: wflow_cli.exe not found at "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe"
                     exit /b 1
                 )
-                
+
                 REM Build
                 pixi run build-system-test-sbm "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-                
+
                 REM Run
                 "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sbm.toml"
             """.trimIndent()
@@ -180,7 +180,7 @@ object WflowSystemTestTemplate : Template({
             scriptContent = """
                 REM Build
                 pixi run build-system-test-sediment "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-                
+
                 REM Run
                 "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sediment.toml"
             """.trimIndent()
