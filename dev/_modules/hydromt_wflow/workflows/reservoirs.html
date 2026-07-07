@@ -492,6 +492,58 @@
 <span class="p">]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">exclude_reservoirs_outside_rivers</span><span class="p">(</span>
+    <span class="n">river_mask</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">reservoir_ids</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">exclude_outside_reservoirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exclude reservoirs where no cells overlap with the river network.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    river_mask : xarray.DataArray</span>
+<span class="sd">        DataArray containing the river network mask (1 for river, 0 for non-river).</span>
+<span class="sd">    reservoir_ids : xarray.DataArray</span>
+<span class="sd">        DataArray containing reservoir IDs.</span>
+<span class="sd">    exclude_outside_reservoirs : bool, optional</span>
+<span class="sd">        Whether to exclude reservoirs that are outside the river network,</span>
+<span class="sd">        by default False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reservoir_ids : xarray.DataArray</span>
+<span class="sd">        Reservoir IDs that correspond to the river network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get unique reservoir IDs and exclude nodata value</span>
+    <span class="n">res_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">reservoir_ids</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">res_ids</span> <span class="o">=</span> <span class="n">res_ids</span><span class="p">[</span><span class="n">res_ids</span> <span class="o">!=</span> <span class="n">reservoir_ids</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">]</span>
+
+    <span class="c1"># Get reservoir IDs that overlap the river network</span>
+    <span class="n">river_res_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">reservoir_ids</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">river_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">river_res_ids</span> <span class="o">=</span> <span class="n">river_res_ids</span><span class="p">[</span><span class="n">river_res_ids</span> <span class="o">!=</span> <span class="n">reservoir_ids</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">]</span>
+
+    <span class="c1"># Reservoirs with no overlap with the river network</span>
+    <span class="n">outside_reservoirs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">res_ids</span><span class="p">,</span> <span class="n">river_res_ids</span><span class="p">)</span>
+
+    <span class="c1"># Log a warning if any reservoirs are excluded and set their IDs to nodata</span>
+    <span class="k">if</span> <span class="n">exclude_outside_reservoirs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">outside_reservoirs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">outside_reservoirs</span><span class="p">)</span><span class="si">}</span><span class="s2"> reservoir(s), </span><span class="si">{</span><span class="n">outside_reservoirs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;were excluded because no cells were found within the river network. &quot;</span>
+            <span class="s2">&quot;Consider decreasing the minimum upstream area threshold.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">reservoir_ids</span> <span class="o">=</span> <span class="n">reservoir_ids</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">reservoir_ids</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">outside_reservoirs</span><span class="p">),</span> <span class="n">reservoir_ids</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">exclude_outside_reservoirs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">outside_reservoirs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">outside_reservoirs</span><span class="p">)</span><span class="si">}</span><span class="s2"> reservoir(s), </span><span class="si">{</span><span class="n">outside_reservoirs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;are outside the river network. &quot;</span>
+            <span class="s2">&quot;Set &#39;exclude_outside_reservoirs=True&#39; to exclude them.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">reservoir_ids</span>
+
+
 <div class="viewcode-block" id="reservoir_id_maps">
 <a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.reservoirs.reservoir_id_maps.html#hydromt_wflow.workflows.reservoirs.reservoir_id_maps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">reservoir_id_maps</span><span class="p">(</span>
@@ -499,6 +551,7 @@
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">uparea_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;uparea&quot;</span><span class="p">,</span>
+    <span class="n">exclude_outside_reservoirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return reservoir location maps (see list below).</span>
 
@@ -520,6 +573,9 @@
 <span class="sd">    uparea_name : str, optional</span>
 <span class="sd">        Name of uparea variable in ds_like. If None then database coordinates will be</span>
 <span class="sd">        used to setup outlets</span>
+<span class="sd">    exclude_outside_reservoirs : bool, optional</span>
+<span class="sd">        Whether to exclude reservoirs that are outside the river network,</span>
+<span class="sd">        by default False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -554,29 +610,45 @@
 
     <span class="c1">### Compute reservoir maps</span>
     <span class="c1"># Rasterize the GeoDataFrame to get the areas mask of reservoirs</span>
-    <span class="n">res_id</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">nodata</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span>  <span class="c1"># Set nodata value</span>
     <span class="n">da_wbmask</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
         <span class="n">gdf</span><span class="p">,</span>
         <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
-        <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">da_wbmask</span> <span class="o">=</span> <span class="n">da_wbmask</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">)</span>
-    <span class="n">da_wbmask</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">999</span><span class="p">)</span>
+    <span class="n">da_wbmask</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_wbmask</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">res_id</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">])):</span>
-        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">res_id</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">])]</span>
-        <span class="n">nskipped</span> <span class="o">=</span> <span class="n">res_id</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span>
-        <span class="n">res_id</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Filter reservoirs that are too small</span>
+    <span class="n">reservoir_area_ids</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">reservoir_area_ids</span> <span class="o">=</span> <span class="n">reservoir_area_ids</span><span class="p">[</span><span class="n">reservoir_area_ids</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">]</span>
+    <span class="n">areas_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">reservoir_area_ids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">areas_mask</span><span class="p">):</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">areas_mask</span><span class="p">]</span>
+        <span class="n">nskipped</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">areas_mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nskipped</span><span class="si">}</span><span class="s2"> reservoirs are not successfully rasterized and skipped!!&quot;</span>
             <span class="s2">&quot; Consider increasing the lakes min_area threshold.&quot;</span>
         <span class="p">)</span>
 
+    <span class="c1"># Filter reservoirs that do not overlap with the river network &amp; update gdf</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exclude_reservoirs_outside_rivers</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;river_mask&quot;</span><span class="p">],</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span>
+        <span class="n">exclude_outside_reservoirs</span><span class="o">=</span><span class="n">exclude_outside_reservoirs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">reservoirs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">reservoirs</span> <span class="o">=</span> <span class="n">reservoirs</span><span class="p">[</span><span class="n">reservoirs</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">]</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">reservoirs</span><span class="p">)]</span>
+    <span class="n">res_id</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
     <span class="c1"># Initialize the reservoir outlet map</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">],</span> <span class="n">nodata</span><span class="p">)</span>
     <span class="c1"># If an upstream area map is present in the model, gets outlets coordinates using/</span>
     <span class="c1"># the maximum uparea in each reservoir mask to match model river network.</span>
     <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">uparea_name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
@@ -608,7 +680,7 @@
             <span class="n">outdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">outdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">outdf</span><span class="o">.</span><span class="n">yout</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-            <span class="n">outgdf</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
+            <span class="n">outgdf</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span>
         <span class="p">)</span>
     <span class="c1"># Else outlet map is equal to areas mask map</span>
     <span class="k">else</span><span class="p">:</span>
@@ -619,7 +691,7 @@
         <span class="p">)</span>
         <span class="c1"># dummy outgdf</span>
         <span class="n">outgdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]]</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">999</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>
     <span class="c1"># fix dtypes</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
