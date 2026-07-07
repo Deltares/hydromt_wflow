@@ -17,7 +17,7 @@ def test_grid_from_config(demda):
             "dem": "dem",
             "static": {
                 "slope": "slope",
-                "altitude": {
+                "land_surface__elevation": {
                     "netcdf_variable_name": "slope",
                     "scale": 10,
                 },
@@ -40,7 +40,7 @@ def test_grid_from_config(demda):
     slope = get_grid_from_config("slope", config=config, grid=grid)
     assert slope.equals(grid["slope"])
 
-    altitude = get_grid_from_config("altitude", config=config, grid=grid)
+    altitude = get_grid_from_config("land_surface__elevation", config=config, grid=grid)
     assert altitude.equals(grid["slope"] * 10)
 
     subsurface_ksat_horizontal_ratio = get_grid_from_config(

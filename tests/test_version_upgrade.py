@@ -12,6 +12,7 @@ from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.components.config import WflowConfigComponent
+from hydromt_wflow.utils import get_config
 from hydromt_wflow.version_upgrade import (
     _UPGRADES,
     WFLOW_LATEST_VERSION,
@@ -126,7 +127,17 @@ class V1ToV1_1Assertions:
         upgraded: dict | Path,
         reference: dict | Path,
     ) -> None:
-        assert_configs_equal(upgraded, reference)
+        upgrade_data = upgraded if isinstance(upgraded, dict) else read_toml(upgraded)
+        reference_data = (
+            reference if isinstance(reference, dict) else read_toml(reference)
+        )
+
+        assert_configs_equal(upgrade_data, reference_data)
+
+        assert (
+            get_config(upgrade_data, "input.static.land_surface__elevation", None)
+            is not None
+        )
 
     @staticmethod
     def assert_sediment_config(

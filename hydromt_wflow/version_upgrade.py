@@ -126,7 +126,7 @@ _V0_TO_V1_INPUT_SBM: dict[str, str | None] = {
     # land surface water flow
     "lateral.land.n": "land_surface_water_flow__manning_n_parameter",
     "lateral.land.elevation": "land_surface_water_flow__ground_elevation",
-    "altitude": "land_surface__elevation",
+    "vertical.altitude": "land_surface__elevation",
     "lateral.land.slope": "land_surface__slope",
     # river
     "lateral.river.floodplain.volume": "floodplain_water__sum_of_volume_per_depth",
@@ -211,7 +211,7 @@ _V0_TO_V1_INPUT_SEDIMENT: dict[str, str | None] = {
     "lateral.river.h_riv": "river_water__depth",
     "lateral.river.q_riv": "river_water__volume_flow_rate",
     # land properties
-    "altitude": "land_surface__elevation",
+    "vertical.altitude": "land_surface__elevation",
     "lateral.land.slope": "land_surface__slope",
     # river properties
     "lateral.river.length": "river__length",
