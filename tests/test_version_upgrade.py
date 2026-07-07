@@ -133,7 +133,7 @@ class V1ToV1_1Assertions:
         )
 
         assert_configs_equal(upgrade_data, reference_data)
-
+        # 'land_surface__elevation' is now a required variable
         assert (
             get_config(upgrade_data, "input.static.land_surface__elevation", None)
             is not None
