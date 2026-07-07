@@ -303,6 +303,7 @@ class WflowSedimentModel(WflowBaseModel):
             "reservoir_water_sediment__bedload_trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "meta_reservoirs",
+        exclude_outside_reservoirs: bool = False,
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -356,6 +357,7 @@ class WflowSedimentModel(WflowBaseModel):
         geom_name : str, optional
             Name of the reservoirs geometry in the ``staticgeoms`` folder.
             Default is ``"meta_reservoirs"`` (for meta_reservoirs.geojson).
+        exclude_outside_reservoirs : bool, optional
         kwargs : dict, optional
             Additional keyword arguments passed to
             ``hydromt.DataCatalog.get_rasterdataset()``.
@@ -381,6 +383,7 @@ class WflowSedimentModel(WflowBaseModel):
             ds_like=self.staticmaps.data,
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
+            exclude_outside_reservoirs=exclude_outside_reservoirs,
         )
         if ds_res is None:
             # No reservoir of sufficient size found

@@ -14,6 +14,8 @@ from hydromt.data_catalog.sources import create_source
 from hydromt.gis import GeoDataset, full_like
 from hydromt.model.processes.rivers import river_depth
 from packaging.version import Version
+from scipy.ndimage import distance_transform_edt
+from shapely import box
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
@@ -277,7 +279,8 @@ def model_with_rating_curve_data(
 
 
 def test_setup_reservoirs_no_control(
-    tmp_path: Path, model_with_rating_curve_data: tuple[WflowSbmModel, int]
+    tmp_path: Path,
+    model_with_rating_curve_data: tuple[WflowSbmModel, int],
 ):
     example_wflow_model, lake_id = model_with_rating_curve_data
 
@@ -323,6 +326,110 @@ def test_setup_reservoirs_no_control(
 
     assert tables_data[f"reservoir_sh_{lake_id}"].equals(test_table)
     assert tables_data[f"reservoir_hq_{lake_id}"].equals(test_table_hq)
+
+
+@pytest.fixture
+def model_with_extra_reservoir(
+    tmp_path: Path,
+    example_wflow_model: WflowSbmModel,
+    session_rng: np.random.Generator,
+) -> tuple[WflowSbmModel, int]:
+    """Fixture creating a model with an extra reservoir outside the river network."""
+    mod = example_wflow_model
+    mod.read()
+
+    # Get an existing reservoir table and clone one row
+    gdf_res = mod.data_catalog.get_geodataframe(
+        "hydro_reservoirs",
+        geom=mod.region,
+        predicate="intersects",
+    )
+    extra = gdf_res.iloc[[0]].copy()
+    extra_id = int(gdf_res["waterbody_id"].max()) + 1
+    extra["waterbody_id"] = extra_id
+
+    river = mod.staticmaps.data["river_mask"]
+    catchment = mod.staticmaps.data["subcatchment"]
+
+    # Distance to nearest river cell & catchment border
+    dist_river = distance_transform_edt((river == 0).values)
+    dist_border = distance_transform_edt((catchment > 0).values)
+
+    # Mask of valid values
+    mask = (
+        (catchment > 0).values
+        & (river == 0).values
+        & (dist_river >= 3)
+        & (dist_border >= 3)
+    )
+
+    # Choose a random point and create a reservoir bbox
+    iy, ix = np.where(mask)
+    k = session_rng.integers(iy.size)
+    x, y = float(river.raster.xcoords[ix[k]]), float(river.raster.ycoords[iy[k]])
+
+    dx = abs(float(river.raster.res[0])) * 0.4
+    dy = abs(float(river.raster.res[1])) * 0.4
+
+    # Update the extra reservoir's geometry and coordinates
+    extra.geometry = [box(x - dx, y - dy, x + dx, y + dy)]
+    extra["xout"], extra["yout"] = x, y
+
+    # Concatenate with existing reservoirs
+    gdf_aug = pd.concat([gdf_res, extra], ignore_index=True)
+    fn = tmp_path / "additional_reservoir.geojson"
+    gdf_aug.to_file(fn, driver="GeoJSON")
+
+    source = create_source(
+        data={
+            "name": "extra_hydro_reservoir",
+            "data_type": "GeoDataFrame",
+            "driver": {"name": "pyogrio"},
+            "uri": str(fn),
+        }
+    )
+    mod.data_catalog.add_source("extra_hydro_reservoir", source)
+    return mod, extra_id
+
+
+def test_reservoirs_no_control_exclude_reservoir(
+    caplog: pytest.LogCaptureFixture,
+    model_with_extra_reservoir: tuple[WflowSbmModel, int],
+):
+    mod_with_extra, extra_id = model_with_extra_reservoir
+
+    caplog.clear()
+    mod_with_extra.setup_reservoirs_no_control(
+        reservoirs_fn="extra_hydro_reservoir",
+        min_area=0.0,
+        overwrite_existing=True,
+    )
+    assert extra_id in np.unique(mod_with_extra.staticmaps.data["reservoir_area_id"])
+    reservoir_warnings = [
+        r.message for r in caplog.records if r.name.endswith("workflows.reservoirs")
+    ]
+    assert any(
+        "Set 'exclude_outside_reservoirs=True' to exclude them." in msg
+        for msg in reservoir_warnings
+    )
+
+    caplog.clear()
+    mod_with_extra.setup_reservoirs_no_control(
+        reservoirs_fn="extra_hydro_reservoir",
+        min_area=0.0,
+        overwrite_existing=True,
+        exclude_outside_reservoirs=True,
+    )
+    assert extra_id not in np.unique(
+        mod_with_extra.staticmaps.data["reservoir_area_id"].values
+    )
+    reservoir_warnings = [
+        r.message for r in caplog.records if r.name.endswith("workflows.reservoirs")
+    ]
+    assert any(
+        "were excluded because no cells were found within the river network." in msg
+        for msg in reservoir_warnings
+    )
 
 
 test_reservoirs_simple_control_sources = [
