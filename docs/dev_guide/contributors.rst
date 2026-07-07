@@ -20,3 +20,4 @@ Contributors
 * Luuk Blom `@LuukBlom <https://github.com/LuukBlom>`_
 * Marnix Kraus `@deltamarnix <https://github.com/deltamarnix>`_
 * Tjalling de Jong `@Tjalling-dejong <https://github.com/Tjalling-dejong>`_
+* Claire Donnelly `@ClaireDons <https://github.com/ClaireDons>`_
