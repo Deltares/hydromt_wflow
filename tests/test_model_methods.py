@@ -51,12 +51,6 @@ def rasterio_version():
     return Version(rasterio.__version__)
 
 
-@pytest.fixture(scope="session")
-def session_rng():
-    """Session-scoped RNG for deterministic random sampling in tests."""
-    return np.random.default_rng(100)
-
-
 def test_setup_basemaps(tmp_path: Path):
     # Region
     region = {
