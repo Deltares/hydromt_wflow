@@ -136,74 +136,16 @@ def _exclude_reservoirs_outside_rivers(
     return reservoir_ids
 
 
-def reservoir_id_maps(
+def _build_reservoir_area_id_map(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
-    min_area: float = 0.0,
-    uparea_name: str = "uparea",
+    nodata: int,
     exclude_outside_reservoirs: bool = False,
-) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
-    """Return reservoir location maps (see list below).
-
-    At model resolution based on gridded upstream area data input or outlet coordinates.
-
-    The following reservoir maps are calculated:
-
-    - reservoir_area_id : reservoir areas mask [ID]
-    - reservoir_outlet_id : reservoir outlets [ID]
-
-    Parameters
-    ----------
-    gdf : geopandas.GeoDataFrame
-        GeoDataFrame containing reservoirs/lakes geometries and attributes.
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
-    min_area : float, optional
-        Minimum reservoir area threshold [km2], by default 0.0 km2.
-    uparea_name : str, optional
-        Name of uparea variable in ds_like. If None then database coordinates will be
-        used to setup outlets
-    exclude_outside_reservoirs : bool, optional
-        Whether to exclude reservoirs that are outside the river network,
-        by default False.
-
-    Returns
-    -------
-    ds_out : xarray.DataArray
-        Dataset containing gridded reservoir data
-    gdf : geopandas.GeoDataFrame
-        GeoDataFrame containing (updated) reservoir outlet coordinates.
-    """
-    # Check if uparea_name in ds_like
-    if uparea_name not in ds_like.data_vars:
-        logger.warning(
-            "Upstream area map for reservoir outlet setup not found. "
-            "Database coordinates used instead"
-        )
-        uparea_name = None
-
-    # skip small size reservoirs
-    if "Area_avg" in gdf.columns and gdf.geometry.size > 0:
-        min_area_m2 = min_area * 1e6
-        gdf = gdf[gdf.Area_avg >= min_area_m2]
-    else:
-        logger.warning(
-            "Reservoir's database has no area attribute. "
-            "All reservoirs will be considered."
-        )
-
-    # check if any reservoirs are left after filtering
-    nb_wb = gdf.geometry.size
-    logger.info(f"{nb_wb} reservoir(s) of sufficient size found within region.")
-    if nb_wb == 0:
-        return None, None
-
-    ### Compute reservoir maps
-    # Rasterize the GeoDataFrame to get the areas mask of reservoirs
-    nodata = -999  # Set nodata value
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+    """Create reservoir area IDs and filter reservoirs that are invalid on the grid."""
     ds_out = _rasterize_reservoir_area_id(gdf=gdf, ds_like=ds_like, nodata=nodata)
 
-    # Filter reservoirs that are too small
+    # Filter reservoirs that are too small after rasterization
     reservoir_area_ids = ds_out["reservoir_area_id"].values
     reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != nodata]
     areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
@@ -225,6 +167,18 @@ def reservoir_id_maps(
     reservoirs = np.unique(ds_out["reservoir_area_id"].values)
     reservoirs = reservoirs[reservoirs != nodata]
     gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
+
+    return ds_out, gdf
+
+
+def _build_reservoir_outlet_id_map(
+    gdf: gpd.GeoDataFrame,
+    ds_out: xr.Dataset,
+    ds_like: xr.Dataset,
+    nodata: int,
+    uparea_name: str | None,
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+    """Create reservoir outlet IDs and update outlet coordinates in the reservoir gdf."""
     res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
@@ -279,6 +233,87 @@ def reservoir_id_maps(
     # update/replace xout and yout in gdf_org from outgdf:
     gdf.loc[:, "xout"] = outgdf["xout"].values
     gdf.loc[:, "yout"] = outgdf["yout"].values
+
+    return ds_out, gdf
+
+
+def reservoir_id_maps(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    min_area: float = 0.0,
+    uparea_name: str = "uparea",
+    exclude_outside_reservoirs: bool = False,
+) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
+    """Return reservoir location maps (see list below) at model resolution based 
+    on gridded upstream area data input or outlet coordinates.
+
+    The following reservoir maps are calculated:
+
+    - reservoir_area_id : reservoir areas mask [ID]
+    - reservoir_outlet_id : reservoir outlets [ID]
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoirs/lakes geometries and attributes.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at 
+        model resolution, serving as a template for rasterization.
+    min_area : float, optional
+        Minimum reservoir area threshold [km2], by default 0.0 km2.
+    uparea_name : str, optional
+        Name of uparea variable in ds_like. If None then database coordinates will be
+        used to setup outlets.
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing gridded reservoir data
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing (updated) reservoir outlet coordinates.
+    """
+    # Check if uparea_name in ds_like
+    if uparea_name not in ds_like.data_vars:
+        logger.warning(
+            "Upstream area map for reservoir outlet setup not found. "
+            "Database coordinates used instead"
+        )
+        uparea_name = None
+
+    # skip small size reservoirs
+    if "Area_avg" in gdf.columns and gdf.geometry.size > 0:
+        min_area_m2 = min_area * 1e6
+        gdf = gdf[gdf.Area_avg >= min_area_m2]
+    else:
+        logger.warning(
+            "Reservoir's database has no area attribute. "
+            "All reservoirs will be considered."
+        )
+
+    # check if any reservoirs are left after filtering
+    nb_wb = gdf.geometry.size
+    logger.info(f"{nb_wb} reservoir(s) of sufficient size found within region.")
+    if nb_wb == 0:
+        return None, None
+
+    ### Compute reservoir maps
+    nodata = -999  # Set nodata value
+    ds_out, gdf = _build_reservoir_area_id_map(
+        gdf=gdf,
+        ds_like=ds_like,
+        nodata=nodata,
+        exclude_outside_reservoirs=exclude_outside_reservoirs,
+    )
+    ds_out, gdf = _build_reservoir_outlet_id_map(
+        gdf=gdf,
+        ds_out=ds_out,
+        ds_like=ds_like,
+        nodata=nodata,
+        uparea_name=uparea_name,
+    )
 
     return ds_out, gdf
 
