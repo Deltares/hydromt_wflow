@@ -70,7 +70,23 @@ def _rasterize_reservoir_area_id(
     ds_like: xr.Dataset,
     nodata: int,
 ) -> xr.Dataset:
-    """Rasterize reservoir polygons and return a dataset with reservoir area IDs."""
+    """Rasterize reservoir polygons and return a dataset with reservoir area IDs.
+    
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at 
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing gridded reservoir area IDs.
+    """
     da_wbmask = ds_like.raster.rasterize(
         gdf,
         col_name="waterbody_id",
@@ -142,7 +158,26 @@ def _build_reservoir_area_id_map(
     nodata: int,
     exclude_outside_reservoirs: bool = False,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
-    """Create reservoir area IDs and filter reservoirs that are invalid on the grid."""
+    """Create reservoir area IDs and filter reservoirs that are invalid on the grid.
+    
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at 
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
+
+    Returns
+    -------
+    tuple[xr.Dataset, gpd.GeoDataFrame]
+        Rasterized reservoir area ID map and the filtered GeoDataFrame.
+    """
     ds_out = _rasterize_reservoir_area_id(gdf=gdf, ds_like=ds_like, nodata=nodata)
 
     # Filter reservoirs that are too small after rasterization
@@ -178,7 +213,28 @@ def _build_reservoir_outlet_id_map(
     nodata: int,
     uparea_name: str | None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
-    """Create reservoir outlet IDs and update outlet coordinates in the reservoir gdf."""
+    """Create reservoir outlet IDs and update outlet coordinates in the reservoir gdf.
+    
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_out : xarray.Dataset
+        Dataset containing reservoir area IDs.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+    uparea_name : str | None
+        Name of the upstream area variable in ds_like. If None, reservoir outlet
+        coordinates from the database will be used.
+
+    Returns
+    -------
+    tuple[xr.Dataset, gpd.GeoDataFrame]
+        Updated dataset with reservoir outlet IDs and the updated GeoDataFrame.    
+    """
     res_id = gdf["waterbody_id"].values
 
     # Initialize the reservoir outlet map
