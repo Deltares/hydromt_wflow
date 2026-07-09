@@ -762,7 +762,7 @@ setting new flood_depth dimensions"
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
             exclude_outside_reservoirs=exclude_outside_reservoirs,
-            fraction=fraction
+            fraction=fraction,
         )
         if ds_reservoirs is None:
             # No reservoirs of sufficient size found
@@ -1048,7 +1048,7 @@ setting new flood_depth dimensions"
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
             exclude_outside_reservoirs=exclude_outside_reservoirs,
-            fraction=fraction
+            fraction=fraction,
         )
         if ds_res is None:
             # No reservoir of sufficient size found

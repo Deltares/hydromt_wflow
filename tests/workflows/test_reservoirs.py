@@ -1,3 +1,5 @@
+from unittest import mock
+
 import numpy as np
 import xarray as xr
 
@@ -28,7 +30,7 @@ def test_set_rating_curve_layer_data_type():
     assert ds["reservoir_rating_curve"][0, 0].values == -999
 
 
-def test_exclude_reservoirs_outside_rivers():
+def test__exclude_reservoirs_outside_rivers():
     """Test that reservoirs outside the river network are excluded."""
     # Create a river mask river, cells = 1, non-river = 0
     river_mask = xr.DataArray(
@@ -52,10 +54,10 @@ def test_exclude_reservoirs_outside_rivers():
         ]
     )
 
-    exclude_reservoirs = reservoirs.exclude_reservoirs_outside_rivers(
+    exclude_reservoirs = reservoirs._exclude_reservoirs_outside_rivers(
         river_mask, reservoir_ids, exclude_outside_reservoirs=True
     )
-    include_reservoirs = reservoirs.exclude_reservoirs_outside_rivers(
+    include_reservoirs = reservoirs._exclude_reservoirs_outside_rivers(
         river_mask, reservoir_ids
     )
 
@@ -63,3 +65,41 @@ def test_exclude_reservoirs_outside_rivers():
     assert 20 not in exclude_reservoirs.values
     assert 10 in include_reservoirs.values
     assert 20 in include_reservoirs.values
+
+
+def test__rasterize_reservoir_area_id():
+    """Test that the rasterization of reservoir area IDs works correctly."""
+    nodata = -999
+    gdf = mock.MagicMock(name="gdf")
+
+    ds_like = mock.MagicMock(name="ds_like")
+    da_in = xr.DataArray(np.array([[1, 1]], dtype=np.float32), dims=("y", "x"))
+    da_frac = xr.DataArray(np.array([[0.2, 0.05]], dtype=np.float32), dims=("y", "x"))
+    ds_like.raster.rasterize.return_value = da_in
+    ds_like.raster.rasterize_geometry.return_value = da_frac
+
+    ds_out = reservoirs._rasterize_reservoir_area_id(
+        gdf=gdf,
+        ds_like=ds_like,
+        nodata=nodata,
+    )
+
+    ds_like.raster.rasterize.assert_called_once_with(
+        gdf,
+        col_name="waterbody_id",
+        nodata=nodata,
+        all_touched=True,
+        dtype=None,
+        sindex=False,
+    )
+    ds_like.raster.rasterize_geometry.assert_called_once_with(
+        gdf=gdf,
+        method="fraction",
+        nodata=nodata,
+        name="reservoir_fraction",
+    )
+    assert "reservoir_area_id" in ds_out
+    assert ds_out["reservoir_area_id"].attrs["_FillValue"] == nodata
+    out = ds_out["reservoir_area_id"].values
+    assert out[0, 0] == 1
+    assert np.isnan(out[0, 1])

@@ -72,13 +72,13 @@ def _rasterize_reservoir_area_id(
     fraction: float = 0.1,
 ) -> xr.Dataset:
     """Rasterize reservoir polygons and return a dataset with reservoir area IDs.
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoir polygons and attributes.
     ds_like : xarray.Dataset
-        Dataset containing existing data layers (e.g., river network, topography) at 
+        Dataset containing existing data layers (e.g., river network, topography) at
         model resolution, serving as a template for rasterization.
     nodata : int
         Value to use for cells outside reservoir polygons.
@@ -171,13 +171,13 @@ def _build_reservoir_area_id_map(
     fraction: float = 0.1,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Create reservoir area IDs and filter reservoirs that are invalid on the grid.
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoir polygons and attributes.
     ds_like : xarray.Dataset
-        Dataset containing existing data layers (e.g., river network, topography) at 
+        Dataset containing existing data layers (e.g., river network, topography) at
         model resolution, serving as a template for rasterization.
     nodata : int
         Value to use for cells outside reservoir polygons.
@@ -192,7 +192,7 @@ def _build_reservoir_area_id_map(
     tuple[xr.Dataset, gpd.GeoDataFrame]
         Rasterized reservoir area ID map and the filtered GeoDataFrame.
     """
-    ds_out = _rasterize_reservoir_area_id(gdf=gdf, ds_like=ds_like, nodata=nodata)
+    ds_out = _rasterize_reservoir_area_id(gdf, ds_like, nodata, fraction=fraction)
 
     # Filter reservoirs that are too small after rasterization
     reservoir_area_ids = ds_out["reservoir_area_id"].values
@@ -228,7 +228,7 @@ def _build_reservoir_outlet_id_map(
     uparea_name: str | None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Create reservoir outlet IDs and update outlet coordinates in the reservoir gdf.
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -247,7 +247,7 @@ def _build_reservoir_outlet_id_map(
     Returns
     -------
     tuple[xr.Dataset, gpd.GeoDataFrame]
-        Updated dataset with reservoir outlet IDs and the updated GeoDataFrame.    
+        Updated dataset with reservoir outlet IDs and the updated GeoDataFrame.
     """
     res_id = gdf["waterbody_id"].values
 
@@ -315,7 +315,7 @@ def reservoir_id_maps(
     exclude_outside_reservoirs: bool = False,
     fraction: float = 0.1,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
-    """Return reservoir location maps (see list below) at model resolution based 
+    """Return reservoir location maps (see list below) at model resolution based
     on gridded upstream area data input or outlet coordinates.
 
     The following reservoir maps are calculated:
@@ -328,7 +328,7 @@ def reservoir_id_maps(
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs/lakes geometries and attributes.
     ds_like : xarray.Dataset
-        Dataset containing existing data layers (e.g., river network, topography) at 
+        Dataset containing existing data layers (e.g., river network, topography) at
         model resolution, serving as a template for rasterization.
     min_area : float, optional
         Minimum reservoir area threshold [km2], by default 0.0 km2.
