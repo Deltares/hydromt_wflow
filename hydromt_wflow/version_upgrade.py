@@ -1343,13 +1343,52 @@ def _upgrade_config_v0_to_v1(
 
 def _upgrade_config_v1_to_v1_1(
     model_root: Path, model_type: str, config_filename: str
-) -> None:
+) -> bool:
     """Upgrade a v1.0 config to v1.1 format and write the result to disk.
 
-    This is config-only (no grid/table changes needed).
+    Returns
+    -------
+    bool
+        True when the staticmaps does not contain a known elevation layer and
+        a ``setup_basemaps`` call is required to create one.
     """
+
+    def _get_land_surface_elevation_name(config: dict, root: Path) -> str | None:
+        configured_name = get_config(
+            key="input.static.land_surface__elevation",
+            config=config,
+            fallback=None,
+        )
+        if configured_name is not None:
+            return configured_name
+
+        path_static = get_config(
+            key="input.path_static",
+            config=config,
+            root=root,
+            abs_path=True,
+            fallback="staticmaps.nc",
+        )
+        if not path_static.exists():
+            logger.warning(
+                f"Could not find staticmaps at {path_static}; "
+                "cannot infer 'input.static.land_surface__elevation'."
+            )
+            return None
+
+        with xr.open_dataset(path_static) as staticmaps:
+            for candidate in (
+                "land_surface__elevation",
+                "land_elevation",
+                "wflow_dem",
+            ):
+                if candidate in staticmaps.data_vars:
+                    return candidate
+        return None
+
     config_path = model_root / config_filename
     config = read_toml(config_path)
+    requires_setup_basemaps = False
 
     if model_type == "wflow_sbm":
         config_out = _convert_sbm_config_v1_to_v1_1(config)
@@ -1359,8 +1398,24 @@ def _upgrade_config_v1_to_v1_1(
     else:
         raise ValueError(f"Unknown model type: {model_type!r}")
 
+    elevation_name = _get_land_surface_elevation_name(config_out, model_root)
+    if elevation_name is not None:
+        set_config(
+            config=config_out,
+            key="input.static.land_surface__elevation",
+            value=elevation_name,
+        )
+    else:
+        requires_setup_basemaps = True
+        logger.warning(
+            "No elevation layer found in staticmaps for "
+            "'input.static.land_surface__elevation'. "
+            "Run setup_basemaps during upgrade to create the layer."
+        )
+
     write_toml(config_path, config_out)
     logger.info(f"Wrote upgraded v1.1 config to {config_path}.")
+    return requires_setup_basemaps
 
 
 def _upgrade_components_v0_to_v1_sbm(
@@ -1471,7 +1526,32 @@ def upgrade_model(
         logger.info("Upgrading config from v0.x to v1.0 format.")
         version = Version("1.0")
     if version < Version("1.1"):
-        _upgrade_config_v1_to_v1_1(model_root, model_type, config_filename)
+        needs_setup_basemaps = _upgrade_config_v1_to_v1_1(
+            model_root,
+            model_type,
+            config_filename,
+        )
+        if needs_setup_basemaps:
+            opts_v1_to_v1_1 = validated_options.get(
+                (Version("1.0"), Version("1.1")), {}
+            )
+            setup_basemaps_kwargs = opts_v1_to_v1_1.get("setup_basemaps")
+            if setup_basemaps_kwargs is None:
+                raise ValueError(
+                    "Missing required elevation layer in staticmaps and no "
+                    "'setup_basemaps' options were provided. "
+                    "Pass options={'1.0_1.1': {'setup_basemaps': {...}}} "
+                    "to run setup_basemaps during upgrade."
+                )
+            ModelClass = _get_model_class(model_type)
+            model = ModelClass(
+                str(model_root),
+                config_filename=config_filename,
+                mode="r+",
+                data_libs=data_libs,
+            )
+            model.setup_basemaps(**setup_basemaps_kwargs)
+            model.write()
         version = Version("1.1")
 
     # Upgrade component data using previous and updated config (needs initialized Model)

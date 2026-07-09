@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from hydromt.readers import read_toml
+from hydromt.writers import write_toml
 from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
@@ -361,6 +362,60 @@ class TestUpgradeV1ToV1_1:
         V1ToV1_1Assertions.assert_sediment_config(
             upgraded=target / "wflow_sediment.toml",
             reference=upgrade_data_dir / "sediment" / "v1_1" / "wflow_sediment.toml",
+        )
+
+    def test_fills_missing_land_surface_elevation_from_existing_staticmaps(
+        self, upgrade_data_dir: Path, tmp_path: Path
+    ):
+        source = upgrade_data_dir / "sbm" / "v1_0"
+        target = tmp_path / "sbm" / "v1_1"
+        shutil.copytree(source, target)
+
+        config = read_toml(target / "wflow_sbm.toml")
+        del config["input"]["static"]["land_surface__elevation"]
+        write_toml(target / "wflow_sbm.toml", config)
+
+        requires_setup_basemaps = _upgrade_config_v1_to_v1_1(
+            target, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
+        )
+
+        upgraded = read_toml(target / "wflow_sbm.toml")
+        assert requires_setup_basemaps is False
+        assert (
+            get_config(
+                upgraded,
+                "input.static.land_surface__elevation",
+                None,
+            )
+            == "wflow_dem"
+        )
+
+    def test_marks_setup_basemaps_required_if_no_elevation_layer(self, tmp_path: Path):
+        root = tmp_path / "model"
+        root.mkdir(parents=True, exist_ok=True)
+        xr.Dataset(
+            data_vars={"dummy": (("y", "x"), np.ones((2, 2), dtype=float))}
+        ).to_netcdf(root / "staticmaps.nc")
+
+        write_toml(
+            root / "wflow_sbm.toml",
+            {
+                "wflow_version": "1.0",
+                "input": {
+                    "path_static": "staticmaps.nc",
+                    "static": {},
+                },
+            },
+        )
+
+        requires_setup_basemaps = _upgrade_config_v1_to_v1_1(
+            root, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
+        )
+
+        upgraded = read_toml(root / "wflow_sbm.toml")
+        assert requires_setup_basemaps is True
+        assert (
+            get_config(upgraded, "input.static.land_surface__elevation", None) is None
         )
 
 
