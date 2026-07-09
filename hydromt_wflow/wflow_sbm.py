@@ -624,6 +624,7 @@ setting new flood_depth dimensions"
         },
         geom_name: str = "meta_reservoirs_no_control",
         exclude_outside_reservoirs: bool = False,
+        fraction: float = 0.1,
         **kwargs,
     ):
         """Generate maps of reservoir areas, outlets and parameters.
@@ -734,6 +735,8 @@ setting new flood_depth dimensions"
             'meta_reservoirs_no_control' for meta_reservoirs_no_control.geojson.
         exclude_outside_reservoirs : bool, optional
             If True, exclude reservoirs that are outside the model domain. By default False.
+        fraction : float, optional
+            Minimum fraction of reservoir area within a grid cell, by default 0.1.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_geodataframe()
@@ -759,6 +762,7 @@ setting new flood_depth dimensions"
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
             exclude_outside_reservoirs=exclude_outside_reservoirs,
+            fraction=fraction
         )
         if ds_reservoirs is None:
             # No reservoirs of sufficient size found
@@ -902,6 +906,7 @@ setting new flood_depth dimensions"
         },
         geom_name: str = "meta_reservoirs_simple_control",
         exclude_outside_reservoirs: bool = False,
+        fraction: float = 0.1,
         **kwargs,
     ):
         """Generate maps of controlled reservoir areas, outlets and parameters.
@@ -1015,6 +1020,8 @@ setting new flood_depth dimensions"
             "meta_reservoirs_simple_control" for meta_reservoirs_simple_control.geojson.
         exclude_outside_reservoirs : bool, optional
             If True, exclude reservoirs that are outside the model domain. By default False.
+        fraction : float, optional
+            Minimum fraction of reservoir area within a grid cell, by default 0.1.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_geodataframe()
@@ -1041,6 +1048,7 @@ setting new flood_depth dimensions"
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
             exclude_outside_reservoirs=exclude_outside_reservoirs,
+            fraction=fraction
         )
         if ds_res is None:
             # No reservoir of sufficient size found

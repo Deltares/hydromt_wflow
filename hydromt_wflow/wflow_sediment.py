@@ -310,6 +310,7 @@ class WflowSedimentModel(WflowBaseModel):
         },
         geom_name: str = "meta_reservoirs",
         exclude_outside_reservoirs: bool = False,
+        fraction: float = 0.1,
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -390,6 +391,7 @@ class WflowSedimentModel(WflowBaseModel):
             min_area=min_area,
             uparea_name=self._MAPS["uparea"],
             exclude_outside_reservoirs=exclude_outside_reservoirs,
+            fraction=fraction,
         )
         if ds_res is None:
             # No reservoir of sufficient size found

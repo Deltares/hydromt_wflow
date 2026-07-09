@@ -69,6 +69,7 @@ def _rasterize_reservoir_area_id(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     nodata: int,
+    fraction: float = 0.1,
 ) -> xr.Dataset:
     """Rasterize reservoir polygons and return a dataset with reservoir area IDs.
     
@@ -81,6 +82,8 @@ def _rasterize_reservoir_area_id(
         model resolution, serving as a template for rasterization.
     nodata : int
         Value to use for cells outside reservoir polygons.
+    fraction : float, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
 
     Returns
     -------
@@ -95,6 +98,14 @@ def _rasterize_reservoir_area_id(
         dtype=None,
         sindex=False,
     )
+
+    da_fraction = ds_like.raster.rasterize_geometry(
+        gdf=gdf,
+        method="fraction",
+        nodata=nodata,
+        name="reservoir_fraction",
+    )
+    da_wbmask = da_wbmask.where(da_fraction >= fraction, da_wbmask.raster.nodata)
     da_wbmask = da_wbmask.rename("reservoir_area_id")
     da_wbmask.attrs.update(_FillValue=nodata)
     return da_wbmask.to_dataset()
@@ -157,6 +168,7 @@ def _build_reservoir_area_id_map(
     ds_like: xr.Dataset,
     nodata: int,
     exclude_outside_reservoirs: bool = False,
+    fraction: float = 0.1,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Create reservoir area IDs and filter reservoirs that are invalid on the grid.
     
@@ -172,6 +184,8 @@ def _build_reservoir_area_id_map(
     exclude_outside_reservoirs : bool, optional
         Whether to exclude reservoirs that are outside the river network,
         by default False.
+    fraction  : float, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
 
     Returns
     -------
@@ -299,6 +313,7 @@ def reservoir_id_maps(
     min_area: float = 0.0,
     uparea_name: str = "uparea",
     exclude_outside_reservoirs: bool = False,
+    fraction: float = 0.1,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below) at model resolution based 
     on gridded upstream area data input or outlet coordinates.
@@ -323,6 +338,8 @@ def reservoir_id_maps(
     exclude_outside_reservoirs : bool, optional
         Whether to exclude reservoirs that are outside the river network,
         by default False.
+    fraction : float, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
 
     Returns
     -------
@@ -362,6 +379,7 @@ def reservoir_id_maps(
         ds_like=ds_like,
         nodata=nodata,
         exclude_outside_reservoirs=exclude_outside_reservoirs,
+        fraction=fraction,
     )
     ds_out, gdf = _build_reservoir_outlet_id_map(
         gdf=gdf,
