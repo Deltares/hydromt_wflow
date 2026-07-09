@@ -65,7 +65,26 @@ RESERVOIR_LAYERS_SEDIMENT = [
 ]
 
 
-def exclude_reservoirs_outside_rivers(
+def _rasterize_reservoir_area_id(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    nodata: int,
+) -> xr.Dataset:
+    """Rasterize reservoir polygons and return a dataset with reservoir area IDs."""
+    da_wbmask = ds_like.raster.rasterize(
+        gdf,
+        col_name="waterbody_id",
+        nodata=nodata,
+        all_touched=True,
+        dtype=None,
+        sindex=False,
+    )
+    da_wbmask = da_wbmask.rename("reservoir_area_id")
+    da_wbmask.attrs.update(_FillValue=nodata)
+    return da_wbmask.to_dataset()
+
+
+def _exclude_reservoirs_outside_rivers(
     river_mask: xr.DataArray,
     reservoir_ids: xr.DataArray,
     exclude_outside_reservoirs: bool = False,
@@ -182,17 +201,7 @@ def reservoir_id_maps(
     ### Compute reservoir maps
     # Rasterize the GeoDataFrame to get the areas mask of reservoirs
     nodata = -999  # Set nodata value
-    da_wbmask = ds_like.raster.rasterize(
-        gdf,
-        col_name="waterbody_id",
-        nodata=nodata,
-        all_touched=True,
-        dtype=None,
-        sindex=False,
-    )
-    da_wbmask = da_wbmask.rename("reservoir_area_id")
-    da_wbmask.attrs.update(_FillValue=nodata)
-    ds_out = da_wbmask.to_dataset()
+    ds_out = _rasterize_reservoir_area_id(gdf=gdf, ds_like=ds_like, nodata=nodata)
 
     # Filter reservoirs that are too small
     reservoir_area_ids = ds_out["reservoir_area_id"].values
@@ -207,7 +216,7 @@ def reservoir_id_maps(
         )
 
     # Filter reservoirs that do not overlap with the river network & update gdf
-    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
+    ds_out["reservoir_area_id"] = _exclude_reservoirs_outside_rivers(
         ds_like["river_mask"],
         ds_out["reservoir_area_id"],
         exclude_outside_reservoirs=exclude_outside_reservoirs,
