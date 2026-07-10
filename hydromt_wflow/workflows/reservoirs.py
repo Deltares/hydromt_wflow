@@ -315,9 +315,9 @@ def reservoir_id_maps(
     exclude_outside_reservoirs: bool = False,
     fraction: float = 0.1,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
-    """Return reservoir location maps (see list below) at model resolution based
-    on gridded upstream area data input or outlet coordinates.
+    """Return reservoir location maps (see list below) at model resolution.
 
+    Based on gridded upstream area data input or outlet coordinates.
     The following reservoir maps are calculated:
 
     - reservoir_area_id : reservoir areas mask [ID]
