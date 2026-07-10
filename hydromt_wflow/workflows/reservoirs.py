@@ -220,6 +220,48 @@ def _build_reservoir_area_id_map(
     return ds_out, gdf
 
 
+def _build_reservoir_outlets_from_uparea(
+    gdf: gpd.GeoDataFrame,
+    ds_out: xr.Dataset,
+    ds_like: xr.Dataset,
+    uparea_name: str,
+) -> gpd.GeoDataFrame:
+    """Build reservoir outlet coordinates from the maximum upstream area cell.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_out : xarray.Dataset
+        Dataset containing reservoir area IDs.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    uparea_name : str
+        Name of the upstream area variable in ds_like.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir outlet coordinates.
+    """
+    res_id = gdf["waterbody_id"].values
+    outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
+    ydim = ds_like.raster.y_dim
+    xdim = ds_like.raster.x_dim
+
+    for i in res_id:
+        res_acc = ds_like[uparea_name].where(ds_out["reservoir_area_id"] == i).load()
+        max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
+        yacc = max_res_acc[ydim].values
+        xacc = max_res_acc[xdim].values
+        ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
+        outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
+        outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
+
+    return gpd.GeoDataFrame(outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout))
+
+
 def _build_reservoir_outlet_id_map(
     gdf: gpd.GeoDataFrame,
     ds_out: xr.Dataset,
@@ -249,33 +291,18 @@ def _build_reservoir_outlet_id_map(
     tuple[xr.Dataset, gpd.GeoDataFrame]
         Updated dataset with reservoir outlet IDs and the updated GeoDataFrame.
     """
-    res_id = gdf["waterbody_id"].values
-
     # Initialize the reservoir outlet map
     ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], nodata)
     # If an upstream area map is present in the model, gets outlets coordinates using/
     # the maximum uparea in each reservoir mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
         logger.debug("Setting reservoir outlet map based maximum upstream area.")
-        # create dataframe with x and y coord to be filled in either from uparea or from
-        # xout and yout in hydrolakes data
-        outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
-        ydim = ds_like.raster.y_dim
-        xdim = ds_like.raster.x_dim
-        for i in res_id:
-            res_acc = (
-                ds_like[uparea_name].where(ds_out["reservoir_area_id"] == i).load()
-            )
-            max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
-            yacc = max_res_acc[ydim].values
-            xacc = max_res_acc[xdim].values
-            ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
-            outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
-            outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
-        outgdf = gpd.GeoDataFrame(
-            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
+        outgdf = _build_reservoir_outlets_from_uparea(
+            gdf=gdf,
+            ds_out=ds_out,
+            ds_like=ds_like,
+            uparea_name=uparea_name,
         )
-
     # ELse use coordinates from the reservoir database
     elif "xout" in gdf.columns and "yout" in gdf.columns:
         logger.debug("Setting reservoir outlet map based on coordinates.")

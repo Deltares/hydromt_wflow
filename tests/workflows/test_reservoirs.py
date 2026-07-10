@@ -1,7 +1,7 @@
 from unittest import mock
 
+import geopandas as gpd
 import numpy as np
-import pandas as pd
 import pytest
 import xarray as xr
 
@@ -10,32 +10,57 @@ from hydromt_wflow.workflows import reservoirs
 
 @pytest.fixture
 def gdf():
-    return pd.DataFrame({"waterbody_id": [10, 20, 30, 40]})
+    """Fixture for a GeoDataFrame with waterbody ids."""
+    return gpd.GeoDataFrame(
+        {"waterbody_id": [10, 20, 30, 40]},
+        geometry=gpd.points_from_xy([0, 1, 2, 3], [0, 1, 2, 3]),
+    )
 
 
 @pytest.fixture
 def ds_like():
-    """Fixture for a template dataset with a river mask."""
-    river_mask = xr.DataArray(
-        np.array([[1, 1, 0]], dtype=np.int32),
-        dims=("y", "x"),
-        name="river_mask",
+    """Fixture for a template dataset with a river mask and upstream area."""
+    coords = {"y": [0], "x": [0, 1, 2]}
+    ds_like = xr.Dataset(
+        {
+            "river_mask": xr.DataArray(
+                np.array([[1, 1, 0]], dtype=np.int32),
+                dims=("y", "x"),
+                coords=coords,
+            ),
+            "uparea": xr.DataArray(
+                np.array([[100, 200, 300]]),
+                dims=("y", "x"),
+                coords=coords,
+            ),
+        }
     )
-    return xr.Dataset({"river_mask": river_mask})
+    ds_like.raster.set_crs("EPSG:4326")
+    return ds_like
 
 
 @pytest.fixture
 def ds_initial_area_id():
-    da_initial = xr.DataArray(
-        np.array([[10, 20, 30]], dtype=np.int32),
-        dims=("y", "x"),
-        name="reservoir_area_id",
-        attrs={"_FillValue": -999},
+    """Fixture a dataset containing rasterized reservoir area ids."""
+    return xr.Dataset(
+        {
+            "reservoir_area_id": xr.DataArray(
+                np.array([[10, 20, 30]], dtype=np.int32),
+                dims=("y", "x"),
+                coords={"y": [0], "x": [0, 1, 2]},
+                attrs={"_FillValue": -999},
+            ),
+            "reservoir_outlet_id": xr.DataArray(
+                np.full((1, 3), -999, dtype=np.int32),
+                dims=("y", "x"),
+                coords={"y": [0], "x": [0, 1, 2]},
+            ),
+        }
     )
-    return da_initial.to_dataset()
 
 
 def test_set_rating_curve_layer_data_type():
+    """Test that the rating curve layer data type is set correctly."""
     # create some test data
     data = np.random.randint(4, 5)
     coords = {"x": np.arange(4), "y": np.arange(5)}
@@ -173,3 +198,27 @@ def test__build_reservoir_area_id_map(
     # Assert the output GeoDataFrame contains only the expected waterbody IDs
     expected_waterbody_ids = [10, 30]
     assert gdf_out["waterbody_id"].tolist() == expected_waterbody_ids
+
+
+def test_build_reservoir_outlets_from_uparea(gdf, ds_like, ds_initial_area_id):
+    """Test that outlet coordinates are correctly calculated from upstream area."""
+    test_gdf = gdf[gdf["waterbody_id"].isin([10, 20, 30])].copy()
+    outgdf = reservoirs._build_reservoir_outlets_from_uparea(
+        gdf=test_gdf,
+        ds_out=ds_initial_area_id,
+        ds_like=ds_like,
+        uparea_name="uparea",
+    )
+
+    expected_coords = {
+        10: {"xout": 0, "yout": 0},
+        20: {"xout": 1, "yout": 0},
+        30: {"xout": 2, "yout": 0},
+    }
+
+    for res_id, expected in expected_coords.items():
+        row = outgdf[outgdf["waterbody_id"] == res_id].iloc[0]
+        assert row["xout"] == expected["xout"]
+        assert row["yout"] == expected["yout"]
+
+    assert outgdf.geometry.type.tolist() == ["Point", "Point", "Point"]
