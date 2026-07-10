@@ -121,10 +121,18 @@ def test__exclude_reservoirs_outside_rivers():
     assert 20 in include_reservoirs.values
 
 
-def test__rasterize_reservoir_area_id(gdf, ds_like):
-    """Test that _rasterize_reservoir_area_id returns the expected dataset."""
+@pytest.mark.parametrize(
+    ("fraction", "expected_data", "expected_fraction_calls"),
+    [
+        (0.1, np.array([[1, -999]]), 1),
+        (None, np.array([[1, 2]]), 0),
+    ],
+)
+def test__rasterize_reservoir_area_id(
+    gdf, ds_like, fraction, expected_data, expected_fraction_calls
+):
+    """Test that _rasterize_reservoir_area_id behaves correctly for both fraction and no-fraction cases."""
     nodata = -999
-    expected_data = np.array([[1, np.nan]])
 
     # Mock rasterize to return a DataArray with expected values
     mock_da_wbmask = xr.DataArray(
@@ -132,28 +140,27 @@ def test__rasterize_reservoir_area_id(gdf, ds_like):
     ).rename("reservoir_area_id")
 
     # Mock rasterize_geometry to return a DataArray with fraction values
-    mock_da_fraction = xr.DataArray(
-        np.array([[1.0, 0.0]]),
-        dims=("y", "x"),
-    )
+    mock_da_fraction = xr.DataArray(np.array([[1.0, 0.0]]), dims=("y", "x"))
 
     with (
         mock.patch.object(ds_like.raster, "rasterize", return_value=mock_da_wbmask),
         mock.patch.object(
             ds_like.raster, "rasterize_geometry", return_value=mock_da_fraction
-        ),
+        ) as mock_rasterize_geometry,
     ):
         ds_out = reservoirs._rasterize_reservoir_area_id(
             gdf=gdf,
             ds_like=ds_like,
             nodata=nodata,
+            fraction=fraction,
         )
 
-    # Output assertions
+    # Assertions
     assert "reservoir_area_id" in ds_out
     assert ds_out["reservoir_area_id"].attrs["_FillValue"] == nodata
     assert ds_out["reservoir_area_id"].values[0, 0] == 1
-    assert ds_out["reservoir_area_id"].values[0, 1] == nodata
+    assert ds_out["reservoir_area_id"].values[0, 1] == expected_data[0, 1]
+    assert mock_rasterize_geometry.call_count == expected_fraction_calls
 
 
 def mock_exclude_reservoirs(river_mask, reservoir_ids, exclude_outside_reservoirs):

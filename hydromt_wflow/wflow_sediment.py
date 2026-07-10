@@ -310,7 +310,7 @@ class WflowSedimentModel(WflowBaseModel):
         },
         geom_name: str = "meta_reservoirs",
         exclude_outside_reservoirs: bool = False,
-        fraction: float = 0.1,
+        fraction: float | None = 0.1,
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
