@@ -23,10 +23,6 @@ changeBuildType(RelativeId("SystemTestDev")) {
             }
         }
         update(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-            }
-
             artifacts {
                 id = "ARTIFACT_DEPENDENCY_7064"
                 buildRule = lastSuccessful()
