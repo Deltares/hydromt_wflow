@@ -69,7 +69,7 @@ def _rasterize_reservoir_area_id(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     nodata: int,
-    fraction: float | None = 0.1,
+    fraction: float | None = None,
 ) -> xr.Dataset:
     """Rasterize reservoir polygons and return a dataset with reservoir area IDs.
 
@@ -83,8 +83,9 @@ def _rasterize_reservoir_area_id(
     nodata : int
         Value to use for cells outside reservoir polygons.
     fraction : float | None, optional
-        Minimum fraction of reservoir area within a grid cell, by default 0.1.
-        Use None to skip the fraction mask and rely only on all_touched rasterization.
+        Minimum fraction of reservoir area within a grid cell.
+        Use None to skip the fractionmask and rely only on all_touched
+        rasterization.
 
     Returns
     -------
@@ -170,7 +171,7 @@ def _build_reservoir_area_id_map(
     ds_like: xr.Dataset,
     nodata: int,
     exclude_outside_reservoirs: bool = False,
-    fraction: float | None = 0.1,
+    fraction: float | None = None,
 ) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
     """Create reservoir area IDs and filter reservoirs that are invalid on the grid.
 
@@ -187,7 +188,7 @@ def _build_reservoir_area_id_map(
         Whether to exclude reservoirs that are outside the river network,
         by default False.
     fraction  : float | None, optional
-        Minimum fraction of reservoir area within a grid cell, by default 0.1.
+        Minimum fraction of reservoir area within a grid cell, by default None.
         Use None to skip the fraction mask and rely only on all_touched rasterization.
 
     Returns
@@ -343,7 +344,7 @@ def reservoir_id_maps(
     min_area: float = 0.0,
     uparea_name: str = "uparea",
     exclude_outside_reservoirs: bool = False,
-    fraction: float | None = 0.1,
+    fraction: float | None = None,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
     """Return reservoir location maps (see list below) at model resolution.
 
@@ -369,7 +370,7 @@ def reservoir_id_maps(
         Whether to exclude reservoirs that are outside the river network,
         by default False.
     fraction : float | None, optional
-        Minimum fraction of reservoir area within a grid cell, by default 0.1.
+        Minimum fraction of reservoir area within a grid cell, by default None.
         Use None to skip the fraction mask and rely only on all_touched rasterization.
 
     Returns

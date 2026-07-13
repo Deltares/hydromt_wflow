@@ -310,7 +310,7 @@ class WflowSedimentModel(WflowBaseModel):
         },
         geom_name: str = "meta_reservoirs",
         exclude_outside_reservoirs: bool = False,
-        fraction: float | None = 0.1,
+        fraction: float | None = None,
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -365,6 +365,12 @@ class WflowSedimentModel(WflowBaseModel):
             Name of the reservoirs geometry in the ``staticgeoms`` folder.
             Default is ``"meta_reservoirs"`` (for meta_reservoirs.geojson).
         exclude_outside_reservoirs : bool, optional
+            Whether to exclude reservoirs that are outside the river network,
+            by default False.
+        fraction : float | None, optional
+            Minimum fraction of reservoir area within a grid cell, by default None.
+            Use None to skip the fraction mask and rely only on all_touched
+            rasterization.
         kwargs : dict, optional
             Additional keyword arguments passed to
             ``hydromt.DataCatalog.get_rasterdataset()``.
