@@ -1,8 +1,8 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
-// import jetbrains.buildServer.configs.kotlin.buildFeatures.emailNotifier
-import jetbrains.buildServer.configs.kotlin.buildFeatures.notifications
+// import jetbrains.buildServer.configs.kotlin.buildFeatures.emailNotifier  // unresolved on this TeamCity instance - email notifier feature disabled; see WflowJlEmailTemplate below
+// import jetbrains.buildServer.configs.kotlin.buildFeatures.notifications  // only used by the disabled WflowJlEmailTemplate - uncomment alongside it
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.schedule
@@ -48,10 +48,14 @@ project {
     template(WflowWindowsAgentTemplate)
 
     params {
-        // Explicit version pins agreed with the Wflow.jl team - bump these by
-        // hand when a new release should become "latest"/"oldest supported".
+        // Explicit version pins agreed with the Wflow.jl team.
+        // - wflow.latest.release tracks a release *branch* on the wflow_cli
+        //   build config, so "latest" always resolves to the newest build on
+        //   that branch without needing a manual bump per patch release.
+        // - wflow.oldest.supported.release is pinned to an exact *tag* - bump
+        //   this by hand when the oldest release we still support changes.
         param("wflow.dev.branch", "master")
-        param("wflow.latest.release", "v1.0.3")
+        param("wflow.latest.release", "release/v1.0")
         param("wflow.oldest.supported.release", "v1.0.0")
 
         // Who gets paged when a Wflow.jl-triggered or nightly run breaks.
@@ -71,7 +75,7 @@ object SystemTest : BuildType({
     description = "Build and run an SBM from scratch (artifact_data), then convert it to a sediment model and run that. No trigger - use 'Run...' and override wflow.cli.branch.filter to point at a specific wflow_cli build."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/tags/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
     }
 })
 
@@ -81,7 +85,7 @@ object SystemTestPrCheck : BuildType({
     description = "Runs on every hydromt_wflow PR against the latest supported Wflow.jl release and publishes a GitHub check."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/tags/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
         text("status.check.name", "System test (PR)", allowEmpty = false)
     }
 })
@@ -107,10 +111,10 @@ object SystemTestDev : BuildType({
 object SystemTestLatestRelease : BuildType({
     templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
     name = "System test (Wflow latest release)"
-    description = "Runs system test using the latest tagged Wflow.jl release (%wflow.latest.release%). Triggered by new Wflow.jl tags; failures are emailed."
+    description = "Runs system test using the latest build of the Wflow.jl %wflow.latest.release% release branch. Triggered by new Wflow.jl tags; failures are emailed."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/tags/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
     }
 
     triggers {
