@@ -57,7 +57,7 @@ project {
         // Who gets paged when a Wflow.jl-triggered or nightly run breaks.
         // There's no hydromt_wflow PR to attach a GitHub check to in that
         // case, so we email instead (see team recap).
-        param("notify.email", "wflow-ci@deltares.nl")
+        // param("notify.email", "wflow-ci@deltares.nl")
     }
 }
 
