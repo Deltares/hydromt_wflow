@@ -14,7 +14,7 @@ create(DslContext.projectId, BuildType({
     templates(RelativeId("WflowSystemTestTemplate"), RelativeId("GitHubPrTemplate"), RelativeId("WflowWindowsAgentTemplate"))
     id("SystemTestLatestRelease")
     name = "System test (latest release)"
-    description = "Runs system test using the latest build of wflow.jl"
+    description = "Runs system test using the latest release build of wflow.jl"
 
     params {
         text("status.check.name", "System test (Wflow-dev)", allowEmpty = false)
