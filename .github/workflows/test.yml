@@ -115,4 +115,4 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            pixi run --no-install -e ${{ env.ENV_NAME }} test --verbose
+            pixi run --no-install -e ${{ env.ENV_NAME }} ci-test --verbose

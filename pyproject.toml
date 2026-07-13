@@ -342,6 +342,7 @@ build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin"
 benchmark = { cmd = "pytest --benchmark-only" }
 benchmark-record = { cmd = "pytest--benchmark-only--benchmark-autosave" }
 benchmark-compare = { cmd = "pytest --benchmark-only --benchmark-compare --benchmark-compare-fail=min:25%" }
+ci-test = { cmd = "pytest -m 'not regression'" }
 unit-test = { cmd = "pytest -m 'not integration and not system and not regression'" }
 integration-test = { cmd = "pytest -m integration" }
 test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration and not system and not regression'", args=[{ "arg" = "report", default="xml"}] }
