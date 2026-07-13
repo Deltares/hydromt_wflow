@@ -75,7 +75,7 @@ object SystemTest : BuildType({
     description = "Build and run an SBM from scratch (artifact_data), then convert it to a sediment model and run that. No trigger - use 'Run...' and override wflow.cli.branch.filter to point at a specific wflow_cli build."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
     }
 })
 
@@ -85,7 +85,7 @@ object SystemTestPrCheck : BuildType({
     description = "Runs on every hydromt_wflow PR against the latest supported Wflow.jl release and publishes a GitHub check."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
         text("status.check.name", "System test (PR)", allowEmpty = false)
     }
 })
@@ -96,7 +96,7 @@ object SystemTestDev : BuildType({
     description = "Runs system test using the latest build of Wflow.jl %wflow.dev.branch%. Triggered by Wflow.jl, not a hydromt_wflow PR - failures are emailed, not posted as a GitHub check."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.dev.branch%")
+        param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
     }
 
     triggers {
@@ -114,7 +114,7 @@ object SystemTestLatestRelease : BuildType({
     description = "Runs system test using the latest build of the Wflow.jl %wflow.latest.release% release branch. Triggered by new Wflow.jl tags; failures are emailed."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/heads/%wflow.latest.release%")
+        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
     }
 
     triggers {
@@ -132,7 +132,7 @@ object SystemTestOldestSupported : BuildType({
     description = "Nightly canary against the oldest release we still claim to support (%wflow.oldest.supported.release%). Also doubles as the 'catch a silent upstream dependency regression' check, since nothing else re-runs this pipeline without a hydromt_wflow or Wflow.jl commit."
 
     params {
-        param("wflow.cli.branch.filter", "+:refs/tags/%wflow.oldest.supported.release%")
+        param("wflow.cli.branch.filter", "+:%wflow.oldest.supported.release%")
     }
 
     triggers {
