@@ -10,7 +10,7 @@ accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("SystemTestDev")) {
     dependencies {
-        expect(AbsoluteId("wflow_BuildWflowCliWindows")) {
+        remove(AbsoluteId("wflow_BuildWflowCliWindows")) {
             snapshot {
                 onDependencyFailure = FailureAction.FAIL_TO_START
             }
@@ -18,14 +18,6 @@ changeBuildType(RelativeId("SystemTestDev")) {
             artifacts {
                 id = "ARTIFACT_DEPENDENCY_7064"
                 buildRule = sameChain()
-                cleanDestination = true
-                artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
-            }
-        }
-        update(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            artifacts {
-                id = "ARTIFACT_DEPENDENCY_7064"
-                buildRule = lastSuccessful()
                 cleanDestination = true
                 artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
             }
