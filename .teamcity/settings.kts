@@ -44,7 +44,7 @@ project {
 
     template(WflowSystemTestTemplate)
     template(GitHubPrTemplate)
-    template(WflowJlEmailTemplate)
+    // template(WflowJlEmailTemplate)
     template(WflowWindowsAgentTemplate)
 
     params {
@@ -87,7 +87,7 @@ object SystemTestPrCheck : BuildType({
 })
 
 object SystemTestDev : BuildType({
-    templates(WflowSystemTestTemplate, WflowJlEmailTemplate, WflowWindowsAgentTemplate)
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
     name = "System test (Wflow-dev)"
     description = "Runs system test using the latest build of Wflow.jl %wflow.dev.branch%. Triggered by Wflow.jl, not a hydromt_wflow PR - failures are emailed, not posted as a GitHub check."
 
@@ -105,7 +105,7 @@ object SystemTestDev : BuildType({
 })
 
 object SystemTestLatestRelease : BuildType({
-    templates(WflowSystemTestTemplate, WflowJlEmailTemplate, WflowWindowsAgentTemplate)
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
     name = "System test (Wflow latest release)"
     description = "Runs system test using the latest tagged Wflow.jl release (%wflow.latest.release%). Triggered by new Wflow.jl tags; failures are emailed."
 
@@ -123,7 +123,7 @@ object SystemTestLatestRelease : BuildType({
 })
 
 object SystemTestOldestSupported : BuildType({
-    templates(WflowSystemTestTemplate, WflowJlEmailTemplate, WflowWindowsAgentTemplate)
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
     name = "System test (Wflow oldest supported)"
     description = "Nightly canary against the oldest release we still claim to support (%wflow.oldest.supported.release%). Also doubles as the 'catch a silent upstream dependency regression' check, since nothing else re-runs this pipeline without a hydromt_wflow or Wflow.jl commit."
 
@@ -251,6 +251,7 @@ object GitHubPrTemplate : Template({
     }
 })
 
+/* uncomment when email is enabled / fixed on teamcity
 object WflowJlEmailTemplate : Template({
     name = "Wflow.jl VCS root + email on failure"
     description = "Attaches Wflow.jl (for triggering/version pinning) and emails on failure instead of publishing a GitHub check, since these builds aren't tied to a hydromt_wflow commit or PR. Do not combine with GitHubPrTemplate."
@@ -269,6 +270,7 @@ object WflowJlEmailTemplate : Template({
         }
     }
 })
+*/
 
 object WflowWindowsAgentTemplate : Template({
     name = "Windows Agent Template"
