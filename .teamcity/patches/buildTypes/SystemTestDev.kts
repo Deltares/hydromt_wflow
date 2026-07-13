@@ -9,6 +9,12 @@ To apply the patch, change the buildType with id = 'SystemTestDev'
 accordingly, and delete the patch script.
 */
 changeBuildType(RelativeId("SystemTestDev")) {
+    params {
+        add {
+            param("wflow.cli.branch.filter", "+:master")
+        }
+    }
+
     dependencies {
         remove(AbsoluteId("wflow_BuildWflowCliWindows")) {
             snapshot {
