@@ -404,3 +404,9 @@ def static_layer() -> xr.DataArray:
     da.raster.set_crs(4326)
     da.raster.set_nodata(-9999)
     return da
+
+
+@pytest.fixture(scope="session")
+def session_rng():
+    """Session-scoped RNG for deterministic random sampling in tests."""
+    return np.random.default_rng(100)
