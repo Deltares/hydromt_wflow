@@ -11,7 +11,7 @@ accordingly, and delete the patch script.
 changeBuildType(RelativeId("SystemTestDev")) {
     params {
         add {
-            param("wflow.cli.branch.filter", "+:master")
+            param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
         }
     }
 
