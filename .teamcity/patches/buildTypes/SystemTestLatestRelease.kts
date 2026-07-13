@@ -18,7 +18,7 @@ create(DslContext.projectId, BuildType({
 
     params {
         text("status.check.name", "System test (Wflow-dev)", allowEmpty = false)
-        text("wflow.cli.branch.filter", "+:master", description = "Newline-delimited set of rules in the form of +|-:logical branch name (with an optional * placeholder)", allowEmpty = false)
+        text("wflow.cli.branch.filter", "+:tags/%wflow.cli.version.latest%", description = "Newline-delimited set of rules in the form of +|-:logical branch name (with an optional * placeholder)", allowEmpty = false)
     }
 
     vcs {
