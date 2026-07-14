@@ -229,3 +229,87 @@ def test_build_reservoir_outlets_from_uparea(gdf, ds_like, ds_initial_area_id):
         assert row["yout"] == expected["yout"]
 
     assert outgdf.geometry.type.tolist() == ["Point", "Point", "Point"]
+
+
+def test__build_reservoir_outlet_id(gdf, ds_like, ds_initial_area_id):
+    """Test outlet ID map creation from provided xout/yout coordinates."""
+    nodata = -999
+    gdf_with_outlets = gdf[gdf["waterbody_id"].isin([10, 20, 30])].copy()
+    gdf_with_outlets["xout"] = [0.0, 1.0, 2.0]
+    gdf_with_outlets["yout"] = [0.0, 0.0, 0.0]
+
+    rasterized_outlets = xr.DataArray(
+        np.array([[10, 20, 30]], dtype=np.int32),
+        dims=("y", "x"),
+        coords={"y": [0], "x": [0, 1, 2]},
+        attrs={"_FillValue": nodata},
+    )
+
+    with mock.patch.object(
+        ds_like.raster, "rasterize", return_value=rasterized_outlets
+    ) as mock_rasterize:
+        ds_out, gdf_out = reservoirs._build_reservoir_outlet_id_map(
+            gdf=gdf_with_outlets,
+            ds_out=ds_initial_area_id.copy(deep=True),
+            ds_like=ds_like,
+            nodata=nodata,
+            uparea_name=None,
+        )
+
+    assert mock_rasterize.call_count == 1
+    assert np.array_equal(ds_out["reservoir_outlet_id"].values, [[10, 20, 30]])
+    assert ds_out["reservoir_outlet_id"].attrs["_FillValue"] == nodata
+    assert np.allclose(gdf_out["xout"].to_numpy(), [0.0, 1.0, 2.0])
+    assert np.allclose(gdf_out["yout"].to_numpy(), [0.0, 0.0, 0.0])
+
+
+@mock.patch.object(reservoirs, "_build_reservoir_outlet_id_map")
+@mock.patch.object(reservoirs, "_build_reservoir_area_id_map")
+def test_reservoir_id_maps(
+    mock_build_area,
+    mock_build_outlet,
+    gdf,
+    ds_like,
+    ds_initial_area_id,
+):
+    """Test reservoir_id_maps area filtering and helper call orchestration."""
+    # gdf with which contains a waterbody that is below the min_area threshold.
+    gdf_with_area = gdf[gdf["waterbody_id"].isin([10, 20, 30])].copy()
+    gdf_with_area["Area_avg"] = [1.0e6, 2.0e6, 3.0e6]
+
+    # gdf after filtering by min_area, which should only include waterbody_ids 20 and 30.
+    gdf_after_area = gdf_with_area[gdf_with_area["waterbody_id"].isin([20, 30])].copy()
+
+    # gdf after adding outlet coordinates, xout/yout
+    gdf_after_outlet = gdf_after_area.copy()
+    gdf_after_outlet["xout"] = [1.0, 2.0]
+    gdf_after_outlet["yout"] = [0.0, 0.0]
+
+    # Mock the return values
+    mock_build_area.return_value = (ds_initial_area_id.copy(deep=True), gdf_after_area)
+    mock_build_outlet.return_value = (
+        ds_initial_area_id.copy(deep=True),
+        gdf_after_outlet,
+    )
+
+    # Call the function under test
+    ds_out, gdf_out = reservoirs.reservoir_id_maps(
+        gdf=gdf_with_area,
+        ds_like=ds_like.drop_vars("uparea"),
+        min_area=2.0,
+        uparea_name="uparea",
+        exclude_outside_reservoirs=True,
+        fraction=0.25,
+    )
+
+    # Assertions
+    assert mock_build_area.call_count == 1
+    assert mock_build_outlet.call_count == 1
+
+    area_call = mock_build_area.call_args.kwargs
+    assert area_call["gdf"]["waterbody_id"].tolist() == [20, 30]
+    assert area_call["exclude_outside_reservoirs"] is True
+    assert area_call["fraction"] == 0.25
+
+    assert ds_out is mock_build_outlet.return_value[0]
+    assert gdf_out is mock_build_outlet.return_value[1]
