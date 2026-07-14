@@ -446,7 +446,7 @@ WFLOW_STATES_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_name": "subsurface_water__hydraulic_head",
     },
     "subsurface_q": {
-        "wflow_name": "subsurface_water__volume_flow_rate",
+        "wflow_name": "subsurface_water__instantaneous_volume_flow_rate",
     },
     "river_instantaneous_q": {
         "wflow_name": "river_water__instantaneous_volume_flow_rate",

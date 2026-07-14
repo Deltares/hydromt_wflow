@@ -19,6 +19,7 @@ from hydromt_wflow.version_upgrade import (
     WFLOW_LATEST_VERSION,
     _convert_sbm_config_v0_to_v1,
     _detect_version_from_config,
+    _get_land_surface_elevation_name,
     _is_v1_schema,
     _upgrade_components_v0_to_v1_sbm,
     _upgrade_components_v0_to_v1_sediment,
@@ -372,25 +373,21 @@ class TestUpgradeV1ToV1_1:
         shutil.copytree(source, target)
 
         config = read_toml(target / "wflow_sbm.toml")
-        del config["input"]["static"]["land_surface__elevation"]
+        varname = config["input"]["static"].pop("land_surface__elevation")
+        assert varname == "wflow_dem"
         write_toml(target / "wflow_sbm.toml", config)
 
-        requires_setup_basemaps = _upgrade_config_v1_to_v1_1(
+        _upgrade_config_v1_to_v1_1(
             target, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
         )
-
+        after_upgrade = _get_land_surface_elevation_name(config, target)
         upgraded = read_toml(target / "wflow_sbm.toml")
-        assert requires_setup_basemaps is False
-        assert (
-            get_config(
-                upgraded,
-                "input.static.land_surface__elevation",
-                None,
-            )
-            == "wflow_dem"
-        )
+        assert after_upgrade == varname
+        assert get_config(upgraded, "input.static.land_surface__elevation") == varname
 
-    def test_marks_setup_basemaps_required_if_no_elevation_layer(self, tmp_path: Path):
+    def test_logs_setup_basemaps_required_if_no_elevation_layer(
+        self, caplog: pytest.LogCaptureFixture, tmp_path: Path
+    ):
         root = tmp_path / "model"
         root.mkdir(parents=True, exist_ok=True)
         xr.Dataset(
@@ -408,15 +405,21 @@ class TestUpgradeV1ToV1_1:
             },
         )
 
-        requires_setup_basemaps = _upgrade_config_v1_to_v1_1(
+        _upgrade_config_v1_to_v1_1(
             root, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
         )
-
         upgraded = read_toml(root / "wflow_sbm.toml")
-        assert requires_setup_basemaps is True
-        assert (
-            get_config(upgraded, "input.static.land_surface__elevation", None) is None
-        )
+        with caplog.at_level(logging.WARNING):
+            varname = _get_land_surface_elevation_name(upgraded, root)
+            assert varname is None
+            assert (
+                get_config(upgraded, "input.static.land_surface__elevation", None)
+                is None
+            )
+            assert (
+                "Could not find the variable ('input.static.land_surface__elevation')"
+                in caplog.text
+            )
 
 
 class TestUpgradeToLatest:

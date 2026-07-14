@@ -6,7 +6,7 @@ import copy
 import logging
 import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Generator, Literal
 
 import xarray as xr
 from hydromt.readers import read_toml
@@ -1310,6 +1310,54 @@ def _get_model_class(model_type: str):
     )
 
 
+def _get_land_surface_elevation_name(config: dict, root: Path) -> str | None:
+    """Determine the name of the land surface elevation variable in the staticmaps.
+
+    In Wflow v1.1, the land surface elevation variable is required for all model types.
+    This function checks the config for a user-defined name, and if not found, it looks
+    for common candidate names in the staticmaps dataset.
+
+    Returns
+    -------
+    str | None
+        The name of the land surface elevation variable, or None if not found.
+    """
+    msg = (
+        "Could not find the variable ('input.static.land_surface__elevation') in "
+        "staticmaps or config. Make sure to run 'setup_basemaps' during the upgrade "
+        "to generate the required elevation layer."
+    )
+    configured_name = get_config(
+        key="input.static.land_surface__elevation",
+        config=config,
+        fallback=None,
+    )
+    if configured_name is not None:
+        return configured_name
+
+    path_static = get_config(
+        key="input.path_static",
+        config=config,
+        root=root,
+        abs_path=True,
+        fallback="staticmaps.nc",
+    )
+    if not path_static.exists():
+        logger.warning(f"Could not find staticmaps at {path_static}; " + msg)
+        return None
+
+    with xr.open_dataset(path_static) as staticmaps:
+        for candidate in (
+            "land_surface__elevation",
+            "land_elevation",
+            "wflow_dem",
+        ):
+            if candidate in staticmaps.data_vars:
+                return candidate
+    logger.warning(msg)
+    return None
+
+
 # All `_upgrade_**` functions use the `_convert_**` functions to perform the actual
 # conversion, but they also handle reading/writing configs and accessing model
 # components as needed.
@@ -1343,52 +1391,10 @@ def _upgrade_config_v0_to_v1(
 
 def _upgrade_config_v1_to_v1_1(
     model_root: Path, model_type: str, config_filename: str
-) -> bool:
-    """Upgrade a v1.0 config to v1.1 format and write the result to disk.
-
-    Returns
-    -------
-    bool
-        True when the staticmaps does not contain a known elevation layer and
-        a ``setup_basemaps`` call is required to create one.
-    """
-
-    def _get_land_surface_elevation_name(config: dict, root: Path) -> str | None:
-        configured_name = get_config(
-            key="input.static.land_surface__elevation",
-            config=config,
-            fallback=None,
-        )
-        if configured_name is not None:
-            return configured_name
-
-        path_static = get_config(
-            key="input.path_static",
-            config=config,
-            root=root,
-            abs_path=True,
-            fallback="staticmaps.nc",
-        )
-        if not path_static.exists():
-            logger.warning(
-                f"Could not find staticmaps at {path_static}; "
-                "cannot infer 'input.static.land_surface__elevation'."
-            )
-            return None
-
-        with xr.open_dataset(path_static) as staticmaps:
-            for candidate in (
-                "land_surface__elevation",
-                "land_elevation",
-                "wflow_dem",
-            ):
-                if candidate in staticmaps.data_vars:
-                    return candidate
-        return None
-
+) -> None:
+    """Upgrade a v1.0 config to v1.1 format and write the result to disk."""
     config_path = model_root / config_filename
     config = read_toml(config_path)
-    requires_setup_basemaps = False
 
     if model_type == "wflow_sbm":
         config_out = _convert_sbm_config_v1_to_v1_1(config)
@@ -1405,17 +1411,9 @@ def _upgrade_config_v1_to_v1_1(
             key="input.static.land_surface__elevation",
             value=elevation_name,
         )
-    else:
-        requires_setup_basemaps = True
-        logger.warning(
-            "No elevation layer found in staticmaps for "
-            "'input.static.land_surface__elevation'. "
-            "Run setup_basemaps during upgrade to create the layer."
-        )
 
     write_toml(config_path, config_out)
     logger.info(f"Wrote upgraded v1.1 config to {config_path}.")
-    return requires_setup_basemaps
 
 
 def _upgrade_components_v0_to_v1_sbm(
@@ -1436,6 +1434,7 @@ def _upgrade_components_v0_to_v1_sbm(
             model.config.set(option, config_opt[option])
 
     _convert_tables_v0_to_v1(model.tables)
+    model.write()
 
 
 def _upgrade_components_v0_to_v1_sediment(
@@ -1469,12 +1468,39 @@ def _upgrade_components_v0_to_v1_sediment(
         model.staticmaps.set(ds_res)
         for option in config_opt:
             model.config.set(option, config_opt[option])
+    model.write()
+
+
+def _upgrade_components_v1_to_v1_1(
+    model_type: str,
+    model_root: str | Path,
+    config_filename: str | None,
+    data_libs: dict,
+    options: dict,
+) -> None:
+    setup_basemaps_kwargs = options.get("setup_basemaps")
+    if setup_basemaps_kwargs is None:
+        raise ValueError(
+            "Missing required elevation layer in staticmaps and no "
+            "'setup_basemaps' options were provided. "
+            "Pass options={'1.0_1.1': {'setup_basemaps': {...}}} "
+            "to run setup_basemaps during upgrade."
+        )
+    ModelClass = _get_model_class(model_type)
+    model = ModelClass(
+        str(model_root),
+        config_filename=config_filename,
+        mode="r+",
+        data_libs=data_libs,
+    )
+    model.setup_basemaps(**setup_basemaps_kwargs)
+    model.write()
 
 
 # Main entry point
 def upgrade_model(
     model_root: str | Path,
-    model_type: str,
+    model_type: Literal["wflow_sbm", "wflow_sediment"],
     config_filename: str | None = None,
     data_libs: list[str] | str | None = None,
     options: dict | None = None,
@@ -1492,7 +1518,7 @@ def upgrade_model(
     ----------
     model_root : str or Path
         Path to the model root directory.
-    model_type : str
+    model_type : Literal["wflow_sbm", "wflow_sediment"],
         Type of model: ``"wflow_sbm"`` or ``"wflow_sediment"``.
     config_filename : str, optional
         Config filename relative to model_root.
@@ -1525,33 +1551,13 @@ def upgrade_model(
         _upgrade_config_v0_to_v1(model_root, config, model_type, config_filename)
         logger.info("Upgrading config from v0.x to v1.0 format.")
         version = Version("1.0")
+
     if version < Version("1.1"):
-        needs_setup_basemaps = _upgrade_config_v1_to_v1_1(
+        _upgrade_config_v1_to_v1_1(
             model_root,
             model_type,
             config_filename,
         )
-        if needs_setup_basemaps:
-            opts_v1_to_v1_1 = validated_options.get(
-                (Version("1.0"), Version("1.1")), {}
-            )
-            setup_basemaps_kwargs = opts_v1_to_v1_1.get("setup_basemaps")
-            if setup_basemaps_kwargs is None:
-                raise ValueError(
-                    "Missing required elevation layer in staticmaps and no "
-                    "'setup_basemaps' options were provided. "
-                    "Pass options={'1.0_1.1': {'setup_basemaps': {...}}} "
-                    "to run setup_basemaps during upgrade."
-                )
-            ModelClass = _get_model_class(model_type)
-            model = ModelClass(
-                str(model_root),
-                config_filename=config_filename,
-                mode="r+",
-                data_libs=data_libs,
-            )
-            model.setup_basemaps(**setup_basemaps_kwargs)
-            model.write()
         version = Version("1.1")
 
     # Upgrade component data using previous and updated config (needs initialized Model)
@@ -1568,6 +1574,20 @@ def upgrade_model(
             _upgrade_components_v0_to_v1_sbm(model, config_v0, **v0_opts)
         elif model_type == "wflow_sediment":
             _upgrade_components_v0_to_v1_sediment(model, config_v0, **v0_opts)
-        model.write()
+
+    # Upgrade component data for v1 to v1.1 if needed
+    config_v1 = read_toml(config_path)
+    requires_setup_basemaps = (
+        _get_land_surface_elevation_name(config_v1, model_root) is None
+    )
+    if requires_setup_basemaps:
+        _opts = validated_options.get((Version("1.0"), Version("1.1")), {})
+        _upgrade_components_v1_to_v1_1(
+            model_type=model_type,
+            model_root=model_root,
+            config_filename=config_filename,
+            data_libs=data_libs,
+            options=_opts,
+        )
 
     logger.info(f"Model upgraded to Wflow.jl v{version}. {model_root=}")
