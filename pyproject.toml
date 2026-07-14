@@ -211,7 +211,7 @@ install            = { depends-on = ["install-pre-commit"] }
 install-pre-commit = "pre-commit install"
 
 # Repo related tasks
-lint = { cmd = ["pre-commit", "run", "--all"] }
+lint = { cmd = ["pre-commit", "run", "--all-files"] }
 
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
