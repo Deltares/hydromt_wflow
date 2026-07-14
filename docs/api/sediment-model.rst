@@ -90,6 +90,7 @@ Defines model output points and areas such as outlets, gauges, and spatial masks
 
    WflowSedimentModel.setup_outlets
    WflowSedimentModel.setup_gauges
+   WflowSedimentModel.setup_subbasins
    WflowSedimentModel.setup_areamap
 
 
@@ -101,6 +102,7 @@ Additional high-level utilities to manage model geometry, upgrade versions, or m
    :toctree: _generated
 
    WflowSedimentModel.setup_grid_from_raster
+   WflowSedimentModel.setup_grid_from_geodataset
    WflowSedimentModel.upgrade_to_v1_wflow
    WflowSedimentModel.clip
 

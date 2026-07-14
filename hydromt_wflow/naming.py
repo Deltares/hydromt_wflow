@@ -344,6 +344,10 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v1": "land_surface__slope",
         "hydromt_name": "lndslp",
     },
+    "land_pond_threshold": {
+        "wflow_v0": "lateral.land.h_thresh",
+        "wflow_v1": "land_surface_water__depth_threshold",
+    },
     # river
     "floodplain_volume": {
         "wflow_v0": "lateral.river.floodplain.volume",
@@ -458,6 +462,16 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
         "wflow_v1": "reservoir_water__target_min_volume_fraction",
         "hydromt_name": "reservoir_target_min_fraction",
+    },
+    "reservoir_outflow": {
+        "wflow_v0": None,
+        "wflow_v1": "reservoir_water__outgoing_observed_volume_flow_rate",
+        "hydromt_name": "reservoir_outflow",
+    },
+    "reservoir_external_inflow": {
+        "wflow_v0": None,
+        "wflow_v1": "reservoir_water__external_inflow_volume_flow_rate",
+        "hydromt_name": "reservoir_external_inflow",
     },
     # gwf
     "altitude": {

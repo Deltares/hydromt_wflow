@@ -18,7 +18,7 @@ from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
+from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel, utils
 
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
@@ -260,6 +260,15 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
+def agroforestry_testdata() -> gpd.GeoDataFrame:
+    bbox1 = [12.059, 45.858, 12.108, 45.891]
+    bbox2 = [12.176, 46.108, 12.225, 46.158]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
+    gdf["agroforestry"] = [1, 1]
+    return gdf
+
+
+@pytest.fixture
 def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     return gpd.read_file(example_data_dir / "rivers.geojson")
@@ -362,6 +371,19 @@ def reservoir_rating() -> dict[str, pd.DataFrame]:
     rating["reservoir_hq_3367"] = rating["reservoir_hq_169986"].copy()
 
     return rating
+
+
+@pytest.fixture
+def reservoir_outlets(example_wflow_model: WflowSbmModel) -> gpd.GeoDataFrame:
+    """Geodataframe of the reservoir outlets for testing purposes."""
+    res = example_wflow_model.staticmaps.data["reservoir_outlet_id"]
+    res_outlets = res.raster.vectorize()
+    centroid = utils.planar_operation_in_utm(res_outlets, lambda geom: geom.centroid)
+    res_outlets["geometry"] = centroid
+    # After rasterize use col value for index and reapply dtype
+    res_outlets.index = res_outlets["value"].astype(res.dtype)
+
+    return res_outlets
 
 
 @pytest.fixture
