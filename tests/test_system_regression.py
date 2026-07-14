@@ -1,74 +1,97 @@
-"""System regression tests for Wflow model outputs.
+"""System regression tests for basin SBM and sediment model metrics."""
 
-Compares model output at a single outlet for a defined period against a baseline.
-Invoked via: pixi run assert-system-test <MODEL_ROOT>
-"""
+from __future__ import annotations
 
+import json
 from pathlib import Path
 
-import numpy as np
 import pytest
-import xarray as xr
+
+from tests.regression.regression_utils import (
+    compare_metrics,
+    compute_metrics,
+    emit_teamcity_stats,
+    get_basins_for_profile,
+    load_basin_config,
+    repo_root,
+    resolve_path,
+)
 
 pytestmark = pytest.mark.regression
 
 
-@pytest.fixture
-def model_root(request):
-    return request.config.getoption("--model-root")
+def _resolved_run_root(config: pytest.Config) -> Path:
+    regression_root = config.getoption("--regression-root")
+    if regression_root:
+        return Path(regression_root)
+
+    legacy_model_root = config.getoption("--model-root")
+    if legacy_model_root:
+        return Path(legacy_model_root).parent.parent
+
+    pytest.skip("Pass --regression-root to run regression assertions.")
 
 
-@pytest.fixture
-def model_output(model_root):
-    output_path = Path(model_root) / "run_default" / "output.nc"
-    if not output_path.exists():
-        pytest.skip(f"Output file not found: {output_path}")
-    return xr.open_dataset(output_path)
+def _resolved_basins(config: pytest.Config, project_root: Path) -> list[str]:
+    basins_arg = config.getoption("--regression-basins")
+    if basins_arg:
+        return [b.strip() for b in basins_arg.split(",") if b.strip()]
+
+    profile = config.getoption("--regression-profile")
+    return get_basins_for_profile(project_root, profile)
 
 
-@pytest.fixture
-def baseline(model_root):
-    baseline_path = Path(model_root) / "baseline" / "output.nc"
+def pytest_generate_tests(metafunc):
+    if "basin" not in metafunc.fixturenames:
+        return
+    project_root = repo_root()
+    basins = _resolved_basins(metafunc.config, project_root)
+    metafunc.parametrize("basin", basins)
+
+
+def test_basin_regression_metrics(basin, request):
+    project_root = repo_root()
+    run_root = _resolved_run_root(request.config)
+    basin_config = load_basin_config(project_root, basin)
+
+    baseline_path = resolve_path(project_root, basin_config["baseline_metrics"])
     if not baseline_path.exists():
-        pytest.skip(f"Baseline file not found: {baseline_path}")
-    return xr.open_dataset(baseline_path)
-
-
-class TestSBMRegression:
-    """Regression tests for SBM model output at the outlet."""
-
-    OUTLET_INDEX = -1  # last gauge / outlet
-    RTOL = 1e-5  # relative tolerance
-    ATOL = 1e-8  # absolute tolerance
-
-    def test_discharge_outlet(self, model_output, baseline):
-        """Compare discharge at the outlet between run and baseline."""
-        var = "Q"
-        if var not in model_output:
-            pytest.skip(f"Variable '{var}' not in model output")
-
-        actual = model_output[var].isel(wflow_id=self.OUTLET_INDEX).values
-        expected = baseline[var].isel(wflow_id=self.OUTLET_INDEX).values
-
-        np.testing.assert_allclose(
-            actual,
-            expected,
-            rtol=self.RTOL,
-            atol=self.ATOL,
-            err_msg=f"Discharge at outlet diverged from baseline (rtol={self.RTOL})",
+        raise AssertionError(
+            f"Baseline metrics not found: {baseline_path}. "
+            "Generate with: pixi run regression-generate-metrics <ROOT>"
         )
 
-    def test_discharge_rmse(self, model_output, baseline):
-        """Report single-number RMSE at the outlet for release notes."""
-        var = "Q"
-        if var not in model_output or var not in baseline:
-            pytest.skip(f"Variable '{var}' not available for RMSE check")
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
 
-        actual = model_output[var].isel(wflow_id=self.OUTLET_INDEX).values
-        expected = baseline[var].isel(wflow_id=self.OUTLET_INDEX).values
+    sbm_output = run_root / "wflow_sbm" / basin / basin_config["sbm"]["output_nc"]
+    sediment_output = (
+        run_root / "wflow_sediment" / basin / basin_config["sediment"]["output_nc"]
+    )
 
-        rmse = float(np.sqrt(np.mean((actual - expected) ** 2)))
-        # TeamCity service message for reporting
-        print(f"##teamcity[buildStatisticValue key='rmse_outlet_Q' value='{rmse:.6e}']")
-        # Fail if RMSE exceeds threshold (absolute discharge units)
-        assert rmse < 0.01, f"RMSE at outlet ({rmse:.6e}) exceeds threshold 0.01"
+    sbm_actual = compute_metrics(sbm_output, basin_config["sbm"]["metrics"])
+    sediment_actual = compute_metrics(
+        sediment_output, basin_config["sediment"]["metrics"]
+    )
+
+    emit_teamcity_stats(basin, "sbm", sbm_actual)
+    emit_teamcity_stats(basin, "sediment", sediment_actual)
+
+    failures = []
+    failures.extend(
+        compare_metrics(
+            actual=sbm_actual,
+            baseline=baseline.get("sbm", {}),
+            specs=basin_config["sbm"]["metrics"],
+            model_name=f"{basin}.sbm",
+        )
+    )
+    failures.extend(
+        compare_metrics(
+            actual=sediment_actual,
+            baseline=baseline.get("sediment", {}),
+            specs=basin_config["sediment"]["metrics"],
+            model_name=f"{basin}.sediment",
+        )
+    )
+
+    assert not failures, "\n".join(failures)

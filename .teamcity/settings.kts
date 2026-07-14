@@ -16,18 +16,11 @@ DslContext.settingsRoot rather than a second, hand-declared VCS root.
 
 Five build configurations, one template stack:
 
-  SystemTest              - manual/debug run, no trigger
-  SystemTestPrCheck        - hydromt_wflow PR -> GitHub check
-  SystemTestDev             - Wflow.jl master commit -> email on failure
-  SystemTestLatestRelease   - Wflow.jl tag push -> email on failure
-  SystemTestOldestSupported - nightly schedule -> email on failure
-
-PR-triggered and Wflow.jl-triggered builds are deliberately split into
-different build configurations. A single build config can't publish a
-GitHub check on one trigger cause and an email on another, so honouring
-"no commit status for wflow.jl, email instead" (see team recap) means the
-two trigger causes need separate build types, even though they share the
-exact same build/run steps template.
+  SystemTestPrCheckStable   - hydromt_wflow PR -> GitHub check, uses latest wflow.jl release
+  SystemTestPrCheckDev      - hydromt_wflow PR -> GitHub check, uses wflow.jl@master
+  SystemTestDev             - nightly schedule, uses wflow.jl@master, full profile
+  SystemTestLatestRelease   - nightly schedule, uses latest wflow.jl release, full profile
+  SystemTestOldestSupported - nightly schedule, uses oldest supported wflow.jl release, full profile
 */
 
 version = "2026.1"
@@ -36,8 +29,8 @@ project {
 
     vcsRoot(WflowJl)
 
-    buildType(SystemTest)
-    buildType(SystemTestPrCheck)
+    buildType(SystemTestPrCheckStable)
+    buildType(SystemTestPrCheckDev)
     buildType(SystemTestDev)
     buildType(SystemTestLatestRelease)
     buildType(SystemTestOldestSupported)
@@ -58,7 +51,7 @@ project {
         param("wflow.latest.release", "release/v1.0")
         param("wflow.oldest.supported.release", "v1.0.0")
 
-        // Who gets paged when a Wflow.jl-triggered or nightly run breaks.
+        // Who gets paged when a nightly run breaks.
         // There's no hydromt_wflow PR to attach a GitHub check to in that
         // case, so we email instead (see team recap).
         // param("notify.email", "wflow-ci@deltares.nl")
@@ -69,77 +62,89 @@ project {
 // Build types
 // ---------------------------------------------------------------------------
 
-object SystemTest : BuildType({
-    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate)
-    name = "System test (manual)"
-    description = "Build and run an SBM from scratch (artifact_data), then convert it to a sediment model and run that. No trigger - use 'Run...' and override wflow.cli.branch.filter to point at a specific wflow_cli build."
-
-    params {
-        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
-    }
-})
-
-object SystemTestPrCheck : BuildType({
+object SystemTestPrCheckStable : BuildType({
     templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
-    name = "System test (PR check)"
+    name = "System test (PR check, latest release)"
     description = "Runs on every hydromt_wflow PR against the latest supported Wflow.jl release and publishes a GitHub check."
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
-        text("status.check.name", "System test (PR)", allowEmpty = false)
+        param("regression.profile", "pr")
+        text("status.check.name", "System test (PR, latest release)", allowEmpty = false)
+    }
+})
+
+object SystemTestPrCheckDev : BuildType({
+    templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
+    name = "System test (PR check, wflow master)"
+    description = "Runs on every hydromt_wflow PR against the latest build from Wflow.jl master and publishes a GitHub check."
+
+    params {
+        param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
+        param("regression.profile", "pr")
+        text("status.check.name", "System test (PR, wflow master)", allowEmpty = false)
     }
 })
 
 object SystemTestDev : BuildType({
     templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
-    name = "System test (Wflow-dev)"
-    description = "Runs system test using the latest build of Wflow.jl %wflow.dev.branch%. Triggered by Wflow.jl, not a hydromt_wflow PR - failures are emailed, not posted as a GitHub check."
+    name = "System test (Nightly, Wflow master)"
+    description = "Nightly run using the latest build of Wflow.jl %wflow.dev.branch% and the full regression profile."
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
+        param("regression.profile", "all")
     }
 
     triggers {
-        vcs {
-            id = "TRIGGER_862"
-            triggerRules = "+:root=${WflowJl.id}:**"
-            branchFilter = "+:refs/heads/%wflow.dev.branch%"
+        schedule {
+            id = "TRIGGER_NIGHTLY_DEV"
+            schedulingPolicy = daily {
+                hour = 2
+            }
+            triggerBuild = always()
+            withPendingChangesOnly = false
         }
     }
 })
 
 object SystemTestLatestRelease : BuildType({
     templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
-    name = "System test (Wflow latest release)"
-    description = "Runs system test using the latest build of the Wflow.jl %wflow.latest.release% release branch. Triggered by new Wflow.jl tags; failures are emailed."
+    name = "System test (Nightly, Wflow latest release)"
+    description = "Nightly run using the latest build of the Wflow.jl %wflow.latest.release% release branch and the full regression profile."
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
+        param("regression.profile", "all")
     }
 
     triggers {
-        vcs {
-            id = "TRIGGER_863"
-            triggerRules = "+:root=${WflowJl.id}:**"
-            branchFilter = "+:refs/tags/*"
+        schedule {
+            id = "TRIGGER_NIGHTLY_LATEST_RELEASE"
+            schedulingPolicy = daily {
+                hour = 3
+            }
+            triggerBuild = always()
+            withPendingChangesOnly = false
         }
     }
 })
 
 object SystemTestOldestSupported : BuildType({
     templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
-    name = "System test (Wflow oldest supported)"
+    name = "System test (Nightly, Wflow oldest supported)"
     description = "Nightly canary against the oldest release we still claim to support (%wflow.oldest.supported.release%). Also doubles as the 'catch a silent upstream dependency regression' check, since nothing else re-runs this pipeline without a hydromt_wflow or Wflow.jl commit."
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.oldest.supported.release%")
+        param("regression.profile", "all")
     }
 
     triggers {
         schedule {
-            id = "TRIGGER_NIGHTLY"
+            id = "TRIGGER_NIGHTLY_OLDEST_SUPPORTED"
             schedulingPolicy = daily {
-                hour = 2
+                hour = 4
             }
             triggerBuild = always()
             withPendingChangesOnly = false
@@ -161,6 +166,11 @@ object WflowSystemTestTemplate : Template({
             description = "Newline-delimited set of rules in the form of +|-:logical branch name (with an optional * placeholder) picking which wflow_cli build to fetch. Every build type using this template must set this.",
             allowEmpty = false
         )
+        text(
+            "regression.profile", "",
+            description = "Basin profile for regression tasks (pr|all).",
+            allowEmpty = false
+        )
     }
 
     vcs {
@@ -169,8 +179,8 @@ object WflowSystemTestTemplate : Template({
 
     steps {
         script {
-            name = "Build and run sbm"
-            id = "Build_sbm"
+            name = "Build and run regression pipeline"
+            id = "Build_run_regression_pipeline"
             workingDir = "hydromt_wflow"
             scriptContent = """
                 @if not exist "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" (
@@ -178,23 +188,15 @@ object WflowSystemTestTemplate : Template({
                     exit /b 1
                 )
 
-                REM Build
-                pixi run build-system-test-sbm "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-
-                REM Run
-                "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sbm.toml"
+                pixi run regression-pipeline "%regression.profile%" "%teamcity.agent.work.dir%\system-test" "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe"
             """.trimIndent()
         }
         script {
-            name = "Build and run sediment"
-            id = "build_and_run_sediment"
+            name = "Assert regression metrics"
+            id = "assert_regression_metrics"
             workingDir = "hydromt_wflow"
             scriptContent = """
-                REM Build
-                pixi run build-system-test-sediment "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-
-                REM Run
-                "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sediment.toml"
+                pixi run regression-assert "%regression.profile%" "%teamcity.agent.work.dir%\system-test"
             """.trimIndent()
         }
     }

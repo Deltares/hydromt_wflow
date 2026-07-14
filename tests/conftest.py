@@ -29,6 +29,24 @@ def pytest_addoption(parser):
         default=None,
         help="Path to the model root directory for regression tests",
     )
+    parser.addoption(
+        "--regression-root",
+        action="store",
+        default=None,
+        help="Root directory containing wflow_sbm/<basin> and wflow_sediment/<basin>",
+    )
+    parser.addoption(
+        "--regression-profile",
+        action="store",
+        default="all",
+        help="Regression basin profile from tests/data/regression/manifest.json",
+    )
+    parser.addoption(
+        "--regression-basins",
+        action="store",
+        default=None,
+        help="Comma-separated basin list overriding --regression-profile",
+    )
 
 
 ## Paths
