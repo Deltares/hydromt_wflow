@@ -557,6 +557,24 @@ def soilgrids(
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["theta_s"] = thetas.astype(np.float32)
 
+    logger.info("calculate and resample theta_fc")
+    thetafc_sl = xr.apply_ufunc(
+        ptf.thetafc_toth,
+        ds["oc"],
+        ds["clyppt"],
+        ds["sltppt"],
+        dask="parallelized",
+        output_dtypes=[float],
+        keep_attrs=True,
+    )
+
+    if soil_fn == "soilgrids_2020":
+        thetafc = average_soillayers_block(thetafc_sl, ds["soilthickness"])
+    else:
+        thetafc = average_soillayers(thetafc_sl, ds["soilthickness"])
+    thetafc = thetafc.raster.reproject_like(ds_like, method="average")
+    ds_out["theta_fc"] = thetafc.astype(np.float32)
+
     logger.info("calculate and resample theta_r")
     thetar_sl = xr.apply_ufunc(
         ptf.thetar_rawls_brakensiek,

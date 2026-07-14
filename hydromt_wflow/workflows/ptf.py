@@ -170,6 +170,42 @@ def thetas_toth(ph, bd, clay, silt):
     return thetas
 
 
+def thetafc_toth(oc, clay, silt):
+    """
+    Determine field capacity [m3/m3].
+
+    Based on:
+      Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.:
+      New generation of hydraulic pedotransfer functions for Europe, Eur. J.
+      Soil Sci., 66, 226–238. doi: 10.1111/ejss.121921211, 2015.
+
+    Parameters
+    ----------
+    oc: float
+        organic carbon content [%].
+    clay: float
+        clay percentage [%].
+    silt: float
+        silt percentage [%].
+
+    Returns
+    -------
+    thetafc : float
+        field capacity [cm3/cm3].
+
+    """
+    thetafc = (
+        0.2449
+        - 0.1887 * (1 / (oc + 1))
+        + 0.004527 * clay
+        + 0.001535 * silt
+        + 0.001442 * silt * (1 / (oc + 1))
+        - 0.00005110 * silt * clay
+        + 0.0008676 * clay * (1 / (oc + 1))
+    )
+    return thetafc
+
+
 def thetar_rawls_brakensiek(sand, clay, thetas):
     """
     Determine residual water content [m3/m3].

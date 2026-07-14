@@ -12,6 +12,7 @@ New
 ---
 - Before writing the forcing to disk, throw an error for any missing values (#748)
 - Added ability for users to exclude reservoirs that are outside of the river network, using `exclude_outside_reservoirs` flag. (#777)
+- Added support to estimate field capacity based on a PTF using soilgrids data (**setup_soilmaps**). PTF is based on Tóth et al. (2015), similar to the PTF for theta_s.
 
 Fixed
 -----
