@@ -1935,6 +1935,7 @@ Run setup_soilmaps first"
         wflow_thicknesslayers: list[int] = [100, 300, 800],
         output_names: dict = {
             "soil_water__saturated_volume_fraction": "soil_theta_s",
+            "soil_water__field_capacity_volume_fraction": "soil_theta_fc",
             "soil_water__residual_volume_fraction": "soil_theta_r",
             "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical",  # noqa: E501
             "soil__thickness": "soil_thickness",
