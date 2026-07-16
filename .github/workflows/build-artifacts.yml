@@ -34,7 +34,7 @@ on:
       upload-paths-linux:
         description: "Newline-separated Linux paths to upload"
         required: true
-        default: |
+        default: >
           examples/linux64/wflow_piave_subbasin/**
           examples/linux64/wflow_sediment_piave_subbasin/**
           examples/linux64/wflow_piave_clip/**
@@ -42,7 +42,7 @@ on:
       upload-paths-windows:
         description: "Newline-separated Windows paths to upload"
         required: true
-        default: |
+        default: >
           examples/wflow_piave_subbasin/**
           examples/wflow_sediment_piave_subbasin/**
           examples/wflow_piave_clip/**
@@ -50,7 +50,7 @@ on:
       commit-paths:
         description: "Newline-separated paths to stage and commit"
         required: true
-        default: |
+        default: >
           examples/wflow_piave_subbasin
           examples/wflow_sediment_piave_subbasin
           examples/wflow_piave_clip
