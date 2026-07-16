@@ -5,8 +5,6 @@ permissions:
   contents: write
 
 on:
-  push:
-    branches: [feat/add-rebuild-artifacts-workflow]
   workflow_dispatch:
     inputs:
       branch:
@@ -67,7 +65,23 @@ on:
         type: string
 
 jobs:
+  validate-branch:
+    name: Validate target branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Block protected branches
+        run: |
+          branch="${{ inputs.branch }}"
+          if [ "$branch" = "main" ] || [[ "$branch" == release/* ]]; then
+            echo "Refusing to run on protected branch: $branch"
+            exit 1
+          fi
+
   rebuild-artifacts:
+    needs: validate-branch
     defaults:
       run:
         shell: bash -l {0}
@@ -75,82 +89,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(inputs.runner-matrix || '["ubuntu-latest","windows-latest"]') }}
+        os: ${{ fromJson(inputs.runner-matrix) }}
 
     runs-on: ${{ matrix.os }}
     concurrency:
-      group: ${{ github.workflow }}-${{ matrix.os }}-${{ inputs.branch || github.ref_name }}
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ inputs.branch }}
       cancel-in-progress: true
 
     steps:
-      - name: Resolve parameters
-        id: params
-        run: |
-          branch="${{ inputs.branch }}"
-          if [ -z "$branch" ]; then
-            branch="${GITHUB_REF_NAME}"
-          fi
-
-          pixi_environment="${{ inputs.pixi-environment }}"
-          if [ -z "$pixi_environment" ]; then
-            pixi_environment="default"
-          fi
-
-          pixi_task="${{ inputs.pixi-task }}"
-          if [ -z "$pixi_task" ]; then
-            pixi_task="build-example-models"
-          fi
-
-          artifact_name="${{ inputs.artifact-name }}"
-          if [ -z "$artifact_name" ]; then
-            artifact_name="rebuilt-artifacts"
-          fi
-
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            upload_paths="${{ inputs.upload-paths-windows }}"
-            if [ -z "$upload_paths" ]; then
-              upload_paths=$'examples/wflow_piave_subbasin/**\nexamples/wflow_sediment_piave_subbasin/**\nexamples/wflow_piave_clip/**'
-            fi
-          else
-            upload_paths="${{ inputs.upload-paths-linux }}"
-            if [ -z "$upload_paths" ]; then
-              upload_paths=$'examples/linux64/wflow_piave_subbasin/**\nexamples/linux64/wflow_sediment_piave_subbasin/**\nexamples/linux64/wflow_piave_clip/**'
-            fi
-          fi
-
-          {
-            echo "branch=$branch"
-            echo "pixi_environment=$pixi_environment"
-            echo "pixi_task=$pixi_task"
-            echo "artifact_name=$artifact_name"
-            echo "upload_paths<<EOF"
-            printf "%s\n" "$upload_paths"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Checkout source
         uses: actions/checkout@v7
         with:
-          ref: ${{ steps.params.outputs.branch }}
+          ref: ${{ inputs.branch }}
 
       - name: Setup pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
           pixi-version: "v0.72.0"
-          environments: ${{ steps.params.outputs.pixi_environment }}
+          environments: ${{ inputs.pixi-environment }}
           activate-environment: true
           frozen: true
           cache: true
 
       - name: Rebuild artifacts
-        run: pixi run --no-install -e ${{ steps.params.outputs.pixi_environment }} ${{ steps.params.outputs.pixi_task }}
+        run: pixi run --no-install -e ${{ inputs.pixi-environment }} ${{ inputs.pixi-task }}
 
       - name: Upload rebuilt artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.params.outputs.artifact_name }}-${{ matrix.os }}
+          name: ${{ inputs.artifact-name }}-${{ matrix.os }}
           if-no-files-found: error
-          path: ${{ steps.params.outputs.upload_paths }}
+          path: ${{ matrix.os == 'windows-latest' && inputs.upload-paths-windows || inputs.upload-paths-linux }}
 
   commit-rebuilt-artifacts:
     name: Commit rebuilt artifacts
@@ -160,51 +129,19 @@ jobs:
       run:
         shell: bash -l {0}
     concurrency:
-      group: ${{ github.workflow }}-commit-${{ inputs.branch || github.ref_name }}
+      group: ${{ github.workflow }}-commit-${{ inputs.branch }}
       cancel-in-progress: true
     steps:
-      - name: Resolve parameters
-        id: params
-        run: |
-          branch="${{ inputs.branch }}"
-          if [ -z "$branch" ]; then
-            branch="${GITHUB_REF_NAME}"
-          fi
-
-          artifact_name="${{ inputs.artifact-name }}"
-          if [ -z "$artifact_name" ]; then
-            artifact_name="rebuilt-artifacts"
-          fi
-
-          commit_paths="${{ inputs.commit-paths }}"
-          if [ -z "$commit_paths" ]; then
-            commit_paths=$'examples/wflow_piave_subbasin\nexamples/wflow_sediment_piave_subbasin\nexamples/wflow_piave_clip\nexamples/linux64/wflow_piave_subbasin\nexamples/linux64/wflow_sediment_piave_subbasin\nexamples/linux64/wflow_piave_clip'
-          fi
-
-          commit_message="${{ inputs.commit-message }}"
-          if [ -z "$commit_message" ]; then
-            commit_message="Rebuild artifacts"
-          fi
-
-          {
-            echo "branch=$branch"
-            echo "artifact_name=$artifact_name"
-            echo "commit_paths<<EOF"
-            printf "%s\n" "$commit_paths"
-            echo "EOF"
-            echo "commit_message=$commit_message"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Checkout source
         uses: actions/checkout@v7
         with:
-          ref: ${{ steps.params.outputs.branch }}
+          ref: ${{ inputs.branch }}
           fetch-depth: 0
 
       - name: Download rebuilt artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: ${{ steps.params.outputs.artifact_name }}-*
+          pattern: ${{ inputs.artifact-name }}-*
           path: .
           merge-multiple: true
 
@@ -215,12 +152,14 @@ jobs:
             if [ -n "$path" ]; then
               git add "$path"
             fi
-          done <<< "${{ steps.params.outputs.commit_paths }}"
+          done <<< "${{ inputs.commit-paths }}"
 
           if git diff --cached --quiet; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes found, skipping commit and push"
           else
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Found changes, commiting and pushing"
           fi
 
       - name: Commit rebuilt artifacts
@@ -228,8 +167,8 @@ jobs:
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<github-actions[bot]@users.noreply.github.com>"
-          git commit -m "${{ steps.params.outputs.commit_message }}"
+          git commit -m "${{ inputs.commit-message }}"
 
       - name: Push changes
         if: ${{ steps.stage.outputs.has_changes == 'true' }}
-        run: git push origin HEAD:${{ steps.params.outputs.branch }}
+        run: git push origin HEAD:${{ inputs.branch }}
