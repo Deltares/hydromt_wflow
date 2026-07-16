@@ -2,7 +2,6 @@
 
 # Implement model class following model API
 import logging
-import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -20,11 +19,6 @@ from hydromt.gis import flw
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
-from hydromt_wflow.version_upgrade import (
-    convert_reservoirs_to_wflow_v1_sbm,
-    convert_to_wflow_v1_sbm,
-    upgrade_lake_tables_to_reservoir_tables_v1,
-)
 from hydromt_wflow.wflow_base import WflowBaseModel
 
 __all__ = ["WflowSbmModel"]
@@ -525,11 +519,11 @@ setting new flood_depth dimensions"
                 river_d8=True,
             ).rename(name)
             self.staticmaps.set(ds_out)
-            # Update the bankfull elevation map
+            # Update the bankfull elevation map, and also use this for the ground
+            # elevation
             self.config.set("input.static.river_bank_water__elevation", name)
-            # In this case river_bank_elevation is also used for the ground elevation?
             self.config.set(
-                "input.static.land_surface_water_flow__ground_elevation", elevtn_map
+                "input.static.land_surface_water_flow__ground_elevation", name
             )
 
         # Update config
@@ -4050,39 +4044,3 @@ using 'variable' argument."
             self.tables._data = {}
             for k in keys_to_keep:
                 self.tables.set(old_tables[k], name=k)
-
-    @hydromt_step
-    def upgrade_to_v1_wflow(self):
-        """
-        Upgrade the model to wflow v1 format.
-
-        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
-        The other components stay the same.
-
-        Lakes and reservoirs have also been merged into one structure and parameters in
-        the resulted staticmaps will be combined.
-
-        This function should be followed by write_config() to write the upgraded file.
-        """
-        config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sbm(self.config.data)
-        # Update the config
-        with open(self._DATADIR / "default_config_headers.toml", "rb") as file:
-            self.config._data = tomllib.load(file)
-        for option in config_out:
-            self.config.set(option, config_out[option])
-
-        # Merge lakes and reservoirs layers
-        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sbm(
-            self.staticmaps.data, config_v0
-        )
-        if ds_res is not None:
-            # Remove older maps from grid
-            self.staticmaps.drop_vars(vars_to_remove)
-            # Add new reservoir maps to grid
-            self.staticmaps.set(ds_res)
-            # Update the config with the new names
-            for option in config_opt:
-                self.config.set(option, config_opt[option])
-        # also update tables
-        upgrade_lake_tables_to_reservoir_tables_v1(self.tables)
