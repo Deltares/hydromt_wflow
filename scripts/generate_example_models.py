@@ -3,10 +3,15 @@ import platform
 import shutil
 from pathlib import Path
 
+import dask
 from hydromt import log
 from hydromt.readers import read_workflow_yaml
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
+
+# Use synchronous scheduler to avoid dask threaded-scheduler deadlocks
+# when writing netCDF via HDF5 (not thread-safe) on Windows.
+dask.config.set(scheduler="synchronous")
 
 
 def remove_files(files: list[Path]) -> None:

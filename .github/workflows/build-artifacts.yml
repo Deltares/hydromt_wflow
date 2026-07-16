@@ -125,8 +125,11 @@ jobs:
           frozen: true
           cache: true
 
-      - name: Rebuild artifacts
-        run: pixi run --no-install -e ${{ inputs.pixi-environment }} ${{ inputs.pixi-task }}
+      - uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pixi run --no-install -e ${{ inputs.pixi-environment }} ${{ inputs.pixi-task }}
 
       - name: Upload rebuilt artifacts
         uses: actions/upload-artifact@v7
