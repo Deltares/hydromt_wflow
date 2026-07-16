@@ -321,7 +321,9 @@ build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i
 build-example-model-sbm = { cmd = "python scripts/generate_example_models.py sbm" }
 build-example-model-sediment = { cmd = "python scripts/generate_example_models.py sediment" }
 build-example-model-clipped = { cmd = "python scripts/generate_example_models.py clip" }
-build-example-models = {cmd = "python scripts/generate_example_models.py all" }
+build-example-model-all = {cmd = "python scripts/generate_example_models.py all" }
+build-example-models = [{ task = "build-example-model-all"}, { task = "build-floodplain-testdata"}]
+build-floodplain-testdata = { cmd = "python scripts/generate_floodplain_testdata.py" }
 
 # Testing
 [tool.pixi.feature.test.tasks]
