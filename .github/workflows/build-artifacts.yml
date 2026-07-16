@@ -32,7 +32,7 @@ on:
         default: "rebuilt-artifacts"
         type: string
       upload-paths-linux:
-        description: "Newline-separated Linux paths to upload"
+        description: "Space-separated Linux paths to upload"
         required: true
         default: >
           examples/linux64/wflow_piave_subbasin/**
@@ -40,7 +40,7 @@ on:
           examples/linux64/wflow_piave_clip/**
         type: string
       upload-paths-windows:
-        description: "Newline-separated Windows paths to upload"
+        description: "Space-separated Windows paths to upload"
         required: true
         default: >
           examples/wflow_piave_subbasin/**
@@ -48,7 +48,7 @@ on:
           examples/wflow_piave_clip/**
         type: string
       commit-paths:
-        description: "Newline-separated paths to stage and commit"
+        description: "Space-separated paths to stage and commit"
         required: true
         default: >
           examples/wflow_piave_subbasin
