@@ -1,4 +1,5 @@
 dir_output = "run_default"
+wflow_version = "1.1"
 
 [time]
 calendar = "proleptic_gregorian"
@@ -40,7 +41,7 @@ snowpack_dry_snow__leq_depth = "snow_leq_depth"
 snowpack_liquid_water__depth = "snow_water_depth"
 land_surface_water__instantaneous_volume_flow_rate = "land_instantaneous_q"
 land_surface_water__depth = "land_h"
-subsurface_water__volume_flow_rate = "subsurface_q"
+subsurface_water__instantaneous_volume_flow_rate = "subsurface_q"
 river_water__instantaneous_volume_flow_rate = "river_instantaneous_q"
 river_water__depth = "river_h"
 glacier_ice__leq_depth = "glacier_leq_depth"
@@ -55,6 +56,7 @@ outlets = "outlets"
 gauges_grdc = "gauges_grdc"
 
 [input.static]
+land_surface__elevation = "land_elevation"
 land_surface__slope = "land_slope"
 river__length = "river_length"
 river__slope = "river_slope"

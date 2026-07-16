@@ -2,6 +2,7 @@
 
 # Implement model class following model API
 import logging
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,7 @@ import pandas as pd
 import pyflwdir
 import pyproj
 import xarray as xr
+from deprecated import deprecated
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
@@ -29,6 +31,8 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
+from hydromt_wflow.utils import DATA_DIR
+from hydromt_wflow.version_upgrade import upgrade_model
 
 __all__ = ["WflowBaseModel"]
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -65,8 +69,6 @@ class WflowBaseModel(Model):
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _DATADIR: Path = utils.DATADIR
-
     def __init__(
         self,
         root: str | None = None,
@@ -82,7 +84,7 @@ class WflowBaseModel(Model):
                 "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
             )
 
-        default_filename = self._DATADIR / self.name / f"{self.name}.toml"
+        default_filename = DATA_DIR / self.name / f"{self.name}.toml"
         if config_filename is None:
             config_filename = default_filename.name
 
@@ -119,10 +121,11 @@ class WflowBaseModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self.data_catalog.from_yml(self._DATADIR / "parameters_data.yml")
+        self.data_catalog.from_yml(DATA_DIR / "parameters_data.yml")
 
         # Supported Wflow.jl version
-        logger.info("Supported Wflow.jl version v1+")
+        version = self.config.get_value("wflow_version", fallback="1+")
+        logger.info(f"Supported Wflow.jl version v{version}.")
 
     ## Properties
     # Components
@@ -298,6 +301,7 @@ skipping adding gauge specific outputs to the toml."
             "basin__local_drain_direction": "local_drain_direction",
             "subbasin_location__count": "subcatchment",
             "land_surface__slope": "land_slope",
+            "land_surface__elevation": "land_elevation",
         },
     ):
         """
@@ -441,8 +445,6 @@ skipping adding gauge specific outputs to the toml."
             self.geoms.set(_geom, name=name)
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_base.rename(rmdict).data_vars, None)
 
         # Call basins once to set it
@@ -458,8 +460,6 @@ skipping adding gauge specific outputs to the toml."
         self.staticmaps.set(ds_topo.rename(rmdict))
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
 
         # update toml for degree/meters if needed
@@ -1713,6 +1713,55 @@ one variable and variables list is not provided."
                 input=list(reservoir_maps.values()),
                 state=list(reservoir_states.values()),
             )
+
+    @deprecated(
+        reason="Use `hydromt_wflow.version_upgrade.upgrade_model` instead.",
+        version="1.1.0",
+        category=DeprecationWarning,
+    )
+    @hydromt_step
+    def upgrade_to_v1_wflow(self, output_dir: str | Path):
+        """Upgrade the model to Wflow v1.0 format."""
+        self.upgrade_to_latest(output_dir=output_dir)
+
+    @hydromt_step
+    def upgrade_to_latest(
+        self,
+        output_dir: str | Path,
+        options: dict | None = None,
+        data_libs: list[str] | None = None,
+        config_filename: str | None = None,
+    ):
+        """Upgrade the model to the latest Wflow.jl version.
+
+        First, copies the model to a new location to keep the original model unchanged.
+        Then, applies all necessary upgrade steps in order based on the
+        ``wflow_version`` key in the config. If absent, the model is assumed to be
+        pre-v1.0 and all upgrade steps are applied.
+
+        This function should be followed by write() to write all upgraded components
+        to disk.
+
+        Returns
+        -------
+        output_dir : Path
+            Path to the upgraded model directory.
+        """
+        output_dir = Path(output_dir)
+        if output_dir.exists() and any(output_dir.iterdir()):
+            raise FileExistsError(
+                f"Output directory {output_dir} already exists and is not empty. "
+                "Please provide an empty directory or a new path."
+            )
+        shutil.copytree(self.root.path, output_dir)
+        upgrade_model(
+            output_dir,
+            model_type=self.name,
+            config_filename=config_filename,
+            data_libs=data_libs,
+            options=options,
+        )
+        return output_dir
 
     # I/O
     @hydromt_step

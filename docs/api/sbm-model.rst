@@ -147,7 +147,7 @@ Additional high-level utilities to modify model geometry, link external models, 
 
    WflowSbmModel.setup_grid_from_raster
    WflowSbmModel.setup_1dmodel_connection
-   WflowSbmModel.upgrade_to_v1_wflow
+   WflowSbmModel.upgrade_to_latest
    WflowSbmModel.clip
 
 
