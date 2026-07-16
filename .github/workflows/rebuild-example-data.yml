@@ -5,6 +5,8 @@ permissions:
   contents: write
 
 on:
+  push:
+    branches: [feat/add-rebuild-artifacts-workflow]
   workflow_dispatch:
     inputs:
       branch:
