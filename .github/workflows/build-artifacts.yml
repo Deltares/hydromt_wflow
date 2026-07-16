@@ -97,6 +97,20 @@ jobs:
       cancel-in-progress: true
 
     steps:
+      - name: Resolve upload paths
+        id: resolve
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            raw="${{ inputs.upload-paths-windows }}"
+          else
+            raw="${{ inputs.upload-paths-linux }}"
+          fi
+          {
+            echo "paths<<EOF"
+            echo "$raw" | tr ' ' '\n'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Checkout source
         uses: actions/checkout@v7
         with:
@@ -119,7 +133,7 @@ jobs:
         with:
           name: ${{ inputs.artifact-name }}-${{ matrix.os }}
           if-no-files-found: error
-          path: ${{ matrix.os == 'windows-latest' && inputs.upload-paths-windows || inputs.upload-paths-linux }}
+          path: ${{ steps.resolve.outputs.paths }}
 
   commit-rebuilt-artifacts:
     name: Commit rebuilt artifacts
@@ -148,11 +162,11 @@ jobs:
       - name: Detect and stage changes
         id: stage
         run: |
-          while IFS= read -r path; do
+          for path in ${{ inputs.commit-paths }}; do
             if [ -n "$path" ]; then
               git add "$path"
             fi
-          done <<< "${{ inputs.commit-paths }}"
+          done
 
           if git diff --cached --quiet; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
