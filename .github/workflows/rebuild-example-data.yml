@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Branch to rebuild and commit artifacts to"
+        description: "Branch to rebuild and commit artifacts to. Protected branches `main` and `release/*` are not allowed"
         required: true
         type: string
       pixi-task:
