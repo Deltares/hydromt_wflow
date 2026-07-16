@@ -1,0 +1,174 @@
+---
+name: Build artifacts
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to rebuild and commit artifacts to. Protected branches `main` and `release/*` are not allowed"
+        required: true
+        type: string
+      pixi-task:
+        description: "Pixi task to run"
+        required: true
+        default: "build-example-models"
+        type: string
+      pixi-environment:
+        description: "Pixi environment used to run the task"
+        required: true
+        default: "default"
+        type: string
+      runner-matrix:
+        description: "JSON array of runner os"
+        required: true
+        default: '["ubuntu-latest","windows-latest"]'
+        type: string
+      artifact-name:
+        description: "Artifact name prefix for uploaded outputs"
+        required: true
+        default: "rebuilt-artifacts"
+        type: string
+      upload-paths-linux:
+        description: "Newline-separated Linux paths to upload"
+        required: true
+        default: |
+          examples/linux64/wflow_piave_subbasin/**
+          examples/linux64/wflow_sediment_piave_subbasin/**
+          examples/linux64/wflow_piave_clip/**
+        type: string
+      upload-paths-windows:
+        description: "Newline-separated Windows paths to upload"
+        required: true
+        default: |
+          examples/wflow_piave_subbasin/**
+          examples/wflow_sediment_piave_subbasin/**
+          examples/wflow_piave_clip/**
+        type: string
+      commit-paths:
+        description: "Newline-separated paths to stage and commit"
+        required: true
+        default: |
+          examples/wflow_piave_subbasin
+          examples/wflow_sediment_piave_subbasin
+          examples/wflow_piave_clip
+          examples/linux64/wflow_piave_subbasin
+          examples/linux64/wflow_sediment_piave_subbasin
+          examples/linux64/wflow_piave_clip
+        type: string
+      commit-message:
+        description: "Commit message for rebuilt outputs"
+        required: true
+        default: "Rebuild artifacts"
+        type: string
+
+jobs:
+  validate-branch:
+    name: Validate target branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Block protected branches
+        run: |
+          branch="${{ inputs.branch }}"
+          if [ "$branch" = "main" ] || [[ "$branch" == release/* ]]; then
+            echo "Refusing to run on protected branch: $branch"
+            exit 1
+          fi
+
+  rebuild-artifacts:
+    needs: validate-branch
+    defaults:
+      run:
+        shell: bash -l {0}
+    name: Rebuild artifacts - ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.runner-matrix) }}
+
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ inputs.branch }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: "v0.72.0"
+          environments: ${{ inputs.pixi-environment }}
+          activate-environment: true
+          frozen: true
+          cache: true
+
+      - name: Rebuild artifacts
+        run: pixi run --no-install -e ${{ inputs.pixi-environment }} ${{ inputs.pixi-task }}
+
+      - name: Upload rebuilt artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.artifact-name }}-${{ matrix.os }}
+          if-no-files-found: error
+          path: ${{ matrix.os == 'windows-latest' && inputs.upload-paths-windows || inputs.upload-paths-linux }}
+
+  commit-rebuilt-artifacts:
+    name: Commit rebuilt artifacts
+    needs: rebuild-artifacts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    concurrency:
+      group: ${{ github.workflow }}-commit-${{ inputs.branch }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Download rebuilt artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: ${{ inputs.artifact-name }}-*
+          path: .
+          merge-multiple: true
+
+      - name: Detect and stage changes
+        id: stage
+        run: |
+          while IFS= read -r path; do
+            if [ -n "$path" ]; then
+              git add "$path"
+            fi
+          done <<< "${{ inputs.commit-paths }}"
+
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes found, skipping commit and push"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Found changes, commiting and pushing"
+          fi
+
+      - name: Commit rebuilt artifacts
+        if: ${{ steps.stage.outputs.has_changes == 'true' }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<github-actions[bot]@users.noreply.github.com>"
+          git commit -m "${{ inputs.commit-message }}"
+
+      - name: Push changes
+        if: ${{ steps.stage.outputs.has_changes == 'true' }}
+        run: git push origin HEAD:${{ inputs.branch }}
