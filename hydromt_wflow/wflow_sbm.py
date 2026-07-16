@@ -624,7 +624,7 @@ setting new flood_depth dimensions"
         },
         geom_name: str = "meta_reservoirs_no_control",
         exclude_outside_reservoirs: bool = False,
-        fraction: float | None = None,
+        fraction: float | None = 0.1,
         **kwargs,
     ):
         """Generate maps of reservoir areas, outlets and parameters.
@@ -736,7 +736,7 @@ setting new flood_depth dimensions"
         exclude_outside_reservoirs : bool, optional
             If True, exclude reservoirs that are outside the model domain. By default False.
         fraction : float | None, optional
-            Minimum fraction of reservoir area within a grid cell, by default None.
+            Minimum fraction of reservoir area within a grid cell, by default 0.1.
             Use None to rely only on all_touched rasterization.
         kwargs: optional
             Keyword arguments passed to the method
@@ -907,7 +907,7 @@ setting new flood_depth dimensions"
         },
         geom_name: str = "meta_reservoirs_simple_control",
         exclude_outside_reservoirs: bool = False,
-        fraction: float | None = None,
+        fraction: float | None = 0.1,
         **kwargs,
     ):
         """Generate maps of controlled reservoir areas, outlets and parameters.
@@ -1022,7 +1022,7 @@ setting new flood_depth dimensions"
         exclude_outside_reservoirs : bool, optional
             If True, exclude reservoirs that are outside the model domain. By default False.
         fraction : float | None, optional
-            Minimum fraction of reservoir area within a grid cell, by default None.
+            Minimum fraction of reservoir area within a grid cell, by default 0.1.
             Use None to rely only on all_touched rasterization.
         kwargs: optional
             Keyword arguments passed to the method

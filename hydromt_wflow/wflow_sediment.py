@@ -310,7 +310,7 @@ class WflowSedimentModel(WflowBaseModel):
         },
         geom_name: str = "meta_reservoirs",
         exclude_outside_reservoirs: bool = False,
-        fraction: float | None = None,
+        fraction: float | None = 0.1,
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -368,7 +368,7 @@ class WflowSedimentModel(WflowBaseModel):
             Whether to exclude reservoirs that are outside the river network,
             by default False.
         fraction : float | None, optional
-            Minimum fraction of reservoir area within a grid cell, by default None.
+            Minimum fraction of reservoir area within a grid cell, by default 0.1.
             Use None to skip the fraction mask and rely only on all_touched
             rasterization.
         kwargs : dict, optional
