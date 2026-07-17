@@ -8,7 +8,6 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
-
 Added
 -----
 - **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
@@ -35,7 +34,7 @@ Changed
 - Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
 
 v1.0.2 (3 March 2026)
-==========================
+=====================
 Added
 -----
 - Added Pandas 3.0 support (#713)

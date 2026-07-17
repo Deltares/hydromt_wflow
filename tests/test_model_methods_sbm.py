@@ -18,6 +18,8 @@ from shapely import box
 from hydromt_wflow import utils, workflows
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
 try:
     import gwwapi  # noqa: F401
 

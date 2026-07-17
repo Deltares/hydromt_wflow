@@ -13,6 +13,8 @@ from hydromt.model.processes.rivers import river_depth
 
 from hydromt_wflow.wflow_sbm import WflowSbmModel
 
+pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
 
 def test_setup_basemaps(tmp_path: Path):
     # Region
