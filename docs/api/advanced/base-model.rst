@@ -54,6 +54,7 @@ Setup methods
    WflowBaseModel.setup_lulcmaps_from_vector
    WflowBaseModel.setup_outlets
    WflowBaseModel.setup_gauges
+   WflowBaseModel.setup_subbasins
    WflowBaseModel.setup_constant_pars
    WflowBaseModel.setup_grid_from_raster
    WflowBaseModel.setup_areamap
