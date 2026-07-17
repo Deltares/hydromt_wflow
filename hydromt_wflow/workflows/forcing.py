@@ -1,7 +1,6 @@
 """Forcing workflow for wflow."""
 
 import logging
-from typing import Optional
 
 import numpy as np
 import xarray as xr
@@ -16,8 +15,8 @@ def pet(
     pet: xr.DataArray,
     ds_like: xr.Dataset,
     freq: str = "D",
-    mask_name: Optional[str] = None,
-    chunksize: Optional[int] = None,
+    mask_name: str | None = None,
+    chunksize: int | None = None,
 ) -> xr.DataArray:
     """
     Resample and reproject PET to the grid of ds_like.
@@ -78,13 +77,13 @@ def spatial_interpolation(
     forcing: xr.DataArray,
     ds_like: xr.Dataset,
     interp_type: str,
-    nnearest: Optional[int] = 4,
-    p: Optional[float] = 2,
-    remove_missing: Optional[bool] = False,
-    cov: Optional[str] = "1.0 Exp(10000.)",
-    src_drift: Optional[np.ndarray] = None,
-    trg_drift: Optional[np.ndarray] = None,
-    mask_name: Optional[str] = None,
+    nnearest: int = 4,
+    p: float = 2,
+    remove_missing: bool = False,
+    cov: str = "1.0 Exp(10000.)",
+    src_drift: np.ndarray | None = None,
+    trg_drift: np.ndarray | None = None,
+    mask_name: str | None = None,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.

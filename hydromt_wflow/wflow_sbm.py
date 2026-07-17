@@ -1522,6 +1522,389 @@ setting new flood_depth dimensions"
             logger.info("No paddy fields found, skipping updating soil parameters")
 
     @hydromt_step
+    def setup_agroforestry(
+        self,
+        agroforestry_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        agroforestry_class: int | None = None,
+        output_agroforestry_class: int | None = None,
+        agroforestry_mapping_fn: str | Path | pd.DataFrame | None = None,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        lulc_mix_classes: list[int] | None = None,
+        lulc_mix_fractions: list[float] | None = None,
+        lulcmap_name: str = "meta_landuse",
+        output_names_suffix: str | None = None,
+    ):
+        """
+        Add agroforestry to landuse maps and parameters.
+
+        Agroforestry zones can be provided as a raster or vector dataset that will be
+        reprojected / rasterized to the model resolution.
+
+        For parameter mapping, users have three options:
+
+        - provide directly a mapping table for the agroforestry landuse class with
+          `agroforestry_mapping_fn`
+        - derive values based on a mix of existing landuse classes with
+          `lulc_mix_classes` and `lulc_mix_fractions` and the original landuse mapping
+          table `lulc_mapping_fn`.
+        - If no mapping table is provided either via `agroforestry_mapping_fn` or
+          `lulc_mapping_fn`, a default mapping table for agroforestry will be used.
+
+        Adds model layers:
+
+        * **landuse** map:
+            Landuse class [-]
+        * **vegetation_kext** map:
+            Extinction coefficient in the canopy gap fraction equation [-]
+        * **vegetation_leaf_storage** map:
+            Specific leaf storage [mm]
+        * **vegetation_wood_storage** map:
+            Fraction of wood in the vegetation/plant [-]
+        * **vegetation_root_depth** map:
+            Length of vegetation roots [mm]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of open water per grid cell [-]
+        * **land_manning_n** map:
+            Manning Roughness [-]
+        * **vegetation_crop_factor** map:
+            Crop coefficient [-]
+        * **vegetation_feddes_alpha_h1** map:
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
+        * **vegetation_feddes_h1** map:
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h2** map:
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_high** map:
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_low** map:
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h4** map:
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
+
+        Required setup methods:
+        * :py:meth:`~WflowBaseModel.setup_lulcmaps` or equivalent
+
+        Parameters
+        ----------
+        agroforestry_fn : str, xr.DataArray, gpd.GeoDataFrame
+            RasterDataArray, vector dataset or name in data catalog to the
+            agroforestry data.
+
+            * Optional column if vector: 'agroforestry' [-]
+
+        agroforestry_class : int, optional
+            ID of the agroforestry class in `agroforestry_fn`. If None,
+            agroforestry mask will be created for all non-nodata values.
+        output_agroforestry_class : int, optional
+            Landuse class value for agroforestry fields in the output landuse map.
+            If None (default), the `agroforestry_class` is used.
+        agroforestry_mapping_fn : str, Path, pd.DataFrame, optional
+            Path to a mapping csv file from agroforestry to landuse parameter
+            values.
+        lulc_mapping_fn : str, Path, pd.DataFrame, optional
+            Path to a mapping csv file from landuse class to landuse parameter values.
+        lulc_mix_classes : list[int], optional
+            List of landuse classes to mix for the agroforestry class, by default
+            [].
+        lulc_mix_fractions : list[float], optional
+            List of fractions for each landuse class in `lulc_mix_classes` to mix
+            for the agroforestry class, by default [].
+        lulcmap_name: str
+            Name of the landuse map layer in the wflow model staticmaps. By default
+            'meta_landuse'. Please update if your landuse map has a different name
+            (eg 'meta_landuse_globcover').
+        output_names_suffix : str, optional
+            Suffix to be added to the output names to avoid having to rename all the
+            columns of the mapping tables. For example if the suffix is "agroforestry",
+            all variables in landuse_vars will be renamed to "landuse_agroforestry",
+            "vegetation_kext_agroforestry", etc.
+        """
+        # Check that landuse map is present
+        if lulcmap_name in self.staticmaps.data:
+            # update the internal mapping
+            self._MAPS["landuse"] = lulcmap_name
+        else:
+            raise ValueError(
+                f"Landuse map {lulcmap_name} not found in the model grid. Please "
+                "provide a valid landuse map name or run setup_lulcmaps."
+            )
+        # Check that one of the mapping table option is provided
+        if agroforestry_mapping_fn is None and lulc_mapping_fn is None:
+            logger.info(
+                "No agroforestry or landuse mapping table provided. "
+                "The default agroforestry mapping table will be used."
+            )
+            agroforestry_mapping_fn = "agroforestry_mapping_default"
+
+        # Prepare output names
+        lulc_vars = [
+            k for k in workflows.LULC_VARS_MAPPING.keys() if k != "erosion_usle_c"
+        ]
+        output_names = {
+            workflows.LULC_VARS_MAPPING[k]: f"{k}_{output_names_suffix}"
+            if output_names_suffix
+            else k
+            for k in lulc_vars
+        }
+        self._update_naming(output_names)
+
+        logger.info("Preparing agroforestry parameter maps.")
+
+        # Read data
+        agroforestry_data = self._get_raster_or_vector_data(
+            agroforestry_fn, data_name="Agroforestry"
+        )
+
+        # Read mapping tables
+        if agroforestry_mapping_fn is not None:
+            df_agro_mapping = self.data_catalog.get_dataframe(
+                agroforestry_mapping_fn,
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
+            )
+        else:
+            df_agro_mapping = None
+        if lulc_mapping_fn is not None:
+            df_lulc_mapping = self.data_catalog.get_dataframe(
+                lulc_mapping_fn,
+                source_kwargs={
+                    "driver": {"name": "pandas", "options": {"index_col": 0}}
+                },
+            )
+        else:
+            df_lulc_mapping = None
+
+        # Add agroforestry to landuse maps
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps.data}
+        landuse_maps = workflows.add_agroforestry_to_landuse(
+            agroforestry_data=agroforestry_data,
+            ds_like=self.staticmaps.data.rename(inv_rename),
+            agroforestry_class=agroforestry_class,
+            output_agroforestry_class=output_agroforestry_class,
+            df_agroforestry_mapping=df_agro_mapping,
+            df_lulc_mapping=df_lulc_mapping,
+            lulc_mix_classes=lulc_mix_classes,
+            lulc_mix_fractions=lulc_mix_fractions,
+        )
+
+        self._set_landuse_on_staticmaps(landuse_maps, lulc_vars, output_names_suffix)
+
+    @hydromt_step
+    def setup_ponding_from_map(
+        self,
+        pond_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        pond_level: float = 0.2,
+        output_name: str = "ponding_level",
+    ):
+        """
+        Set up ponding level map based on provided pond location map.
+
+        The pond location map can be provided as a raster or vector dataset that will
+        be reprojected / rasterized to the model resolution. The ponding level will be
+        assigned to the cells where ponding is present, and the minimum ponding level
+        will be assigned to the cells where ponding is not present.
+
+        For raster data, all non-nodata values will be considered as pond locations.
+        For vector data, all geometries will be considered as pond locations.
+
+        Adds model layers:
+
+        * **ponding_level** map: Ponding level [m]
+            Based on provided pond location map.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_basemaps`
+
+        Parameters
+        ----------
+        pond_fn : str, Path, xr.DataArray, gpd.GeoDataFrame
+            RasterDataArray, GeoDataFrame or name in data catalog to the ponding
+            location data.
+        pond_level : float, optional
+            Ponding level to be assigned to cells where ponding is present [m], by
+            default 0.2 m.
+        output_name : str, optional
+            Name of the output ponding level map, by default "ponding_level".
+        """
+        logger.info("Preparing ponding map based on provided pond location map.")
+        wflow_var = "land_surface_water_flow_threshold__depth"
+
+        # Read ponding location data
+        pond_data = self._get_raster_or_vector_data(
+            pond_fn, data_name="Ponding location"
+        )
+
+        # Rasterize ponding data if vector
+        if isinstance(pond_data, gpd.GeoDataFrame):
+            pond_data = self.staticmaps.data.raster.rasterize(
+                pond_data,
+                col_name="index",
+                nodata=-9999,
+                all_touched=False,
+            )
+
+        # Create pond mask
+        pond_mask = pond_data != pond_data.raster.nodata
+
+        # Create ponding level map
+        ponding_level = workflows.ponding_level_from_suitability(
+            suitability=pond_mask,
+            ds_like=self.staticmaps.data,
+            pond_level=pond_level,
+            basin_mask_name=self._MAPS["basins"],
+        )
+
+        self._update_naming({wflow_var: output_name})
+        # Set the grid
+        self.staticmaps.set(ponding_level.rename(output_name))
+
+        # Update config
+        self.config.set("model.reinfiltration_surfacewater__flag", True)
+        self._update_config_variable_name(output_name)
+
+    @hydromt_step
+    def setup_ponding_from_thresholds(
+        self,
+        lulc_fn: str | Path | xr.DataArray,
+        hydrography_fn: str | Path | xr.DataArray | xr.Dataset | None = None,
+        lulc_classes: list[int] | None = None,
+        elevtn_range: tuple[float, float] | None = None,
+        slope_range: tuple[float, float] | None = None,
+        hand_range: tuple[float, float] | None = None,
+        pond_level: float = 0.2,
+        river_upa: float | None = None,
+        output_name: str = "ponding_level",
+    ):
+        """
+        Set up ponding map based on suitability thresholds.
+
+        The ponding map is derived based on a combination of topographic and landuse
+        criteria. The topographic criteria are based on the elevation, slope and hand
+        maps, and the landuse criteria are based on the landuse map. For each criterion,
+        a range of suitable values can be defined, and the final ponding suitability is
+        determined by the intersection of all criteria.
+
+        Adds model layers:
+
+        * **ponding_level** map: Ponding level [m]
+            Derived from topographic and landuse criteria.
+
+        Required setup methods:
+
+        * :py:meth:`~WflowSbmModel.setup_rivers`
+
+        Parameters
+        ----------
+        lulc_fn : str, Path, xr.DataArray
+            RasterDataset or name in data catalog / path to landuse map. This is used to
+            derive the landuse criteria if `lulc_classes` are provided.
+        hydrography_fn : str, Path, xr.DataArray, xr.Dataset
+            RasterDataset or name in data catalog / path to hydrography data. This is
+            used to derive the slope and hand maps if slope_range and hand_range are
+            provided.
+
+            * Required variables: 'elevtn' [m]
+            * Optional variables: 'flwdir', 'lndslp' [m/m], 'hand' [m], 'uparea' [km2]
+
+        lulc_classes : list[int], optional
+            List of landuse classes that are suitable for ponding, by default None (no
+            criterion).
+
+            * Required variable: 'landuse' [-]
+
+        elevtn_range : tuple[float, float], optional
+            Range of suitable elevation values for ponding [m], by default None (no
+            criterion).
+        slope_range : tuple[float, float], optional
+            Range of suitable slope values for ponding [m/m], by default None (no
+            criterion).
+        hand_range : tuple[float, float], optional
+            Range of suitable hand values for ponding [m], by default None (no
+            criterion).
+        pond_level : float, optional
+            Ponding level to be assigned to suitable cells, by default 0.2 m.
+        river_upa : float, optional
+            Upstream area threshold for river cells [km2], by default None as it should
+            be determined from staticmaps. Used to define drains for hand calculation.
+        output_name : str, optional
+            Name of the output ponding level map, by default "ponding_level".
+        """
+        logger.info("Preparing ponding map based on suitability thresholds.")
+        wflow_var = "land_surface_water_flow_threshold__depth"
+
+        # Read hydrography data if needed
+        if any([elevtn_range, slope_range, hand_range]):
+            if hydrography_fn is None:
+                raise ValueError(
+                    "Hydrography data is required to apply elevation, slope or hand "
+                    "criteria. Please provide a hydrography dataset with the "
+                    "`hydrography_fn` argument."
+                )
+            else:
+                hydro_data = self.data_catalog.get_rasterdataset(
+                    hydrography_fn,
+                    geom=self.region,
+                    buffer=2,
+                    single_var_as_array=False,
+                )
+        else:
+            hydro_data = None
+
+        # Read landuse data if needed
+        if lulc_classes is not None:
+            landuse = self.data_catalog.get_rasterdataset(
+                lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
+            )
+
+        # Check for river_upa
+        wflow_river_upa = self.staticmaps.data[self._MAPS["rivmsk"]].attrs.get(
+            "river_upa", river_upa
+        )
+        if river_upa is not None and wflow_river_upa != river_upa:
+            logger.warning(
+                f"Provided river_upa value {river_upa} is different from the one in "
+                f"staticmaps {wflow_river_upa}. The value from staticmaps will be used."
+            )
+
+        # Derive ponding suitability based on criteria
+        ponding_suitability = workflows.nbs_suitability_from_thresholds(
+            landuse=landuse if lulc_classes is not None else None,
+            hydro_data=hydro_data,
+            lulc_classes=lulc_classes,
+            elevtn_range=elevtn_range,
+            slope_range=slope_range,
+            hand_range=hand_range,
+            river_upa=wflow_river_upa,
+            basin_mask=self.staticmaps.data[self._MAPS["basins"]],
+        )
+
+        # Assign ponding level based on suitability
+        ponding_level = workflows.ponding_level_from_suitability(
+            suitability=ponding_suitability,
+            ds_like=self.staticmaps.data,
+            pond_level=pond_level,
+            basin_mask_name=self._MAPS["basins"],
+        )
+
+        self._update_naming({wflow_var: output_name})
+        # Set the grid
+        self.staticmaps.set(ponding_level.rename(output_name))
+
+        # Update config
+        self.config.set("model.reinfiltration_surfacewater__flag", True)
+        self._update_config_variable_name(output_name)
+
+    @hydromt_step
     def setup_laimaps(
         self,
         lai_fn: str | xr.DataArray,

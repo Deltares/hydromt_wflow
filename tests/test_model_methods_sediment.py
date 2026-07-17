@@ -2,11 +2,8 @@
 
 import geopandas as gpd
 import numpy as np
-import pytest
 
 from hydromt_wflow.utils import planar_operation_in_utm
-
-pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 
 def test_setup_lulc_sed(
