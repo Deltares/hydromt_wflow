@@ -1,7 +1,6 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
-import tomllib
 from pathlib import Path
 
 import geopandas as gpd
@@ -11,13 +10,8 @@ import xarray as xr
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
 
-import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sediment
-from hydromt_wflow.version_upgrade import (
-    convert_reservoirs_to_wflow_v1_sediment,
-    convert_to_wflow_v1_sediment,
-)
 from hydromt_wflow.wflow_base import WflowBaseModel
 
 __all__ = ["WflowSedimentModel"]
@@ -1021,71 +1015,6 @@ class WflowSedimentModel(WflowBaseModel):
             crs=crs,
             **kwargs,
         )
-
-    @hydromt_step
-    def upgrade_to_v1_wflow(
-        self,
-        soil_fn: str = "soilgrids",
-        usle_k_method: str = "renard",
-        strord_name: str = "wflow_streamorder",
-    ):
-        """
-        Upgrade the model to wflow v1 format.
-
-        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
-        The other components stay the same.
-
-        A few variables that used to be computed within Wflow.jl are now moved to
-        HydroMT to allow more flexibility for the users to update if they do get local
-        data or calibrate some of the parameters specifically. For this, the
-        ``setup_soilmaps`` and ``setup_riverbedsed`` functions are called again.
-
-        Lakes and reservoirs have also been merged into one structure and parameters in
-        the resulted staticmaps will be combined.
-
-        This function should be followed by ``write_config`` to write the upgraded TOML
-        file and by ``write_grid`` to write the upgraded static netcdf input file.
-
-        Parameters
-        ----------
-        soil_fn : str, optional
-            soil_fn argument of setup_soilmaps method.
-        usle_k_method : str, optional
-            usle_k_method argument of setup_soilmaps method.
-        strord_name : str, optional
-            strord_name argument of setup_riverbedsed method.
-        """
-        config_v0 = self.config.data.copy()
-        config_out = convert_to_wflow_v1_sediment(self.config.data)
-
-        # Update the config
-        with open(utils.DATADIR / "default_config_headers.toml", "rb") as file:
-            self.config._data = tomllib.load(file)
-        for option in config_out:
-            self.config.set(option, config_out[option])
-
-        # Rerun setup_soilmaps
-        self.setup_soilmaps(
-            soil_fn=soil_fn,
-            usle_k_method=usle_k_method,
-            add_aggregates=True,
-        )
-
-        # Rerun setup_riverbedsed
-        self.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)
-
-        # Merge lakes and reservoirs layers
-        ds_res, vars_to_remove, config_opt = convert_reservoirs_to_wflow_v1_sediment(
-            self.staticmaps.data, config_v0
-        )
-        if ds_res is not None:
-            # Remove older maps from grid
-            self.staticmaps.drop_vars(vars_to_remove)
-            # Add new reservoir maps to grid
-            self.staticmaps.set(ds_res)
-            # Update the config with the new names
-            for option in config_opt:
-                self.config.set(option, config_opt[option])
 
     # I/O
     @hydromt_step

@@ -45,6 +45,7 @@ classifiers = [
 requires-python = ">=3.11,<3.14"
 dependencies = [
   "dask",
+  "deprecated",
   "geopandas>=0.10",
   "hydromt>=1.4.0",
   "numpy",
@@ -193,7 +194,7 @@ docstring-code-line-length = 20
 [tool.ruff.lint.per-file-ignores]
 "hydromt_wflow/__init__.py"    = ["E402", "F401", "F403"]
 "hydromt_wflow/**/__init__.py" = ["F403"]
-"tests/**"                     = ["D103", "D100", "D104", "E501"]
+"tests/**"                     = ["D100", "D101", "D102", "D103", "D104", "E501"]
 "tests/conftest.py"            = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
@@ -321,7 +322,9 @@ build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i
 build-example-model-sbm = { cmd = "python scripts/generate_example_models.py sbm" }
 build-example-model-sediment = { cmd = "python scripts/generate_example_models.py sediment" }
 build-example-model-clipped = { cmd = "python scripts/generate_example_models.py clip" }
-build-example-models = {cmd = "python scripts/generate_example_models.py all" }
+build-example-model-all = {cmd = "python scripts/generate_example_models.py all" }
+build-floodplain-testdata = { cmd = "python scripts/generate_floodplain_testdata.py" }
+build-testdata-artifacts = [{task = "build-example-model-all"}, {task = "build-floodplain-testdata"}]
 
 # Testing
 [tool.pixi.feature.test.tasks]
