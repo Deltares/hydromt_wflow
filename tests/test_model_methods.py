@@ -1146,7 +1146,7 @@ def test_setup_floodplains_2d(
         example_wflow_model.config.get_value(
             "input.static.land_surface_water_flow__ground_elevation"
         )
-        == elevtn_map
+        == f"{mapname}_D4"
     )
     xrt.assert_allclose(
         example_wflow_model.staticmaps.data[f"{mapname}_D4"].raster.mask_nodata(),

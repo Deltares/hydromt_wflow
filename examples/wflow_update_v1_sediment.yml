@@ -2,8 +2,10 @@ global:
   config_filename: wflow_sediment_v0x.toml
 
 steps:
-  - upgrade_to_v1_wflow:
-      soil_fn: soilgrids
+  - upgrade_to_latest:
+      options:
+        0.8_1.0:
+            soil_fn: soilgrids
 
   - staticmaps.write:
       filename: staticmaps_v1.nc

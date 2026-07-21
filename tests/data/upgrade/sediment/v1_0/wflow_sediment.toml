@@ -1,4 +1,5 @@
 dir_output = "run_default"
+wflow_version = "1.0"
 
 [time]
 calendar = "proleptic_gregorian"
@@ -42,7 +43,7 @@ river_water_silt__mass_flow_rate = "outsilt"
 
 [input]
 path_forcing = "inmaps.nc"
-path_static = "staticmaps_v0x.nc"
+path_static = "staticmaps.nc"
 basin__local_drain_direction = "wflow_ldd"
 river_location__mask = "wflow_river"
 subbasin_location__count = "wflow_subcatch"
@@ -63,6 +64,7 @@ river_water__volume_flow_rate = "rro"
 
 [input.static]
 land_surface__slope = "Slope"
+land_surface__elevation = "wflow_dem"
 river__length = "wflow_riverlength"
 river__slope = "RiverSlope"
 river__width = "wflow_riverwidth"
