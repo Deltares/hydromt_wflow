@@ -196,6 +196,11 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_name": "soil_water__saturated_volume_fraction",
         "hydromt_name": "theta_s",
     },
+    "soil_theta_fc": {
+        "wflow_v0": None,
+        "wflow_v1": "soil_water__field_capacity_volume_fraction",
+        "hydromt_name": "theta_fc",
+    },
     "soil_max_leakage": {
         "wflow_name": "soil_water_saturated_zone_bottom__max_leakage_volume_flux",
     },
