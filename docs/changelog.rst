@@ -14,6 +14,7 @@ Added
 - Before writing the forcing to disk, throw an error for any missing values (#748)
 - Added upgrade support for the latest Wflow.jl v1.1 (#765)
 - Added ability for users to exclude reservoirs that are outside of the river network, using `exclude_outside_reservoirs` flag. (#777)
+- Added a configurable fraction parameter to exclude cells that have less than a minimum threshold coverage by a waterbody when deriving the area of reservoirs in ``hydromt_wflow.workflows.reservoirs`` (#796)
 
 Fixed
 -----
@@ -27,8 +28,8 @@ Removed
 
 Changed
 -------
--Changed deriving the area of reservoirs in ``hydromt_wflow.workflows.reservoirs`` to have a configurable fraction parameter to exclude cells that have less than a minimum threshold coverage by a waterbody, with default value of 0.1 (#796)
--Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
+- Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
+- Changed default rasterisation behavior of reservoir area calculation in ``hydromt_wflow.workflows.reservoirs`` from including all cells (`all_touched=True`) to using a configurable fraction parameter, with a default value of 0.1, that excludes cells that have less than a minimum threshold coverage by a waterbody. (#796)
 
 v1.0.2 (3 March 2026)
 ==========================
