@@ -21,6 +21,9 @@ once you are in the directory you can install the environment using pixi with
 .. code-block:: console
 
     $ pixi install
+    $ pixi run install
+
+The latter will install pre-commit hooks and a git compare tool for netcdf files.
 
 Afterwards you can run any of the tasks we defined for doing things such as running the test suite:
 
