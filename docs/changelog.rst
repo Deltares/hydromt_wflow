@@ -27,7 +27,8 @@ Removed
 
 Changed
 -------
-- Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
+-Changed deriving the area of reservoirs in ``hydromt_wflow.workflows.reservoirs`` to have a configurable fraction parameter to exclude cells that have less than a minimum threshold coverage by a waterbody, with default value of 0.1 (#796)
+-Renamed ``upgrade_to_v1_wflow`` to ``upgrade_to_latest`` (#765)
 
 v1.0.2 (3 March 2026)
 ==========================
