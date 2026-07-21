@@ -65,7 +65,56 @@ RESERVOIR_LAYERS_SEDIMENT = [
 ]
 
 
-def exclude_reservoirs_outside_rivers(
+def _rasterize_reservoir_area_id(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    nodata: int,
+    fraction: float | None = 0.1,
+) -> xr.Dataset:
+    """Rasterize reservoir polygons and return a dataset with reservoir area IDs.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+    fraction : float | None, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
+        Use None to skip the fractionmask and rely only on all_touched
+        rasterization.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing gridded reservoir area IDs.
+    """
+    da_wbmask = ds_like.raster.rasterize(
+        gdf,
+        col_name="waterbody_id",
+        nodata=nodata,
+        all_touched=True,
+        dtype=None,
+        sindex=False,
+    )
+
+    if fraction is not None:
+        da_fraction = ds_like.raster.rasterize_geometry(
+            gdf=gdf,
+            method="fraction",
+            nodata=nodata,
+            name="reservoir_fraction",
+        )
+        da_wbmask = da_wbmask.where(da_fraction >= fraction, da_wbmask.raster.nodata)
+    da_wbmask = da_wbmask.rename("reservoir_area_id")
+    da_wbmask.attrs.update(_FillValue=nodata)
+    return da_wbmask.to_dataset()
+
+
+def _exclude_reservoirs_outside_rivers(
     river_mask: xr.DataArray,
     reservoir_ids: xr.DataArray,
     exclude_outside_reservoirs: bool = False,
@@ -117,17 +166,191 @@ def exclude_reservoirs_outside_rivers(
     return reservoir_ids
 
 
+def _build_reservoir_area_id_map(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    nodata: int,
+    exclude_outside_reservoirs: bool = False,
+    fraction: float | None = 0.1,
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+    """Create reservoir area IDs and filter reservoirs that are invalid on the grid.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+    exclude_outside_reservoirs : bool, optional
+        Whether to exclude reservoirs that are outside the river network,
+        by default False.
+    fraction  : float | None, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
+        Use None to skip the fraction mask and rely only on all_touched rasterization.
+
+    Returns
+    -------
+    tuple[xr.Dataset, gpd.GeoDataFrame]
+        Rasterized reservoir area ID map and the filtered GeoDataFrame.
+    """
+    ds_out = _rasterize_reservoir_area_id(gdf, ds_like, nodata, fraction=fraction)
+
+    # Filter reservoirs that are too small after rasterization
+    reservoir_area_ids = ds_out["reservoir_area_id"].values
+    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != nodata]
+    areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
+    if not np.all(areas_mask):
+        gdf = gdf.loc[areas_mask]
+        nskipped = (~areas_mask).sum()
+        logger.warning(
+            f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
+            " Consider increasing the lakes min_area threshold."
+        )
+
+    # Filter reservoirs that do not overlap with the river network & update gdf
+    ds_out["reservoir_area_id"] = _exclude_reservoirs_outside_rivers(
+        ds_like["river_mask"],
+        ds_out["reservoir_area_id"],
+        exclude_outside_reservoirs=exclude_outside_reservoirs,
+    )
+
+    reservoirs = np.unique(ds_out["reservoir_area_id"].values)
+    reservoirs = reservoirs[reservoirs != nodata]
+    gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
+
+    return ds_out, gdf
+
+
+def _build_reservoir_outlets_from_uparea(
+    gdf: gpd.GeoDataFrame,
+    ds_out: xr.Dataset,
+    ds_like: xr.Dataset,
+    uparea_name: str,
+) -> gpd.GeoDataFrame:
+    """Build reservoir outlet coordinates from the maximum upstream area cell.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_out : xarray.Dataset
+        Dataset containing reservoir area IDs.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    uparea_name : str
+        Name of the upstream area variable in ds_like.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir outlet coordinates.
+    """
+    res_id = gdf["waterbody_id"].values
+    outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
+    ydim = ds_like.raster.y_dim
+    xdim = ds_like.raster.x_dim
+
+    for i in res_id:
+        res_acc = ds_like[uparea_name].where(ds_out["reservoir_area_id"] == i).load()
+        max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
+        yacc = max_res_acc[ydim].values
+        xacc = max_res_acc[xdim].values
+        ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
+        outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
+        outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
+
+    return gpd.GeoDataFrame(
+        outdf, geometry=gpd.points_from_xy(outdf["xout"], outdf["yout"])
+    )
+
+
+def _build_reservoir_outlet_id_map(
+    gdf: gpd.GeoDataFrame,
+    ds_out: xr.Dataset,
+    ds_like: xr.Dataset,
+    nodata: int,
+    uparea_name: str | None,
+) -> tuple[xr.Dataset, gpd.GeoDataFrame]:
+    """Create reservoir outlet IDs and update outlet coordinates in the reservoir gdf.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing reservoir polygons and attributes.
+    ds_out : xarray.Dataset
+        Dataset containing reservoir area IDs.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
+    nodata : int
+        Value to use for cells outside reservoir polygons.
+    uparea_name : str | None
+        Name of the upstream area variable in ds_like. If None, reservoir outlet
+        coordinates from the database will be used.
+
+    Returns
+    -------
+    tuple[xr.Dataset, gpd.GeoDataFrame]
+        Updated dataset with reservoir outlet IDs and the updated GeoDataFrame.
+    """
+    # Initialize the reservoir outlet map
+    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], nodata)
+    # If an upstream area map is present in the model, gets outlets coordinates using/
+    # the maximum uparea in each reservoir mask to match model river network.
+    if uparea_name is not None and uparea_name in ds_like.data_vars:
+        logger.debug("Setting reservoir outlet map based maximum upstream area.")
+        outgdf = _build_reservoir_outlets_from_uparea(
+            gdf=gdf,
+            ds_out=ds_out,
+            ds_like=ds_like,
+            uparea_name=uparea_name,
+        )
+    # ELse use coordinates from the reservoir database
+    elif "xout" in gdf.columns and "yout" in gdf.columns:
+        logger.debug("Setting reservoir outlet map based on coordinates.")
+        outdf = gdf[["waterbody_id", "xout", "yout"]]
+        outgdf = gpd.GeoDataFrame(
+            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
+        )
+        ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
+            outgdf, col_name="waterbody_id", nodata=nodata
+        )
+    # Else outlet map is equal to areas mask map
+    else:
+        ds_out["reservoir_outlet_id"] = ds_out["reservoir_area_id"]
+        logger.warning(
+            "Neither upstream area map nor reservoir's outlet coordinates found. "
+            "Setting reservoir outlet map equal to the area map."
+        )
+        # dummy outgdf
+        outgdf = gdf[["waterbody_id"]]
+    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=nodata)
+    # fix dtypes
+    ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
+    ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
+
+    # update/replace xout and yout in gdf_org from outgdf:
+    gdf.loc[:, "xout"] = outgdf["xout"].values
+    gdf.loc[:, "yout"] = outgdf["yout"].values
+
+    return ds_out, gdf
+
+
 def reservoir_id_maps(
     gdf: gpd.GeoDataFrame,
     ds_like: xr.Dataset,
     min_area: float = 0.0,
     uparea_name: str = "uparea",
     exclude_outside_reservoirs: bool = False,
+    fraction: float | None = 0.1,
 ) -> tuple[xr.Dataset | None, gpd.GeoDataFrame | None]:
-    """Return reservoir location maps (see list below).
+    """Return reservoir location maps (see list below) at model resolution.
 
-    At model resolution based on gridded upstream area data input or outlet coordinates.
-
+    Based on gridded upstream area data input or outlet coordinates.
     The following reservoir maps are calculated:
 
     - reservoir_area_id : reservoir areas mask [ID]
@@ -137,20 +360,24 @@ def reservoir_id_maps(
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs/lakes geometries and attributes.
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
+    ds_like : xarray.Dataset
+        Dataset containing existing data layers (e.g., river network, topography) at
+        model resolution, serving as a template for rasterization.
     min_area : float, optional
         Minimum reservoir area threshold [km2], by default 0.0 km2.
     uparea_name : str, optional
         Name of uparea variable in ds_like. If None then database coordinates will be
-        used to setup outlets
+        used to setup outlets.
     exclude_outside_reservoirs : bool, optional
         Whether to exclude reservoirs that are outside the river network,
         by default False.
+    fraction : float | None, optional
+        Minimum fraction of reservoir area within a grid cell, by default 0.1.
+        Use None to skip the fraction mask and rely only on all_touched rasterization.
 
     Returns
     -------
-    ds_out : xarray.DataArray
+    ds_out : xarray.Dataset
         Dataset containing gridded reservoir data
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing (updated) reservoir outlet coordinates.
@@ -180,96 +407,21 @@ def reservoir_id_maps(
         return None, None
 
     ### Compute reservoir maps
-    # Rasterize the GeoDataFrame to get the areas mask of reservoirs
     nodata = -999  # Set nodata value
-    da_wbmask = ds_like.raster.rasterize(
-        gdf,
-        col_name="waterbody_id",
+    ds_out, gdf = _build_reservoir_area_id_map(
+        gdf=gdf,
+        ds_like=ds_like,
         nodata=nodata,
-        all_touched=True,
-        dtype=None,
-        sindex=False,
-    )
-    da_wbmask = da_wbmask.rename("reservoir_area_id")
-    da_wbmask.attrs.update(_FillValue=nodata)
-    ds_out = da_wbmask.to_dataset()
-
-    # Filter reservoirs that are too small
-    reservoir_area_ids = ds_out["reservoir_area_id"].values
-    reservoir_area_ids = reservoir_area_ids[reservoir_area_ids != nodata]
-    areas_mask = np.isin(gdf["waterbody_id"].values, reservoir_area_ids)
-    if not np.all(areas_mask):
-        gdf = gdf.loc[areas_mask]
-        nskipped = (~areas_mask).sum()
-        logger.warning(
-            f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
-            " Consider increasing the lakes min_area threshold."
-        )
-
-    # Filter reservoirs that do not overlap with the river network & update gdf
-    ds_out["reservoir_area_id"] = exclude_reservoirs_outside_rivers(
-        ds_like["river_mask"],
-        ds_out["reservoir_area_id"],
         exclude_outside_reservoirs=exclude_outside_reservoirs,
+        fraction=fraction,
     )
-
-    reservoirs = np.unique(ds_out["reservoir_area_id"].values)
-    reservoirs = reservoirs[reservoirs != nodata]
-    gdf = gdf[gdf["waterbody_id"].isin(reservoirs)]
-    res_id = gdf["waterbody_id"].values
-
-    # Initialize the reservoir outlet map
-    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], nodata)
-    # If an upstream area map is present in the model, gets outlets coordinates using/
-    # the maximum uparea in each reservoir mask to match model river network.
-    if uparea_name is not None and uparea_name in ds_like.data_vars:
-        logger.debug("Setting reservoir outlet map based maximum upstream area.")
-        # create dataframe with x and y coord to be filled in either from uparea or from
-        # xout and yout in hydrolakes data
-        outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
-        ydim = ds_like.raster.y_dim
-        xdim = ds_like.raster.x_dim
-        for i in res_id:
-            res_acc = (
-                ds_like[uparea_name].where(ds_out["reservoir_area_id"] == i).load()
-            )
-            max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
-            yacc = max_res_acc[ydim].values
-            xacc = max_res_acc[xdim].values
-            ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
-            outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
-            outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
-        outgdf = gpd.GeoDataFrame(
-            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
-        )
-
-    # ELse use coordinates from the reservoir database
-    elif "xout" in gdf.columns and "yout" in gdf.columns:
-        logger.debug("Setting reservoir outlet map based on coordinates.")
-        outdf = gdf[["waterbody_id", "xout", "yout"]]
-        outgdf = gpd.GeoDataFrame(
-            outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout)
-        )
-        ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
-            outgdf, col_name="waterbody_id", nodata=nodata
-        )
-    # Else outlet map is equal to areas mask map
-    else:
-        ds_out["reservoir_outlet_id"] = ds_out["reservoir_area_id"]
-        logger.warning(
-            "Neither upstream area map nor reservoir's outlet coordinates found. "
-            "Setting reservoir outlet map equal to the area map."
-        )
-        # dummy outgdf
-        outgdf = gdf[["waterbody_id"]]
-    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=nodata)
-    # fix dtypes
-    ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
-    ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
-
-    # update/replace xout and yout in gdf_org from outgdf:
-    gdf.loc[:, "xout"] = outgdf["xout"].values
-    gdf.loc[:, "yout"] = outgdf["yout"].values
+    ds_out, gdf = _build_reservoir_outlet_id_map(
+        gdf=gdf,
+        ds_out=ds_out,
+        ds_like=ds_like,
+        nodata=nodata,
+        uparea_name=uparea_name,
+    )
 
     return ds_out, gdf
 
@@ -343,7 +495,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     # create a geodf with id of reservoir and geometry at outflow location
     gdf_points = gpd.GeoDataFrame(
         gdf["waterbody_id"],
-        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+        geometry=gpd.points_from_xy(gdf["xout"], gdf["yout"]),
     )
     gdf_points = gdf_points.merge(df_reservoirs, on="waterbody_id")  # merge
     # add parameter attributes to polygon gdf:
@@ -913,7 +1065,7 @@ def reservoir_parameters(
 
     gdf_org_points = gpd.GeoDataFrame(
         gdf[reservoir_params],
-        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+        geometry=gpd.points_from_xy(gdf["xout"], gdf["yout"]),
     )
 
     for name in reservoir_params[1:]:
