@@ -24,6 +24,12 @@ once you are in the directory you can install the environment using pixi with
     $ pixi run install
 
 The latter will install pre-commit hooks and a git compare tool for netcdf files.
+Comparing netcdf (.nc) files with git will be using ncdump.
+If you don't have this program installed on your computer, you can install it via pixi as such:
+
+.. code-block:: console
+
+    $ pixi global install --expose ncdump netcdf4
 
 Afterwards you can run any of the tasks we defined for doing things such as running the test suite:
 
