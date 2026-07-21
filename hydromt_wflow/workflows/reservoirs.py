@@ -263,7 +263,9 @@ def _build_reservoir_outlets_from_uparea(
         outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
         outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
 
-    return gpd.GeoDataFrame(outdf, geometry=gpd.points_from_xy(outdf.xout, outdf.yout))
+    return gpd.GeoDataFrame(
+        outdf, geometry=gpd.points_from_xy(outdf["xout"], outdf["yout"])
+    )
 
 
 def _build_reservoir_outlet_id_map(
@@ -493,7 +495,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     # create a geodf with id of reservoir and geometry at outflow location
     gdf_points = gpd.GeoDataFrame(
         gdf["waterbody_id"],
-        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+        geometry=gpd.points_from_xy(gdf["xout"], gdf["yout"]),
     )
     gdf_points = gdf_points.merge(df_reservoirs, on="waterbody_id")  # merge
     # add parameter attributes to polygon gdf:
@@ -1063,7 +1065,7 @@ def reservoir_parameters(
 
     gdf_org_points = gpd.GeoDataFrame(
         gdf[reservoir_params],
-        geometry=gpd.points_from_xy(gdf.xout, gdf.yout),
+        geometry=gpd.points_from_xy(gdf["xout"], gdf["yout"]),
     )
 
     for name in reservoir_params[1:]:
