@@ -2,7 +2,11 @@
 
 steps:
   - config.read:
-      filename: ../../examples/data/wflow_sediment.toml
+      # IMPORTANT
+      # This file is expected to exist for the regression test to succeed
+      # However, if this resolved path doesnt exist, only a WARNING is logged.
+      # So, to make sure that this exists,
+      filename: ../../../../../examples/data/wflow_sediment.toml
 
   - setup_config:
       data:
@@ -29,7 +33,7 @@ steps:
       min_area: 10.0
 
   - setup_lulcmaps:
-      lulc_fn: globcover_2009
+      lulc_fn: globcover # artifact_data: globcover_2009, deltares_data: globcover
       lulc_mapping_fn: globcover_mapping_default
 
   - setup_canopymaps:

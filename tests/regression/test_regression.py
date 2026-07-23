@@ -14,6 +14,7 @@ from tests.regression.regression_utils import (
     get_basins_for_profile,
     load_basin_config,
     repo_root,
+    report_failures,
     resolve_path,
 )
 
@@ -94,4 +95,5 @@ def test_basin_regression_metrics(basin, request):
         )
     )
 
-    assert not failures, "\n".join(failures)
+    report = report_failures(failures)
+    assert not failures, report

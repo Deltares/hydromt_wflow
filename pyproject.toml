@@ -350,24 +350,44 @@ unit-test = { cmd = "pytest -m 'not integration and not system and not regressio
 integration-test = { cmd = "pytest -m integration" }
 test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration and not system and not regression'", args=[{ "arg" = "report", default="xml"}] }
 
-regression-pipeline = { cmd = "python tests/regression/run_pipeline.py --mode full --profile {{ PROFILE }} --root {{ ROOT }} --wflow-cli {{ WFLOW_CLI }} --force-overwrite --verbosity={{ VERBOSITY }}", args=[{ arg = "PROFILE", default = "all", choices = ["pr", "all"] }, { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/data/regression/.runs" }, { arg = "WFLOW_CLI", default = "wflow_cli" }, { arg = "VERBOSITY", default = "-vv", choices = ["-v", "-vv", "-vvv"] }] }
-regression-assert = { cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v", args=[{ arg = "PROFILE", default = "all", choices = ["pr", "all"] }, { arg = "ROOT", default = "$TMP" }] }
-regression-generate-metrics = { cmd = "python tests/regression/generate_metrics.py --root {{ ROOT }} --profile {{ PROFILE }}", args=[{ arg = "PROFILE", default = "all", choices = ["pr", "all"] }, { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/data/regression/.runs" }] }
+[tool.pixi.feature.test.tasks.regression-pipeline]
+args = [
+  { arg = "WFLOW_CLI" },
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "MODE", default = "full", choices=["full", "sbm", "sediment"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
+]
+cmd = "python tests/regression/run_pipeline.py --mode {{ MODE }} --profile {{ PROFILE }} --root {{ ROOT }} --wflow-cli {{ WFLOW_CLI }} --force-overwrite --verbosity={{ VERBOSITY }}"
+
+[tool.pixi.feature.test.tasks.regression-assert]
+args = [
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$TMP" },
+]
+cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v"
+
+[tool.pixi.feature.test.tasks.regression-generate-metrics]
+cmd = "python tests/regression/generate_metrics.py --root {{ ROOT }} --profile {{ PROFILE }}"
+args = [
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+]
 
 [tool.pixi.feature.test.tasks.build-sbm]
 args = [
   { arg = "BASIN" },
-  { arg = "VERBOSITY", default = "-vv", choices = ["-v", "-vv", "-vvv"] },
-  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/data/regression/.runs" },
-  { arg = "FORCE_OVERWRITE", default = "--force-overwrite", choices = ["", "--force-overwrite"] }
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "FORCE_OVERWRITE", default = "--force-overwrite", choices = ["", "--force-overwrite"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
 ]
 cmd = "python tests/regression/run_pipeline.py --mode=sbm --basins={{ BASIN }} --root={{ ROOT }} --verbosity={{ VERBOSITY }} {{ FORCE_OVERWRITE }}"
 
 [tool.pixi.feature.test.tasks.build-sediment]
 args = [
   { arg = "BASIN" },
-  { arg = "VERBOSITY", default = "-vv", choices = ["-v", "-vv", "-vvv"] },
-  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/data/regression/.runs" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
   { arg = "FORCE_OVERWRITE", default = "--force-overwrite", choices = ["", "--force-overwrite"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] }
 ]
 cmd = "python tests/regression/run_pipeline.py --mode=sediment --basins={{ BASIN }} --root={{ ROOT }} --verbosity={{ VERBOSITY }} {{ FORCE_OVERWRITE }}"

@@ -179,16 +179,23 @@ object WflowSystemTestTemplate : Template({
 
     steps {
         script {
+            name = "Connect to P drive"
+            id = "Map_P_drive"
+            scriptContent = """
+                net use P: \\directory.intra\p /persistent:no
+            """.trimIndent()
+        }
+        script {
             name = "Build and run regression pipeline"
             id = "Build_run_regression_pipeline"
             workingDir = "hydromt_wflow"
             scriptContent = """
-                @if not exist "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" (
-                    echo ERROR: wflow_cli.exe not found at "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe"
+                @if not exist "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" (
+                    echo ERROR: wflow_cli.exe not found at "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
                     exit /b 1
                 )
 
-                pixi run regression-pipeline "%regression.profile%" "%teamcity.agent.work.dir%\system-test" "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe"
+                pixi run regression-pipeline "%regression.profile%" "%teamcity.build.checkoutDir%\system-test" "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
             """.trimIndent()
         }
         script {
@@ -196,7 +203,7 @@ object WflowSystemTestTemplate : Template({
             id = "assert_regression_metrics"
             workingDir = "hydromt_wflow"
             scriptContent = """
-                pixi run regression-assert "%regression.profile%" "%teamcity.agent.work.dir%\system-test"
+                pixi run regression-assert "%regression.profile%" "%teamcity.build.checkoutDir%\system-test"
             """.trimIndent()
         }
     }
@@ -206,7 +213,7 @@ object WflowSystemTestTemplate : Template({
             id = "ARTIFACT_DEPENDENCY_7064"
             buildRule = lastSuccessful("%wflow.cli.branch.filter%")
             cleanDestination = true
-            artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
+            artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.build.checkoutDir%\wflow_cli"""
         }
     }
 })

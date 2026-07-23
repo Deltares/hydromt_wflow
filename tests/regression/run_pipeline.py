@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--wflow-cli",
-        default="",
+        type=Path,
         help="Path to wflow_cli executable (required for --mode full).",
     )
     parser.add_argument(
@@ -50,7 +50,12 @@ def parse_args() -> argparse.Namespace:
         choices=["-v", "-vv", "-vvv"],
         help="HydroMT verbosity flag.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.mode == "full" and not args.wflow_cli:
+        parser.error("--wflow-cli is required when --mode=full")
+    if args.wflow_cli and not args.wflow_cli.exists():
+        parser.error(f"wflow_cli not found: {args.wflow_cli}")
+    return args
 
 
 def _basins(args: argparse.Namespace, project_root: Path) -> list[str]:
@@ -64,10 +69,6 @@ def main() -> None:
     project_root = repo_root()
     run_root = Path(args.root)
     basins = _basins(args, project_root)
-    wflow_cli = Path(args.wflow_cli) if args.wflow_cli else None
-
-    if args.mode == "full" and wflow_cli is None:
-        raise ValueError("--wflow-cli is required when --mode=full")
 
     for basin in basins:
         basin_config = load_basin_config(project_root, basin)
@@ -83,7 +84,7 @@ def main() -> None:
             )
             if args.mode == "full":
                 sbm_toml = sbm_root / basin_config["sbm"]["config_toml"]
-                run_wflow(wflow_cli=wflow_cli, config_toml=sbm_toml)
+                run_wflow(wflow_cli=args.wflow_cli, config_toml=sbm_toml)
 
         if args.mode in {"full", "sediment"}:
             sediment_root = build_sediment(
@@ -96,7 +97,7 @@ def main() -> None:
             )
             if args.mode == "full":
                 sediment_toml = sediment_root / basin_config["sediment"]["config_toml"]
-                run_wflow(wflow_cli=wflow_cli, config_toml=sediment_toml)
+                run_wflow(wflow_cli=args.wflow_cli, config_toml=sediment_toml)
 
 
 if __name__ == "__main__":

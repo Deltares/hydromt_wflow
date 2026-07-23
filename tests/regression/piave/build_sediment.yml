@@ -1,8 +1,8 @@
 # These workflows are used by the regression pixi tasks.
 
 steps:
-  - config.read:
-      filename: ../../examples/data/wflow_sediment.toml
+  - config.read: # read file from examples.
+      filename: ../../../../../examples/data/wflow_sediment.toml
 
   - setup_config:
       data:
@@ -29,7 +29,7 @@ steps:
       min_area: 10.0
 
   - setup_lulcmaps:
-      lulc_fn: globcover_2009
+      lulc_fn: globcover_2009 # artifact_data: globcover_2009, deltares_data: globcover
       lulc_mapping_fn: globcover_mapping_default
 
   - setup_canopymaps:

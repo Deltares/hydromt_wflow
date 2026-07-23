@@ -39,7 +39,7 @@ def pytest_addoption(parser):
         "--regression-profile",
         action="store",
         default="all",
-        help="Regression basin profile from tests/data/regression/manifest.json",
+        help="Regression basin profile from tests/regression/manifest.json",
     )
     parser.addoption(
         "--regression-basins",
