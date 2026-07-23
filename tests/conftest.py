@@ -235,21 +235,16 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 @pytest.fixture
 def example_wflow_outputs(example_models_dir: Path) -> WflowSbmModel:
-    mod = WflowSbmModel(
+    return WflowSbmModel(
         root=str(example_models_dir / "wflow_piave_subbasin"),
         mode="r",
         config_filename="wflow_sbm_results.toml",
     )
-    return mod
 
 
 @pytest.fixture
 def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
-    mod = WflowSbmModel(
-        root=str(example_models_dir / "wflow_piave_clip"),
-        mode="r",
-    )
-    return mod
+    return WflowSbmModel(root=str(example_models_dir / "wflow_piave_clip"), mode="r")
 
 
 @pytest.fixture
@@ -258,13 +253,7 @@ def floodplain1d_testdata(test_data_dir: Path) -> xr.Dataset:
         _data_dir = test_data_dir / "linux64"
     else:
         _data_dir = test_data_dir
-    data = xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
-    # Rename testdata variables to match the model
-    for var in data.data_vars:
-        if "hydrodem" in var:
-            new_name = var.replace("hydrodem", "river_bank_elevation")
-            data = data.rename({var: new_name})
-    return data
+    return xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
 
 
 @pytest.fixture

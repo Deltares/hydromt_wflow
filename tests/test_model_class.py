@@ -55,9 +55,13 @@ def _plot_grid_diff(
 
         valid = expected.notnull() & actual.notnull()
         diff_plot = (actual - expected).where(valid)
+        not_close = ~np.equal(
+            expected.notnull().to_numpy(), actual.notnull().to_numpy()
+        )
+        n_cells = int(np.sum(not_close))
 
-        diff_values = diff_plot.values[valid.values]
-        if np.allclose(diff_values, 0, atol=1e-6):
+        if n_cells == 0:
+            # Note: Logic for determining if cells are not close should be the same as what is used in components.test_equal.
             logger.debug(
                 f"Differences in variable '{var}' values are negligible, skipping plot."
             )
@@ -144,6 +148,7 @@ def _compare_wflow_models(
     # check maps
     if mod0.staticmaps._data:
         eq, errors = mod0.staticmaps.test_equal(mod1.staticmaps)
+        # breakpoint()
         if not eq:
             _plot_grid_diff(
                 mod0.staticmaps._data,
