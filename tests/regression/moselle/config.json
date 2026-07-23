@@ -1,0 +1,66 @@
+{
+  "sbm": {
+    "build_config": "tests/regression/moselle/build_sbm.yml",
+    "data_catalogs": [
+      "examples/data/demand/data_catalog.yml",
+      "hydromt_wflow/data/parameters_data.yml",
+      "deltares_data"
+    ],
+    "config_toml": "wflow_sbm.toml",
+    "output_nc": "run_default/output.nc",
+    "metrics": [
+      {
+        "name": "outlet_discharge",
+        "variable": "river_q",
+        "selector": {
+          "wflow_id": -1
+        },
+        "aggregation": "sum",
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
+        "rel_tol": 0.01,
+        "abs_tol": 1e-06
+      }
+    ]
+  },
+  "sediment": {
+    "build_config": "tests/regression/moselle/build_sediment.yml",
+    "data_catalogs": [
+      "examples/data/demand/data_catalog.yml",
+      "hydromt_wflow/data/parameters_data.yml",
+      "deltares_data"
+    ],
+    "config_toml": "wflow_sediment.toml",
+    "output_nc": "run_default_sediment/output.nc",
+    "metrics": [
+      {
+        "name": "soil_loss",
+        "variable": "soil_loss",
+        "aggregation": "sum",
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
+        "rel_tol": 0.01,
+        "abs_tol": 1e-06
+      },
+      {
+        "name": "suspended_solids",
+        "variable": "suspended_solids",
+        "aggregation": "sum",
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
+        "rel_tol": 0.01,
+        "abs_tol": 1e-06
+      }
+    ]
+  },
+  "baseline_metrics": "tests/regression/moselle/metrics/baseline_metrics.json"
+}

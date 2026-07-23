@@ -1,31 +1,26 @@
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
+// import jetbrains.buildServer.configs.kotlin.buildFeatures.emailNotifier  // unresolved on this TeamCity instance - email notifier feature disabled; see WflowJlEmailTemplate below
+// import jetbrains.buildServer.configs.kotlin.buildFeatures.notifications  // only used by the disabled WflowJlEmailTemplate - uncomment alongside it
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
+import jetbrains.buildServer.configs.kotlin.triggers.schedule
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 
 /*
-The settings script is an entry point for defining a TeamCity
-project hierarchy. The script should contain a single call to the
-project() function with a Project instance or an init function as
-an argument.
+This file is meant to live in hydromt_wflow's own .teamcity/ directory
+(versioned settings), which is why hydromt_wflow itself is referenced via
+DslContext.settingsRoot rather than a second, hand-declared VCS root.
 
-VcsRoots, BuildTypes, Templates, and subprojects can be
-registered inside the project using the vcsRoot(), buildType(),
-template(), and subProject() methods respectively.
+Five build configurations, one template stack:
 
-To debug settings scripts in command-line, run the
-
-    mvnDebug org.jetbrains.teamcity:teamcity-configs-maven-plugin:generate
-
-command and attach your debugger to the port 8000.
-
-To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
--> Tool Windows -> Maven Projects), find the generate task node
-(Plugins -> teamcity-configs -> teamcity-configs:generate), the
-'Debug' option is available in the context menu for the task.
+  SystemTestPrCheckStable   - hydromt_wflow PR -> GitHub check, uses latest wflow.jl release
+  SystemTestPrCheckDev      - hydromt_wflow PR -> GitHub check, uses wflow.jl@master
+  SystemTestDev             - nightly schedule, uses wflow.jl@master, full profile
+  SystemTestLatestRelease   - nightly schedule, uses latest wflow.jl release, full profile
+  SystemTestOldestSupported - nightly schedule, uses oldest supported wflow.jl release, full profile
 */
 
 version = "2026.1"
@@ -34,80 +29,207 @@ project {
 
     vcsRoot(WflowJl)
 
-    buildType(SystemTest)
+    buildType(SystemTestPrCheckStable)
+    buildType(SystemTestPrCheckDev)
     buildType(SystemTestDev)
+    buildType(SystemTestLatestRelease)
+    buildType(SystemTestOldestSupported)
 
-    template(GitHubPrTemplate)
-    template(WflowWindowsAgentTemplate)
     template(WflowSystemTestTemplate)
+    template(GitHubPrTemplate)
+    // template(WflowJlEmailTemplate)
+    template(WflowWindowsAgentTemplate)
 
     params {
-        param("wflow.oldest.supported.release", "v1.0.0")
+        // Explicit version pins agreed with the Wflow.jl team.
+        // - wflow.latest.release tracks a release *branch* on the wflow_cli
+        //   build config, so "latest" always resolves to the newest build on
+        //   that branch without needing a manual bump per patch release.
+        // - wflow.oldest.supported.release is pinned to an exact *tag* - bump
+        //   this by hand when the oldest release we still support changes.
         param("wflow.dev.branch", "master")
-        param("wflow.latest.release", "v1.0.3")
+        param("wflow.latest.release", "release/v1.0")
+        param("wflow.oldest.supported.release", "v1.0.0")
+
+        // Who gets paged when a nightly run breaks.
+        // There's no hydromt_wflow PR to attach a GitHub check to in that
+        // case, so we email instead (see team recap).
+        // param("notify.email", "wflow-ci@deltares.nl")
     }
 }
 
-object SystemTest : BuildType({
-    templates(WflowSystemTestTemplate)
-    name = "System test"
-    description = "Build and run an SBM from scratch (artifact_data), then convert it to a sediment model and run that."
+// ---------------------------------------------------------------------------
+// Build types
+// ---------------------------------------------------------------------------
+
+object SystemTestPrCheckStable : BuildType({
+    templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
+    name = "System test (PR check, latest release)"
+    description = "Runs on every hydromt_wflow PR against the latest supported Wflow.jl release and publishes a GitHub check."
+
+    params {
+        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
+        param("regression.profile", "pr")
+        text("status.check.name", "System test (PR, latest release)", allowEmpty = false)
+    }
+})
+
+object SystemTestPrCheckDev : BuildType({
+    templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
+    name = "System test (PR check, wflow master)"
+    description = "Runs on every hydromt_wflow PR against the latest build from Wflow.jl master and publishes a GitHub check."
+
+    params {
+        param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
+        param("regression.profile", "pr")
+        text("status.check.name", "System test (PR, wflow master)", allowEmpty = false)
+    }
 })
 
 object SystemTestDev : BuildType({
-    templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
-    name = "System test (dev)"
-    description = "Runs system test using the latest build of wflow.jl"
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
+    name = "System test (Nightly, Wflow master)"
+    description = "Nightly run using the latest build of Wflow.jl %wflow.dev.branch% and the full regression profile."
 
     params {
-        text("status.check.name", "System test (Wflow-dev)", allowEmpty = false)
-    }
-
-    vcs {
-        root(WflowJl)
+        param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
+        param("regression.profile", "all")
     }
 
     triggers {
-        vcs {
-            id = "TRIGGER_862"
-            branchFilter = """
-                +:refs/heads/master
-                +:refs/tags/*
+        schedule {
+            id = "TRIGGER_NIGHTLY_DEV"
+            schedulingPolicy = daily {
+                hour = 2
+            }
+            triggerBuild = always()
+            withPendingChangesOnly = false
+        }
+    }
+})
+
+object SystemTestLatestRelease : BuildType({
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
+    name = "System test (Nightly, Wflow latest release)"
+    description = "Nightly run using the latest build of the Wflow.jl %wflow.latest.release% release branch and the full regression profile."
+
+    params {
+        param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
+        param("regression.profile", "all")
+    }
+
+    triggers {
+        schedule {
+            id = "TRIGGER_NIGHTLY_LATEST_RELEASE"
+            schedulingPolicy = daily {
+                hour = 3
+            }
+            triggerBuild = always()
+            withPendingChangesOnly = false
+        }
+    }
+})
+
+object SystemTestOldestSupported : BuildType({
+    templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
+    name = "System test (Nightly, Wflow oldest supported)"
+    description = "Nightly canary against the oldest release we still claim to support (%wflow.oldest.supported.release%). Also doubles as the 'catch a silent upstream dependency regression' check, since nothing else re-runs this pipeline without a hydromt_wflow or Wflow.jl commit."
+
+    params {
+        param("wflow.cli.branch.filter", "+:%wflow.oldest.supported.release%")
+        param("regression.profile", "all")
+    }
+
+    triggers {
+        schedule {
+            id = "TRIGGER_NIGHTLY_OLDEST_SUPPORTED"
+            schedulingPolicy = daily {
+                hour = 4
+            }
+            triggerBuild = always()
+            withPendingChangesOnly = false
+        }
+    }
+})
+
+// ---------------------------------------------------------------------------
+// Templates
+// ---------------------------------------------------------------------------
+
+object WflowSystemTestTemplate : Template({
+    name = "System Test Template"
+    description = "VcsRoots, Dependencies & Build steps"
+
+    params {
+        text(
+            "wflow.cli.branch.filter", "",
+            description = "Newline-delimited set of rules in the form of +|-:logical branch name (with an optional * placeholder) picking which wflow_cli build to fetch. Every build type using this template must set this.",
+            allowEmpty = false
+        )
+        text(
+            "regression.profile", "",
+            description = "Basin profile for regression tasks (pr|all).",
+            allowEmpty = false
+        )
+    }
+
+    vcs {
+        root(DslContext.settingsRoot, "+:. => ./hydromt_wflow")
+    }
+
+    steps {
+        script {
+            name = "Connect to P drive"
+            id = "Map_P_drive"
+            scriptContent = """
+                net use P: \\directory.intra\p /persistent:no
+            """.trimIndent()
+        }
+        script {
+            name = "Build and run regression pipeline"
+            id = "Build_run_regression_pipeline"
+            workingDir = "hydromt_wflow"
+            scriptContent = """
+                @if not exist "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" (
+                    echo ERROR: wflow_cli.exe not found at "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
+                    exit /b 1
+                )
+
+                pixi run regression-pipeline "%regression.profile%" "%teamcity.build.checkoutDir%\system-test" "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
+            """.trimIndent()
+        }
+        script {
+            name = "Assert regression metrics"
+            id = "assert_regression_metrics"
+            workingDir = "hydromt_wflow"
+            scriptContent = """
+                pixi run regression-assert "%regression.profile%" "%teamcity.build.checkoutDir%\system-test"
             """.trimIndent()
         }
     }
 
     dependencies {
-        dependency(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-            }
-
-            artifacts {
-                id = "ARTIFACT_DEPENDENCY_7064"
-                buildRule = sameChain()
-                cleanDestination = true
-                artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
-            }
+        artifacts(AbsoluteId("wflow_BuildWflowCliWindows")) {
+            id = "ARTIFACT_DEPENDENCY_7064"
+            buildRule = lastSuccessful("%wflow.cli.branch.filter%")
+            cleanDestination = true
+            artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.build.checkoutDir%\wflow_cli"""
         }
     }
 })
 
 object GitHubPrTemplate : Template({
     name = "GitHub PR Template"
-    description = "vcs triggers, PR build feature, commit status publisher"
+    description = "PR trigger + commit status publisher for hydromt_wflow-PR-triggered builds only. Do not combine with WflowJlEmailTemplate."
 
     params {
         text("status.check.name", "", allowEmpty = false)
     }
 
-    vcs {
-        root(DslContext.settingsRoot)
-    }
-
     triggers {
         vcs {
             id = "TRIGGER_858"
+            triggerRules = "+:root=${DslContext.settingsRoot.id}:**"
             branchFilter = """
                 -:*
                 +pr:*
@@ -119,6 +241,7 @@ object GitHubPrTemplate : Template({
     features {
         commitStatusPublisher {
             id = "BUILD_EXT_521"
+            vcsRootExtId = "${DslContext.settingsRoot.id}"
             publisher = github {
                 statusCheckName = "%status.check.name%"
                 githubUrl = "https://api.github.com"
@@ -141,61 +264,26 @@ object GitHubPrTemplate : Template({
     }
 })
 
-object WflowSystemTestTemplate : Template({
-    name = "System Test Template"
-    description = "VcsRoots, Dependencies & Build steps"
-
-    params {
-        text("wflow.cli.version.latest", "v1.1.0",
-              regex = """^v\d+\.\d+\.\d+${'$'}""", validationMessage = "Must be a valid 'vx.y.z' version (for example, v1.1.0)")
-        text("wflow.cli.branch.filter", "", description = "Newline-delimited set of rules in the form of +|-:logical branch name (with an optional * placeholder)", allowEmpty = false)
-    }
+/* uncomment when email is enabled / fixed on teamcity
+object WflowJlEmailTemplate : Template({
+    name = "Wflow.jl VCS root + email on failure"
+    description = "Attaches Wflow.jl (for triggering/version pinning) and emails on failure instead of publishing a GitHub check, since these builds aren't tied to a hydromt_wflow commit or PR. Do not combine with GitHubPrTemplate."
 
     vcs {
-        root(DslContext.settingsRoot, "+:. => ./hydromt_wflow")
+        root(WflowJl)
     }
 
-    steps {
-        script {
-            name = "Build and run sbm"
-            id = "Build_sbm"
-            workingDir = "hydromt_wflow"
-            scriptContent = """
-                @if not exist "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" (
-                    echo ERROR: wflow_cli.exe not found at "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe"
-                    exit /b 1
-                )
-
-                REM Build
-                pixi run build-system-test-sbm "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-
-                REM Run
-                "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sbm.toml"
-            """.trimIndent()
-        }
-        script {
-            name = "Build and run sediment"
-            id = "build_and_run_sediment"
-            workingDir = "hydromt_wflow"
-            scriptContent = """
-                REM Build
-                pixi run build-system-test-sediment "%teamcity.agent.work.dir%\system-test\wflow_sbm"
-
-                REM Run
-                "%teamcity.agent.work.dir%\wflow_cli\bin\wflow_cli.exe" "%teamcity.agent.work.dir%\system-test\wflow_sbm\wflow_sediment.toml"
-            """.trimIndent()
-        }
-    }
-
-    dependencies {
-        artifacts(AbsoluteId("wflow_BuildWflowCliWindows")) {
-            id = "ARTIFACT_DEPENDENCY_7064"
-            buildRule = lastSuccessful("%wflow.cli.branch.filter%")
-            cleanDestination = true
-            artifactRules = """+:wflow_cli.zip!/wflow_cli/** => %teamcity.agent.work.dir%\wflow_cli"""
+    features {
+        notifications {
+            id = "BUILD_EXT_EMAIL"
+            notifierSettings = emailNotifier {
+                email = "%notify.email%"
+            }
+            buildFailed = true
         }
     }
 })
+*/
 
 object WflowWindowsAgentTemplate : Template({
     name = "Windows Agent Template"

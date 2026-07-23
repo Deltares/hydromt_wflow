@@ -132,6 +132,7 @@ addopts = [
 ]
 markers = [
   "integration: slow tests that combine components, workflows and actual data; no Julia execution",
+  "regression: tests that run wflow julia and assert on output",
 ]
 
 [tool.coverage.run]
@@ -213,6 +214,7 @@ install-pre-commit = "pre-commit install"
 
 # Repo related tasks
 lint = { cmd = ["pre-commit", "run", "--all-files"] }
+_remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
 
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
@@ -236,18 +238,18 @@ clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
 [tool.pixi.feature.julia.tasks]
-remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
 install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
 run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
 build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
 system-test = { depends-on = [
-  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="_remove-dir",                  args=["{{ TEST_ROOT }}"]},
   { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sediment.toml", "{{ WFLOW_JULIA_REPO }}"]},
 ], args = ["TEST_ROOT", "WFLOW_JULIA_REPO"] }
+test-regression = { cmd = ["pytest", "-m", "regression", "--model-root={{ MODEL_ROOT }}",  "-v"], args = ["MODEL_ROOT"] }
 
 # Artifact generation
 [tool.pixi.feature.dist.tasks]
@@ -343,6 +345,49 @@ build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin"
 benchmark = { cmd = "pytest --benchmark-only" }
 benchmark-record = { cmd = "pytest--benchmark-only--benchmark-autosave" }
 benchmark-compare = { cmd = "pytest --benchmark-only --benchmark-compare --benchmark-compare-fail=min:25%" }
-unit-test = { cmd = "pytest -m 'not integration'" }
+ci-test = { cmd = "pytest -m 'not regression'" }
+unit-test = { cmd = "pytest -m 'not integration and not system and not regression'" }
 integration-test = { cmd = "pytest -m integration" }
-test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration'", args=[{ "arg" = "report", default="xml"}] }
+test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration and not system and not regression'", args=[{ "arg" = "report", default="xml"}] }
+
+[tool.pixi.feature.test.tasks.regression-pipeline]
+args = [
+  { arg = "WFLOW_CLI" },
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "MODE", default = "full", choices=["full", "sbm", "sediment"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
+]
+cmd = "python tests/regression/run_pipeline.py --mode {{ MODE }} --profile {{ PROFILE }} --root {{ ROOT }} --wflow-cli {{ WFLOW_CLI }} --force-overwrite --verbosity={{ VERBOSITY }}"
+
+[tool.pixi.feature.test.tasks.regression-assert]
+args = [
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$TMP" },
+]
+cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v"
+
+[tool.pixi.feature.test.tasks.regression-generate-metrics]
+cmd = "python tests/regression/generate_metrics.py --root {{ ROOT }} --profile {{ PROFILE }}"
+args = [
+  { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+]
+
+[tool.pixi.feature.test.tasks.build-sbm]
+args = [
+  { arg = "BASIN" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "FORCE_OVERWRITE", default = "--force-overwrite", choices = ["", "--force-overwrite"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
+]
+cmd = "python tests/regression/run_pipeline.py --mode=sbm --basins={{ BASIN }} --root={{ ROOT }} --verbosity={{ VERBOSITY }} {{ FORCE_OVERWRITE }}"
+
+[tool.pixi.feature.test.tasks.build-sediment]
+args = [
+  { arg = "BASIN" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "FORCE_OVERWRITE", default = "--force-overwrite", choices = ["", "--force-overwrite"] },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] }
+]
+cmd = "python tests/regression/run_pipeline.py --mode=sediment --basins={{ BASIN }} --root={{ ROOT }} --verbosity={{ VERBOSITY }} {{ FORCE_OVERWRITE }}"
