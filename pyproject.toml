@@ -208,8 +208,9 @@ platforms = ["linux-64", "win-64"]
 ## The different tasks of this project
 [tool.pixi.tasks]
 # Installation
-install            = { depends-on = ["install-pre-commit"] }
+install            = { depends-on = ["install-pre-commit", "install-git-config"] }
 install-pre-commit = "pre-commit install"
+install-git-config = 'git config --local diff.netcdf.textconv "ncdump -h" && git config --local diff.netcdf.cachetextconv true'
 
 # Repo related tasks
 lint = { cmd = ["pre-commit", "run", "--all-files"] }
