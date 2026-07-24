@@ -213,7 +213,7 @@ install-pre-commit = "pre-commit install"
 install-git-config = 'git config --local diff.netcdf.textconv "ncdump -h" && git config --local diff.netcdf.cachetextconv true'
 
 # Repo related tasks
-lint = { cmd = ["pre-commit", "run", "--all"] }
+lint = { cmd = ["pre-commit", "run", "--all-files"] }
 
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
