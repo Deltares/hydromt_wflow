@@ -16,7 +16,7 @@ the code folder (where the envs folder and pyproject.toml are located):
     $ git clone https://github.com/Deltares/hydromt_wflow.git
     $ cd hydromt_wflow
 
-once you are in the directory you can install the environment using pixi with
+once you are in the directory you can install the development environment using pixi with
 
 .. code-block:: console
 
@@ -24,8 +24,9 @@ once you are in the directory you can install the environment using pixi with
     $ pixi run install
 
 The latter will install pre-commit hooks and a git compare tool for netcdf files.
-Comparing netcdf (.nc) files with git will be using ncdump.
-If you don't have this program installed on your computer, you can install it via pixi as such:
+Comparing netcdf (.nc) files with git will be using ncdump, which must be in your PATH environment variable.
+ncdump is directly available in the PATH when you call ``pixi run git diff``, or when you have a ``pixi shell`` open.
+If you want your git diff to work outside of the pixi environment (e.g. in a git user interface) you can install ncdump and netcdf4 globally with:
 
 .. code-block:: console
 
