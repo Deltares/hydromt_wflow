@@ -195,7 +195,7 @@ object WflowSystemTestTemplate : Template({
                     exit /b 1
                 )
 
-                pixi run regression-pipeline "%regression.profile%" "%teamcity.build.checkoutDir%\system-test" "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
+                pixi run regression-pipeline "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" "%regression.profile%" "%teamcity.build.checkoutDir%\system-test"
             """.trimIndent()
         }
         script {
