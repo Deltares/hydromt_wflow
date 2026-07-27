@@ -182,7 +182,11 @@ object WflowSystemTestTemplate : Template({
             name = "Connect to P drive"
             id = "Map_P_drive"
             scriptContent = """
-                net use P: \\directory.intra\PROJECT /persistent:no
+                if exist P:\ (
+                    echo P: drive already available, skipping net use.
+                ) else (
+                    net use P: \\directory.intra\PROJECT /persistent:no
+                )
             """.trimIndent()
         }
         script {
