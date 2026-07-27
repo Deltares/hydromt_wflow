@@ -363,7 +363,7 @@ cmd = "python tests/regression/run_pipeline.py --mode {{ MODE }} --profile {{ PR
 [tool.pixi.feature.test.tasks.regression-assert]
 args = [
   { arg = "PROFILE", default = "all", choices = ["pr", "all"] },
-  { arg = "ROOT", default = "$TMP" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
 ]
 cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v"
 

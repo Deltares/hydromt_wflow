@@ -179,12 +179,16 @@ def run_wflow(wflow_cli: Path, config_toml: Path) -> None:
 
 def _to_series(
     data_array: xr.DataArray,
-    selector: dict[str, int] | None,
+    selector: dict | None,
     aggregation: str,
+    selector_method: str = "isel",
 ) -> np.ndarray:
     data = data_array
     if selector:
-        data = data.isel(selector)
+        if selector_method == "sel":
+            data = data.sel(selector, method="nearest")
+        else:
+            data = data.isel(selector)
     if "time" in data.dims:
         reduce_dims = [dim for dim in data.dims if dim != "time"]
     else:
@@ -220,6 +224,7 @@ def compute_metrics(output_nc: Path, specs: list[dict]) -> dict[str, dict[str, f
                 data_array=dataset[variable],
                 selector=spec.get("selector"),
                 aggregation=spec.get("aggregation", "sum"),
+                selector_method=spec.get("selector_method", "isel"),
             )
             metric_values: dict[str, float] = {}
             for metric in spec["metrics"]:
