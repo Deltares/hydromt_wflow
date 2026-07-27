@@ -232,7 +232,7 @@ This means:
 Each configuration runs two sequential steps:
 
 1. **Build and run regression pipeline** — calls `pixi run regression-pipeline` with the
-   profile and a work directory on the agent (`%teamcity.agent.work.dir%\system-test`).
+   profile. Model outputs are written to the default `tests/regression/.runs` directory.
 2. **Assert regression metrics** — calls `pixi run regression-assert`, which runs pytest
    and fails the build if any metric is out of tolerance.
 

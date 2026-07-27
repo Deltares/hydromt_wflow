@@ -195,7 +195,7 @@ object WflowSystemTestTemplate : Template({
                     exit /b 1
                 )
 
-                pixi run regression-pipeline "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" "%regression.profile%" "%teamcity.build.checkoutDir%\system-test"
+                pixi run regression-pipeline "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" "%regression.profile%"
             """.trimIndent()
         }
         script {
@@ -203,7 +203,7 @@ object WflowSystemTestTemplate : Template({
             id = "assert_regression_metrics"
             workingDir = "hydromt_wflow"
             scriptContent = """
-                pixi run regression-assert "%regression.profile%" "%teamcity.build.checkoutDir%\system-test"
+                pixi run regression-assert "%regression.profile%"
             """.trimIndent()
         }
     }
