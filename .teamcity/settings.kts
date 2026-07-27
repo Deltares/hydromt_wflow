@@ -182,7 +182,7 @@ object WflowSystemTestTemplate : Template({
             name = "Connect to P drive"
             id = "Map_P_drive"
             scriptContent = """
-                net use P: \\directory.intra\p /persistent:no
+                net use P: \\directory.intra\PROJECT /persistent:no
             """.trimIndent()
         }
         script {
