@@ -90,6 +90,9 @@ all = ["hydromt_wflow[full,dev]"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"
 wflow_sediment = "hydromt_wflow.wflow_sediment"
 
+[project.entry-points.console_scripts]
+hydromt_wflow = "hydromt_wflow.cli:main"
+
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
 Source        = "https://github.com/Deltares/hydromt_wflow"
