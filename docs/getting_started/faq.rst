@@ -79,6 +79,10 @@ Others
 Conversion from old Python Wflow models to Wflow Julia is **no longer supported** since HydroMT-Wflow version 1.0.
 You can use an older HydroMT-Wflow version for that task and follow the steps described in its documentation.
 
-HydroMT-Wflow **does** support upgrading Wflow Julia v0.x models to Wflow Julia v1.x using: :py:func:`~hydromt_wflow.version_upgrade.upgrade_model`
+HydroMT-Wflow **does** support upgrading Wflow Julia v0.x models to Wflow Julia v1.x using:
 
-See the example notebook for details: :ref:`here <example-upgrade_to_wflow_v1>`.
+- :py:func:`~hydromt_wflow.version_upgrade.upgrade_model` (Python API)
+- ``hydromt_wflow upgrade`` CLI command
+
+See the :ref:`migration guide <migration_wflow_v1>` for full details and the
+:ref:`example notebook <example-upgrade_to_wflow_v1>` for a step-by-step walkthrough.
