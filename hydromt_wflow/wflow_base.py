@@ -1715,51 +1715,32 @@ one variable and variables list is not provided."
             )
 
     @deprecated(
-        reason="Use `hydromt_wflow.version_upgrade.upgrade_model` instead.",
+        reason=(
+            "Use the CLI command 'hydromt_wflow upgrade' or call "
+            "'hydromt_wflow.version_upgrade.upgrade_model()' directly."
+        ),
         version="1.1.0",
         category=DeprecationWarning,
     )
     @hydromt_step
-    def upgrade_to_v1_wflow(self, output_dir: str | Path):
+    def upgrade_to_v1_wflow(self, output_dir: str | Path | None = None):
         """Upgrade the model to Wflow v1.0 format."""
-        self.upgrade_to_latest(output_dir=output_dir)
-
-    @hydromt_step
-    def upgrade_to_latest(
-        self,
-        output_dir: str | Path,
-        options: dict | None = None,
-        data_libs: list[str] | None = None,
-        config_filename: str | None = None,
-    ):
-        """Upgrade the model to the latest Wflow.jl version.
-
-        First, copies the model to a new location to keep the original model unchanged.
-        Then, applies all necessary upgrade steps in order based on the
-        ``wflow_version`` key in the config. If absent, the model is assumed to be
-        pre-v1.0 and all upgrade steps are applied.
-
-        This function should be followed by write() to write all upgraded components
-        to disk.
-
-        Returns
-        -------
-        output_dir : Path
-            Path to the upgraded model directory.
-        """
+        if output_dir is None:
+            output_dir = self.root.path
         output_dir = Path(output_dir)
-        if output_dir.exists() and any(output_dir.iterdir()):
-            raise FileExistsError(
-                f"Output directory {output_dir} already exists and is not empty. "
-                "Please provide an empty directory or a new path."
-            )
-        shutil.copytree(self.root.path, output_dir)
+        if output_dir.resolve() != self.root.path.resolve():
+            if output_dir.exists() and any(output_dir.iterdir()):
+                raise FileExistsError(
+                    f"Output directory {output_dir} already exists and is not empty. "
+                    "Please provide an empty directory or a new path."
+                )
+            shutil.copytree(self.root.path, output_dir)
         upgrade_model(
-            output_dir,
+            model_root=output_dir,
             model_type=self.name,
-            config_filename=config_filename,
-            data_libs=data_libs,
-            options=options,
+            config_filename=None,
+            data_libs=None,
+            options=None,
         )
         return output_dir
 
