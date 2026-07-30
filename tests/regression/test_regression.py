@@ -15,6 +15,7 @@ from tests.regression.regression_utils import (
     RuntimeSpec,
     compare_metrics,
     compute_metrics,
+    default_run_root,
     emit_teamcity_stats,
     get_basins_for_profile,
     load_basin_config,
@@ -31,8 +32,7 @@ def _resolved_run_root(config: pytest.Config) -> Path:
     if regression_root:
         return Path(regression_root)
 
-    default_root = repo_root() / "tests" / "regression" / ".runs"
-    return default_root
+    return default_run_root()
 
 
 def _resolved_basins(config: pytest.Config, project_root: Path) -> list[str]:

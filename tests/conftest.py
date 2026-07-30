@@ -19,6 +19,7 @@ from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
+from tests.regression.regression_utils import default_run_root
 
 
 ## Pytest configuration
@@ -26,7 +27,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--regression-root",
         action="store",
-        default=Path(__file__).parent / "regression" / ".runs",
+        default=default_run_root(),
         help="Root directory containing wflow_sbm/<basin> and wflow_sediment/<basin>",
     )
     parser.addoption(

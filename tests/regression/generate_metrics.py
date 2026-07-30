@@ -7,6 +7,7 @@ from pathlib import Path
 from regression_utils import (
     Metric,
     compute_metrics,
+    default_run_root,
     get_basins_for_profile,
     load_basin_config,
     repo_root,
@@ -18,10 +19,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate baseline regression metrics from model outputs."
     )
-    parser.add_argument("--root", required=True, help="Root directory for model runs.")
+    parser.add_argument(
+        "--root",
+        default=default_run_root(),
+        help="Root directory for model runs.",
+    )
     parser.add_argument(
         "--profile",
-        default="all",
+        default="pr",
         choices=["all", "pr", "piave", "moselle"],
         help="Basin profile or individual basin name to process.",
     )

@@ -88,6 +88,10 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def default_run_root() -> Path:
+    return repo_root() / "tests" / "regression" / ".runs"
+
+
 def resolve_path(project_root: Path, value: str) -> Path:
     path = Path(value)
     if path.is_absolute():

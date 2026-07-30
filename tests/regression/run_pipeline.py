@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from regression_utils import (
     build_sbm,
     build_sediment,
+    default_run_root,
     get_basins_for_profile,
     load_basin_config,
     repo_root,
@@ -22,7 +23,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run regression model pipeline (build + run)."
     )
-    parser.add_argument("--root", required=True, help="Root directory for model runs.")
+    parser.add_argument(
+        "--root",
+        default=default_run_root(),
+        required=True,
+        help="Root directory for model runs.",
+    )
     parser.add_argument(
         "--profile",
         default="pr",
