@@ -233,7 +233,7 @@ object WflowSystemTestTemplate : Template({
                         exit 1
                     }
                     ${'$'}env:WFLOW_CLI = ${'$'}wflowCli
-                    pixi run regression-pipeline PROFILE=%regression.profile%
+                    pixi run regression-pipeline %regression.profile%
                 """.trimIndent()
             }
         }
