@@ -43,7 +43,7 @@ project {
 
     params {
         param("wflow.oldest.supported.release", "v1.0.0")
-        param("wflow.dev.branch", "master")
+        param("wflow.dev.branch", "main")
         param("wflow.latest.release", "v1.0.3")
     }
 }
@@ -71,7 +71,7 @@ object SystemTestDev : BuildType({
         vcs {
             id = "TRIGGER_862"
             branchFilter = """
-                +:refs/heads/master
+                +:refs/heads/main
                 +:refs/tags/*
             """.trimIndent()
         }
@@ -209,9 +209,9 @@ object WflowWindowsAgentTemplate : Template({
 object WflowJl : GitVcsRoot({
     name = "Wflow.jl"
     url = "https://github.com/Deltares/Wflow.jl.git"
-    branch = "master"
+    branch = "main"
     branchSpec = """
-        +:refs/heads/master
+        +:refs/heads/main
         +:refs/tags/(v*)
     """.trimIndent()
 })
