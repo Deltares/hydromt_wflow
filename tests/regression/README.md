@@ -205,8 +205,8 @@ The TeamCity configuration lives in `.teamcity/settings.kts` (Kotlin DSL version
 | Name | Trigger | Profile | Wflow.jl version |
 | --- | --- | --- | --- |
 | System test (PR check, latest release) | Every PR to `main` / `release/*` | `pr` | latest release branch |
-| System test (PR check, wflow master) | Every PR to `main` / `release/*` | `pr` | `master` |
-| System test (Nightly, Wflow master) | Daily 02:00 | `all` | `master` |
+| System test (PR check, wflow main) | Every PR to `main` / `release/*` | `pr` | `main` |
+| System test (Nightly, Wflow main) | Daily 02:00 | `all` | `main` |
 | System test (Nightly, Wflow latest release) | Daily 03:00 | `all` | latest release branch |
 | System test (Nightly, Wflow oldest supported) | Daily 04:00 | `all` | pinned oldest supported tag |
 
@@ -216,7 +216,7 @@ configured (currently disabled pending TeamCity setup).
 ### Expected PR check behaviour
 
 Both PR checks run against the same hydromt_wflow commit but use different Wflow.jl
-versions (latest release vs master). It is **expected that one of them can fail** and
+versions (latest release vs main). It is **expected that one of them can fail** and
 this is not necessarily a problem with hydromt_wflow.
 
 Wflow.jl does not guarantee backwards-compatible config changes between versions. A
@@ -271,7 +271,7 @@ Changes take effect when the file is committed and TeamCity picks up the update.
 At the top of `settings.kts` the project block defines three parameters:
 
 ```kotlin
-param("wflow.dev.branch",               "master")
+param("wflow.dev.branch",               "main")
 param("wflow.latest.release",           "release/v1.0")
 param("wflow.oldest.supported.release", "v1.0.0")
 ```
@@ -280,7 +280,7 @@ These are the only values that need to change when Wflow.jl ships a new release.
 
 | Parameter | What it controls | How to update |
 | --- | --- | --- |
-| `wflow.dev.branch` | Branch on Wflow.jl used by the dev nightly and dev PR check. | Change only if the development branch is renamed (currently always `master`). |
+| `wflow.dev.branch` | Branch on Wflow.jl used by the dev nightly and dev PR check. | Change only if the development branch is renamed (currently always `main`). |
 | `wflow.latest.release` | Release *branch* tracked by the stable PR check and the latest-release nightly. Points to a branch (e.g. `release/v1.0`), so "latest build on that branch" is always resolved automatically — no bump needed for patch releases. | Update to the new branch name when a new minor/major release branch is cut on Wflow.jl (e.g. `release/v1.0` → `release/v2.0`). |
 | `wflow.oldest.supported.release` | Exact *tag* used by the oldest-supported nightly. Pinned intentionally — it will not move until you change this. | Bump to the new oldest tag when the support window advances (e.g. drop v1.0.0, make v1.1.0 the new floor). Agree the new floor with the Wflow.jl team first. |
 

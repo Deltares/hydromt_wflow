@@ -17,8 +17,8 @@ DslContext.settingsRoot rather than a second, hand-declared VCS root.
 Five build configurations, one template stack:
 
   SystemTestPrCheckStable   - hydromt_wflow PR -> GitHub check, uses latest wflow.jl release
-  SystemTestPrCheckDev      - hydromt_wflow PR -> GitHub check, uses wflow.jl@master
-  SystemTestDev             - nightly schedule, uses wflow.jl@master, full profile
+  SystemTestPrCheckDev      - hydromt_wflow PR -> GitHub check, uses wflow.jl@main
+  SystemTestDev             - nightly schedule, uses wflow.jl@main, full profile
   SystemTestLatestRelease   - nightly schedule, uses latest wflow.jl release, full profile
   SystemTestOldestSupported - nightly schedule, uses oldest supported wflow.jl release, full profile
 */
@@ -47,7 +47,7 @@ project {
         //   that branch without needing a manual bump per patch release.
         // - wflow.oldest.supported.release is pinned to an exact *tag* - bump
         //   this by hand when the oldest release we still support changes.
-        param("wflow.dev.branch", "master")
+        param("wflow.dev.branch", "main")
         param("wflow.latest.release", "release/v1.0")
         param("wflow.oldest.supported.release", "v1.0.0")
 
@@ -79,19 +79,19 @@ object SystemTestPrCheckStable : BuildType({
 
 object SystemTestPrCheckDev : BuildType({
     templates(WflowSystemTestTemplate, GitHubPrTemplate, WflowWindowsAgentTemplate)
-    name = "System test (PR check, wflow master)"
-    description = "Runs on every hydromt_wflow PR against the latest build from Wflow.jl master and publishes a GitHub check."
+    name = "System test (PR check, wflow main)"
+    description = "Runs on every hydromt_wflow PR against the latest build from Wflow.jl main and publishes a GitHub check."
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
         param("regression.profile", "pr")
-        text("status.check.name", "System test (PR, wflow master)", allowEmpty = false)
+        text("status.check.name", "System test (PR, wflow main)", allowEmpty = false)
     }
 })
 
 object SystemTestDev : BuildType({
     templates(WflowSystemTestTemplate, WflowWindowsAgentTemplate) // WflowJlEmailTemplate,
-    name = "System test (Nightly, Wflow master)"
+    name = "System test (Nightly, Wflow main)"
     description = "Nightly run using the latest build of Wflow.jl %wflow.dev.branch% and the full regression profile."
 
     params {
@@ -337,9 +337,9 @@ object WflowWindowsAgentTemplate : Template({
 object WflowJl : GitVcsRoot({
     name = "Wflow.jl"
     url = "https://github.com/Deltares/Wflow.jl.git"
-    branch = "master"
+    branch = "main"
     branchSpec = """
-        +:refs/heads/master
+        +:refs/heads/main
         +:refs/tags/(v*)
     """.trimIndent()
 })
