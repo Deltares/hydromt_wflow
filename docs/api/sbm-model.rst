@@ -98,12 +98,15 @@ Defines methods to add nature-based solutions (NBS) such as agroforestry, or pon
    documentation for these methods is already included here in anticipation
    of that support.
 
+.. Entries for setup_ponding_from_map and setup_ponding_from_threshold are
+   intentionally left out of the toctree below until wflow.jl adds support
+   for them. Add them back when appropriate
+
 .. autosummary::
    :toctree: _generated
 
    WflowSbmModel.setup_agroforestry
-   WflowSbmModel.setup_ponding_from_map
-   WflowSbmModel.setup_ponding_from_thresholds
+
 
 Water Demands and Allocation
 ============================
