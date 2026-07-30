@@ -4,6 +4,7 @@ import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 // import jetbrains.buildServer.configs.kotlin.buildFeatures.emailNotifier  // unresolved on this TeamCity instance - email notifier feature disabled; see WflowJlEmailTemplate below
 // import jetbrains.buildServer.configs.kotlin.buildFeatures.notifications  // only used by the disabled WflowJlEmailTemplate - uncomment alongside it
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
+import jetbrains.buildServer.configs.kotlin.buildSteps.powerShell
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.schedule
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
@@ -57,7 +58,7 @@ project {
         // param("notify.email", "wflow-ci@deltares.nl")
 
         // Earth Data Hub credentials for regression testing (secure parameters)
-        password("earthdatahub.apikey", "credentialsJSON:***", display = ParameterDisplay.HIDDEN)
+        password("env.EARTHDATAHUB_APIKEY", "credentialsJSON:6c0dcda0-ac7a-4304-915f-566fb8b37b54", description = "API key generated 28/7 via luuk.blom@deltares.nl at https://earthdatahub.destine.eu/getting-started#configuring-netrc", display = ParameterDisplay.HIDDEN, readOnly = true)
     }
 }
 
@@ -181,70 +182,70 @@ object WflowSystemTestTemplate : Template({
     }
 
     steps {
-        script {
+        powerShell {
             name = "Connect to P drive"
             id = "Map_P_drive"
-            scriptContent = """
-                if exist P:\ (
-                    echo P: drive already available, skipping net use.
-                ) else (
-                    net use P: \\directory.intra\PROJECT /persistent:no
-                )
-            """.trimIndent()
+            scriptMode = script {
+                content = """
+                    if (-not (Test-Path 'P:\')) {
+                        net use P: \\directory.intra\PROJECT /persistent:no
+                    } else {
+                        Write-Host 'P: drive already available, skipping net use.'
+                    }
+                """.trimIndent()
+            }
         }
-        script {
+        powerShell {
             name = "Setup earthdatahub credentials"
             id = "Setup_earthdatahub_netrc"
-            scriptContent = """
-                setlocal enabledelayedexpansion
-                set "userprofile=%USERPROFILE%"
-                set "netrc_file=!userprofile!\_netrc"
+            scriptMode = script {
+                content = """
+                    ${'$'}netrcFile = '%teamcity.build.checkoutDir%\_netrc'
+                    Write-Host "##teamcity[setParameter name='env.NETRC' value='${'$'}netrcFile']"
 
-                REM Check if earthdatahub entry already exists
-                if exist "!netrc_file!" (
-                    findstr /C:"api.earthdatahub.destine.eu" "!netrc_file!" >nul
-                    if not errorlevel 1 (
-                        echo earthdatahub entry already exists in _netrc, skipping
-                        exit /b 0
-                    )
-                )
+                    if (Test-Path ${'$'}netrcFile) {
+                        ${'$'}existing = Get-Content ${'$'}netrcFile -Raw -ErrorAction SilentlyContinue
+                        if (${'$'}existing -match 'api\.earthdatahub\.destine\.eu') {
+                            Write-Host 'earthdatahub entry already exists in _netrc, skipping'
+                            exit 0
+                        }
+                        Add-Content -Path ${'$'}netrcFile -Value ''
+                    }
 
-                REM Append earthdatahub credentials to _netrc file
-                REM Add blank line separator if file already exists and is not empty
-                if exist "!netrc_file!" (
-                    echo. >> "!netrc_file!"
-                )
-
-                (
-                    echo machine api.earthdatahub.destine.eu
-                    echo login apikey
-                    echo password %env.earthdatahub.apikey%
-                ) >> "!netrc_file!"
-
-                echo earthdatahub credentials added to _netrc
-            """.trimIndent()
+                    @(
+                        'machine api.earthdatahub.destine.eu'
+                        'login apikey'
+                        'password %env.EARTHDATAHUB_APIKEY%'
+                    ) | Add-Content -Path ${'$'}netrcFile
+                    Write-Host 'earthdatahub credentials added to _netrc'
+                """.trimIndent()
+            }
         }
-        script {
+        powerShell {
             name = "Build and run regression pipeline"
             id = "Build_run_regression_pipeline"
             workingDir = "hydromt_wflow"
-            scriptContent = """
-                @if not exist "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" (
-                    echo ERROR: wflow_cli.exe not found at "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe"
-                    exit /b 1
-                )
-
-                set WFLOW_CLI=%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe
-                pixi run regression-pipeline PROFILE=%regression.profile%
-            """.trimIndent()
+            scriptMode = script {
+                content = """
+                    ${'$'}wflowCli = '%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe'
+                    if (-not (Test-Path ${'$'}wflowCli)) {
+                        Write-Error "wflow_cli.exe not found at ${'$'}wflowCli"
+                        exit 1
+                    }
+                    ${'$'}env:WFLOW_CLI = ${'$'}wflowCli
+                    pixi run regression-pipeline PROFILE=%regression.profile%
+                """.trimIndent()
+            }
         }
-        script {
+        powerShell {
             name = "Assert regression metrics"
             id = "assert_regression_metrics"
             workingDir = "hydromt_wflow"
-            scriptContent = """
-                pixi run regression-assert "%regression.profile%"
-            """.trimIndent()
+            scriptMode = script {
+                content = """
+                    pixi run regression-assert '%regression.profile%'
+                """.trimIndent()
+            }
         }
     }
 
@@ -338,9 +339,7 @@ object WflowJl : GitVcsRoot({
     name = "Wflow.jl"
     url = "https://github.com/Deltares/Wflow.jl.git"
     branch = "main"
-    branch = "main"
     branchSpec = """
-        +:refs/heads/main
         +:refs/heads/main
         +:refs/tags/(v*)
     """.trimIndent()
