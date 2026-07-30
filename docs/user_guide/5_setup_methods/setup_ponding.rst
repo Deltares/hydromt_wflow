@@ -3,6 +3,13 @@
 Setup Ponding
 =============
 
+.. note::
+
+   The methods ``setup_ponding_from_map`` and ``setup_ponding_from_threshold``
+   will be added in a future release when wflow.jl supports it. The
+   documentation for these methods is already included here in anticipation
+   of that support.
+
 Description
 -----------
 Many nature-based solutions (NBS) for water management share a common hydrological mechanism:
