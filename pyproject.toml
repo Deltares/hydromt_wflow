@@ -355,7 +355,7 @@ test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-b
 
 [tool.pixi.feature.test.tasks.regression-pipeline]
 args = [
-  { arg = "PROFILE", default = "all", choices = ["pr", "all", "piave", "moselle"] },
+  { arg = "PROFILE", default = "pr", choices = ["pr", "all", "piave", "moselle"] },
   { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
   { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
 ]
@@ -363,7 +363,7 @@ cmd = "python tests/regression/run_pipeline.py --profile {{ PROFILE }} --root {{
 
 [tool.pixi.feature.test.tasks.regression-assert]
 args = [
-  { arg = "PROFILE", default = "all", choices = ["pr", "all", "piave", "moselle"] },
+  { arg = "PROFILE", default = "pr", choices = ["pr", "all", "piave", "moselle"] },
   { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
 ]
 cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v"
@@ -371,6 +371,6 @@ cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{
 [tool.pixi.feature.test.tasks.regression-generate-metrics]
 cmd = "python tests/regression/generate_metrics.py --root {{ ROOT }} --profile {{ PROFILE }}"
 args = [
-  { arg = "PROFILE", default = "all", choices = ["pr", "all", "piave", "moselle"] },
+  { arg = "PROFILE", default = "pr", choices = ["pr", "all", "piave", "moselle"] },
   { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
 ]
