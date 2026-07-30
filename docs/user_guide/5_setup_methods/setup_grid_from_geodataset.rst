@@ -37,7 +37,7 @@ Example usage
 Here are three examples of how to use the ``setup_grid_from_geodataset`` method for a Wflow model:
 
 1. Create static inflows at GRDC gauges. The inflows are given in a csv file and the
-   locations using the geosjon file in the wflow staticgeoms folder.
+   locations using the geojson file in the wflow staticgeoms folder.
 2. Create cyclic reservoir demand at the reservoir outlet locations. The demand is given
    in a csv file and the locations using the `reservoir_outlet_id` map in the staticmaps.
 3. Create forcing reservoir outflows at the reservoir outlet locations. The inflows are given
@@ -46,8 +46,8 @@ Here are three examples of how to use the ``setup_grid_from_geodataset`` method 
 1. Static inflows at GRDC gauges
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In this example, we will add static inflows at the GRDC gauges locations. For the locations, we use the
-**gauges_grdc.geosjon** file that is in the staticgeoms folder of the Wflow model. The first
-few columns of our geosjon attributes look like this:
+**gauges_grdc.geojson** file that is in the staticgeoms folder of the Wflow model. The first
+few columns of our geojson attributes look like this:
 
 .. list-table::
     :header-rows: 1
