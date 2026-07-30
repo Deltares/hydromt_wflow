@@ -90,6 +90,9 @@ all = ["hydromt_wflow[full,dev]"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"
 wflow_sediment = "hydromt_wflow.wflow_sediment"
 
+[project.entry-points.console_scripts]
+hydromt_wflow = "hydromt_wflow.cli:main"
+
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
 Source        = "https://github.com/Deltares/hydromt_wflow"
@@ -208,11 +211,12 @@ platforms = ["linux-64", "win-64", "osx-arm64"]
 ## The different tasks of this project
 [tool.pixi.tasks]
 # Installation
-install            = { depends-on = ["install-pre-commit"] }
+install            = { depends-on = ["install-pre-commit", "install-git-config"] }
 install-pre-commit = "pre-commit install"
+install-git-config = 'git config --local diff.netcdf.textconv "ncdump -h" && git config --local diff.netcdf.cachetextconv true'
 
 # Repo related tasks
-lint = { cmd = ["pre-commit", "run", "--all"] }
+lint = { cmd = ["pre-commit", "run", "--all-files"] }
 
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
