@@ -338,7 +338,9 @@ object WflowJl : GitVcsRoot({
     name = "Wflow.jl"
     url = "https://github.com/Deltares/Wflow.jl.git"
     branch = "main"
+    branch = "main"
     branchSpec = """
+        +:refs/heads/main
         +:refs/heads/main
         +:refs/tags/(v*)
     """.trimIndent()
