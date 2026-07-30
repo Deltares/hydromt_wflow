@@ -24,28 +24,17 @@ from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
 ## Pytest configuration
 def pytest_addoption(parser):
     parser.addoption(
-        "--model-root",
-        action="store",
-        default=None,
-        help="Path to the model root directory for regression tests",
-    )
-    parser.addoption(
         "--regression-root",
         action="store",
-        default=None,
+        default=Path(__file__).parent / "regression" / ".runs",
         help="Root directory containing wflow_sbm/<basin> and wflow_sediment/<basin>",
     )
     parser.addoption(
         "--regression-profile",
         action="store",
         default="all",
+        choices=["all", "pr", "piave", "moselle"],
         help="Regression basin profile from tests/regression/manifest.json",
-    )
-    parser.addoption(
-        "--regression-basins",
-        action="store",
-        default=None,
-        help="Comma-separated basin list overriding --regression-profile",
     )
 
 

@@ -22,20 +22,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--profile",
         default="all",
+        choices=["all", "pr", "piave", "moselle"],
         help="Basin profile or individual basin name to process.",
     )
-    parser.add_argument(
-        "--basins",
-        default="",
-        help="Comma-separated basin list. Overrides --profile when provided.",
-    )
     return parser.parse_args()
-
-
-def _basins(args: argparse.Namespace, project_root: Path) -> list[str]:
-    if args.basins.strip():
-        return [b.strip() for b in args.basins.split(",") if b.strip()]
-    return get_basins_for_profile(project_root, args.profile)
 
 
 def main() -> None:
@@ -51,7 +41,7 @@ def main() -> None:
         )
     runtimes = json.loads(runtimes_path.read_text(encoding="utf-8"))
 
-    for basin in _basins(args, project_root):
+    for basin in get_basins_for_profile(project_root, args.profile):
         basin_config = load_basin_config(project_root, basin)
 
         sbm_output = run_root / "wflow_sbm" / basin / basin_config["sbm"]["output_nc"]

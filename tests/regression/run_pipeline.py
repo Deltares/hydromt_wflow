@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import os
-
-os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"  # Disable file locking for network paths
-
-
 import argparse
 import json
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv

@@ -31,18 +31,11 @@ def _resolved_run_root(config: pytest.Config) -> Path:
     if regression_root:
         return Path(regression_root)
 
-    legacy_model_root = config.getoption("--model-root")
-    if legacy_model_root:
-        return Path(legacy_model_root).parent.parent
-
-    pytest.skip("Pass --regression-root to run regression assertions.")
+    default_root = repo_root() / "tests" / "regression" / ".runs"
+    return default_root
 
 
 def _resolved_basins(config: pytest.Config, project_root: Path) -> list[str]:
-    basins_arg = config.getoption("--regression-basins")
-    if basins_arg:
-        return [b.strip() for b in basins_arg.split(",") if b.strip()]
-
     profile = config.getoption("--regression-profile")
     return get_basins_for_profile(project_root, profile)
 
@@ -64,7 +57,7 @@ def test_basin_regression_metrics(basin, request):
     if not baseline_path.exists():
         raise AssertionError(
             f"Baseline metrics not found: {baseline_path}. "
-            "Generate with: pixi run regression-generate-metrics <ROOT>"
+            "Generate with: pixi run regression-generate-metrics"
         )
 
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
@@ -74,7 +67,7 @@ def test_basin_regression_metrics(basin, request):
     if not runtimes_path.exists():
         raise AssertionError(
             f"Runtimes file not found: {runtimes_path}. "
-            "Run the pipeline with: pixi run regression-run-pipeline <ROOT>"
+            "Run the pipeline with: pixi run regression-run-pipeline"
         )
     runtimes_actual = json.loads(runtimes_path.read_text(encoding="utf-8"))
 
