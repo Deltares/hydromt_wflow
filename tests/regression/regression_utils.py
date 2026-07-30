@@ -3,14 +3,85 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import time
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import xarray as xr
 import yaml
 
-_DEFAULT_REL_TOL = 1e-3
-_DEFAULT_ABS_TOL = 1e-6
+_DEFAULT_REL_TOL_METRIC = 1e-3  # 0.1%
+_DEFAULT_ABS_TOL_METRIC = 1e-6  # 1e-6 (for near-zero values)
+_DEFAULT_REL_TOL_RUNTIME = 0.20  # 20%
+_DEFAULT_ABS_TOL_RUNTIME = 120.0  # 120 seconds
+
+
+@dataclass
+class Metric:
+    name: str
+    variable: str
+    selector: dict[str, float] | None = None
+    selector_method: Literal["sel", "isel"] = "sel"
+    aggregation: str = "mean"
+    metrics: list[str] = field(default_factory=lambda: ["mean", "peak", "total"])
+    rel_tol: float = _DEFAULT_REL_TOL_METRIC
+    abs_tol: float = _DEFAULT_ABS_TOL_METRIC
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Metric":
+        return cls(
+            name=d["name"],
+            variable=d["variable"],
+            selector=d.get("selector"),
+            selector_method=d.get("selector_method", "sel"),
+            aggregation=d.get("aggregation", "mean"),
+            metrics=d.get("metrics", ["mean", "peak", "total"]),
+            rel_tol=float(d.get("rel_tol", _DEFAULT_REL_TOL_METRIC)),
+            abs_tol=float(d.get("abs_tol", _DEFAULT_ABS_TOL_METRIC)),
+        )
+
+
+@dataclass
+class RuntimeSpec:
+    rel_tol: float = _DEFAULT_REL_TOL_RUNTIME
+    abs_tol: float = _DEFAULT_ABS_TOL_RUNTIME
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "RuntimeSpec":
+        return cls(
+            rel_tol=float(d.get("rel_tol", _DEFAULT_REL_TOL_RUNTIME)),
+            abs_tol=float(d.get("abs_tol", _DEFAULT_ABS_TOL_RUNTIME)),
+        )
+
+
+@dataclass
+class MetricsComparison:
+    """Actual vs. baseline metrics for a single model."""
+
+    actual: dict[str, dict[str, float]]
+    baseline: dict[str, dict[str, float]]
+    specs: list[Metric]
+
+
+@dataclass
+class RuntimesComparison:
+    """Actual vs. baseline runtimes."""
+
+    actual: dict[str, float]
+    baseline: dict[str, float]
+    specs: dict[str, RuntimeSpec] = field(default_factory=dict)
+
+
+@dataclass
+class RegressionCheck:
+    """Complete regression check for one model (sbm or sediment)."""
+
+    basin: str
+    model_type: Literal["sbm", "sediment"]
+    metrics: MetricsComparison
+    runtimes: RuntimesComparison
 
 
 def repo_root() -> Path:
@@ -39,11 +110,8 @@ def load_basin_config(project_root: Path, basin: str) -> dict:
 def get_basins_for_profile(project_root: Path, profile: str) -> list[str]:
     manifest = load_manifest(project_root)
     profiles = manifest.get("profiles", {})
-    if profile not in profiles:
-        raise ValueError(
-            f"Unknown profile '{profile}'. Available: {', '.join(sorted(profiles))}"
-        )
-    return profiles[profile]
+    # If the value isn't a named profile, treat it as a literal basin name.
+    return profiles.get(profile, [profile])
 
 
 def _resolve_data_catalog_arg(project_root: Path, entry: str) -> str:
@@ -52,12 +120,15 @@ def _resolve_data_catalog_arg(project_root: Path, entry: str) -> str:
     return entry
 
 
-def _run(cmd: list[str]) -> None:
+def _run(cmd: list[str]) -> float:
+    start = time.time()
     result = subprocess.run(cmd)
+    elapsed = time.time() - start
     if result.returncode != 0:
         raise RuntimeError(
             f"Command failed with exit code {result.returncode}: {' '.join(cmd)}"
         )
+    return elapsed
 
 
 def _apply_common_build_args(
@@ -83,7 +154,7 @@ def build_sbm(
     root: Path,
     force_overwrite: bool,
     verbosity: str,
-) -> Path:
+) -> tuple[Path, float]:
     sbm_root = root / "wflow_sbm" / basin
     sbm_cfg = basin_config["sbm"]
     cmd = [
@@ -101,8 +172,8 @@ def build_sbm(
         force_overwrite=force_overwrite,
         verbosity=verbosity,
     )
-    _run(cmd)
-    return sbm_root
+    elapsed = _run(cmd)
+    return sbm_root, elapsed
 
 
 def _validate_config(cfg_path: Path, model_dir: Path) -> None:
@@ -135,7 +206,7 @@ def build_sediment(
     root: Path,
     force_overwrite: bool,
     verbosity: str,
-) -> Path:
+) -> tuple[Path, float]:
     sbm_root = root / "wflow_sbm" / basin
     sediment_root = root / "wflow_sediment" / basin
     sediment_cfg = basin_config["sediment"]
@@ -159,7 +230,7 @@ def build_sediment(
         force_overwrite=force_overwrite,
         verbosity=verbosity,
     )
-    _run(cmd)
+    elapsed = _run(cmd)
 
     sbm_output = sbm_root / "run_default" / "output.nc"
     sediment_forcing = sediment_root / "run_default" / "output.nc"
@@ -170,18 +241,21 @@ def build_sediment(
 
     sediment_forcing.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(sbm_output, sediment_forcing)
-    return sediment_root
+    return sediment_root, elapsed
 
 
-def run_wflow(wflow_cli: Path, config_toml: Path) -> None:
+def run_wflow(wflow_cli: Path, config_toml: Path) -> float:
+    start = time.time()
     _run([str(wflow_cli), str(config_toml)])
+    elapsed = time.time() - start
+    return elapsed
 
 
 def _to_series(
     data_array: xr.DataArray,
-    selector: dict | None,
+    selector: dict[str, float] | None,
+    selector_method: str,
     aggregation: str,
-    selector_method: str = "isel",
 ) -> np.ndarray:
     data = data_array
     if selector:
@@ -208,7 +282,9 @@ def _to_series(
     return values
 
 
-def compute_metrics(output_nc: Path, specs: list[dict]) -> dict[str, dict[str, float]]:
+def compute_metrics(
+    output_nc: Path, specs: list[Metric]
+) -> dict[str, dict[str, float]]:
     if not output_nc.exists():
         raise FileNotFoundError(
             f"Model output not found: {output_nc}. It is likely that the model run failed or has not been executed yet."
@@ -216,18 +292,16 @@ def compute_metrics(output_nc: Path, specs: list[dict]) -> dict[str, dict[str, f
     results: dict[str, dict[str, float]] = {}
     with xr.open_dataset(output_nc) as dataset:
         for spec in specs:
-            name = spec["name"]
-            variable = spec["variable"]
-            if variable not in dataset:
-                raise KeyError(f"Variable '{variable}' not found in {output_nc}")
+            if spec.variable not in dataset:
+                raise KeyError(f"Variable '{spec.variable}' not found in {output_nc}")
             series = _to_series(
-                data_array=dataset[variable],
-                selector=spec.get("selector"),
-                aggregation=spec.get("aggregation", "sum"),
-                selector_method=spec.get("selector_method", "isel"),
+                data_array=dataset[spec.variable],
+                selector=spec.selector,
+                selector_method=spec.selector_method,
+                aggregation=spec.aggregation,
             )
             metric_values: dict[str, float] = {}
-            for metric in spec["metrics"]:
+            for metric in spec.metrics:
                 if metric == "mean":
                     metric_values[metric] = float(np.nanmean(series))
                 elif metric == "peak":
@@ -235,49 +309,59 @@ def compute_metrics(output_nc: Path, specs: list[dict]) -> dict[str, dict[str, f
                 elif metric == "total":
                     metric_values[metric] = float(np.nansum(series))
                 else:
-                    raise ValueError(f"Unsupported metric: {metric}")
-            results[name] = metric_values
+                    raise ValueError(
+                        f"Unsupported metric: {metric}, valid options are: 'mean', 'peak', 'total'"
+                    )
+            results[spec.name] = metric_values
     return results
 
 
-def compare_metrics(
-    actual: dict[str, dict[str, float]],
-    baseline: dict[str, dict[str, float]],
-    specs: list[dict],
-    model_name: str,
-) -> list[str]:
+def compare_metrics(check: RegressionCheck) -> list[str]:
     failures: list[str] = []
-    for spec in specs:
-        metric_name = spec["name"]
-        rel_tol = float(spec.get("rel_tol", _DEFAULT_REL_TOL))
-        abs_tol = float(spec.get("abs_tol", _DEFAULT_ABS_TOL))
-        if metric_name not in baseline:
+
+    # Compare metrics
+    for spec in check.metrics.specs:
+        if spec.name not in check.metrics.baseline:
             failures.append(
-                f"[{model_name}] Missing baseline metric group '{metric_name}'"
+                f"[{check.basin}.{check.model_type}] Missing baseline metric group '{spec.name}'"
             )
             continue
-        for metric_key in spec["metrics"]:
-            expected = baseline[metric_name].get(metric_key)
+        for metric_key in spec.metrics:
+            expected = check.metrics.baseline[spec.name].get(metric_key)
             if expected is None:
                 failures.append(
-                    f"[{model_name}] Missing baseline value for {metric_name}.{metric_key}"
+                    f"[{check.basin}.{check.model_type}] Missing baseline value for {spec.name}.{metric_key}"
                 )
                 continue
-            observed = actual[metric_name][metric_key]
+            observed = check.metrics.actual[spec.name][metric_key]
             expected = float(expected)
             abs_err = abs(observed - expected)
-            if abs(expected) <= abs_tol:
-                if abs_err > abs_tol:
+            if abs(expected) <= spec.abs_tol:
+                if abs_err > spec.abs_tol:
                     failures.append(
-                        f"[{model_name}] {metric_name}.{metric_key} abs_err={abs_err:.6e} > abs_tol={abs_tol:.6e}"
+                        f"[{check.basin}.{check.model_type}] {spec.name}.{metric_key} abs_err={abs_err:.6e} > abs_tol={spec.abs_tol:.6e}"
                     )
                 continue
             rel_err = abs_err / abs(expected)
-            if rel_err > rel_tol:
+            if rel_err > spec.rel_tol:
                 failures.append(
-                    f"[{model_name}] {metric_name}.{metric_key} rel_err={rel_err:.6%} > rel_tol={rel_tol:.6%}"
+                    f"[{check.basin}.{check.model_type}] {spec.name}.{metric_key} rel_err={rel_err:.6%} > rel_tol={spec.rel_tol:.6%}"
                 )
-    # if failures: how to regenerate metrics only if you know its correct... DANGER ZONE!
+
+    # Compare runtimes if provided
+    for runtime_key, runtime_spec in check.runtimes.specs.items():
+        if runtime_key not in check.runtimes.baseline:
+            continue
+        expected = check.runtimes.baseline[runtime_key]
+        observed = check.runtimes.actual.get(runtime_key)
+        if observed is None:
+            continue
+        abs_err = abs(observed - expected)
+        rel_err = abs_err / abs(expected) if expected != 0 else 0.0
+        if rel_err > runtime_spec.rel_tol and abs_err > runtime_spec.abs_tol:
+            failures.append(
+                f"[{check.basin}.{check.model_type}] {runtime_key} rel_err={rel_err:.6%} > rel_tol={runtime_spec.rel_tol:.6%} AND abs_err={abs_err:.2f}s > abs_tol={runtime_spec.abs_tol:.2f}s"
+            )
     return failures
 
 

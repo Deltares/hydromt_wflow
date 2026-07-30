@@ -132,9 +132,11 @@ lists three follow-up options:
 
 2. **Accept the change and regenerate** — if the deviation is expected (e.g. a deliberate
    model improvement), regenerate the baseline metrics and commit the updated JSON files:
+
    ```bash
    pixi run regression-generate-metrics all <ROOT>
    ```
+
    Re-run the assertion to confirm the new baseline passes.
 
 3. **Widen tolerances** — if the deviation is within acceptable physical bounds but
@@ -160,6 +162,7 @@ lists three follow-up options:
      metric specs. Use an existing basin as a template.
 
 2. Create the baseline metrics directory and placeholder:
+
    ```bash
    mkdir tests/regression/<basin>/metrics/
    ```
@@ -167,6 +170,7 @@ lists three follow-up options:
 3. Register the basin in `manifest.json` under the appropriate profile(s).
 
 4. Run the full pipeline to generate model outputs, then generate the baseline:
+
    ```bash
    pixi run regression-pipeline all <ROOT> wflow_cli
    pixi run regression-generate-metrics all <ROOT>
@@ -183,6 +187,7 @@ lists three follow-up options:
    (`sbm` or `sediment`). Follow the metric specification schema above.
 
 2. Generate updated baseline metrics from an existing run:
+
    ```bash
    pixi run regression-generate-metrics all <ROOT>
    ```
@@ -198,7 +203,7 @@ The TeamCity configuration lives in `.teamcity/settings.kts` (Kotlin DSL version
 ### Build configurations
 
 | Name | Trigger | Profile | Wflow.jl version |
-|------|---------|---------|-----------------|
+| --- | --- | --- | --- |
 | System test (PR check, latest release) | Every PR to `main` / `release/*` | `pr` | latest release branch |
 | System test (PR check, wflow master) | Every PR to `main` / `release/*` | `pr` | `master` |
 | System test (Nightly, Wflow master) | Daily 02:00 | `all` | `master` |
@@ -222,7 +227,7 @@ use the raw build output — they test the model output, not the upgrade path.
 This means:
 
 | Scenario | Meaning |
-|----------|---------|
+| --- | --- |
 | Both checks pass | No breaking changes in either Wflow.jl version. |
 | One check fails | A breaking change was introduced in that Wflow.jl version. Monitor it; coordinate with the Wflow.jl team when merging. |
 | Both checks fail | A problem in hydromt_wflow itself. Must be fixed before merging. |
@@ -247,7 +252,7 @@ version to use. All builds run on a Windows agent.
 `regression_utils.emit_teamcity_stats` prints a `##teamcity[buildStatisticValue ...]`
 line for every metric value, using the key pattern:
 
-```
+```text
 regression_<basin>_<model>_<metric_name>_<metric_key>
 ```
 
@@ -274,7 +279,7 @@ param("wflow.oldest.supported.release", "v1.0.0")
 These are the only values that need to change when Wflow.jl ships a new release.
 
 | Parameter | What it controls | How to update |
-|-----------|-----------------|---------------|
+| --- | --- | --- |
 | `wflow.dev.branch` | Branch on Wflow.jl used by the dev nightly and dev PR check. | Change only if the development branch is renamed (currently always `master`). |
 | `wflow.latest.release` | Release *branch* tracked by the stable PR check and the latest-release nightly. Points to a branch (e.g. `release/v1.0`), so "latest build on that branch" is always resolved automatically — no bump needed for patch releases. | Update to the new branch name when a new minor/major release branch is cut on Wflow.jl (e.g. `release/v1.0` → `release/v2.0`). |
 | `wflow.oldest.supported.release` | Exact *tag* used by the oldest-supported nightly. Pinned intentionally — it will not move until you change this. | Bump to the new oldest tag when the support window advances (e.g. drop v1.0.0, make v1.1.0 the new floor). Agree the new floor with the Wflow.jl team first. |

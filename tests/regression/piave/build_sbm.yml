@@ -66,11 +66,11 @@ steps:
       derive_subcatch: False         # if True derive subcatch map based on gauges.
 
   - setup_precip_forcing:
-      precip_fn: era5          # source for precipitation.
+      precip_fn: era5_hourly          # source for precipitation.
       precip_clim_fn:          # source for high resolution climatology to correct precipitation if any.
 
   - setup_temp_pet_forcing:
-      temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
+      temp_pet_fn: era5_hourly          # source for temperature and potential evapotranspiration.
       press_correction: True          # if True temperature is corrected with elevation lapse rate.
       temp_correction: True          # if True pressure is corrected with elevation lapse rate.
       dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.

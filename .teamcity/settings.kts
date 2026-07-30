@@ -55,6 +55,9 @@ project {
         // There's no hydromt_wflow PR to attach a GitHub check to in that
         // case, so we email instead (see team recap).
         // param("notify.email", "wflow-ci@deltares.nl")
+
+        // Earth Data Hub credentials for regression testing (secure parameters)
+        password("earthdatahub.apikey", "credentialsJSON:***", display = ParameterDisplay.HIDDEN)
     }
 }
 
@@ -190,6 +193,38 @@ object WflowSystemTestTemplate : Template({
             """.trimIndent()
         }
         script {
+            name = "Setup earthdatahub credentials"
+            id = "Setup_earthdatahub_netrc"
+            scriptContent = """
+                setlocal enabledelayedexpansion
+                set "userprofile=%USERPROFILE%"
+                set "netrc_file=!userprofile!\_netrc"
+
+                REM Check if earthdatahub entry already exists
+                if exist "!netrc_file!" (
+                    findstr /C:"api.earthdatahub.destine.eu" "!netrc_file!" >nul
+                    if not errorlevel 1 (
+                        echo earthdatahub entry already exists in _netrc, skipping
+                        exit /b 0
+                    )
+                )
+
+                REM Append earthdatahub credentials to _netrc file
+                REM Add blank line separator if file already exists and is not empty
+                if exist "!netrc_file!" (
+                    echo. >> "!netrc_file!"
+                )
+
+                (
+                    echo machine api.earthdatahub.destine.eu
+                    echo login apikey
+                    echo password %env.earthdatahub.apikey%
+                ) >> "!netrc_file!"
+
+                echo earthdatahub credentials added to _netrc
+            """.trimIndent()
+        }
+        script {
             name = "Build and run regression pipeline"
             id = "Build_run_regression_pipeline"
             workingDir = "hydromt_wflow"
@@ -199,7 +234,8 @@ object WflowSystemTestTemplate : Template({
                     exit /b 1
                 )
 
-                pixi run regression-pipeline "%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe" "%regression.profile%"
+                set WFLOW_CLI=%teamcity.build.checkoutDir%\wflow_cli\bin\wflow_cli.exe
+                pixi run regression-pipeline PROFILE=%regression.profile%
             """.trimIndent()
         }
         script {

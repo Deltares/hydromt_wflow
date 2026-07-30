@@ -8,6 +8,11 @@ from pathlib import Path
 import pytest
 
 from tests.regression.regression_utils import (
+    Metric,
+    MetricsComparison,
+    RegressionCheck,
+    RuntimesComparison,
+    RuntimeSpec,
     compare_metrics,
     compute_metrics,
     emit_teamcity_stats,
@@ -64,34 +69,71 @@ def test_basin_regression_metrics(basin, request):
 
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
 
+    # Load actual runtimes from the pipeline run
+    runtimes_path = run_root / "runtimes.json"
+    if not runtimes_path.exists():
+        raise AssertionError(
+            f"Runtimes file not found: {runtimes_path}. "
+            "Run the pipeline with: pixi run regression-run-pipeline <ROOT>"
+        )
+    runtimes_actual = json.loads(runtimes_path.read_text(encoding="utf-8"))
+
     sbm_output = run_root / "wflow_sbm" / basin / basin_config["sbm"]["output_nc"]
     sediment_output = (
         run_root / "wflow_sediment" / basin / basin_config["sediment"]["output_nc"]
     )
 
-    sbm_actual = compute_metrics(sbm_output, basin_config["sbm"]["metrics"])
-    sediment_actual = compute_metrics(
-        sediment_output, basin_config["sediment"]["metrics"]
-    )
+    sbm_specs = [Metric.from_dict(m) for m in basin_config["sbm"]["metrics"]]
+    sediment_specs = [Metric.from_dict(m) for m in basin_config["sediment"]["metrics"]]
+    sbm_actual = compute_metrics(sbm_output, sbm_specs)
+    sediment_actual = compute_metrics(sediment_output, sediment_specs)
 
     emit_teamcity_stats(basin, "sbm", sbm_actual)
     emit_teamcity_stats(basin, "sediment", sediment_actual)
 
+    sbm_runtime_specs = {
+        k: RuntimeSpec.from_dict(v)
+        for k, v in basin_config["sbm"].get("runtime_specs", {}).items()
+    }
+    sediment_runtime_specs = {
+        k: RuntimeSpec.from_dict(v)
+        for k, v in basin_config["sediment"].get("runtime_specs", {}).items()
+    }
     failures = []
     failures.extend(
         compare_metrics(
-            actual=sbm_actual,
-            baseline=baseline.get("sbm", {}),
-            specs=basin_config["sbm"]["metrics"],
-            model_name=f"{basin}.sbm",
+            RegressionCheck(
+                basin=basin,
+                model_type="sbm",
+                metrics=MetricsComparison(
+                    actual=sbm_actual,
+                    baseline=baseline.get("sbm", {}),
+                    specs=sbm_specs,
+                ),
+                runtimes=RuntimesComparison(
+                    actual=runtimes_actual.get("sbm", {}),
+                    baseline=baseline.get("sbm_runtimes", {}),
+                    specs=sbm_runtime_specs,
+                ),
+            )
         )
     )
     failures.extend(
         compare_metrics(
-            actual=sediment_actual,
-            baseline=baseline.get("sediment", {}),
-            specs=basin_config["sediment"]["metrics"],
-            model_name=f"{basin}.sediment",
+            RegressionCheck(
+                basin=basin,
+                model_type="sediment",
+                metrics=MetricsComparison(
+                    actual=sediment_actual,
+                    baseline=baseline.get("sediment", {}),
+                    specs=sediment_specs,
+                ),
+                runtimes=RuntimesComparison(
+                    actual=runtimes_actual.get("sediment", {}),
+                    baseline=baseline.get("sediment_runtimes", {}),
+                    specs=sediment_runtime_specs,
+                ),
+            )
         )
     )
 
