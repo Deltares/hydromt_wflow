@@ -62,7 +62,7 @@ def main():
     type=click.Choice(["wflow_sbm", "wflow_sediment"]),
     default="wflow_sbm",
     show_default=True,
-    help="Type of wflow model.",
+    help="Type of wflow model. Options: 'wflow_sbm', 'wflow_sediment'",
 )
 @click.option(
     "-i",
