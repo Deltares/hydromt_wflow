@@ -790,7 +790,7 @@ and will soon be removed. '
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
-            Fraction of wood in the vegetation/plant [-]
+            Storage woody part of vegetation [mm]
         * **vegetation_root_depth** map:
             Length of vegetation roots [mm]
         * **soil_compacted_fraction** map:
@@ -930,7 +930,7 @@ and will soon be removed. '
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
-            Fraction of wood in the vegetation/plant [-]
+            Storage woody part of vegetation [mm]
         * **vegetation_root_depth** map:
             Length of vegetation roots [mm]
         * **soil_compacted_fraction** map:
