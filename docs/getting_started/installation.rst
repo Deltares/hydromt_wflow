@@ -14,17 +14,23 @@ We recommend installing HydroMT-Wflow in a dedicated Python environment to ensur
 Prerequisite: Python installation
 =================================
 
-You will need **Python 3.11 or greater** and a package manager such as uv, pixi, or others in order to use HydroMT-Wflow. 
+You will need **Python 3.11 or greater** and a package manager such as uv, pixi, or others in order to use HydroMT-Wflow.
 These package managers help you to install (Python) packages and manage environments such that different installations do not conflict.
 
 If you do not yet have one installed, we recommend either:
 
 - `uv <https://docs.astral.sh/uv/>`_: uses `pypi.org <https://pypi.org>`_ for downloading dependencies.
-- `pixi <https://pixi.sh>`_: uses `conda-forge <https://conda-forge.org/>`_ for downloading dependencies.
+- `pixi <https://pixi.sh>`_: by default uses `conda-forge <https://conda-forge.org/>`_ for downloading dependencies,
+but will also search `pypi.org <https://pypi.org>`_ for dependencies it cannot find on conda-forge.
 
 It is also possible to use other package managers, such as pip or conda.
 The benefits of uv and pixi over pip and conda are that they install Python directly in the project folder,
 which avoids conflicts with other packages and allows you to have multiple versions of Python installed on your system.
+They work differently to conda/pip, where the typical workflow is to activate a named environment first
+(for example with ``conda activate <env>``), and then run installation and CLI commands from that active environment.
+In uv and pixi, project environment management is tied to the project folder itself and is integrated into one tool-driven
+workflow and commands are typically run through the project tool (for example ``pixi run ...`` or ``uv run ...``).
+
 
 Installing HydroMT-Wflow
 ========================
@@ -46,9 +52,9 @@ Therefore we use uv or pixi to create a new project folder with Python directly 
 
     .. code-block:: console
 
-      $ uv init my_hydromt_wflow
-      $ cd my_hydromt_wflow
-      $ uv add hydromt_wflow
+      $ uv init my_project
+      $ cd my_project
+      $ uv add project
       $ uv sync
 
     .. note::
@@ -60,12 +66,12 @@ Therefore we use uv or pixi to create a new project folder with Python directly 
 
     .. code-block:: console
 
-      $ pixi init my_hydromt_wflow
-      $ cd my_hydromt_wflow
-      $ pixi add hydromt_wflow
+      $ pixi init my_project
+      $ cd my_project
+      $ pixi add project
 
     .. note::
-      pixi resolves packages by default via conda-forge.
+      pixi resolves packages by default via conda-forge, if there are still unresolved packages it will try to use pypi.
       It is also possible to use pypi by calling :code:`pixi add --pypi hydromt_wflow`.
       We recommend to not mix conda-forge and pypi packages in the same environment, but it is possible.
 
@@ -147,13 +153,13 @@ The output should look similar to the example below:
             - gcs_cmip6_data (hydromt x.y.z)
         Uri_resolver plugins:
             - convention (hydromt x.y.z)
-            - raster_tindex (hydromt x.y.z)  
+            - raster_tindex (hydromt x.y.z)
 
 Installing optional dependencies
 --------------------------------
 
-HydroMT-Wflow provides several optional dependencies that extend its capabilities, 
-such as additional data sources or hydrological processing functions. 
+HydroMT-Wflow provides several optional dependencies that extend its capabilities,
+such as additional data sources or hydrological processing functions.
 
 Optional packages include:
 
@@ -191,7 +197,7 @@ Developer installation
 If you want to contribute to HydroMT-Wflow or modify its source code, see the
 :ref:`Developer installation guide <dev_env>`.
 
-To install the latest development version of HydroMT-Wflow, 
+To install the latest development version of HydroMT-Wflow,
 you can clone the repository and checkout the desired version tag:
 
 .. code-block:: console
