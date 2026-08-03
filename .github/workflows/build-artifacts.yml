@@ -119,17 +119,17 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ env.ARTIFACT_NAME }}-ubuntu-latest
-          path: _dl-ubuntu-latest
+          path: ${{ runner.temp }}/_dl-ubuntu-latest
 
       - name: Download rebuilt artifacts (windows-latest)
         uses: actions/download-artifact@v8
         with:
           name: ${{ env.ARTIFACT_NAME }}-windows-latest
-          path: _dl-windows-latest
+          path: ${{ runner.temp }}/_dl-windows-latest
 
       - name: Restore artifacts to repo paths
         run: |
-          for d in _dl-*; do
+          for d in "${{ runner.temp }}"/_dl-*; do
             [ -d "$d" ] || continue
             cp -a "$d"/. .
           done
