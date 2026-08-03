@@ -43,10 +43,16 @@ except ImportError:
 
 
 @pytest.fixture(scope="session")
-def rasterio_version():
+def gdal_version():
+    # Use the GDAL version actually linked to rasterio (rather than the rasterio
+    # package version) since rasterio wheels vendor their own GDAL build, but on
+    # some platforms/environments (e.g. when built from sdist) rasterio links
+    # against the system/conda GDAL instead. GDAL's `mode` resampling tie-breaking
+    # behaviour (and so the results of `create_lulc_lai_mapping_table`) depends on
+    # the linked GDAL version, not the rasterio package version.
     import rasterio
 
-    return Version(rasterio.__version__)
+    return Version(rasterio.__gdal_version__)
 
 
 @pytest.fixture
@@ -331,7 +337,7 @@ def test_setup_ksatver_vegetation(example_wflow_model):
     assert int(mean_val) == 1672
 
 
-def test_setup_lai(example_wflow_model: WflowSbmModel, rasterio_version: Version):
+def test_setup_lai(example_wflow_model: WflowSbmModel, gdal_version: Version):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
     da_lai = example_wflow_model.data_catalog.get_rasterdataset(
@@ -365,7 +371,12 @@ def test_setup_lai(example_wflow_model: WflowSbmModel, rasterio_version: Version
         sampling_method="q3",
         lulc_zero_classes=[80, 200, 0],
     )
-    if rasterio_version >= Version("1.5.0"):
+    # GDAL >= 3.11 introduced the MODE_TIES option and changed the default
+    # tie-breaking behaviour of `mode` resampling, which changes the number of
+    # samples/classes derived here. This depends on the GDAL version actually
+    # linked to rasterio, not on the rasterio package version itself (rasterio
+    # wheels vendor their own GDAL, but sdist builds link the system/conda GDAL).
+    if gdal_version >= Version("3.11.0"):
         expected_df_lai_mode_samples_20 = 69
         expected_df_lai_mode_samples_0 = 2
     else:
