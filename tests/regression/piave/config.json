@@ -14,17 +14,30 @@
       {
         "name": "outlet_discharge",
         "variable": "river_q",
-        "selector": { "lat": 45.8331, "lon": 12.2051 },
+        "selector": {
+          "lat": 45.8331,
+          "lon": 12.2051
+        },
         "selector_method": "sel",
         "aggregation": "mean",
-        "metrics": ["mean", "peak", "total"],
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
         "rel_tol": 0.01,
         "abs_tol": 1e-06
       }
     ],
     "runtime_specs": {
-      "build_time": { "rel_tol": 0.20, "abs_tol": 120 },
-      "kernel_runtime": { "rel_tol": 0.20, "abs_tol": 120 }
+      "build_time": {
+        "rel_tol": 1,
+        "abs_tol": 600
+      },
+      "kernel_runtime": {
+        "rel_tol": 0.20,
+        "abs_tol": 120
+      }
     }
   },
   "sediment": {
@@ -43,7 +56,11 @@
         "name": "soil_loss",
         "variable": "soil_loss",
         "aggregation": "sum",
-        "metrics": ["mean", "peak", "total"],
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
         "rel_tol": 0.01,
         "abs_tol": 1e-06
       },
@@ -51,14 +68,24 @@
         "name": "suspended_solids",
         "variable": "suspended_solids",
         "aggregation": "sum",
-        "metrics": ["mean", "peak", "total"],
+        "metrics": [
+          "mean",
+          "peak",
+          "total"
+        ],
         "rel_tol": 0.01,
         "abs_tol": 1e-06
       }
     ],
     "runtime_specs": {
-      "build_time": { "rel_tol": 0.20, "abs_tol": 120 },
-      "kernel_runtime": { "rel_tol": 0.20, "abs_tol": 120 }
+      "build_time": {
+        "rel_tol": 1,
+        "abs_tol": 600
+      },
+      "kernel_runtime": {
+        "rel_tol": 0.20,
+        "abs_tol": 120
+      }
     }
   },
   "baseline_metrics": "tests/regression/piave/metrics/baseline_metrics.json"

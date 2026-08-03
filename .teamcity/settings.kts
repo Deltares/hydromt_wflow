@@ -74,7 +74,7 @@ object SystemTestPrCheckStable : BuildType({
     params {
         param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
         param("regression.profile", "pr")
-        text("status.check.name", "System test (PR, latest release)", allowEmpty = false)
+        text("status.check.name", "Regression test (Wflow.jl @ %wflow.latest.release%)", allowEmpty = false)
     }
 })
 
@@ -86,7 +86,7 @@ object SystemTestPrCheckDev : BuildType({
     params {
         param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
         param("regression.profile", "pr")
-        text("status.check.name", "System test (PR, wflow main)", allowEmpty = false)
+        text("status.check.name", "Regression test (Wflow.jl @ %wflow.dev.branch%)", allowEmpty = false)
     }
 })
 
@@ -234,6 +234,7 @@ object WflowSystemTestTemplate : Template({
                     }
                     ${'$'}env:WFLOW_CLI = ${'$'}wflowCli
                     pixi run regression-pipeline %regression.profile%
+                    if (${'$'}LASTEXITCODE -ne 0) { exit ${'$'}LASTEXITCODE }
                 """.trimIndent()
             }
         }
@@ -244,6 +245,7 @@ object WflowSystemTestTemplate : Template({
             scriptMode = script {
                 content = """
                     pixi run regression-assert '%regression.profile%'
+                    if (${'$'}LASTEXITCODE -ne 0) { exit ${'$'}LASTEXITCODE }
                 """.trimIndent()
             }
         }
