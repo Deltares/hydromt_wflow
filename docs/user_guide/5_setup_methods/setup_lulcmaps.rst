@@ -67,7 +67,7 @@ The columns names should match the HydroMT names of each Wflow parameter. These 
 - **soil_compacted_fraction**: The fraction of compacted or urban area per grid cell [-]
 - **vegetation_root_depth**: Length of vegetation roots [mm]
 - **vegetation_leaf_storage**: Specific leaf storage [mm]
-- **vegetation_wood_storage**: Fraction of wood in the vegetation/plant [-]
+- **vegetation_wood_storage**: Storage woody part of vegetation [mm]
 - **land_water_fraction**: The fraction of open water per grid cell [-]
 - **vegetation_crop_factor**: Crop coefficient [-]
 - **vegetation_feddes_alpha_h1**: Root water uptake reduction at soil water pressure head h1 (0 or 1) [-]
