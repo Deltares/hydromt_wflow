@@ -29,7 +29,7 @@ which avoids conflicts with other packages and allows you to have multiple versi
 They work differently to conda/pip, where the typical workflow is to activate a named environment first
 (for example with ``conda activate <env>``), and then run installation and CLI commands from that active environment.
 In uv and pixi, project environment management is tied to the project folder itself and is integrated into one tool-driven
-workflow and commands are typically run through the project tool (for example ``pixi run ...`` or ``uv run ...``).
+workflow and commands are typically run through the project tool (for example ``pixi run python my_script.py`` or ``uv run my_script.py``).
 
 
 Installing HydroMT-Wflow
@@ -54,7 +54,7 @@ Therefore we use uv or pixi to create a new project folder with Python directly 
 
       $ uv init my_project
       $ cd my_project
-      $ uv add project
+      $ uv add hydromt_wflow
       $ uv sync
 
     .. note::
@@ -68,7 +68,7 @@ Therefore we use uv or pixi to create a new project folder with Python directly 
 
       $ pixi init my_project
       $ cd my_project
-      $ pixi add project
+      $ pixi add hydromt_wflow
 
     .. note::
       pixi resolves packages by default via conda-forge, if there are still unresolved packages it will try to use pypi.
