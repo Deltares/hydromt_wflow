@@ -67,8 +67,6 @@ def grid_from_geodataset(
     """
     # Check the type static/forcing/cyclic
     da_type = _check_geodataset_type(da)
-    if da_type == "static" and "time" in da.dims:
-        da = da.squeeze("time", drop=True)
 
     # Reproject to model crs
     da = da.vector.to_crs(ds_like.raster.crs)

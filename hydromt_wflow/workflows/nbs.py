@@ -113,10 +113,9 @@ def _compute_nbs_coverage(
     basin_mask.raster.set_nodata(-9999)
 
     area = basin_mask.raster.area_grid()
-    valid_basin = basin_mask != basin_mask.raster.nodata
-    area_basin = area.where(valid_basin, np.nan).sum().values / 1e6
+    area_basin = area.where(basin_mask == 1, np.nan).sum().values / 1e6
     area_nbs = round(
-        area.where(valid_basin & (nbs_map > min_value), np.nan).sum().values / 1e6
+        area.where((nbs_map > min_value) & (basin_mask == 1), np.nan).sum().values / 1e6
     )
     if area_basin == 0:
         raise ValueError(
@@ -321,8 +320,7 @@ def ponding_level_from_suitability(
     ponding_level.attrs["long_name"] = "ponding level"
     if "long_name" in suitability.attrs:
         ponding_level.attrs["description"] = suitability.attrs["long_name"]
-    src_crs = suitability.raster.crs or ds_like.raster.crs
-    ponding_level.raster.set_crs(src_crs)
+    ponding_level.raster.set_crs(ds_like.raster.crs)
     ponding_level.raster.set_nodata(-9999)
 
     # Reproject to match Wflow staticmaps grid
