@@ -1779,7 +1779,7 @@ one variable and variables list is not provided."
             )
 
         # Prepare the geodataset data
-        da_out, da_type = workflows.grid.grid_from_geodataset(
+        da_out, da_type = workflows.grid_from_geodataset(
             da=da,
             ds_like=self.staticmaps.data,
             fill_value=fill_value,
