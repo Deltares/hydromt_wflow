@@ -17,3 +17,4 @@ Landuse
     lai_from_lulc_mapping
     add_paddy_to_landuse
     add_planted_forest_to_landuse
+    add_agroforestry_to_landuse
