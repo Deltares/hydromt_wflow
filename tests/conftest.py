@@ -19,8 +19,28 @@ from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel, utils
+from tests.regression.regression_utils import (
+    default_run_root,
+    list_profile_choices,
+    repo_root,
+)
 
-pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
+## Pytest configuration
+def pytest_addoption(parser):
+    parser.addoption(
+        "--regression-root",
+        action="store",
+        default=default_run_root(),
+        help="Root directory containing wflow_sbm/<basin> and wflow_sediment/<basin>",
+    )
+    parser.addoption(
+        "--regression-profile",
+        action="store",
+        default="all",
+        choices=list_profile_choices(repo_root()),
+        help="Regression basin profile from tests/regression/manifest.json",
+    )
 
 
 ## Paths
