@@ -350,6 +350,7 @@ object WflowJl : GitVcsRoot({
     branch = "main"
     branchSpec = """
         +:refs/heads/main
+        +:refs/heads/release/*
         +:refs/tags/(v*)
     """.trimIndent()
 })
@@ -361,6 +362,6 @@ object HydromtWflow : GitVcsRoot({
     branchSpec = """
         +:refs/heads/main
         +:refs/heads/release/*
-        +:refs/tags/*
+        +:refs/tags/(v*)
     """.trimIndent()
 })
