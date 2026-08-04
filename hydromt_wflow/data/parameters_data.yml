@@ -168,6 +168,37 @@ glcnmo_mapping_default:
     category: landuse
     info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
 
+agroforestry_mapping_default:
+  data_type: DataFrame
+  variants:
+    - version: 1.0
+      uri: lulc/v1.0/agroforestry_mapping.csv
+  driver:
+    name: pandas
+    options:
+      index_col: 0
+      dtype:
+        landuse: int16
+        vegetation_kext: float32
+        land_manning_n: float32
+        soil_compacted_fraction: float32
+        vegetation_root_depth: float32
+        vegetation_leaf_storage: float32
+        vegetation_wood_storage: float32
+        land_water_fraction: float32
+        vegetation_crop_factor: float32
+        vegetation_feddes_alpha_h1: int16
+        vegetation_feddes_h1: int16
+        vegetation_feddes_h2: int16
+        vegetation_feddes_h3_high: int16
+        vegetation_feddes_h3_low: int16
+        vegetation_feddes_h4: int16
+        erosion_usle_c: float32
+        Cov_River: float32
+  metadata:
+    category: landuse
+    info: landuse parameters for agroforestry based on esa_worlcover (75% cropland, 10% tree, 15% shrubland)
+
 paddy_mapping_default:
   data_type: DataFrame
   variants:

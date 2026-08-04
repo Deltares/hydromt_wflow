@@ -5,6 +5,10 @@ import shutil
 import sys
 import hydromt_wflow
 
+# URL to the switcher.json file for version switching in the docs. See https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/version-dropdown.html
+# This should point to a stable URL where the switcher.json file is hosted. (e.g. the static files of the latest published docs build)
+SWITCHER_JSON_URL = "https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json"
+
 # -- Path setup --------------------------------------------------------------
 DOCS_ROOT = Path(__file__).parent.resolve()
 sys.path.insert(0, DOCS_ROOT.as_posix())
@@ -32,7 +36,10 @@ copyright = "Deltares"
 author = "Dirk Eilander"
 version = hydromt_wflow.__version__
 bare_version = hydromt_wflow.__version__
-doc_version = bare_version[: bare_version.find("dev") - 1]
+if "dev" in bare_version:
+    doc_version = "latest"
+else:
+    doc_version = f"v{bare_version}"
 
 # -- General configuration ------------------------------------------------
 extensions = [
@@ -111,9 +118,10 @@ html_theme_options = {
         "page-toc",
     ],
     "switcher": {
-        "json_url": "https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json",
+        "json_url": SWITCHER_JSON_URL,
         "version_match": doc_version,
     },
+    "check_switcher": False, # to prevent errors when building docs locally without being authenticated
 }
 html_context = {
     "github_url": "https://github.com",
