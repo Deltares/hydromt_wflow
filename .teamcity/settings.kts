@@ -276,7 +276,6 @@ object GitHubPrTemplate : Template({
             branchFilter = """
                 -:*
                 +pr:*
-                +:<default>
             """.trimIndent()
         }
     }

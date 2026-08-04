@@ -9,6 +9,7 @@ from regression_utils import (
     compute_metrics,
     default_run_root,
     get_basins_for_profile,
+    list_profile_choices,
     load_basin_config,
     repo_root,
     resolve_path,
@@ -27,7 +28,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--profile",
         default="pr",
-        choices=["all", "pr", "piave", "moselle"],
+        choices=list_profile_choices(repo_root()),
         help="Basin profile or individual basin name to process.",
     )
     return parser.parse_args()
@@ -42,7 +43,7 @@ def main() -> None:
     if not runtimes_path.exists():
         raise FileNotFoundError(
             f"Runtimes file not found: {runtimes_path}. "
-            "Run the pipeline first with: pixi run regression-run-pipeline"
+            "Run the pipeline first with: pixi run regression-pipeline"
         )
     runtimes = json.loads(runtimes_path.read_text(encoding="utf-8"))
 
@@ -59,14 +60,24 @@ def main() -> None:
             Metric.from_dict(m) for m in basin_config["sediment"]["metrics"]
         ]
 
-        basin_runtimes = runtimes.get(
-            basin, runtimes
-        )  # support per-basin or flat layout
+        if basin not in runtimes:
+            raise KeyError(
+                f"No runtimes recorded for basin '{basin}' in {runtimes_path}. "
+                "Run the full pipeline for this basin before regenerating baseline metrics."
+            )
+        basin_runtimes = runtimes[basin]
+        for model_type in ("sbm", "sediment"):
+            if model_type not in basin_runtimes:
+                raise KeyError(
+                    f"No '{model_type}' runtimes recorded for basin '{basin}' in {runtimes_path}. "
+                    "Run the full pipeline for this basin/model before regenerating baseline metrics."
+                )
+
         payload = {
             "sbm": compute_metrics(sbm_output, sbm_specs),
-            "sbm_runtimes": basin_runtimes.get("sbm", {}),
+            "sbm_runtimes": basin_runtimes["sbm"],
             "sediment": compute_metrics(sediment_output, sediment_specs),
-            "sediment_runtimes": basin_runtimes.get("sediment", {}),
+            "sediment_runtimes": basin_runtimes["sediment"],
         }
 
         baseline_path = resolve_path(project_root, basin_config["baseline_metrics"])

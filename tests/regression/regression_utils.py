@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import shutil
 import subprocess
 import time
@@ -116,6 +117,25 @@ def get_basins_for_profile(project_root: Path, profile: str) -> list[str]:
     profiles = manifest.get("profiles", {})
     # If the value isn't a named profile, treat it as a literal basin name.
     return profiles.get(profile, [profile])
+
+
+def list_profile_choices(project_root: Path) -> list[str]:
+    """List valid values for the --profile/--regression-profile CLI options.
+
+    Includes both named profiles (e.g. "pr", "all") from manifest.json and every
+    individual basin directory that has a config.json, so a basin can be run on
+    its own without also being listed as a profile. Computed dynamically so that
+    registering a new basin/profile in manifest.json is the only step needed to
+    make it selectable, matching the "Adding a new basin" instructions in
+    tests/regression/README.md.
+    """
+    manifest = load_manifest(project_root)
+    profiles = set(manifest.get("profiles", {}).keys())
+    regression_dir = project_root / "tests" / "regression"
+    basins = {
+        p.parent.name for p in regression_dir.glob("*/config.json") if p.is_file()
+    }
+    return sorted(profiles | basins)
 
 
 def _resolve_data_catalog_arg(project_root: Path, entry: str) -> str:
@@ -339,6 +359,12 @@ def compare_metrics(check: RegressionCheck) -> list[str]:
                 continue
             observed = check.metrics.actual[spec.name][metric_key]
             expected = float(expected)
+            if not math.isfinite(observed) or not math.isfinite(expected):
+                failures.append(
+                    f"[{check.basin}.{check.model_type}] {spec.name}.{metric_key} "
+                    f"is not finite: observed={observed}, expected={expected}"
+                )
+                continue
             abs_err = abs(observed - expected)
             if abs(expected) <= spec.abs_tol:
                 if abs_err > spec.abs_tol:
@@ -355,10 +381,22 @@ def compare_metrics(check: RegressionCheck) -> list[str]:
     # Compare runtimes if provided
     for runtime_key, runtime_spec in check.runtimes.specs.items():
         if runtime_key not in check.runtimes.baseline:
+            failures.append(
+                f"[{check.basin}.{check.model_type}] Missing baseline runtime value for '{runtime_key}'"
+            )
             continue
         expected = check.runtimes.baseline[runtime_key]
         observed = check.runtimes.actual.get(runtime_key)
         if observed is None:
+            failures.append(
+                f"[{check.basin}.{check.model_type}] Missing observed runtime value for '{runtime_key}'"
+            )
+            continue
+        if not math.isfinite(observed) or not math.isfinite(expected):
+            failures.append(
+                f"[{check.basin}.{check.model_type}] runtime '{runtime_key}' "
+                f"is not finite: observed={observed}, expected={expected}"
+            )
             continue
         abs_err = abs(observed - expected)
         rel_err = abs_err / abs(expected) if expected != 0 else 0.0
@@ -383,7 +421,7 @@ def report_failures(failures: list[str]) -> str:
         "  2. Accept the change (if change in output is expected): If the deviation is intentional (e.g. a",
         "     model improvement or deliberate output change), regenerate the baseline",
         "     metrics and commit the updated files:",
-        "       pixi run regression-generate-metrics --root <ROOT>",
+        "       pixi run regression-generate-metrics <PROFILE> <ROOT>",
         "     Then re-run the tests to confirm they pass.",
         "",
         "  3. Widen tolerances: If the deviation is within acceptable bounds but exceeds",

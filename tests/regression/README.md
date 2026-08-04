@@ -70,55 +70,70 @@ The baseline file mirrors this structure, keyed by model and then metric name:
 }
 ```
 
+### Runtime specification
+
+Each `config.json → <model>` can also define `runtime_specs`, which asserts on how long the
+build and Wflow.jl kernel run took, in addition to the output metrics above:
+
+```jsonc
+{
+  "runtime_specs": {
+    "build_time":     { "rel_tol": 1.0, "abs_tol": 600 }, // HydroMT build step, in seconds
+    "kernel_runtime": { "rel_tol": 0.20, "abs_tol": 120 } // Wflow.jl run step, in seconds
+  }
+}
+```
+
+A runtime check only fails when **both** the relative and absolute tolerance are exceeded
+(unlike output metrics, where either one failing is enough), since wall-clock time is
+inherently noisier than model output values. The baseline file stores the corresponding
+observed runtimes under `<model>_runtimes`, e.g. `sbm_runtimes` / `sediment_runtimes`:
+
+```json
+{
+  "sbm_runtimes":      { "build_time": 42.1, "kernel_runtime": 88.4 },
+  "sediment_runtimes": { "build_time": 12.3, "kernel_runtime": 30.7 }
+}
+```
+
+Runtime baselines are populated automatically by `generate_metrics.py` from the
+`runtimes.json` produced by the most recent `run_pipeline.py` run — see
+"Regenerate baseline metrics" below. Since runtimes are affected by the underlying CI/build
+agent, treat runtime regressions as a signal to investigate rather than a hard failure of
+the model output itself.
+
 ---
 
 ## Running locally
 
 All commands below assume you are in the repository root and use the `pixi` task runner.
 Replace `<ROOT>` with a local directory for model outputs (e.g. `/tmp/regression-runs`).
+The default `ROOT` for `regression-pipeline`/`regression-assert`/`regression-generate-metrics`
+is `tests/regression/.runs` inside the repo.
 
 ### Full pipeline (build + run + assert)
 
 ```bash
-# 1. Build and run models (requires wflow_cli on PATH or explicit path)
-pixi run regression-pipeline pr <ROOT> wflow_cli
+# 1. Build and run models (requires the WFLOW_CLI environment variable, or a
+#    .env file at the repo root, pointing at the wflow_cli executable)
+pixi run regression-pipeline pr
 
 # 2. Assert metrics against baseline
-pixi run regression-assert pr <ROOT>
+pixi run regression-assert pr
 ```
 
 Use profile `all` to include all basins instead of just piave.
-
-### Partial runs (build only, no wflow execution)
-
-```bash
-# Build SBM model for a single basin
-pixi run build-sbm piave
-
-# Build sediment model for a single basin
-pixi run build-sediment piave
-```
-
-The default `ROOT` for these tasks is `tests/regression/.runs` inside the repo.
 
 ### Regenerate baseline metrics
 
 Run this after confirming that a deviation is intentional (see "Responding to failures" below):
 
 ```bash
-pixi run regression-generate-metrics all <ROOT>
+pixi run regression-generate-metrics all
 ```
 
 This overwrites the `baseline_metrics.json` files in `tests/regression/<basin>/metrics/`.
 Commit the updated files together with the code change that caused the deviation.
-
-### Assert against a pre-existing run directory
-
-Stage 2 can be run independently if you already have model outputs:
-
-```bash
-pixi run regression-assert all /path/to/existing/run/root
-```
 
 ---
 
@@ -172,8 +187,8 @@ lists three follow-up options:
 4. Run the full pipeline to generate model outputs, then generate the baseline:
 
    ```bash
-   pixi run regression-pipeline all <ROOT> wflow_cli
-   pixi run regression-generate-metrics all <ROOT>
+   pixi run regression-pipeline all
+   pixi run regression-generate-metrics all
    ```
 
 5. Commit everything: build configs, `config.json`, `manifest.json`, and

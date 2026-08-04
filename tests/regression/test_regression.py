@@ -57,7 +57,7 @@ def test_basin_regression_metrics(basin, request):
     if not baseline_path.exists():
         raise AssertionError(
             f"Baseline metrics not found: {baseline_path}. "
-            "Generate with: pixi run regression-generate-metrics"
+            "Generate with: pixi run regression-generate-metrics <PROFILE> <ROOT>"
         )
 
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
@@ -67,9 +67,15 @@ def test_basin_regression_metrics(basin, request):
     if not runtimes_path.exists():
         raise AssertionError(
             f"Runtimes file not found: {runtimes_path}. "
-            "Run the pipeline with: pixi run regression-run-pipeline"
+            "Run the pipeline with: pixi run regression-pipeline"
         )
-    runtimes_actual = json.loads(runtimes_path.read_text(encoding="utf-8"))
+    all_runtimes = json.loads(runtimes_path.read_text(encoding="utf-8"))
+    runtimes_actual = all_runtimes.get(basin, {})
+    if not runtimes_actual:
+        raise AssertionError(
+            f"No runtimes recorded for basin '{basin}' in {runtimes_path}. "
+            "Run the pipeline with: pixi run regression-pipeline"
+        )
 
     sbm_output = run_root / "wflow_sbm" / basin / basin_config["sbm"]["output_nc"]
     sediment_output = (

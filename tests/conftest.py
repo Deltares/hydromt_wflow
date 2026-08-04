@@ -19,7 +19,11 @@ from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
-from tests.regression.regression_utils import default_run_root
+from tests.regression.regression_utils import (
+    default_run_root,
+    list_profile_choices,
+    repo_root,
+)
 
 
 ## Pytest configuration
@@ -34,7 +38,7 @@ def pytest_addoption(parser):
         "--regression-profile",
         action="store",
         default="all",
-        choices=["all", "pr", "piave", "moselle"],
+        choices=list_profile_choices(repo_root()),
         help="Regression basin profile from tests/regression/manifest.json",
     )
 

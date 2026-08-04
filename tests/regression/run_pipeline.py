@@ -11,6 +11,7 @@ from regression_utils import (
     build_sediment,
     default_run_root,
     get_basins_for_profile,
+    list_profile_choices,
     load_basin_config,
     repo_root,
     run_wflow,
@@ -32,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--profile",
         default="pr",
-        choices=["all", "pr", "piave", "moselle"],
+        choices=list_profile_choices(repo_root()),
         help="Basin profile or individual basin name to run.",
     )
     parser.add_argument(
@@ -101,10 +102,15 @@ def main() -> None:
         )
         runtimes["sediment"]["kernel_runtime"] = sediment_run_time
 
-        # Write runtimes to JSON file for test consumption
+        # Write runtimes to JSON file for test consumption, keyed by basin so
+        # multi-basin profiles (e.g. "all") don't clobber each other's entries.
         runtimes_path = run_root / "runtimes.json"
         runtimes_path.parent.mkdir(parents=True, exist_ok=True)
-        runtimes_path.write_text(json.dumps(runtimes, indent=2), encoding="utf-8")
+        all_runtimes: dict[str, dict[str, dict[str, float]]] = {}
+        if runtimes_path.exists():
+            all_runtimes = json.loads(runtimes_path.read_text(encoding="utf-8"))
+        all_runtimes[basin] = runtimes
+        runtimes_path.write_text(json.dumps(all_runtimes, indent=2), encoding="utf-8")
 
         print(f"\n=== {basin.upper()} RUNTIMES ===")
         print(
