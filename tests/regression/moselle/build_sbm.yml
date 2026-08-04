@@ -1,6 +1,10 @@
 steps:
   - setup_config: # options parsed to wflow toml file <section>.<option>
       data:
+        # NOTE: kept short (3 months) rather than extending towards a full year (see #819).
+        # Longer runs intermittently fail with network/zarr read errors against the
+        # remote era5 data source (and P-drive netcdf reads); this was not fully
+        # resolved during development. Extend with care - see #819 for details.
         time.starttime: 2010-01-01T00:00:00
         time.endtime: 2010-03-31T00:00:00
         time.timestepsecs: 86400

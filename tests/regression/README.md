@@ -12,7 +12,7 @@ at different times.
 Build the HydroMT model (SBM and sediment) and execute the Wflow.jl simulation.
 Outputs are written to a directory of your choice (`ROOT`).
 
-**Stage 2 – assertion** (`tests/test_system_regression.py`)
+**Stage 2 – assertion** (`tests/regression/test_regression.py`)
 Load the model outputs produced by stage 1, compute scalar metrics, compare them
 against the stored baseline, and fail if any deviation exceeds the configured tolerance.
 TeamCity statistics are emitted as a side effect (see below).
@@ -167,6 +167,17 @@ lists three follow-up options:
 > Wflow.jl team before committing.
 
 ---
+
+## Known limitations
+
+**Simulation time is intentionally short (3 months, not a full year).** During
+development, extending the simulation window towards a full year intermittently
+triggered network/zarr read errors against the remote era5 data source (and P-drive
+netcdf reads). This was not fully resolved - see
+[#819](https://github.com/Deltares/hydromt_wflow/issues/819) for details and status.
+If you pick up that follow-up work, expect to hit the same failure mode and budget
+time to investigate a more robust data-fetching strategy (e.g. retries, caching, or a
+different source) before simply widening the time window.
 
 ## Adding a new basin
 
