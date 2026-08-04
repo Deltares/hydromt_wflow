@@ -307,7 +307,7 @@ def river_bathymetry(
 
     # smooth by averaging along flow directions and set minimum
     if smooth_len > 0:
-        nsmooth = min(1, int(round(smooth_len / rivlen_avg / 2)))
+        nsmooth = max(1, int(round(smooth_len / rivlen_avg / 2)))
         kwgs = dict(n=nsmooth, restrict_strord=True)
         ds_model["rivwth"].values = flwdir_river.moving_average(
             ds_model["rivwth"].values, nodata=ds_model["rivwth"].raster.nodata, **kwgs
