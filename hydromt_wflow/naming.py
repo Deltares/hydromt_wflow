@@ -280,9 +280,9 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_name": "land_surface__slope",
         "hydromt_name": "lndslp",
     },
-    # "land_pond_threshold": { # https://github.com/Deltares/hydromt_wflow/pull/808#discussion_r3613338478
-    #     "wflow_name": "land_surface_water_flow_threshold__depth",
-    # },
+    "land_pond_threshold": {
+        "wflow_name": "land_surface_water_flow_threshold__depth",
+    },
     # river
     "floodplain_volume": {
         "wflow_name": "floodplain_water__sum_of_volume_per_depth",
