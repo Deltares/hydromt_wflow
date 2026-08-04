@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -461,6 +461,11 @@
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p><strong>setup_agroforestry</strong>: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2</p></li>
+<li><p><strong>setup_subbasins</strong>: method to delineate subbasins based on streamorder, pfafstetter or area threshold. PR #7</p></li>
+<li><p><strong>setup_ponding_from_map</strong> and <strong>setup_ponding_from_thresholds</strong>: methods to prepare ponding level based on a raster/vector
+location map or based on landuse/hydrography thresholds. PR #22</p></li>
+<li><p><strong>setup_grid_from_geodataset</strong>: method to set static/cyclic/forcing grid data from a geodataset. PR #20</p></li>
 <li><p>Before writing the forcing to disk, throw an error for any missing values (#748)</p></li>
 <li><p>Added upgrade support for the latest Wflow.jl v1.1 (#765)</p></li>
 <li><p>Added ability for users to exclude reservoirs that are outside of the river network, using <cite>exclude_outside_reservoirs</cite> flag. (#777)</p></li>

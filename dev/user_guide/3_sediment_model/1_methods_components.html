@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -415,6 +415,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../5_setup_methods/index.html">Technical description</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_x.html">Setup Method: setup_x</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_lulcmaps.html">Setup_lulcmaps and related methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_agroforestry.html">Setup Agroforestry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_ponding.html">Setup Ponding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_grid_from_geodataset.html">Setup grid from geodataset</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../6_migration_guide/index.html">Migration Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -666,7 +669,11 @@ a specific method see its documentation.</p>
 <td><p>This method sets the default gauge map based on a gauges_fn data.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers" title="hydromt_wflow.WflowSedimentModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_subbasins.html#hydromt_wflow.WflowSedimentModel.setup_subbasins" title="hydromt_wflow.WflowSedimentModel.setup_subbasins"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_subbasins()</span></code></a></p></th>
+<td><p>Delineate subbasins based on streamorder, pfafstetter or area threshold.</p></td>
+<td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
 </tr>
@@ -693,7 +700,11 @@ a specific method see its documentation.</p>
 <td><p>Setup staticmaps from raster to add parameters from direct data.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.clip.html#hydromt_wflow.WflowSedimentModel.clip" title="hydromt_wflow.WflowSedimentModel.clip"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clip()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset.html#hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset" title="hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_grid_from_geodataset()</span></code></a></p></th>
+<td><p>Setup static/cyclic/forcing from geodataset to add parameters from direct data.</p></td>
+<td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSedimentModel.clip.html#hydromt_wflow.WflowSedimentModel.clip" title="hydromt_wflow.WflowSedimentModel.clip"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clip()</span></code></a></p></th>
 <td><p>Clip a sub-region of an existing model.</p></td>
 <td></td>
 </tr>

@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -475,100 +475,184 @@ We recommend installing HydroMT-Wflow in a dedicated Python environment to ensur
 </section>
 <section id="prerequisite-python-installation">
 <h2>Prerequisite: Python installation<a class="headerlink" href="#prerequisite-python-installation" title="Link to this heading">#</a></h2>
-<p>You will need <strong>Python 3.11 or newer</strong> and a package/environment manager such as pip, conda, mamba or uv.
-These tools simplify installing packages and managing isolated environments.</p>
+<p>You will need <strong>Python 3.11 or greater</strong> and a package manager such as uv, pixi, or others in order to use HydroMT-Wflow.
+These package managers help you to install (Python) packages and manage environments such that different installations do not conflict.</p>
 <p>If you do not yet have one installed, we recommend either:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a></p></li>
-<li><p><a class="reference external" href="https://conda-forge.org/docs/">Miniforge (Mambaforge)</a></p></li>
-<li><p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a></p></li>
+<li><p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a>: uses <a class="reference external" href="https://pypi.org">pypi.org</a> for downloading dependencies.</p></li>
+<li><p><a class="reference external" href="https://pixi.sh">pixi</a>: by default uses <a class="reference external" href="https://conda-forge.org/">conda-forge</a> for downloading dependencies,</p></li>
 </ul>
-<p>Both conda variants come preconfigured with the <strong>conda-forge</strong> channel, which provides free and open packages used by HydroMT.</p>
+<p>but will also search <a class="reference external" href="https://pypi.org">pypi.org</a> for dependencies it cannot find on conda-forge.</p>
+<p>It is also possible to use other package managers, such as pip or conda.
+The benefits of uv and pixi over pip and conda are that they install Python directly in the project folder,
+which avoids conflicts with other packages and allows you to have multiple versions of Python installed on your system.
+They work differently to conda/pip, where the typical workflow is to activate a named environment first
+(for example with <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">&lt;env&gt;</span></code>), and then run installation and CLI commands from that active environment.
+In uv and pixi, project environment management is tied to the project folder itself and is integrated into one tool-driven
+workflow and commands are typically run through the project tool (for example <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">python</span> <span class="pre">my_script.py</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">my_script.py</span></code>).</p>
 </section>
 <section id="installing-hydromt-wflow">
 <h2>Installing HydroMT-Wflow<a class="headerlink" href="#installing-hydromt-wflow" title="Link to this heading">#</a></h2>
-<p>HydroMT-Wflow is available from both <strong>PyPI</strong> and <strong>conda-forge</strong>.
-The simplest and most flexible approach is to install it using <strong>pip</strong> inside a new environment.</p>
-<section id="installation-in-a-conda-environment-using-uv-pip">
-<h3>Installation in a conda environment using uv / pip<a class="headerlink" href="#installation-in-a-conda-environment-using-uv-pip" title="Link to this heading">#</a></h3>
-<p>We recommend creating a clean environment to avoid dependency conflicts. For example:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>uv<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13
-<span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
-<span class="gp">$ </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>hydromt_wflow
+<p>HydroMT-Wflow is available from PyPI and conda-forge, and can be installed using uv, pixi, or others.
+Here we will describe the installation using <strong>uv</strong> and the <strong>pixi</strong> package manager.</p>
+<section id="basic-installation">
+<h3>Basic Installation<a class="headerlink" href="#basic-installation" title="Link to this heading">#</a></h3>
+<p>We strongly recommend installing HydroMT-Wflow in a separate environment to avoid conflicts with other packages.
+Therefore we use uv or pixi to create a new project folder with Python directly installed.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="uv" for="sd-tab-item-0">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>init<span class="w"> </span>my_project
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>my_project
+<span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span>hydromt_wflow
+<span class="gp">$ </span>uv<span class="w"> </span>sync
 </pre></div>
 </div>
-<p>This will install HydroMT-Wflow along with HydroMT core and all required dependencies.</p>
-<p>To verify the installation, you can list the installed HydroMT plugins:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">(</span>hydromt-wflow<span class="o">)</span><span class="w"> </span>hydromt<span class="w"> </span>--plugins
-<span class="go">    Model plugins:</span>
-<span class="go">        - model (hydromt 1.3.0)</span>
-<span class="go">        - wflow_sbm (hydromt_wflow 1.0.0)</span>
-<span class="go">        - wflow_sediment (hydromt_wflow 1.0.0)</span>
-<span class="go">    Component plugins:</span>
-<span class="go">        - ConfigComponent (hydromt 1.3.0)</span>
-<span class="go">        - DatasetsComponent (hydromt 1.3.0)</span>
-<span class="go">        - GeomsComponent (hydromt 1.3.0)</span>
-<span class="go">        - GridComponent (hydromt 1.3.0)</span>
-<span class="go">        - MeshComponent (hydromt 1.3.0)</span>
-<span class="go">        - SpatialDatasetsComponent (hydromt 1.3.0)</span>
-<span class="go">        - TablesComponent (hydromt 1.3.0)</span>
-<span class="go">        - VectorComponent (hydromt 1.3.0)</span>
-<span class="go">    Driver plugins:</span>
-<span class="go">        - dataset_xarray (hydromt 1.3.0)</span>
-<span class="go">        - geodataframe_table (hydromt 1.3.0)</span>
-<span class="go">        - geodataset_vector (hydromt 1.3.0)</span>
-<span class="go">        - geodataset_xarray (hydromt 1.3.0)</span>
-<span class="go">        - pandas (hydromt 1.3.0)</span>
-<span class="go">        - pyogrio (hydromt 1.3.0)</span>
-<span class="go">        - raster_xarray (hydromt 1.3.0)</span>
-<span class="go">        - rasterio (hydromt 1.3.0)</span>
-<span class="go">    Catalog plugins:</span>
-<span class="go">        - deltares_data (hydromt 1.3.0)</span>
-<span class="go">        - artifact_data (hydromt 1.3.0)</span>
-<span class="go">        - aws_data (hydromt 1.3.0)</span>
-<span class="go">        - gcs_cmip6_data (hydromt 1.3.0)</span>
-<span class="go">    Uri_resolver plugins:</span>
-<span class="go">        - convention (hydromt 1.3.0)</span>
-<span class="go">        - raster_tindex (hydromt 1.3.0)</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to develop a model plugin, we recommend running <code class="code docutils literal notranslate"><span class="pre">uv</span> <span class="pre">init</span></code> with the <code class="docutils literal notranslate"><span class="pre">--library</span></code> option,
+which will create a library project instead of an application project.</p>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="pixi" for="sd-tab-item-1">
+pixi</label><div class="sd-tab-content docutils">
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>init<span class="w"> </span>my_project
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>my_project
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydromt_wflow
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>pixi resolves packages by default via conda-forge, if there are still unresolved packages it will try to use pypi.
+It is also possible to use pypi by calling <code class="code docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">add</span> <span class="pre">--pypi</span> <span class="pre">hydromt_wflow</span></code>.
+We recommend to not mix conda-forge and pypi packages in the same environment, but it is possible.</p>
+</div>
+</div>
+</div>
+<p>To test whether the installation was successful, run <code class="code docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">hydromt</span> <span class="pre">--plugins</span></code> on uv, or <code class="code docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">hydromt</span> <span class="pre">--plugins</span></code> on pixi.
+The output should look similar to the example below:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="uv" for="sd-tab-item-2">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>hydromt<span class="w"> </span>--plugins
+<span class="go">  Model plugins:</span>
+<span class="go">      - model (hydromt x.y.z)</span>
+<span class="go">      - wflow_sbm (hydromt_wflow x.y.z)</span>
+<span class="go">      - wflow_sediment (hydromt_wflow x.y.z)</span>
+<span class="go">  Component plugins:</span>
+<span class="go">      - ConfigComponent (hydromt x.y.z)</span>
+<span class="go">      - DatasetsComponent (hydromt x.y.z)</span>
+<span class="go">      - GeomsComponent (hydromt x.y.z)</span>
+<span class="go">      - GridComponent (hydromt x.y.z)</span>
+<span class="go">      - MeshComponent (hydromt x.y.z)</span>
+<span class="go">      - SpatialDatasetsComponent (hydromt x.y.z)</span>
+<span class="go">      - TablesComponent (hydromt x.y.z)</span>
+<span class="go">      - VectorComponent (hydromt x.y.z)</span>
+<span class="go">  Driver plugins:</span>
+<span class="go">      - dataset_xarray (hydromt x.y.z)</span>
+<span class="go">      - geodataframe_table (hydromt x.y.z)</span>
+<span class="go">      - geodataset_vector (hydromt x.y.z)</span>
+<span class="go">      - geodataset_xarray (hydromt x.y.z)</span>
+<span class="go">      - pandas (hydromt x.y.z)</span>
+<span class="go">      - pyogrio (hydromt x.y.z)</span>
+<span class="go">      - raster_xarray (hydromt x.y.z)</span>
+<span class="go">      - rasterio (hydromt x.y.z)</span>
+<span class="go">  Catalog plugins:</span>
+<span class="go">      - deltares_data (hydromt x.y.z)</span>
+<span class="go">      - artifact_data (hydromt x.y.z)</span>
+<span class="go">      - aws_data (hydromt x.y.z)</span>
+<span class="go">      - gcs_cmip6_data (hydromt x.y.z)</span>
+<span class="go">  Uri_resolver plugins:</span>
+<span class="go">      - convention (hydromt x.y.z)</span>
+<span class="go">      - raster_tindex (hydromt x.y.z)</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="pixi" for="sd-tab-item-3">
+pixi</label><div class="sd-tab-content docutils">
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>hydromt<span class="w"> </span>--plugins
+<span class="go">  Model plugins:</span>
+<span class="go">      - model (hydromt x.y.z)</span>
+<span class="go">      - wflow_sbm (hydromt_wflow x.y.z)</span>
+<span class="go">      - wflow_sediment (hydromt_wflow x.y.z)</span>
+<span class="go">  Component plugins:</span>
+<span class="go">      - ConfigComponent (hydromt x.y.z)</span>
+<span class="go">      - DatasetsComponent (hydromt x.y.z)</span>
+<span class="go">      - GeomsComponent (hydromt x.y.z)</span>
+<span class="go">      - GridComponent (hydromt x.y.z)</span>
+<span class="go">      - MeshComponent (hydromt x.y.z)</span>
+<span class="go">      - SpatialDatasetsComponent (hydromt x.y.z)</span>
+<span class="go">      - TablesComponent (hydromt x.y.z)</span>
+<span class="go">      - VectorComponent (hydromt x.y.z)</span>
+<span class="go">  Driver plugins:</span>
+<span class="go">      - dataset_xarray (hydromt x.y.z)</span>
+<span class="go">      - geodataframe_table (hydromt x.y.z)</span>
+<span class="go">      - geodataset_vector (hydromt x.y.z)</span>
+<span class="go">      - geodataset_xarray (hydromt x.y.z)</span>
+<span class="go">      - pandas (hydromt x.y.z)</span>
+<span class="go">      - pyogrio (hydromt x.y.z)</span>
+<span class="go">      - raster_xarray (hydromt x.y.z)</span>
+<span class="go">      - rasterio (hydromt x.y.z)</span>
+<span class="go">  Catalog plugins:</span>
+<span class="go">      - deltares_data (hydromt x.y.z)</span>
+<span class="go">      - artifact_data (hydromt x.y.z)</span>
+<span class="go">      - aws_data (hydromt x.y.z)</span>
+<span class="go">      - gcs_cmip6_data (hydromt x.y.z)</span>
+<span class="go">  Uri_resolver plugins:</span>
+<span class="go">      - convention (hydromt x.y.z)</span>
+<span class="go">      - raster_tindex (hydromt x.y.z)</span>
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="installing-optional-dependencies">
 <h3>Installing optional dependencies<a class="headerlink" href="#installing-optional-dependencies" title="Link to this heading">#</a></h3>
-<p>HydroMT-Wflow provides several optional dependencies that extend its capabilities, such as additional data sources or hydrological processing functions.
-You can install these easily using pip’s extras syntax:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">(</span>hydromt-wflow<span class="o">)</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;hydromt_wflow[extra]&quot;</span>
-</pre></div>
-</div>
-<p>This will install optional packages such as:</p>
+<p>HydroMT-Wflow provides several optional dependencies that extend its capabilities,
+such as additional data sources or hydrological processing functions.</p>
+<p>Optional packages include:</p>
 <ul class="simple">
 <li><p><strong>gwwapi</strong> - provides access to Global Water Watch reservoir datasets.</p></li>
 <li><p><strong>hydroengine</strong> - enables integration with Google Earth Engine.</p></li>
 <li><p><strong>wradlib</strong> - provides radar rainfall processing and interpolation tools.</p></li>
 <li><p><strong>pyet</strong> - adds evapotranspiration computation support.</p></li>
 </ul>
+<p>To install these optional dependencies, you can use the following uv/pip commands:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="uv" for="sd-tab-item-4">
+uv</label><div class="sd-tab-content docutils">
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;hydromt_wflow[docs]&quot;</span>
+<span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;hydromt_wflow[examples]&quot;</span>
+<span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;hydromt_wflow[extra]&quot;</span>
+<span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;hydromt_wflow[test]&quot;</span>
+<span class="gp">$ </span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;hydromt_wflow[all]&quot;</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" data-sync-group="package-manager" data-sync-id="pixi" for="sd-tab-item-5">
+pixi</label><div class="sd-tab-content docutils">
+<p>Not required, as pixi install via conda-forge, which contains all optional dependencies by default.</p>
+</div>
+</div>
 <p>For a list of all the optional dependency groups and their contents, have a look at the <cite>pyproject.toml</cite> file. Use <cite>hydromt_wflow[all]</cite> to install all optional dependencies.</p>
-</section>
-<section id="installing-via-conda">
-<h3>Installing via conda<a class="headerlink" href="#installing-via-conda" title="Link to this heading">#</a></h3>
-<p>HydroMT-Wflow is also available through the conda-forge channel. You can install it directly with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow
-<span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
-</pre></div>
-</div>
-<p>Note that some optional dependencies (e.g. <code class="docutils literal notranslate"><span class="pre">gwwapi</span></code> or <code class="docutils literal notranslate"><span class="pre">hydroengine</span></code>) are only available through PyPI.
-You can install them afterwards with pip inside your conda environment:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span><span class="o">(</span>hydromt-wflow<span class="o">)</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;hydromt_wflow[extra]&quot;</span>
-</pre></div>
-</div>
 </section>
 </section>
 <section id="developer-installation">
 <h2>Developer installation<a class="headerlink" href="#developer-installation" title="Link to this heading">#</a></h2>
 <p>If you want to contribute to HydroMT-Wflow or modify its source code, see the
 <a class="reference internal" href="../dev_guide/dev_install.html#dev-env"><span class="std std-ref">Developer installation guide</span></a>.</p>
-<p>For development work, you can use either a Conda-based setup or <strong>Pixi</strong>, which provides a fully reproducible project environment.
-Pixi should be used only in developer installations — not for general users — since it manages dependencies project-locally and is less suited for managing multiple plugins globally.</p>
+<p>To install the latest development version of HydroMT-Wflow,
+you can clone the repository and checkout the desired version tag:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Deltares/hydromt_wflow.git
+<span class="gp">$ </span>git<span class="w"> </span>checkout<span class="w"> </span>v&lt;x.y.z&gt;
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -642,9 +726,8 @@ Pixi should be used only in developer installations — not for general users �
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisite-python-installation">Prerequisite: Python installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-hydromt-wflow">Installing HydroMT-Wflow</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-in-a-conda-environment-using-uv-pip">Installation in a conda environment using uv / pip</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-installation">Basic Installation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-optional-dependencies">Installing optional dependencies</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-via-conda">Installing via conda</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#developer-installation">Developer installation</a></li>

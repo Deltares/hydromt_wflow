@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -415,6 +415,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../5_setup_methods/index.html">Technical description</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_x.html">Setup Method: setup_x</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_lulcmaps.html">Setup_lulcmaps and related methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_agroforestry.html">Setup Agroforestry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_ponding.html">Setup Ponding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../5_setup_methods/setup_grid_from_geodataset.html">Setup grid from geodataset</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../6_migration_guide/index.html">Migration Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -677,6 +680,37 @@ a specific method to see its documentation.</p>
 </table>
 </div>
 </section>
+<section id="nature-based-solutions">
+<h3>Nature-Based Solutions<a class="headerlink" href="#nature-based-solutions" title="Link to this heading">#</a></h3>
+<p>Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The methods <code class="docutils literal notranslate"><span class="pre">setup_ponding_from_map</span></code> and <code class="docutils literal notranslate"><span class="pre">setup_ponding_from_threshold</span></code>
+will be added in a future release when wflow.jl supports it. The
+documentation for these methods is already included here in anticipation
+of that support.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Method</p></th>
+<th class="head"><p>Explanation</p></th>
+<th class="head"><p>Required Setup Method</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_agroforestry.html#hydromt_wflow.WflowSbmModel.setup_agroforestry" title="hydromt_wflow.WflowSbmModel.setup_agroforestry"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_agroforestry()</span></code></a></p></th>
+<td><p>Add agroforestry areas and update landuse and related parameters.</p></td>
+<td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_lulcmaps.html#hydromt_wflow.WflowSbmModel.setup_lulcmaps" title="hydromt_wflow.WflowSbmModel.setup_lulcmaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a> or equivalent</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="water-demands-and-allocation">
 <h3>Water demands and Allocation<a class="headerlink" href="#water-demands-and-allocation" title="Link to this heading">#</a></h3>
 <p>Defines domestic, irrigation, and other water demand maps and allocation parameters.</p>
@@ -809,7 +843,11 @@ a specific method to see its documentation.</p>
 <td><p>Set the default gauge map based on a gauges_fn data.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_rivers.html#hydromt_wflow.WflowSbmModel.setup_rivers" title="hydromt_wflow.WflowSbmModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_areamap.html#hydromt_wflow.WflowSbmModel.setup_areamap" title="hydromt_wflow.WflowSbmModel.setup_areamap"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_subbasins.html#hydromt_wflow.WflowSbmModel.setup_subbasins" title="hydromt_wflow.WflowSbmModel.setup_subbasins"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_subbasins()</span></code></a></p></th>
+<td><p>Delineate subbasins based on streamorder, pfafstetter or area threshold.</p></td>
+<td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_areamap.html#hydromt_wflow.WflowSbmModel.setup_areamap" title="hydromt_wflow.WflowSbmModel.setup_areamap"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
 </tr>
@@ -841,7 +879,11 @@ a specific method to see its documentation.</p>
 <td><p>Setup staticmaps from raster to add parameters from direct data.</p></td>
 <td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip" title="hydromt_wflow.WflowSbmModel.clip"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clip()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset.html#hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset" title="hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_grid_from_geodataset()</span></code></a></p></th>
+<td><p>Setup static/cyclic/forcing from geodataset to add parameters from direct data.</p></td>
+<td><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_basemaps.html#hydromt_wflow.WflowSbmModel.setup_basemaps" title="hydromt_wflow.WflowSbmModel.setup_basemaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../../api/_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip" title="hydromt_wflow.WflowSbmModel.clip"><code class="xref py py-meth docutils literal notranslate"><span class="pre">clip()</span></code></a></p></th>
 <td><p>Clip a sub-region of an existing model.</p></td>
 <td></td>
 </tr>
@@ -975,6 +1017,7 @@ and <code class="xref py py-func docutils literal notranslate"><span class="pre"
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoirs-and-glaciers">Reservoirs and Glaciers</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#land-use-and-vegetation">Land Use and Vegetation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soil">Soil</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nature-based-solutions">Nature-Based Solutions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#water-demands-and-allocation">Water demands and Allocation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#forcing">Forcing</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#states">States</a></li>

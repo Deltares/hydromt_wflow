@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Migration Guide" href="../6_migration_guide/index.html" />
+    <link rel="next" title="Setup Agroforestry" href="setup_agroforestry.html" />
     <link rel="prev" title="Setup Method: setup_x" href="setup_x.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -417,6 +417,9 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Technical description</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="setup_x.html">Setup Method: setup_x</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Setup_lulcmaps and related methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_agroforestry.html">Setup Agroforestry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_ponding.html">Setup Ponding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_grid_from_geodataset.html">Setup grid from geodataset</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../6_migration_guide/index.html">Migration Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -519,7 +522,7 @@ can allow a thin layer with limited vertical conductivity. These updated layers 
 <code class="docutils literal notranslate"><span class="pre">soil_brooks_corey_c</span></code> parameter needs to be calculated again. Next, the
 soil_ksat_vertical_factor layer corrects the vertical conductivity
 (by multiplying) such that the bottom of the layer corresponds to a
-<cite>target_conductivity</cite> for that layer.</p></li>
+<code class="docutils literal notranslate"><span class="pre">target_conductivity</span></code> for that layer.</p></li>
 </ul>
 </section>
 <section id="parameter-lookup-tables">
@@ -549,7 +552,7 @@ contain the nodata value</strong> for the LULC map (e.g. -9999) and the correspo
 <li><p><strong>soil_compacted_fraction</strong>: The fraction of compacted or urban area per grid cell [-]</p></li>
 <li><p><strong>vegetation_root_depth</strong>: Length of vegetation roots [mm]</p></li>
 <li><p><strong>vegetation_leaf_storage</strong>: Specific leaf storage [mm]</p></li>
-<li><p><strong>vegetation_wood_storage</strong>: Fraction of wood in the vegetation/plant [-]</p></li>
+<li><p><strong>vegetation_wood_storage</strong>: Storage woody part of vegetation [mm]</p></li>
 <li><p><strong>land_water_fraction</strong>: The fraction of open water per grid cell [-]</p></li>
 <li><p><strong>vegetation_crop_factor</strong>: Crop coefficient [-]</p></li>
 <li><p><strong>vegetation_feddes_alpha_h1</strong>: Root water uptake reduction at soil water pressure head h1 (0 or 1) [-]</p></li>
@@ -1170,17 +1173,17 @@ full ground cover or LAI &gt; 3. Within Wflow, <span class="math notranslate noh
 the actual vegetation cover fraction (using LAI) to get the actual crop coefficient used for <span class="math notranslate nohighlight">\(ET_c\)</span> calculation.</p>
 <p>In sub-humid and calm wind conditions, <span class="math notranslate nohighlight">\(K_{cb full}\)</span> is equal to the FAO-56 mid-season
 crop coefficient <span class="math notranslate nohighlight">\(K_{cb mid}\)</span>. Detailed values of <span class="math notranslate nohighlight">\(K_{cb mid}\)</span> can be found for
-different crop types in the <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0c.htm">FAO guidelines</a>. As
+different crop types in the <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0c.htm">FAO guidelines Chapter 7</a>. As
 most LULC maps do not distinguish between crop types, an average value representing the most
 common crops in your study area should be used. In the default lookup tables, 1.15 is used for
 cropland areas (based on an average value for cereals and oil crops), and 1.2 for paddy/rice fields.</p>
 <p>Detailed values of kc can be found for different crop types in the
-<a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0b.htm">FAO guidelines</a>. As most LULC
+<a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0b.htm">FAO guidelines Chapter 6</a>. As most LULC
 maps do not distinguish between crop types, an average value representing the most common crops
 in your study area should be used. In the default lookup tables, 1.10 is used for cropland areas
 (based on an average value for cereals and oil crops), and 1.15 for paddy/rice fields.</p>
 <p>For natural vegetation, <span class="math notranslate nohighlight">\(K_{cb full}\)</span> can be estimated from the vegetation height and
-climate conditions. For example, the <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0f.htm">FAO guidelines</a>
+climate conditions. For example, <a class="reference external" href="https://www.fao.org/4/x0490e/x0490e0f.htm">FAO Chapter 9</a>
 provide the following equations to estimate <span class="math notranslate nohighlight">\(K_{cb full}\)</span> for natural vegetation:</p>
 <p>..math:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">K_</span><span class="p">{</span><span class="n">cb</span> <span class="n">full</span><span class="p">}</span> <span class="o">=</span> <span class="n">K_</span><span class="p">{</span><span class="n">cb</span><span class="p">,</span><span class="n">h</span><span class="p">}</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.04</span><span class="p">(</span><span class="n">u_2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.004</span><span class="p">(</span><span class="n">RH_</span><span class="p">{</span><span class="nb">min</span><span class="p">}</span> <span class="o">-</span> <span class="mi">45</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">^</span><span class="mf">0.3</span>
@@ -1699,11 +1702,11 @@ experimental data, Hydrol. Earth Syst. Sci., 26, 5647–5667. <a class="referenc
       </div>
     </a>
     <a class="right-next"
-       href="../6_migration_guide/index.html"
+       href="setup_agroforestry.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Migration Guide</p>
+        <p class="prev-next-title">Setup Agroforestry</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

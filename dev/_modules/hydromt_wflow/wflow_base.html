@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -443,6 +443,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">hydromt_step</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoDataStrategy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">flw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoDataArray</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">utils</span>
@@ -1239,7 +1240,7 @@
 <span class="sd">        * **vegetation_leaf_storage** map:</span>
 <span class="sd">            Specific leaf storage [mm]</span>
 <span class="sd">        * **vegetation_wood_storage** map:</span>
-<span class="sd">            Fraction of wood in the vegetation/plant [-]</span>
+<span class="sd">            Storage woody part of vegetation [mm]</span>
 <span class="sd">        * **vegetation_root_depth** map:</span>
 <span class="sd">            Length of vegetation roots [mm]</span>
 <span class="sd">        * **soil_compacted_fraction** map:</span>
@@ -1382,7 +1383,7 @@
 <span class="sd">        * **vegetation_leaf_storage** map:</span>
 <span class="sd">            Specific leaf storage [mm]</span>
 <span class="sd">        * **vegetation_wood_storage** map:</span>
-<span class="sd">            Fraction of wood in the vegetation/plant [-]</span>
+<span class="sd">            Storage woody part of vegetation [mm]</span>
 <span class="sd">        * **vegetation_root_depth** map:</span>
 <span class="sd">            Length of vegetation roots [mm]</span>
 <span class="sd">        * **soil_compacted_fraction** map:</span>
@@ -1887,6 +1888,87 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowBaseModel.setup_subbasins">
+<a class="viewcode-back" href="../../api/advanced/base-model.html#hydromt_wflow.WflowBaseModel.setup_subbasins">[docs]</a>
+    <span class="nd">@hydromt_step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_subbasins</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">output_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">add_outlets_map</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a subbasin map based on the specified method and threshold.</span>
+
+<span class="sd">        The subbasin map is derived using the selected method:</span>
+
+<span class="sd">        * &#39;streamorder&#39;: creates subbasins at all confluences where each branch has a</span>
+<span class="sd">          minimal stream order</span>
+<span class="sd">        * &#39;pfafstetter&#39;: creates subbasins with the hierarchical pfafstetter coding</span>
+<span class="sd">          system.</span>
+<span class="sd">        * &#39;area&#39;: creates subbasins with a minimal area [km2].</span>
+
+<span class="sd">        To also save Wflow output for the subbasins, use the</span>
+<span class="sd">        :py:meth:`~WflowBaseModel.setup_config_output_timeseries` method after</span>
+<span class="sd">        this step.</span>
+
+<span class="sd">        Adds model layer:</span>
+
+<span class="sd">        * **output_name** map:  output subbasins map</span>
+<span class="sd">        * **output_name** geom: output subbasins polygons</span>
+<span class="sd">        * **output_name_outlets** map (optional):  output subbasins outlets map</span>
+<span class="sd">        * **output_name_outlets** geom (optional): output subbasins outlets points</span>
+
+<span class="sd">        Required setup methods:</span>
+
+<span class="sd">        * :py:meth:`~WflowBaseModel.setup_basemaps`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : str</span>
+<span class="sd">            Method to derive subbasins. One of [&#39;streamorder&#39;, &#39;pfafstetter&#39;, &#39;area&#39;].</span>
+<span class="sd">        threshold : int</span>
+<span class="sd">            Threshold value for the selected method.</span>
+<span class="sd">            For &#39;streamorder&#39;, minimum Strahler order of the streams to</span>
+<span class="sd">            delineate subbasins.</span>
+<span class="sd">            For &#39;pfafstetter&#39;, the Pfafstetter level to delineate subbasins.</span>
+<span class="sd">            For &#39;area&#39;, the minimum upstream area [km2] to delineate subbasins.</span>
+<span class="sd">        output_name : str, optional</span>
+<span class="sd">            The name of the output map. If None (default), the name will be set</span>
+<span class="sd">            to the name of subbasins_{method}_{threshold}.</span>
+<span class="sd">        add_outlets_map : bool, optional</span>
+<span class="sd">            If True, also derive an outlets map for the subbasins, by default False.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        workflows.subbasin_map</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Deriving subbasins using method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> with threshold </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">da_subbasins</span><span class="p">,</span> <span class="n">da_outlets</span><span class="p">,</span> <span class="n">gdf_outlets</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">subbasin_map</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+            <span class="n">add_outlets_map</span><span class="o">=</span><span class="n">add_outlets_map</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">output_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;subbasins_</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">outlet_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2">_outlets&quot;</span>
+
+        <span class="c1"># Add to staticmaps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_subbasins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
+        <span class="c1"># Add to staticgeoms</span>
+        <span class="n">gdf_basins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">add_outlets_map</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_outlets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">outlet_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">gdf_outlets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">outlet_name</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WflowBaseModel.setup_constant_pars">
 <a class="viewcode-back" href="../../api/advanced/base-model.html#hydromt_wflow.WflowBaseModel.setup_constant_pars">[docs]</a>
     <span class="nd">@hydromt_step</span>
@@ -2005,6 +2087,194 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.static.</span><span class="si">{</span><span class="n">wflow_variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="WflowBaseModel.setup_grid_from_geodataset">
+<a class="viewcode-back" href="../../api/advanced/base-model.html#hydromt_wflow.WflowBaseModel.setup_grid_from_geodataset">[docs]</a>
+    <span class="nd">@hydromt_step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_grid_from_geodataset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">geodataset_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">locations_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nodata_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+        <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_names</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">resample_time_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add data variable from ``geodataset_fn`` to grid object.</span>
+
+<span class="sd">        Prepares a static/cyclic/forcing grid layer at specificied point locations.</span>
+<span class="sd">        A GeoDataset including the locations and the variable to rasterize can be used.</span>
+<span class="sd">        Alternatively, locations can be provided as a separate geodataframe or as a</span>
+<span class="sd">        layer already present in the staticmaps (e.g. gauges locations or reservoir</span>
+<span class="sd">        outlets).</span>
+
+<span class="sd">        Locations will be used as is. If snapping is required, users can first snap</span>
+<span class="sd">        using the ``setup_gauges`` method.</span>
+
+<span class="sd">        The config toml can also be updated to include the new map using</span>
+<span class="sd">        ``wflow_variable``.</span>
+
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **variable** grid: data from geodataset_fn</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geodataset_fn : str, pd.DataFrame, xr.Dataset</span>
+<span class="sd">            Geodataset source as DataFrame or GeoDataset.</span>
+
+<span class="sd">            - DataFrame: the index column should contain time and the other</span>
+<span class="sd">              columns should correspond to the name or ID values of the stations</span>
+<span class="sd">              in `locations_fn`.</span>
+<span class="sd">            - GeoDataset: the dataset should contain the variable specified by</span>
+<span class="sd">              `variable` and the dimensions &#39;time&#39; and &#39;index&#39;.</span>
+
+<span class="sd">            * Required variable: &#39;time&#39;, &#39;variable&#39;</span>
+
+<span class="sd">        locations_fn : str, gpd.GeoDataFrame, optional</span>
+<span class="sd">            Source for the locations of the stations as points: (x, y) or (lat, lon).</span>
+<span class="sd">            Only required if geodataset_fn is of type DataFrame. Can be provided as</span>
+<span class="sd">            a layer already present in the staticmaps.</span>
+<span class="sd">        index_col : str, optional</span>
+<span class="sd">            Column in locations_fn to use for station ID values, by default None.</span>
+<span class="sd">        variable : str, optional</span>
+<span class="sd">            Name of the variable in geodataset_fn to add to the grid. Only required if</span>
+<span class="sd">            geodataset_fn is a GeoDataset with multiple variables.</span>
+<span class="sd">        fill_value : float | int, optional</span>
+<span class="sd">            Fill value for the other grid cells. If not provided, the same value as the</span>
+<span class="sd">            nodata value is used. By default None.</span>
+<span class="sd">        nodata_value : float | int, optional</span>
+<span class="sd">            No data value for the grid cells if not defined in the geodataset.</span>
+<span class="sd">        mask : str, optional</span>
+<span class="sd">            Name of the mask to apply on the grid. Should be a layer already present in</span>
+<span class="sd">            the staticmaps. If None, the basin mask will be used.</span>
+<span class="sd">        output_names : dict, optional</span>
+<span class="sd">            Dictionary with output name that will be used in the model netcdf input</span>
+<span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
+<span class="sd">            in the netcdf file.</span>
+<span class="sd">        resample_time_kwargs : dict, optional</span>
+<span class="sd">            If time resampling is required in case of forcing data, the kwargs to pass</span>
+<span class="sd">            to the hydromt.model.processes.meteo.resample_time method can be specified</span>
+<span class="sd">            here. For example ``upsampling`` (bfill), ``downsampling`` (mean) or</span>
+<span class="sd">            ``conserve_mass`` (True).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing grid data from geodataset source </span><span class="si">{</span><span class="n">geodataset_fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
+
+        <span class="c1"># In case data type is forcing define time_range to read in data here</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.endtime&quot;</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check data type of geodataset_fn if it is provided through the data catalog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geodataset_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">geodataset_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+            <span class="n">_data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">geodataset_fn</span><span class="p">)</span><span class="o">.</span><span class="n">data_type</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_data_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Read geodataset data</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">geodataset_fn</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">_data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span>
+        <span class="p">):</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
+                <span class="n">geodataset_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+                <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Read timeseries</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+                <span class="n">geodataset_fn</span><span class="p">,</span>
+                <span class="n">time_range</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="c1"># Get locs</span>
+            <span class="k">if</span> <span class="n">locations_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Using a DataFrame as geodataset source requires that &quot;</span>
+                    <span class="s2">&quot;locations are provided separately through locations_fn.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">locations_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">locations_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">):</span>
+                <span class="n">locs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">locations_fn</span><span class="p">]</span>
+                <span class="n">gdf_locs</span> <span class="o">=</span> <span class="n">locs</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+                <span class="n">centroid</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">planar_operation_in_utm</span><span class="p">(</span>
+                    <span class="n">gdf_locs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="n">geom</span><span class="o">.</span><span class="n">centroid</span>
+                <span class="p">)</span>
+                <span class="n">gdf_locs</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroid</span>
+                <span class="c1"># After rasterize use col value for index and reapply dtype</span>
+                <span class="n">gdf_locs</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">gdf_locs</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">locs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Load the locations</span>
+                <span class="n">gdf_locs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                    <span class="n">locations_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                    <span class="c1"># assert_gtype= &quot;Point&quot;, hydromt#1243</span>
+                    <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># In case no locations within basin</span>
+                <span class="k">if</span> <span class="n">gdf_locs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No shapes of </span><span class="si">{</span><span class="n">locations_fn</span><span class="si">}</span><span class="s2"> found within region, &quot;</span>
+                        <span class="s2">&quot;skipping method.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="c1"># Use station ids from gdf_stations when reading the DataFrame</span>
+                <span class="k">if</span> <span class="n">index_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">gdf_locs</span> <span class="o">=</span> <span class="n">gdf_locs</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
+
+            <span class="c1"># Index is required to contruct GeoDataArray</span>
+            <span class="k">if</span> <span class="n">gdf_locs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gdf_locs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;stations&quot;</span>
+
+            <span class="c1"># Convert to geodataset</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">GeoDataArray</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span>
+                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_locs</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span>
+                <span class="n">index_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">gdf_locs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+                <span class="n">keep_cols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">merge_index</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Prepare the geodataset data</span>
+        <span class="n">da_out</span><span class="p">,</span> <span class="n">da_type</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">grid_from_geodataset</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="n">fill_value</span><span class="p">,</span>
+            <span class="n">nodata_value</span><span class="o">=</span><span class="n">nodata_value</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+            <span class="n">resample_time_kwargs</span><span class="o">=</span><span class="n">resample_time_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update toml</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">output_names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Only one output name is allowed for areamap, </span><span class="se">\</span>
+<span class="s2">                    please provide a dictionary with one key.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">variable_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output_names</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">da_out</span> <span class="o">=</span> <span class="n">da_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">variable_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">variable_name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">da_type</span><span class="p">)</span>
+
+        <span class="c1"># Add to grid or forcing</span>
+        <span class="k">if</span> <span class="n">da_type</span> <span class="o">==</span> <span class="s2">&quot;forcing&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># cyclic or static</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_out</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowBaseModel.setup_areamap">
@@ -2393,14 +2663,23 @@
 <span class="sd">        data_type: str, optional</span>
 <span class="sd">            Type of data (static, forcing, cyclic, None), by default &quot;static&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;static&quot;</span><span class="p">,</span> <span class="s2">&quot;forcing&quot;</span><span class="p">,</span> <span class="s2">&quot;cyclic&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
         <span class="n">data_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_vars</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_vars</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">data_vars</span>
         <span class="n">_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;input.</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">data_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;input&quot;</span>
+        <span class="n">_other_prefixes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;input.</span><span class="si">{</span><span class="n">dt</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">data_types</span> <span class="k">if</span> <span class="n">dt</span> <span class="o">!=</span> <span class="n">data_type</span> <span class="ow">and</span> <span class="n">dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span>
+
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
                 <span class="c1"># Get the name from the Wflow variable name</span>
                 <span class="n">wflow_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
                 <span class="c1"># Update the config variable name</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+                <span class="c1"># Remove from other prefixes if present</span>
+                <span class="k">for</span> <span class="n">other_prefix</span> <span class="ow">in</span> <span class="n">_other_prefixes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">other_prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">wflow_var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
             <span class="c1"># else not a wflow variable</span>
             <span class="c1"># (spelling mistakes should have been checked in _update_naming)</span>
 
@@ -2489,7 +2768,48 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">))</span>
         <span class="c1"># Add entries to the config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_raster_or_vector_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get data from a raster or vector source.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+            <span class="n">_data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_source</span><span class="p">(</span><span class="n">data_fn</span><span class="p">)</span><span class="o">.</span><span class="n">data_type</span>
+            <span class="k">if</span> <span class="n">_data_type</span> <span class="o">==</span> <span class="s2">&quot;RasterDataset&quot;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+                    <span class="n">data_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                    <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s2"> data should have a single variable.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">_data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                    <span class="n">data_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                    <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">,</span>
+                    <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Data type </span><span class="si">{</span><span class="n">_data_type</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">data_fn</span><span class="si">}</span><span class="s2"> not supported. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s2"> data should be either a raster or vector dataset.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s2"> data </span><span class="si">{</span><span class="n">data_fn</span><span class="si">}</span><span class="s2"> not found in data catalog.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_fn</span><span class="p">,</span> <span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s2"> data should be either a name in the data catalog, a &quot;</span>
+                <span class="s2">&quot;raster (xarray.DataArray) or a vector dataset (geopandas.GeoDataFrame)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data_fn</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
 
 </pre></div>
 

@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -1983,6 +1983,392 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No paddy fields found, skipping updating soil parameters&quot;</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="WflowSbmModel.setup_agroforestry">
+<a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_agroforestry.html#hydromt_wflow.WflowSbmModel.setup_agroforestry">[docs]</a>
+    <span class="nd">@hydromt_step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_agroforestry</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">agroforestry_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">agroforestry_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_agroforestry_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">agroforestry_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_mix_classes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_mix_fractions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulcmap_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_landuse&quot;</span><span class="p">,</span>
+        <span class="n">output_names_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add agroforestry to landuse maps and parameters.</span>
+
+<span class="sd">        Agroforestry zones can be provided as a raster or vector dataset that will be</span>
+<span class="sd">        reprojected / rasterized to the model resolution.</span>
+
+<span class="sd">        For parameter mapping, users have three options:</span>
+
+<span class="sd">        - provide directly a mapping table for the agroforestry landuse class with</span>
+<span class="sd">          `agroforestry_mapping_fn`</span>
+<span class="sd">        - derive values based on a mix of existing landuse classes with</span>
+<span class="sd">          `lulc_mix_classes` and `lulc_mix_fractions` and the original landuse mapping</span>
+<span class="sd">          table `lulc_mapping_fn`.</span>
+<span class="sd">        - If no mapping table is provided either via `agroforestry_mapping_fn` or</span>
+<span class="sd">          `lulc_mapping_fn`, a default mapping table for agroforestry will be used.</span>
+
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **landuse** map:</span>
+<span class="sd">            Landuse class [-]</span>
+<span class="sd">        * **vegetation_kext** map:</span>
+<span class="sd">            Extinction coefficient in the canopy gap fraction equation [-]</span>
+<span class="sd">        * **vegetation_leaf_storage** map:</span>
+<span class="sd">            Specific leaf storage [mm]</span>
+<span class="sd">        * **vegetation_wood_storage** map:</span>
+<span class="sd">            Fraction of wood in the vegetation/plant [-]</span>
+<span class="sd">        * **vegetation_root_depth** map:</span>
+<span class="sd">            Length of vegetation roots [mm]</span>
+<span class="sd">        * **soil_compacted_fraction** map:</span>
+<span class="sd">            The fraction of compacted or urban area per grid cell [-]</span>
+<span class="sd">        * **land_water_fraction** map:</span>
+<span class="sd">            The fraction of open water per grid cell [-]</span>
+<span class="sd">        * **land_manning_n** map:</span>
+<span class="sd">            Manning Roughness [-]</span>
+<span class="sd">        * **vegetation_crop_factor** map:</span>
+<span class="sd">            Crop coefficient [-]</span>
+<span class="sd">        * **vegetation_feddes_alpha_h1** map:</span>
+<span class="sd">            Root water uptake reduction at soil water pressure head</span>
+<span class="sd">            h1 (0 or 1) [-]</span>
+<span class="sd">        * **vegetation_feddes_h1** map:</span>
+<span class="sd">            Soil water pressure head h1 at which root water</span>
+<span class="sd">            uptake is reduced (Feddes) [cm]</span>
+<span class="sd">        * **vegetation_feddes_h2** map:</span>
+<span class="sd">            Soil water pressure head h2 at which root water</span>
+<span class="sd">            uptake is reduced (Feddes) [cm]</span>
+<span class="sd">        * **vegetation_feddes_h3_high** map:</span>
+<span class="sd">            Soil water pressure head h3 (high) at which root water uptake is</span>
+<span class="sd">            reduced (Feddes) [cm]</span>
+<span class="sd">        * **vegetation_feddes_h3_low** map:</span>
+<span class="sd">            Soil water pressure head h3 (low) at which root water uptake is</span>
+<span class="sd">            reduced (Feddes) [cm]</span>
+<span class="sd">        * **vegetation_feddes_h4** map:</span>
+<span class="sd">            Soil water pressure head h4 at which root water</span>
+<span class="sd">            uptake is reduced (Feddes) [cm]</span>
+
+<span class="sd">        Required setup methods:</span>
+<span class="sd">        * :py:meth:`~WflowBaseModel.setup_lulcmaps` or equivalent</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        agroforestry_fn : str, xr.DataArray, gpd.GeoDataFrame</span>
+<span class="sd">            RasterDataArray, vector dataset or name in data catalog to the</span>
+<span class="sd">            agroforestry data.</span>
+
+<span class="sd">            * Optional column if vector: &#39;agroforestry&#39; [-]</span>
+
+<span class="sd">        agroforestry_class : int, optional</span>
+<span class="sd">            ID of the agroforestry class in `agroforestry_fn`. If None,</span>
+<span class="sd">            agroforestry mask will be created for all non-nodata values.</span>
+<span class="sd">        output_agroforestry_class : int, optional</span>
+<span class="sd">            Landuse class value for agroforestry fields in the output landuse map.</span>
+<span class="sd">            If None (default), the `agroforestry_class` is used.</span>
+<span class="sd">        agroforestry_mapping_fn : str, Path, pd.DataFrame, optional</span>
+<span class="sd">            Path to a mapping csv file from agroforestry to landuse parameter</span>
+<span class="sd">            values.</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame, optional</span>
+<span class="sd">            Path to a mapping csv file from landuse class to landuse parameter values.</span>
+<span class="sd">        lulc_mix_classes : list[int], optional</span>
+<span class="sd">            List of landuse classes to mix for the agroforestry class, by default</span>
+<span class="sd">            [].</span>
+<span class="sd">        lulc_mix_fractions : list[float], optional</span>
+<span class="sd">            List of fractions for each landuse class in `lulc_mix_classes` to mix</span>
+<span class="sd">            for the agroforestry class, by default [].</span>
+<span class="sd">        lulcmap_name: str</span>
+<span class="sd">            Name of the landuse map layer in the wflow model staticmaps. By default</span>
+<span class="sd">            &#39;meta_landuse&#39;. Please update if your landuse map has a different name</span>
+<span class="sd">            (eg &#39;meta_landuse_globcover&#39;).</span>
+<span class="sd">        output_names_suffix : str, optional</span>
+<span class="sd">            Suffix to be added to the output names to avoid having to rename all the</span>
+<span class="sd">            columns of the mapping tables. For example if the suffix is &quot;agroforestry&quot;,</span>
+<span class="sd">            all variables in landuse_vars will be renamed to &quot;landuse_agroforestry&quot;,</span>
+<span class="sd">            &quot;vegetation_kext_agroforestry&quot;, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that landuse map is present</span>
+        <span class="k">if</span> <span class="n">lulcmap_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="c1"># update the internal mapping</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lulcmap_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Landuse map </span><span class="si">{</span><span class="n">lulcmap_name</span><span class="si">}</span><span class="s2"> not found in the model grid. Please &quot;</span>
+                <span class="s2">&quot;provide a valid landuse map name or run setup_lulcmaps.&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># Check that one of the mapping table option is provided</span>
+        <span class="k">if</span> <span class="n">agroforestry_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lulc_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;No agroforestry or landuse mapping table provided. &quot;</span>
+                <span class="s2">&quot;The default agroforestry mapping table will be used.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">agroforestry_mapping_fn</span> <span class="o">=</span> <span class="s2">&quot;agroforestry_mapping_default&quot;</span>
+
+        <span class="c1"># Prepare output names</span>
+        <span class="n">lulc_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">workflows</span><span class="o">.</span><span class="n">LULC_VARS_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;erosion_usle_c&quot;</span>
+        <span class="p">]</span>
+        <span class="n">output_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">workflows</span><span class="o">.</span><span class="n">LULC_VARS_MAPPING</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">output_names_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">output_names_suffix</span>
+            <span class="k">else</span> <span class="n">k</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lulc_vars</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing agroforestry parameter maps.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read data</span>
+        <span class="n">agroforestry_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_raster_or_vector_data</span><span class="p">(</span>
+            <span class="n">agroforestry_fn</span><span class="p">,</span> <span class="n">data_name</span><span class="o">=</span><span class="s2">&quot;Agroforestry&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read mapping tables</span>
+        <span class="k">if</span> <span class="n">agroforestry_mapping_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df_agro_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+                <span class="n">agroforestry_mapping_fn</span><span class="p">,</span>
+                <span class="n">source_kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_agro_mapping</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">lulc_mapping_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df_lulc_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+                <span class="n">lulc_mapping_fn</span><span class="p">,</span>
+                <span class="n">source_kwargs</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;driver&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}}</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_lulc_mapping</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Add agroforestry to landuse maps</span>
+        <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+        <span class="n">landuse_maps</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_agroforestry_to_landuse</span><span class="p">(</span>
+            <span class="n">agroforestry_data</span><span class="o">=</span><span class="n">agroforestry_data</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+            <span class="n">agroforestry_class</span><span class="o">=</span><span class="n">agroforestry_class</span><span class="p">,</span>
+            <span class="n">output_agroforestry_class</span><span class="o">=</span><span class="n">output_agroforestry_class</span><span class="p">,</span>
+            <span class="n">df_agroforestry_mapping</span><span class="o">=</span><span class="n">df_agro_mapping</span><span class="p">,</span>
+            <span class="n">df_lulc_mapping</span><span class="o">=</span><span class="n">df_lulc_mapping</span><span class="p">,</span>
+            <span class="n">lulc_mix_classes</span><span class="o">=</span><span class="n">lulc_mix_classes</span><span class="p">,</span>
+            <span class="n">lulc_mix_fractions</span><span class="o">=</span><span class="n">lulc_mix_fractions</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_landuse_on_staticmaps</span><span class="p">(</span><span class="n">landuse_maps</span><span class="p">,</span> <span class="n">lulc_vars</span><span class="p">,</span> <span class="n">output_names_suffix</span><span class="p">)</span></div>
+
+
+    <span class="c1"># @hydromt_step</span>
+    <span class="c1"># def setup_ponding_from_map(</span>
+    <span class="c1">#     self,</span>
+    <span class="c1">#     pond_fn: str | xr.DataArray | gpd.GeoDataFrame,</span>
+    <span class="c1">#     pond_level: float = 0.2,</span>
+    <span class="c1">#     output_name: str = &quot;ponding_level&quot;,</span>
+    <span class="c1"># ):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Set up ponding level map based on provided pond location map.</span>
+
+    <span class="c1">#     The pond location map can be provided as a raster or vector dataset that will</span>
+    <span class="c1">#     be reprojected / rasterized to the model resolution. The ponding level will be</span>
+    <span class="c1">#     assigned to the cells where ponding is present, and the minimum ponding level</span>
+    <span class="c1">#     will be assigned to the cells where ponding is not present.</span>
+
+    <span class="c1">#     For raster data, all non-nodata values will be considered as pond locations.</span>
+    <span class="c1">#     For vector data, all geometries will be considered as pond locations.</span>
+
+    <span class="c1">#     Adds model layers:</span>
+
+    <span class="c1">#     * **ponding_level** map: Ponding level [m]</span>
+    <span class="c1">#         Based on provided pond location map.</span>
+
+    <span class="c1">#     Required setup methods:</span>
+
+    <span class="c1">#     * :py:meth:`~WflowSbmModel.setup_basemaps`</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     pond_fn : str, Path, xr.DataArray, gpd.GeoDataFrame</span>
+    <span class="c1">#         RasterDataArray, GeoDataFrame or name in data catalog to the ponding</span>
+    <span class="c1">#         location data.</span>
+    <span class="c1">#     pond_level : float, optional</span>
+    <span class="c1">#         Ponding level to be assigned to cells where ponding is present [m], by</span>
+    <span class="c1">#         default 0.2 m.</span>
+    <span class="c1">#     output_name : str, optional</span>
+    <span class="c1">#         Name of the output ponding level map, by default &quot;ponding_level&quot;.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     logger.info(&quot;Preparing ponding map based on provided pond location map.&quot;)</span>
+    <span class="c1">#     wflow_var = &quot;land_surface_water_flow_threshold__depth&quot;</span>
+
+    <span class="c1">#     # Read ponding location data</span>
+    <span class="c1">#     pond_data = self._get_raster_or_vector_data(</span>
+    <span class="c1">#         pond_fn, data_name=&quot;Ponding location&quot;</span>
+    <span class="c1">#     )</span>
+
+    <span class="c1">#     # Rasterize ponding data if vector</span>
+    <span class="c1">#     if isinstance(pond_data, gpd.GeoDataFrame):</span>
+    <span class="c1">#         pond_data = self.staticmaps.data.raster.rasterize(</span>
+    <span class="c1">#             pond_data,</span>
+    <span class="c1">#             col_name=&quot;index&quot;,</span>
+    <span class="c1">#             nodata=-9999,</span>
+    <span class="c1">#             all_touched=False,</span>
+    <span class="c1">#         )</span>
+
+    <span class="c1">#     # Create pond mask</span>
+    <span class="c1">#     pond_mask = pond_data != pond_data.raster.nodata</span>
+
+    <span class="c1">#     # Create ponding level map</span>
+    <span class="c1">#     ponding_level = workflows.ponding_level_from_suitability(</span>
+    <span class="c1">#         suitability=pond_mask,</span>
+    <span class="c1">#         ds_like=self.staticmaps.data,</span>
+    <span class="c1">#         pond_level=pond_level,</span>
+    <span class="c1">#         basin_mask_name=self._MAPS[&quot;basins&quot;],</span>
+    <span class="c1">#     )</span>
+
+    <span class="c1">#     self._update_naming({wflow_var: output_name})</span>
+    <span class="c1">#     # Set the grid</span>
+    <span class="c1">#     self.staticmaps.set(ponding_level.rename(output_name))</span>
+
+    <span class="c1">#     # Update config</span>
+    <span class="c1">#     self.config.set(&quot;model.reinfiltration_surfacewater__flag&quot;, True)</span>
+    <span class="c1">#     self._update_config_variable_name(output_name)</span>
+
+    <span class="c1"># @hydromt_step</span>
+    <span class="c1"># def setup_ponding_from_thresholds(</span>
+    <span class="c1">#     self,</span>
+    <span class="c1">#     lulc_fn: str | Path | xr.DataArray,</span>
+    <span class="c1">#     hydrography_fn: str | Path | xr.DataArray | xr.Dataset | None = None,</span>
+    <span class="c1">#     lulc_classes: list[int] | None = None,</span>
+    <span class="c1">#     elevtn_range: tuple[float, float] | None = None,</span>
+    <span class="c1">#     slope_range: tuple[float, float] | None = None,</span>
+    <span class="c1">#     hand_range: tuple[float, float] | None = None,</span>
+    <span class="c1">#     pond_level: float = 0.2,</span>
+    <span class="c1">#     river_upa: float | None = None,</span>
+    <span class="c1">#     output_name: str = &quot;ponding_level&quot;,</span>
+    <span class="c1"># ):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Set up ponding map based on suitability thresholds.</span>
+
+    <span class="c1">#     The ponding map is derived based on a combination of topographic and landuse</span>
+    <span class="c1">#     criteria. The topographic criteria are based on the elevation, slope and hand</span>
+    <span class="c1">#     maps, and the landuse criteria are based on the landuse map. For each criterion,  # noqa: E501</span>
+    <span class="c1">#     a range of suitable values can be defined, and the final ponding suitability is  # noqa: E501</span>
+    <span class="c1">#     determined by the intersection of all criteria.</span>
+
+    <span class="c1">#     Adds model layers:</span>
+
+    <span class="c1">#     * **ponding_level** map: Ponding level [m]</span>
+    <span class="c1">#         Derived from topographic and landuse criteria.</span>
+
+    <span class="c1">#     Required setup methods:</span>
+
+    <span class="c1">#     * :py:meth:`~WflowSbmModel.setup_rivers`</span>
+
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     lulc_fn : str, Path, xr.DataArray</span>
+    <span class="c1">#         RasterDataset or name in data catalog / path to landuse map. This is used to  # noqa: E501</span>
+    <span class="c1">#         derive the landuse criteria if `lulc_classes` are provided.</span>
+    <span class="c1">#     hydrography_fn : str, Path, xr.DataArray, xr.Dataset</span>
+    <span class="c1">#         RasterDataset or name in data catalog / path to hydrography data. This is</span>
+    <span class="c1">#         used to derive the slope and hand maps if slope_range and hand_range are</span>
+    <span class="c1">#         provided.</span>
+
+    <span class="c1">#         * Required variables: &#39;elevtn&#39; [m]</span>
+    <span class="c1">#         * Optional variables: &#39;flwdir&#39;, &#39;lndslp&#39; [m/m], &#39;hand&#39; [m], &#39;uparea&#39; [km2]</span>
+
+    <span class="c1">#     lulc_classes : list[int], optional</span>
+    <span class="c1">#         List of landuse classes that are suitable for ponding, by default None (no</span>
+    <span class="c1">#         criterion).</span>
+
+    <span class="c1">#         * Required variable: &#39;landuse&#39; [-]</span>
+
+    <span class="c1">#     elevtn_range : tuple[float, float], optional</span>
+    <span class="c1">#         Range of suitable elevation values for ponding [m], by default None (no</span>
+    <span class="c1">#         criterion).</span>
+    <span class="c1">#     slope_range : tuple[float, float], optional</span>
+    <span class="c1">#         Range of suitable slope values for ponding [m/m], by default None (no</span>
+    <span class="c1">#         criterion).</span>
+    <span class="c1">#     hand_range : tuple[float, float], optional</span>
+    <span class="c1">#         Range of suitable hand values for ponding [m], by default None (no</span>
+    <span class="c1">#         criterion).</span>
+    <span class="c1">#     pond_level : float, optional</span>
+    <span class="c1">#         Ponding level to be assigned to suitable cells, by default 0.2 m.</span>
+    <span class="c1">#     river_upa : float, optional</span>
+    <span class="c1">#         Upstream area threshold for river cells [km2], by default None as it should  # noqa: E501</span>
+    <span class="c1">#         be determined from staticmaps. Used to define drains for hand calculation.</span>
+    <span class="c1">#     output_name : str, optional</span>
+    <span class="c1">#         Name of the output ponding level map, by default &quot;ponding_level&quot;.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     logger.info(&quot;Preparing ponding map based on suitability thresholds.&quot;)</span>
+    <span class="c1">#     wflow_var = &quot;land_surface_water_flow_threshold__depth&quot;</span>
+
+    <span class="c1">#     # Read hydrography data if needed</span>
+    <span class="c1">#     if any([elevtn_range, slope_range, hand_range]):</span>
+    <span class="c1">#         if hydrography_fn is None:</span>
+    <span class="c1">#             raise ValueError(</span>
+    <span class="c1">#                 &quot;Hydrography data is required to apply elevation, slope or hand &quot;</span>
+    <span class="c1">#                 &quot;criteria. Please provide a hydrography dataset with the &quot;</span>
+    <span class="c1">#                 &quot;`hydrography_fn` argument.&quot;</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             hydro_data = self.data_catalog.get_rasterdataset(</span>
+    <span class="c1">#                 hydrography_fn,</span>
+    <span class="c1">#                 geom=self.region,</span>
+    <span class="c1">#                 buffer=2,</span>
+    <span class="c1">#                 single_var_as_array=False,</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         hydro_data = None</span>
+
+    <span class="c1">#     # Read landuse data if needed</span>
+    <span class="c1">#     if lulc_classes is not None:</span>
+    <span class="c1">#         landuse = self.data_catalog.get_rasterdataset(</span>
+    <span class="c1">#             lulc_fn, geom=self.region, buffer=2, variables=[&quot;landuse&quot;]</span>
+    <span class="c1">#         )</span>
+
+    <span class="c1">#     # Check for river_upa</span>
+    <span class="c1">#     wflow_river_upa = self.staticmaps.data[self._MAPS[&quot;rivmsk&quot;]].attrs.get(</span>
+    <span class="c1">#         &quot;river_upa&quot;, river_upa</span>
+    <span class="c1">#     )</span>
+    <span class="c1">#     if river_upa is not None and wflow_river_upa != river_upa:</span>
+    <span class="c1">#         logger.warning(</span>
+    <span class="c1">#             f&quot;Provided river_upa value {river_upa} is different from the one in &quot;</span>
+    <span class="c1">#             f&quot;staticmaps {wflow_river_upa}. The value from staticmaps will be used.&quot;  # noqa: E501</span>
+    <span class="c1">#         )</span>
+
+    <span class="c1">#     # Derive ponding suitability based on criteria</span>
+    <span class="c1">#     ponding_suitability = workflows.nbs_suitability_from_thresholds(</span>
+    <span class="c1">#         landuse=landuse if lulc_classes is not None else None,</span>
+    <span class="c1">#         hydro_data=hydro_data,</span>
+    <span class="c1">#         lulc_classes=lulc_classes,</span>
+    <span class="c1">#         elevtn_range=elevtn_range,</span>
+    <span class="c1">#         slope_range=slope_range,</span>
+    <span class="c1">#         hand_range=hand_range,</span>
+    <span class="c1">#         river_upa=wflow_river_upa,</span>
+    <span class="c1">#         basin_mask=self.staticmaps.data[self._MAPS[&quot;basins&quot;]],</span>
+    <span class="c1">#     )</span>
+
+    <span class="c1">#     # Assign ponding level based on suitability</span>
+    <span class="c1">#     ponding_level = workflows.ponding_level_from_suitability(</span>
+    <span class="c1">#         suitability=ponding_suitability,</span>
+    <span class="c1">#         ds_like=self.staticmaps.data,</span>
+    <span class="c1">#         pond_level=pond_level,</span>
+    <span class="c1">#         basin_mask_name=self._MAPS[&quot;basins&quot;],</span>
+    <span class="c1">#     )</span>
+
+    <span class="c1">#     self._update_naming({wflow_var: output_name})</span>
+    <span class="c1">#     # Set the grid</span>
+    <span class="c1">#     self.staticmaps.set(ponding_level.rename(output_name))</span>
+
+    <span class="c1">#     # Update config</span>
+    <span class="c1">#     self.config.set(&quot;model.reinfiltration_surfacewater__flag&quot;, True)</span>
+    <span class="c1">#     self._update_config_variable_name(output_name)</span>
 
 <div class="viewcode-block" id="WflowSbmModel.setup_laimaps">
 <a class="viewcode-back" href="../../api/_generated/hydromt_wflow.WflowSbmModel.setup_laimaps.html#hydromt_wflow.WflowSbmModel.setup_laimaps">[docs]</a>

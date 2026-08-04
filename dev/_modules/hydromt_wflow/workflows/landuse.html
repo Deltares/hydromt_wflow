@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -429,7 +429,6 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -450,6 +449,7 @@
     <span class="s2">&quot;lai_from_lulc_mapping&quot;</span><span class="p">,</span>
     <span class="s2">&quot;add_paddy_to_landuse&quot;</span><span class="p">,</span>
     <span class="s2">&quot;add_planted_forest_to_landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_agroforestry_to_landuse&quot;</span><span class="p">,</span>
     <span class="s2">&quot;validate_lulc_vars&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LULC_VARS_MAPPING&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -507,7 +507,7 @@
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return landuse map and related parameter maps.</span>
 
@@ -573,7 +573,7 @@
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -894,7 +894,7 @@
     <span class="n">paddy_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">df_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">df_paddy_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">output_paddy_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_paddy_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Burn paddy fields into landuse map and update mapping table.</span>
@@ -1012,6 +1012,180 @@
 
     <span class="k">return</span> <span class="n">usle_c</span></div>
 
+
+
+<div class="viewcode-block" id="add_agroforestry_to_landuse">
+<a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.landuse.add_agroforestry_to_landuse.html#hydromt_wflow.workflows.landuse.add_agroforestry_to_landuse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_agroforestry_to_landuse</span><span class="p">(</span>
+    <span class="n">agroforestry_data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">agroforestry_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_agroforestry_class</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">df_agroforestry_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">df_lulc_mapping</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lulc_mix_classes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lulc_mix_fractions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add agroforestry areas to landuse map and parameters.</span>
+
+<span class="sd">    The resulting agroforestry class in the landuse map will have ID</span>
+<span class="sd">    output_agroforestry_class if provided and agroforestry_class otherwise.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    agroforestry_data : xr.DataArray or gpd.GeoDataFrame</span>
+<span class="sd">        Agroforestry data as raster or vector data.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    agroforestry_class : int, optional</span>
+<span class="sd">        ID of the agroforestry class in the agroforestry data. If None,</span>
+<span class="sd">        agroforestry mask will be created for all non-nodata values.</span>
+<span class="sd">    output_agroforestry_class : int, optional</span>
+<span class="sd">        ID of the agroforestry class in the output landuse map. If not provided,</span>
+<span class="sd">        the `agroforestry_class` will be used.</span>
+<span class="sd">    df_agroforestry_mapping : pd.DataFrame, optional</span>
+<span class="sd">        Mapping table with landuse values for agroforestry class.</span>
+<span class="sd">        If None, the values will be derived based on a</span>
+<span class="sd">        mix of existing landuse classes from the original landuse mapping table.</span>
+<span class="sd">    df_lulc_mapping : pd.DataFrame, optional</span>
+<span class="sd">        Original mapping table with landuse values. Required if</span>
+<span class="sd">        df_agroforestry_mapping is None.</span>
+<span class="sd">    lulc_mix_classes : list of int, optional</span>
+<span class="sd">        List of landuse classes to mix for the agroforestry class.</span>
+<span class="sd">    lulc_mix_fractions : list of float, optional</span>
+<span class="sd">        List of fractions for each landuse class in `lulc_mix_classes` to mix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out : xr.Dataset</span>
+<span class="sd">        Dataset containing updated landuse map and related parameter maps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialise</span>
+    <span class="n">lulc_mix_classes</span> <span class="o">=</span> <span class="n">lulc_mix_classes</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">lulc_mix_fractions</span> <span class="o">=</span> <span class="n">lulc_mix_fractions</span> <span class="ow">or</span> <span class="p">[]</span>
+
+    <span class="c1"># Get output agroforestry class</span>
+    <span class="k">if</span> <span class="n">output_agroforestry_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">agroforestry_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Either output_agroforestry_class or agroforestry_class must be provided.&quot;</span>  <span class="c1"># noqa: E501</span>
+            <span class="p">)</span>
+        <span class="n">output_agroforestry_class</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">agroforestry_class</span><span class="p">)</span>
+
+    <span class="c1"># Rasterize agroforestry data if vector</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agroforestry_data</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Rasterizing agroforestry map&quot;</span><span class="p">)</span>
+        <span class="n">col_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;agroforestry&quot;</span> <span class="k">if</span> <span class="s2">&quot;agroforestry&quot;</span> <span class="ow">in</span> <span class="n">agroforestry_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="s2">&quot;index&quot;</span>
+        <span class="p">)</span>
+        <span class="n">agro_da</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">agroforestry_data</span><span class="p">,</span>
+            <span class="n">col_name</span><span class="o">=</span><span class="n">col_name</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+            <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Reproject agroforestry data to model resolution</span>
+        <span class="n">agro_da</span> <span class="o">=</span> <span class="n">agroforestry_data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create mask for agroforestry class</span>
+    <span class="k">if</span> <span class="n">agroforestry_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Use all non-nodata values as agroforestry areas</span>
+        <span class="n">agro_da</span> <span class="o">=</span> <span class="n">agro_da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">agro_da</span> <span class="o">==</span> <span class="n">agro_da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">agroforestry_class</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">agro_da</span> <span class="o">=</span> <span class="n">agro_da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">agro_da</span> <span class="o">==</span> <span class="n">agroforestry_class</span><span class="p">,</span> <span class="n">agro_da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+
+    <span class="c1"># Burn in the agroforestry areas in the landuse map</span>
+    <span class="n">landuse</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">agro_da</span> <span class="o">!=</span> <span class="n">agroforestry_class</span><span class="p">,</span> <span class="n">output_agroforestry_class</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">landuse</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;landuse&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Update or create the mapping table</span>
+    <span class="k">if</span> <span class="n">df_agroforestry_mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_agroforestry_mapping</span> <span class="o">=</span> <span class="n">df_agroforestry_mapping</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">df_agroforestry_mapping</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">output_agroforestry_class</span><span class="p">]</span>
+        <span class="n">df_agroforestry_mapping</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_agroforestry_class</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df_lulc_mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;df_lulc_mapping must be provided if df_agroforestry_mapping is None.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">df_agroforestry_mapping</span> <span class="o">=</span> <span class="n">_prepare_agroforestry_mapping</span><span class="p">(</span>
+            <span class="n">df_lulc</span><span class="o">=</span><span class="n">df_lulc_mapping</span><span class="p">,</span>
+            <span class="n">agro_id</span><span class="o">=</span><span class="n">output_agroforestry_class</span><span class="p">,</span>
+            <span class="n">lulc_mix_classes</span><span class="o">=</span><span class="n">lulc_mix_classes</span><span class="p">,</span>
+            <span class="n">lulc_mix_fractions</span><span class="o">=</span><span class="n">lulc_mix_fractions</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Update the parameter maps based on the updated landuse map and mapping table</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">LULC_VARS_MAPPING</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">,</span> <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">agro_da</span> <span class="o">!=</span> <span class="n">agroforestry_class</span><span class="p">,</span>
+            <span class="n">df_agroforestry_mapping</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">output_agroforestry_class</span><span class="p">,</span> <span class="n">var</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_agroforestry_mapping</span><span class="p">(</span>
+    <span class="n">df_lulc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">agro_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lulc_mix_classes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">lulc_mix_fractions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update df_lulc with agroforestry class.&quot;&quot;&quot;</span>
+    <span class="c1"># Derive mapping values based on mix of existing landuse classes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lulc_mix_classes</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">lulc_mix_fractions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;lulc_mix_classes and lulc_mix_fractions must be provided &quot;</span>
+            <span class="s2">&quot;if df_agroforestry_mapping is None.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lulc_mix_classes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lulc_mix_fractions</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;lulc_mix_classes and lulc_mix_fractions must have the same length.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">lulc_mix_fractions</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;lulc_mix_fractions must sum to 1.0.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add a new row to the mapping table (in the first position)</span>
+    <span class="n">df_agro</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_lulc</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">df_lulc</span><span class="p">])</span>
+    <span class="c1"># Change the index and landuse value of the first row</span>
+    <span class="n">df_agro</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">df_agro</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">&quot;landuse&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">agro_id</span>
+    <span class="n">df_agro</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">agro_id</span><span class="p">]</span> <span class="o">+</span> <span class="n">df_lulc</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">df_agro</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">agro_id</span><span class="p">,</span> <span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">agro_id</span>
+    <span class="k">if</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">df_agro</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df_agro</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">agro_id</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Agroforestry&quot;</span>
+
+    <span class="c1"># Update parameters based on mix of existing landuse classes</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lulc_mix_classes</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">df_lulc</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Landuse classes not found in mapping table: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lulc_mix_fractions</span><span class="p">)</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lulc_mix_classes</span><span class="p">)</span>
+
+    <span class="c1"># Select parameters</span>
+    <span class="n">exclude_params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">]</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df_lulc</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_params</span><span class="p">]</span>
+
+    <span class="c1"># Compute weighted averages</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">df_lulc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">classes</span><span class="p">,</span> <span class="n">params</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">mixed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+    <span class="n">df_agro</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">agro_id</span><span class="p">,</span> <span class="n">params</span><span class="p">]</span> <span class="o">=</span> <span class="n">mixed</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Use default value for vegetation_feddes_alpha_h1</span>
+    <span class="c1"># as crops are present in agroforestry areas</span>
+    <span class="k">if</span> <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span> <span class="ow">in</span> <span class="n">df_agro</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df_agro</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">agro_id</span><span class="p">,</span> <span class="s2">&quot;vegetation_feddes_alpha_h1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">df_agro</span>
 </pre></div>
 
                 </article>
