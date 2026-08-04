@@ -11,9 +11,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.vcs.GitVcsRoot
 
 /*
-This file is meant to live in hydromt_wflow's own .teamcity/ directory
-(versioned settings), which is why hydromt_wflow itself is referenced via
-DslContext.settingsRoot rather than a second, hand-declared VCS root.
+This file is meant to live in hydromt_wflow's own .teamcity/ directory (versioned settings)
 
 Five build configurations, one template stack:
 
@@ -28,6 +26,7 @@ version = "2026.1"
 
 project {
 
+    vcsRoot(HydromtWflow)
     vcsRoot(WflowJl)
 
     buildType(SystemTestPrCheckStable)
@@ -108,6 +107,9 @@ object SystemTestDev : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
+            branchFilter = """
+                +:refs/heads/main
+            """.trimIndent()
         }
     }
 })
@@ -130,6 +132,9 @@ object SystemTestLatestRelease : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
+            branchFilter = """
+                +:refs/heads/release/*
+            """.trimIndent()
         }
     }
 })
@@ -152,6 +157,9 @@ object SystemTestOldestSupported : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
+            branchFilter = """
+                +:refs/tags/*
+            """.trimIndent()
         }
     }
 })
@@ -178,7 +186,7 @@ object WflowSystemTestTemplate : Template({
     }
 
     vcs {
-        root(DslContext.settingsRoot, "+:. => ./hydromt_wflow")
+        root(HydromtWflow, "+:. => ./hydromt_wflow")
     }
 
     steps {
@@ -272,7 +280,7 @@ object GitHubPrTemplate : Template({
     triggers {
         vcs {
             id = "TRIGGER_858"
-            triggerRules = "+:root=${DslContext.settingsRoot.id}:**"
+            triggerRules = "+:root=${HydromtWflow.id}:**"
             branchFilter = """
                 -:*
                 +pr:*
@@ -283,7 +291,7 @@ object GitHubPrTemplate : Template({
     features {
         commitStatusPublisher {
             id = "BUILD_EXT_521"
-            vcsRootExtId = "${DslContext.settingsRoot.id}"
+            vcsRootExtId = "${HydromtWflow.id}"
             publisher = github {
                 statusCheckName = "%status.check.name%"
                 githubUrl = "https://api.github.com"
@@ -292,7 +300,7 @@ object GitHubPrTemplate : Template({
         }
         pullRequests {
             id = "BUILD_EXT_522"
-            vcsRootExtId = "${DslContext.settingsRoot.id}"
+            vcsRootExtId = "${HydromtWflow.id}"
             provider = github {
                 authType = vcsRoot()
                 filterTargetBranch = """
@@ -342,6 +350,18 @@ object WflowJl : GitVcsRoot({
     branch = "main"
     branchSpec = """
         +:refs/heads/main
+        +:refs/heads/release/*
+        +:refs/tags/(v*)
+    """.trimIndent()
+})
+
+object HydromtWflow : GitVcsRoot({
+    name = "hydromt_wflow"
+    url = "https://github.com/Deltares/hydromt_wflow.git"
+    branch = "main"
+    branchSpec = """
+        +:refs/heads/main
+        +:refs/heads/release/*
         +:refs/tags/(v*)
     """.trimIndent()
 })
