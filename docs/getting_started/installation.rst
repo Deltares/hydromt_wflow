@@ -20,8 +20,7 @@ These package managers help you to install (Python) packages and manage environm
 If you do not yet have one installed, we recommend either:
 
 - `uv <https://docs.astral.sh/uv/>`_: uses `pypi.org <https://pypi.org>`_ for downloading dependencies.
-- `pixi <https://pixi.sh>`_: by default uses `conda-forge <https://conda-forge.org/>`_ for downloading dependencies,
-but will also search `pypi.org <https://pypi.org>`_ for dependencies it cannot find on conda-forge.
+- `pixi <https://pixi.sh>`_: by default uses `conda-forge <https://conda-forge.org/>`_ for downloading dependencies, but will also search `pypi.org <https://pypi.org>`_ for dependencies it cannot find on conda-forge.
 
 It is also possible to use other package managers, such as pip or conda.
 The benefits of uv and pixi over pip and conda are that they install Python directly in the project folder,
