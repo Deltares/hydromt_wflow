@@ -318,6 +318,7 @@ class WflowStaticmapsComponent(GridComponent):
             region_kwargs = _parse_region_value(
                 region.pop(kind),
                 data_catalog=self.data_catalog,
+                kind=kind,
             )
             region_kwargs.update(region)
             geom, _ = get_basin_geometry(

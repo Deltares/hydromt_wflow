@@ -414,6 +414,7 @@ def parse_region(
         region_kwargs = _parse_region_value(
             region.pop(kind),
             data_catalog=data_catalog,
+            kind=kind,
         )
         region_kwargs.update(region)
         if basin_index_fn is not None:
