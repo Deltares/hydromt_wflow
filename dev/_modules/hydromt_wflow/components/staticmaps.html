@@ -761,6 +761,7 @@
             <span class="n">region_kwargs</span> <span class="o">=</span> <span class="n">_parse_region_value</span><span class="p">(</span>
                 <span class="n">region</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">kind</span><span class="p">),</span>
                 <span class="n">data_catalog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">region_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
             <span class="n">geom</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_basin_geometry</span><span class="p">(</span>
