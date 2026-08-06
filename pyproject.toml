@@ -27,6 +27,7 @@ authors = [
   { name = "Sam Vente", email = "sam.vente@deltares.nl" },
   { name = "Marnix Kraus", email = "marnix.kraus@deltares.nl" },
   { name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
+  { name = "Claire Donnelly", email = "claire.donnelly@deltares.nl" },
 ]
 
 description = "HydroMT plugin for wflow."
@@ -44,6 +45,7 @@ classifiers = [
 requires-python = ">=3.11,<3.14"
 dependencies = [
   "dask",
+  "deprecated",
   "geopandas>=0.10",
   "hydromt>=1.4.0",
   "numpy",
@@ -88,6 +90,9 @@ all = ["hydromt_wflow[full,dev]"]
 wflow_sbm      = "hydromt_wflow.wflow_sbm"
 wflow_sediment = "hydromt_wflow.wflow_sediment"
 
+[project.entry-points.console_scripts]
+hydromt_wflow = "hydromt_wflow.cli:main"
+
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
 Source        = "https://github.com/Deltares/hydromt_wflow"
@@ -130,6 +135,7 @@ addopts = [
 ]
 markers = [
   "integration: slow tests that combine components, workflows and actual data; no Julia execution",
+  "regression: tests that run wflow julia and assert on output",
 ]
 
 [tool.coverage.run]
@@ -192,7 +198,7 @@ docstring-code-line-length = 20
 [tool.ruff.lint.per-file-ignores]
 "hydromt_wflow/__init__.py"    = ["E402", "F401", "F403"]
 "hydromt_wflow/**/__init__.py" = ["F403"]
-"tests/**"                     = ["D103", "D100", "D104", "E501"]
+"tests/**"                     = ["D100", "D101", "D102", "D103", "D104", "E501"]
 "tests/conftest.py"            = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
@@ -201,16 +207,18 @@ convention = "numpy"
 ## Pixi related entries
 [tool.pixi.workspace]
 channels  = ["conda-forge"]
-platforms = ["linux-64", "win-64"]
+platforms = ["linux-64", "win-64", "osx-arm64"]
 
 ## The different tasks of this project
 [tool.pixi.tasks]
 # Installation
-install            = { depends-on = ["install-pre-commit"] }
+install            = { depends-on = ["install-pre-commit", "install-git-config"] }
 install-pre-commit = "pre-commit install"
+install-git-config = 'git config --local diff.netcdf.textconv "ncdump -h" && git config --local diff.netcdf.cachetextconv true'
 
 # Repo related tasks
-lint = { cmd = ["pre-commit", "run", "--all"] }
+lint = { cmd = ["pre-commit", "run", "--all-files"] }
+_remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
 
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
@@ -234,13 +242,12 @@ clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
 [tool.pixi.feature.julia.tasks]
-remove-dir = { cmd = "rm -rf {{ DIR }}", args=["DIR"]}
 install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
 run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
 build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-i", "./tests/data/system_test_build_sbm.yml", "-d", "./examples/data/demand/data_catalog.yml", "-d", "artifact_data", "-v"], args=["ROOT"] }
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
 system-test = { depends-on = [
-  { task="remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="_remove-dir",                  args=["{{ TEST_ROOT }}"]},
   { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
@@ -320,7 +327,9 @@ build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i
 build-example-model-sbm = { cmd = "python scripts/generate_example_models.py sbm" }
 build-example-model-sediment = { cmd = "python scripts/generate_example_models.py sediment" }
 build-example-model-clipped = { cmd = "python scripts/generate_example_models.py clip" }
-build-example-models = {cmd = "python scripts/generate_example_models.py all" }
+build-example-model-all = {cmd = "python scripts/generate_example_models.py all" }
+build-floodplain-testdata = { cmd = "python scripts/generate_floodplain_testdata.py" }
+build-testdata-artifacts = [{task = "build-example-model-all"}, {task = "build-floodplain-testdata"}]
 
 # Testing
 [tool.pixi.feature.test.tasks]
@@ -339,6 +348,29 @@ build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin"
 benchmark = { cmd = "pytest --benchmark-only" }
 benchmark-record = { cmd = "pytest--benchmark-only--benchmark-autosave" }
 benchmark-compare = { cmd = "pytest --benchmark-only --benchmark-compare --benchmark-compare-fail=min:25%" }
-unit-test = { cmd = "pytest -m 'not integration'" }
+ci-test = { cmd = "pytest -m 'not regression'" }
+unit-test = { cmd = "pytest -m 'not integration and not regression'" }
 integration-test = { cmd = "pytest -m integration" }
-test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration'", args=[{ "arg" = "report", default="xml"}] }
+test-cov = { cmd = "pytest --cov=hydromt_wflow --cov-report={{ report }} --cov-branch -m 'not integration and not regression'", args=[{ "arg" = "report", default="xml"}] }
+
+[tool.pixi.feature.test.tasks.regression-pipeline]
+args = [
+  { arg = "PROFILE", default = "pr" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+  { arg = "VERBOSITY", default = "-v", choices = ["-v", "-vv", "-vvv"] },
+]
+cmd = "python tests/regression/run_pipeline.py --profile {{ PROFILE }} --root {{ ROOT }} --force-overwrite --verbosity={{ VERBOSITY }}"
+
+[tool.pixi.feature.test.tasks.regression-assert]
+args = [
+  { arg = "PROFILE", default = "pr" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+]
+cmd = "pytest -m regression --regression-root={{ ROOT }} --regression-profile={{ PROFILE }} -v"
+
+[tool.pixi.feature.test.tasks.regression-generate-metrics]
+cmd = "python tests/regression/generate_metrics.py --root {{ ROOT }} --profile {{ PROFILE }}"
+args = [
+  { arg = "PROFILE", default = "pr" },
+  { arg = "ROOT", default = "$PIXI_PROJECT_ROOT/tests/regression/.runs" },
+]

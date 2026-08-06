@@ -2,6 +2,7 @@
 
 # Implement model class following model API
 import logging
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -11,9 +12,11 @@ import pandas as pd
 import pyflwdir
 import pyproj
 import xarray as xr
+from deprecated import deprecated
 from hydromt import hydromt_step
 from hydromt.error import NoDataStrategy
 from hydromt.gis import flw
+from hydromt.gis.vector import GeoDataArray
 from hydromt.model import Model
 
 import hydromt_wflow.utils as utils
@@ -29,6 +32,8 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
+from hydromt_wflow.utils import DATA_DIR
+from hydromt_wflow.version_upgrade import upgrade_model
 
 __all__ = ["WflowBaseModel"]
 logger = logging.getLogger(f"hydromt.{__name__}")
@@ -65,8 +70,6 @@ class WflowBaseModel(Model):
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _DATADIR: Path = utils.DATADIR
-
     def __init__(
         self,
         root: str | None = None,
@@ -82,7 +85,7 @@ class WflowBaseModel(Model):
                 "points: [``WflowSbmModel``, ``WflowSedimentModel``]"
             )
 
-        default_filename = self._DATADIR / self.name / f"{self.name}.toml"
+        default_filename = DATA_DIR / self.name / f"{self.name}.toml"
         if config_filename is None:
             config_filename = default_filename.name
 
@@ -119,10 +122,11 @@ class WflowBaseModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self.data_catalog.from_yml(self._DATADIR / "parameters_data.yml")
+        self.data_catalog.from_yml(DATA_DIR / "parameters_data.yml")
 
         # Supported Wflow.jl version
-        logger.info("Supported Wflow.jl version v1+")
+        version = self.config.get_value("wflow_version", fallback="1+")
+        logger.info(f"Supported Wflow.jl version v{version}.")
 
     ## Properties
     # Components
@@ -298,6 +302,7 @@ skipping adding gauge specific outputs to the toml."
             "basin__local_drain_direction": "local_drain_direction",
             "subbasin_location__count": "subcatchment",
             "land_surface__slope": "land_slope",
+            "land_surface__elevation": "land_elevation",
         },
     ):
         """
@@ -441,8 +446,6 @@ skipping adding gauge specific outputs to the toml."
             self.geoms.set(_geom, name=name)
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_base.rename(rmdict).data_vars, None)
 
         # Call basins once to set it
@@ -458,8 +461,6 @@ skipping adding gauge specific outputs to the toml."
         self.staticmaps.set(ds_topo.rename(rmdict))
 
         # update config
-        # skip adding elevtn to config as it will only be used if floodplain 2d are on
-        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
 
         # update toml for degree/meters if needed
@@ -790,7 +791,7 @@ and will soon be removed. '
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
-            Fraction of wood in the vegetation/plant [-]
+            Storage woody part of vegetation [mm]
         * **vegetation_root_depth** map:
             Length of vegetation roots [mm]
         * **soil_compacted_fraction** map:
@@ -930,7 +931,7 @@ and will soon be removed. '
         * **vegetation_leaf_storage** map:
             Specific leaf storage [mm]
         * **vegetation_wood_storage** map:
-            Fraction of wood in the vegetation/plant [-]
+            Storage woody part of vegetation [mm]
         * **vegetation_root_depth** map:
             Length of vegetation roots [mm]
         * **soil_compacted_fraction** map:
@@ -1429,6 +1430,84 @@ gauge locations [-] (if derive_subcatch)
             self.geoms.set(gdf_basins, name=mapname)
 
     @hydromt_step
+    def setup_subbasins(
+        self,
+        method: str,
+        threshold: int,
+        output_name: str | None = None,
+        add_outlets_map: bool = False,
+    ):
+        """Create a subbasin map based on the specified method and threshold.
+
+        The subbasin map is derived using the selected method:
+
+        * 'streamorder': creates subbasins at all confluences where each branch has a
+          minimal stream order
+        * 'pfafstetter': creates subbasins with the hierarchical pfafstetter coding
+          system.
+        * 'area': creates subbasins with a minimal area [km2].
+
+        To also save Wflow output for the subbasins, use the
+        :py:meth:`~WflowBaseModel.setup_config_output_timeseries` method after
+        this step.
+
+        Adds model layer:
+
+        * **output_name** map:  output subbasins map
+        * **output_name** geom: output subbasins polygons
+        * **output_name_outlets** map (optional):  output subbasins outlets map
+        * **output_name_outlets** geom (optional): output subbasins outlets points
+
+        Required setup methods:
+
+        * :py:meth:`~WflowBaseModel.setup_basemaps`
+
+        Parameters
+        ----------
+        method : str
+            Method to derive subbasins. One of ['streamorder', 'pfafstetter', 'area'].
+        threshold : int
+            Threshold value for the selected method.
+            For 'streamorder', minimum Strahler order of the streams to
+            delineate subbasins.
+            For 'pfafstetter', the Pfafstetter level to delineate subbasins.
+            For 'area', the minimum upstream area [km2] to delineate subbasins.
+        output_name : str, optional
+            The name of the output map. If None (default), the name will be set
+            to the name of subbasins_{method}_{threshold}.
+        add_outlets_map : bool, optional
+            If True, also derive an outlets map for the subbasins, by default False.
+
+        See Also
+        --------
+        workflows.subbasin_map
+        """
+        logger.info(
+            f"Deriving subbasins using method {method} with threshold {threshold}."
+        )
+
+        da_subbasins, da_outlets, gdf_outlets = workflows.subbasin_map(
+            self.staticmaps.data,
+            self.flwdir,
+            method=method,
+            threshold=threshold,
+            add_outlets_map=add_outlets_map,
+        )
+        if output_name is None:
+            output_name = f"subbasins_{method}_{threshold}"
+        outlet_name = f"{output_name}_outlets"
+
+        # Add to staticmaps
+        self.staticmaps.set(da_subbasins, name=output_name)
+        # Add to staticgeoms
+        gdf_basins = self.staticmaps.data[output_name].raster.vectorize()
+        self.geoms.set(gdf_basins, name=output_name)
+
+        if add_outlets_map:
+            self.staticmaps.set(da_outlets, name=outlet_name)
+            self.geoms.set(gdf_outlets, name=outlet_name)
+
+    @hydromt_step
     def setup_constant_pars(self, **kwargs):
         """Generate constant parameter maps for all active model cells.
 
@@ -1541,6 +1620,191 @@ one variable and variables list is not provided."
             else:
                 for i in range(len(variables)):
                     self.config.set(f"input.static.{wflow_variables[i]}", variables[i])
+
+    @hydromt_step
+    def setup_grid_from_geodataset(
+        self,
+        geodataset_fn: str | pd.DataFrame | xr.Dataset,
+        locations_fn: str | gpd.GeoDataFrame | None = None,
+        index_col: str | None = None,
+        variable: str | None = None,
+        fill_value: float | int | None = None,
+        nodata_value: float | int = -9999,
+        mask: str | None = None,
+        output_names: dict = {},
+        resample_time_kwargs: dict | None = None,
+    ) -> None:
+        """
+        Add data variable from ``geodataset_fn`` to grid object.
+
+        Prepares a static/cyclic/forcing grid layer at specificied point locations.
+        A GeoDataset including the locations and the variable to rasterize can be used.
+        Alternatively, locations can be provided as a separate geodataframe or as a
+        layer already present in the staticmaps (e.g. gauges locations or reservoir
+        outlets).
+
+        Locations will be used as is. If snapping is required, users can first snap
+        using the ``setup_gauges`` method.
+
+        The config toml can also be updated to include the new map using
+        ``wflow_variable``.
+
+        Adds model layers:
+
+        * **variable** grid: data from geodataset_fn
+
+        Parameters
+        ----------
+        geodataset_fn : str, pd.DataFrame, xr.Dataset
+            Geodataset source as DataFrame or GeoDataset.
+
+            - DataFrame: the index column should contain time and the other
+              columns should correspond to the name or ID values of the stations
+              in `locations_fn`.
+            - GeoDataset: the dataset should contain the variable specified by
+              `variable` and the dimensions 'time' and 'index'.
+
+            * Required variable: 'time', 'variable'
+
+        locations_fn : str, gpd.GeoDataFrame, optional
+            Source for the locations of the stations as points: (x, y) or (lat, lon).
+            Only required if geodataset_fn is of type DataFrame. Can be provided as
+            a layer already present in the staticmaps.
+        index_col : str, optional
+            Column in locations_fn to use for station ID values, by default None.
+        variable : str, optional
+            Name of the variable in geodataset_fn to add to the grid. Only required if
+            geodataset_fn is a GeoDataset with multiple variables.
+        fill_value : float | int, optional
+            Fill value for the other grid cells. If not provided, the same value as the
+            nodata value is used. By default None.
+        nodata_value : float | int, optional
+            No data value for the grid cells if not defined in the geodataset.
+        mask : str, optional
+            Name of the mask to apply on the grid. Should be a layer already present in
+            the staticmaps. If None, the basin mask will be used.
+        output_names : dict, optional
+            Dictionary with output name that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+        resample_time_kwargs : dict, optional
+            If time resampling is required in case of forcing data, the kwargs to pass
+            to the hydromt.model.processes.meteo.resample_time method can be specified
+            here. For example ``upsampling`` (bfill), ``downsampling`` (mean) or
+            ``conserve_mass`` (True).
+        """
+        logger.info(f"Preparing grid data from geodataset source {geodataset_fn}")
+        self._update_naming(output_names)
+
+        # In case data type is forcing define time_range to read in data here
+        starttime = self.config.get_value("time.starttime")
+        endtime = self.config.get_value("time.endtime")
+        freq = pd.to_timedelta(self.config.get_value("time.timestepsecs"), unit="s")
+
+        # Check data type of geodataset_fn if it is provided through the data catalog
+        if isinstance(geodataset_fn, str) and geodataset_fn in self.data_catalog:
+            _data_type = self.data_catalog.get_source(geodataset_fn).data_type
+        else:
+            _data_type = None
+
+        # Read geodataset data
+        if (
+            isinstance(geodataset_fn, xr.Dataset | xr.DataArray)
+            or _data_type == "GeoDataset"
+        ):
+            da = self.data_catalog.get_geodataset(
+                geodataset_fn,
+                geom=self.region,
+                time_range=(starttime, endtime),
+                variables=[variable] if variable is not None else None,
+                single_var_as_array=True,
+            )
+        else:
+            # Read timeseries
+            df = self.data_catalog.get_dataframe(
+                geodataset_fn,
+                time_range=(starttime, endtime),
+            )
+            # Get locs
+            if locations_fn is None:
+                raise ValueError(
+                    "Using a DataFrame as geodataset source requires that "
+                    "locations are provided separately through locations_fn."
+                )
+            elif (
+                isinstance(locations_fn, str)
+                and locations_fn in self.staticmaps.data.data_vars
+            ):
+                locs = self.staticmaps.data[locations_fn]
+                gdf_locs = locs.raster.vectorize()
+                centroid = utils.planar_operation_in_utm(
+                    gdf_locs, lambda geom: geom.centroid
+                )
+                gdf_locs["geometry"] = centroid
+                # After rasterize use col value for index and reapply dtype
+                gdf_locs.index = gdf_locs["value"].astype(locs.dtype)
+
+            else:
+                # Load the locations
+                gdf_locs = self.data_catalog.get_geodataframe(
+                    locations_fn,
+                    geom=self.region,
+                    # assert_gtype= "Point", hydromt#1243
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+                # In case no locations within basin
+                if gdf_locs.empty:
+                    logger.warning(
+                        f"No shapes of {locations_fn} found within region, "
+                        "skipping method."
+                    )
+                    return
+                # Use station ids from gdf_stations when reading the DataFrame
+                if index_col is not None:
+                    gdf_locs = gdf_locs.set_index(index_col)
+
+            # Index is required to contruct GeoDataArray
+            if gdf_locs.index.name is None:
+                gdf_locs.index.name = "stations"
+
+            # Convert to geodataset
+            da = GeoDataArray.from_gdf(
+                gdf=gdf_locs,
+                data=df,
+                name=variable,
+                index_dim=None,
+                dims=["time", gdf_locs.index.name],
+                keep_cols=False,
+                merge_index="inner",
+            )
+
+        # Prepare the geodataset data
+        da_out, da_type = workflows.grid_from_geodataset(
+            da=da,
+            ds_like=self.staticmaps.data,
+            fill_value=fill_value,
+            nodata_value=nodata_value,
+            mask=mask,
+            freq=freq,
+            resample_time_kwargs=resample_time_kwargs,
+        )
+
+        # Update toml
+        if any(output_names):
+            if len(output_names) > 1:
+                raise ValueError(
+                    "Only one output name is allowed for areamap, \
+                    please provide a dictionary with one key."
+                )
+            variable_name = list(output_names.values())[0]
+            da_out = da_out.rename(variable_name)
+            self._update_config_variable_name(variable_name, data_type=da_type)
+
+        # Add to grid or forcing
+        if da_type == "forcing":
+            self.forcing.set(da_out)
+        else:  # cyclic or static
+            self.staticmaps.set(da_out)
 
     @hydromt_step
     def setup_areamap(
@@ -1714,6 +1978,36 @@ one variable and variables list is not provided."
                 state=list(reservoir_states.values()),
             )
 
+    @deprecated(
+        reason=(
+            "Use the CLI command 'hydromt_wflow upgrade' or call "
+            "'hydromt_wflow.version_upgrade.upgrade_model()' directly."
+        ),
+        version="1.1.0",
+        category=DeprecationWarning,
+    )
+    @hydromt_step
+    def upgrade_to_v1_wflow(self, output_dir: str | Path | None = None):
+        """Upgrade the model to Wflow v1.0 format."""
+        if output_dir is None:
+            output_dir = self.root.path
+        output_dir = Path(output_dir)
+        if output_dir.resolve() != self.root.path.resolve():
+            if output_dir.exists() and any(output_dir.iterdir()):
+                raise FileExistsError(
+                    f"Output directory {output_dir} already exists and is not empty. "
+                    "Please provide an empty directory or a new path."
+                )
+            shutil.copytree(self.root.path, output_dir)
+        upgrade_model(
+            model_root=output_dir,
+            model_type=self.name,
+            config_filename=None,
+            data_libs=None,
+            options=None,
+        )
+        return output_dir
+
     # I/O
     @hydromt_step
     def write(
@@ -1877,14 +2171,23 @@ one variable and variables list is not provided."
         data_type: str, optional
             Type of data (static, forcing, cyclic, None), by default "static"
         """
+        data_types = ["static", "forcing", "cyclic", None]
+
         data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
         _prefix = f"input.{data_type}" if data_type is not None else "input"
+        _other_prefixes = [
+            f"input.{dt}" for dt in data_types if dt != data_type and dt is not None
+        ]
+
         for var in data_vars:
             if var in self._WFLOW_NAMES:
                 # Get the name from the Wflow variable name
                 wflow_var = self._WFLOW_NAMES[var]
                 # Update the config variable name
                 self.config.set(f"{_prefix}.{wflow_var}", var)
+                # Remove from other prefixes if present
+                for other_prefix in _other_prefixes:
+                    self.config.remove(f"{other_prefix}.{wflow_var}", errors="ignore")
             # else not a wflow variable
             # (spelling mistakes should have been checked in _update_naming)
 
@@ -1971,3 +2274,44 @@ one variable and variables list is not provided."
         self.staticmaps.set(ds_lulc_maps.rename(rename_dict))
         # Add entries to the config
         self._update_config_variable_name(ds_lulc_maps.rename(rename_dict).data_vars)
+
+    def _get_raster_or_vector_data(
+        self,
+        data_fn: str | xr.DataArray | gpd.GeoDataFrame,
+        data_name: str,
+    ) -> xr.DataArray | gpd.GeoDataFrame:
+        """Get data from a raster or vector source."""
+        if isinstance(data_fn, str) and data_fn in self.data_catalog.sources:
+            _data_type = self.data_catalog.get_source(data_fn).data_type
+            if _data_type == "RasterDataset":
+                data = self.data_catalog.get_rasterdataset(
+                    data_fn,
+                    geom=self.region,
+                    buffer=2,
+                    single_var_as_array=True,
+                )
+                if not isinstance(data, xr.DataArray):
+                    raise ValueError(f"{data_name} data should have a single variable.")
+            elif _data_type == "GeoDataFrame":
+                data = self.data_catalog.get_geodataframe(
+                    data_fn,
+                    geom=self.region,
+                    predicate="intersects",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+            else:
+                raise ValueError(
+                    f"Data type {_data_type} of {data_fn} not supported. "
+                    f"{data_name} data should be either a raster or vector dataset."
+                )
+        elif isinstance(data_fn, str):
+            raise ValueError(f"{data_name} data {data_fn} not found in data catalog.")
+        elif not isinstance(data_fn, (xr.DataArray, gpd.GeoDataFrame)):
+            raise ValueError(
+                f"{data_name} data should be either a name in the data catalog, a "
+                "raster (xarray.DataArray) or a vector dataset (geopandas.GeoDataFrame)"
+            )
+        else:
+            data = data_fn
+
+        return data

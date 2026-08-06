@@ -110,7 +110,7 @@ def prepare_cold_states(
         "state.variables.soil_layer_water_unsaturated_zone__depth": "soil_unsaturated_depth",  # noqa: E501
         "state.variables.snowpack_liquid_water__depth": "snow_water_depth",
         "state.variables.vegetation_canopy_water__depth": "vegetation_water_depth",
-        "state.variables.subsurface_water__volume_flow_rate": "subsurface_q",
+        "state.variables.subsurface_water__instantaneous_volume_flow_rate": "subsurface_q",  # noqa: E501
         "state.variables.land_surface_water__depth": "land_h",
         "state.variables.river_water__instantaneous_volume_flow_rate": "river_instantaneous_q",  # noqa: E501
         "state.variables.river_water__depth": "river_h",

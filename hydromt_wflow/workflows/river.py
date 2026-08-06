@@ -14,7 +14,7 @@ from hydromt.gis.vector_utils import nearest
 from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
 
-from hydromt_wflow.utils import DATADIR  # global var
+from hydromt_wflow.utils import DATA_DIR  # global var
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
@@ -307,7 +307,7 @@ def river_bathymetry(
 
     # smooth by averaging along flow directions and set minimum
     if smooth_len > 0:
-        nsmooth = min(1, int(round(smooth_len / rivlen_avg / 2)))
+        nsmooth = max(1, int(round(smooth_len / rivlen_avg / 2)))
         kwgs = dict(n=nsmooth, restrict_strord=True)
         ds_model["rivwth"].values = flwdir_river.moving_average(
             ds_model["rivwth"].values, nodata=ds_model["rivwth"].raster.nodata, **kwgs
@@ -614,8 +614,8 @@ def _discharge(ds_like, flwdir, da_precip, da_climate):
     # read clim classes and regression parameters from data dir
     precip_fn = da_precip.name
     climate_fn = da_climate.name
-    fn_regr = DATADIR / "rivwth" / f"regr_{precip_fn}.csv"
-    fn_clim = DATADIR / "rivwth" / f"{climate_fn}.csv"
+    fn_regr = DATA_DIR / "rivwth" / f"regr_{precip_fn}.csv"
+    fn_clim = DATA_DIR / "rivwth" / f"{climate_fn}.csv"
     clim_map = pd.read_csv(fn_clim, index_col="class")
     regr_map = pd.read_csv(fn_regr, index_col="source").loc[climate_fn]
     regr_map = regr_map.set_index("base_class")

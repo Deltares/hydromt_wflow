@@ -1,0 +1,161 @@
+name: Build artifacts
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to rebuild and commit artifacts to. Protected branches `main` and `release/*` are not allowed"
+        required: true
+        type: string
+
+env:
+  PIXI_TASK: build-testdata-artifacts
+  PIXI_ENVIRONMENT: default
+  ARTIFACT_NAME: rebuilt-artifacts
+  COMMIT_MESSAGE: "Rebuild artifacts"
+
+jobs:
+  validate-branch:
+    name: Validate target branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Block protected branches
+        run: |
+          branch="${{ inputs.branch }}"
+          if [ "$branch" = "main" ] || [[ "$branch" == release/* ]]; then
+            echo "Refusing to run on protected branch: $branch"
+            exit 1
+          fi
+
+  rebuild-artifacts:
+    needs: validate-branch
+    defaults:
+      run:
+        shell: bash -l {0}
+    name: Rebuild artifacts - ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ inputs.branch }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: "v0.72.0"
+          environments: ${{ env.PIXI_ENVIRONMENT }}
+          activate-environment: true
+          frozen: true
+          cache: true
+
+      - uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pixi run --no-install -e ${{ env.PIXI_ENVIRONMENT }} ${{ env.PIXI_TASK }}
+
+      - name: Stage changed files (preserve full relative structure)
+        run: |
+          rm -rf _artifact_staging
+          mkdir -p _artifact_staging
+
+          # Anything git considers modified, added, or untracked
+          # (git status already respects .gitignore for us)
+          git status --porcelain=v1 | while IFS= read -r line; do
+            status="${line:0:2}"
+            file="${line:3}"
+
+            # Skip renames/deletes - only stage files that currently exist
+            case "$status" in
+              *D*) continue ;;
+            esac
+
+            [ -e "$file" ] || continue
+            mkdir -p "_artifact_staging/$(dirname "$file")"
+            cp -r "$file" "_artifact_staging/$(dirname "$file")/"
+          done
+
+      - name: Upload rebuilt artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-${{ matrix.os }}
+          if-no-files-found: warn
+          path: _artifact_staging
+
+  commit-rebuilt-artifacts:
+    name: Commit rebuilt artifacts
+    needs: rebuild-artifacts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    concurrency:
+      group: ${{ github.workflow }}-commit-${{ inputs.branch }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Download rebuilt artifacts (ubuntu-latest)
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-ubuntu-latest
+          path: ${{ runner.temp }}/_dl-ubuntu-latest
+
+      - name: Download rebuilt artifacts (windows-latest)
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-windows-latest
+          path: ${{ runner.temp }}/_dl-windows-latest
+
+      - name: Restore artifacts to repo paths
+        run: |
+          for d in "${{ runner.temp }}"/_dl-*; do
+            [ -d "$d" ] || continue
+            cp -a "$d"/. .
+          done
+
+      - name: Detect and stage changes
+        id: stage
+        run: |
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes found, skipping commit and push"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Found changes, commiting and pushing"
+          fi
+
+      - name: Commit rebuilt artifacts
+        if: ${{ steps.stage.outputs.has_changes == 'true' }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<github-actions[bot]@users.noreply.github.com>"
+          git commit -m "${{ env.COMMIT_MESSAGE }}"
+
+      - name: Push changes
+        if: ${{ steps.stage.outputs.has_changes == 'true' }}
+        run: git push origin HEAD:${{ inputs.branch }}

@@ -87,6 +87,27 @@ Sets up soil-related data including soil maps and hydraulic properties.
    WflowSbmModel.setup_ksatver_vegetation
 
 
+Nature-Based Solutions
+----------------------
+Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.
+
+.. note::
+
+   The methods ``setup_ponding_from_map`` and ``setup_ponding_from_threshold``
+   will be added in a future release when wflow.jl supports it. The
+   documentation for these methods is already included here in anticipation
+   of that support.
+
+.. Entries for setup_ponding_from_map and setup_ponding_from_threshold are
+   intentionally left out of the toctree below until wflow.jl adds support
+   for them. Add them back when appropriate
+
+.. autosummary::
+   :toctree: _generated
+
+   WflowSbmModel.setup_agroforestry
+
+
 Water Demands and Allocation
 ============================
 Defines domestic, irrigation, and other water demand maps and allocation parameters.
@@ -135,6 +156,7 @@ Defines outlets, gauges, and spatial masks used for reporting model results.
 
    WflowSbmModel.setup_outlets
    WflowSbmModel.setup_gauges
+   WflowSbmModel.setup_subbasins
    WflowSbmModel.setup_areamap
 
 
@@ -146,8 +168,8 @@ Additional high-level utilities to modify model geometry, link external models, 
    :toctree: _generated
 
    WflowSbmModel.setup_grid_from_raster
+   WflowSbmModel.setup_grid_from_geodataset
    WflowSbmModel.setup_1dmodel_connection
-   WflowSbmModel.upgrade_to_v1_wflow
    WflowSbmModel.clip
 
 

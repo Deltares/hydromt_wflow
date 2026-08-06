@@ -18,9 +18,29 @@ from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel
+from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel, utils
+from tests.regression.regression_utils import (
+    default_run_root,
+    list_profile_choices,
+    repo_root,
+)
 
-pytestmark = pytest.mark.integration  # all tests in this module are integration tests
+
+## Pytest configuration
+def pytest_addoption(parser):
+    parser.addoption(
+        "--regression-root",
+        action="store",
+        default=default_run_root(),
+        help="Root directory containing wflow_sbm/<basin> and wflow_sediment/<basin>",
+    )
+    parser.addoption(
+        "--regression-profile",
+        action="store",
+        default="all",
+        choices=list_profile_choices(repo_root()),
+        help="Regression basin profile from tests/regression/manifest.json",
+    )
 
 
 ## Paths
@@ -209,21 +229,16 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 @pytest.fixture
 def example_wflow_outputs(example_models_dir: Path) -> WflowSbmModel:
-    mod = WflowSbmModel(
+    return WflowSbmModel(
         root=str(example_models_dir / "wflow_piave_subbasin"),
         mode="r",
         config_filename="wflow_sbm_results.toml",
     )
-    return mod
 
 
 @pytest.fixture
 def clipped_wflow_model(example_models_dir: Path) -> WflowSbmModel:
-    mod = WflowSbmModel(
-        root=str(example_models_dir / "wflow_piave_clip"),
-        mode="r",
-    )
-    return mod
+    return WflowSbmModel(root=str(example_models_dir / "wflow_piave_clip"), mode="r")
 
 
 @pytest.fixture
@@ -232,13 +247,7 @@ def floodplain1d_testdata(test_data_dir: Path) -> xr.Dataset:
         _data_dir = test_data_dir / "linux64"
     else:
         _data_dir = test_data_dir
-    data = xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
-    # Rename testdata variables to match the model
-    for var in data.data_vars:
-        if "hydrodem" in var:
-            new_name = var.replace("hydrodem", "river_bank_elevation")
-            data = data.rename({var: new_name})
-    return data
+    return xr.load_dataset(_data_dir / "floodplain_layers.nc", lock=False)
 
 
 @pytest.fixture
@@ -256,6 +265,15 @@ def planted_forest_testdata() -> gpd.GeoDataFrame:
     bbox2 = [12.21, 46.07, 12.26, 46.11]
     gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
     gdf["forest_type"] = ["Pine", "Orchard"]
+    return gdf
+
+
+@pytest.fixture
+def agroforestry_testdata() -> gpd.GeoDataFrame:
+    bbox1 = [12.059, 45.858, 12.108, 45.891]
+    bbox2 = [12.176, 46.108, 12.225, 46.158]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
+    gdf["agroforestry"] = [1, 1]
     return gdf
 
 
@@ -365,6 +383,19 @@ def reservoir_rating() -> dict[str, pd.DataFrame]:
 
 
 @pytest.fixture
+def reservoir_outlets(example_wflow_model: WflowSbmModel) -> gpd.GeoDataFrame:
+    """Geodataframe of the reservoir outlets for testing purposes."""
+    res = example_wflow_model.staticmaps.data["reservoir_outlet_id"]
+    res_outlets = res.raster.vectorize()
+    centroid = utils.planar_operation_in_utm(res_outlets, lambda geom: geom.centroid)
+    res_outlets["geometry"] = centroid
+    # After rasterize use col value for index and reapply dtype
+    res_outlets.index = res_outlets["value"].astype(res.dtype)
+
+    return res_outlets
+
+
+@pytest.fixture
 def mock_rasterdataset(mocker: MockerFixture) -> xr.Dataset:
     """Mock rasterdataset for testing purposes."""
     ds = mocker.create_autospec(xr.Dataset, instance=True)
@@ -396,3 +427,9 @@ def static_layer() -> xr.DataArray:
     da.raster.set_crs(4326)
     da.raster.set_nodata(-9999)
     return da
+
+
+@pytest.fixture(scope="session")
+def session_rng():
+    """Session-scoped RNG for deterministic random sampling in tests."""
+    return np.random.default_rng(100)
