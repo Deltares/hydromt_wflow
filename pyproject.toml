@@ -248,6 +248,7 @@ build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
 system-test = { depends-on = [
   { task="_remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="install-wflow-julia",         args=["{{ WFLOW_JULIA_REPO }}"] },
   { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
@@ -290,6 +291,9 @@ pandoc = "*"
 [tool.pixi.feature.extra.dependencies]
 gdal = ">=3.5"
 
+[tool.pixi.feature.pip.pypi-dependencies]
+pip = "*"
+
 # Extra python environments
 [tool.pixi.feature.py313.dependencies]
 python = "3.13.*"
@@ -299,9 +303,6 @@ python = "3.12.*"
 
 [tool.pixi.feature.py311.dependencies]
 python = "3.11.*"
-
-[tool.pixi.feature.pip.pypi-dependencies]
-pip = "*"
 
 ## Define the environments
 [tool.pixi.environments]
