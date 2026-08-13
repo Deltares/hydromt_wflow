@@ -44,6 +44,7 @@ classifiers = [
 # Core dependencies
 requires-python = ">=3.11,<3.14"
 dependencies = [
+  "affine<3.0",
   "dask",
   "deprecated",
   "geopandas>=0.10",
@@ -277,6 +278,8 @@ serve = { cmd = "python -m http.server 8000 -d docs/_build/html" }
 ## Dependencies
 [tool.pixi.dependencies]
 h5py     = "*"
+affine = "<3.0"
+hdf5     = "==2.1.0" # fix: `UserWarning: h5py is running against HDF5 2.2.0 when it was built against 2.1.0, this may cause problems`. Only here to prevent that warning, remove when deps pin versions better
 pip      = "*"
 pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
 # (<2.2 required by numba)
