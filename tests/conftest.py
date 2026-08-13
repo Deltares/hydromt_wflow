@@ -18,7 +18,7 @@ from packaging.version import Version
 from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
-from hydromt_wflow import DATA_DIR, WflowSbmModel, WflowSedimentModel, utils
+from hydromt_wflow import WflowSbmModel, WflowSedimentModel, data, utils
 from tests.regression.regression_utils import (
     default_run_root,
     list_profile_choices,
@@ -53,8 +53,8 @@ def test_data_dir() -> Path:
 
 @pytest.fixture(scope="session")
 def data_dir() -> Path:
-    assert DATA_DIR.is_dir()
-    return DATA_DIR
+    assert data.DATA_DIR.is_dir()
+    return data.DATA_DIR
 
 
 @pytest.fixture(scope="session")

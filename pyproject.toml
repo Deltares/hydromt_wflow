@@ -340,8 +340,8 @@ build-test-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -r {'
 build-test-model-sediment = { cmd = "hydromt build wflow_sediment ./wflow_test_sediment -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ./data/wflow_sediment_piave_build_subbasin.yml -d artifact_data -vv", cwd = "tests" }
 build-test-models = { depends-on = ["build-test-model-simple", "build-test-model-full", "build-test-model-sediment"] }
 
-build-example-model-piave-subbasin = { cmd = "hydromt build wflow_sbm ./examples/wflow_piave_subbasin -i ./tests/data/wflow_piave_build_subbasin.yml -d artifact_data -d ./hydromt_wflow/data/parameters_data.yml -vv" }
-build-example-model-piave-sediment = { cmd = "hydromt build wflow_sediment ./examples/wflow_sediment_piave_subbasin -i ./tests/data/wflow_sediment_piave_build_subbasin.yml -d artifact_data -d ./hydromt_wflow/data/parameters_data.yml -vv" }
+build-example-model-piave-subbasin = { cmd = "hydromt build wflow_sbm ./examples/wflow_piave_subbasin -i ./tests/data/wflow_piave_build_subbasin.yml -d artifact_data -vv" }
+build-example-model-piave-sediment = { cmd = "hydromt build wflow_sediment ./examples/wflow_sediment_piave_subbasin -i ./tests/data/wflow_sediment_piave_build_subbasin.yml -d artifact_data -vv" }
 build-example-model-piave-clip = { cmd = "hydromt update wflow_sbm ./examples/wflow_piave_subbasin -o ./examples/wflow_piave_clip_bkp -i ./tests/data/wflow_piave_clip.yml" }
 build-example-model-piave = { depends-on = ["build-example-model-piave-subbasin", "build-example-model-piave-sediment", "build-example-model-piave-clip"] }
 

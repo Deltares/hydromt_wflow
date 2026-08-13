@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 import logging
-import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING, Generator, Literal
 
@@ -13,8 +12,9 @@ from hydromt.readers import read_toml
 from hydromt.writers import write_toml
 from packaging.version import Version
 
+import hydromt_wflow
 from hydromt_wflow.components.tables import WflowTablesComponent
-from hydromt_wflow.utils import DATA_DIR, get_config, set_config
+from hydromt_wflow.utils import get_config, set_config
 from hydromt_wflow.workflows.reservoirs import (
     RESERVOIR_COMMON_PARAMETERS,
     RESERVOIR_CONTROL_PARAMETERS,
@@ -1378,9 +1378,7 @@ def _upgrade_config_v0_to_v1(
         raise ValueError(f"Unknown model type: {model_type!r}")
 
     # Load the v1 config template and apply converted values
-    with open(DATA_DIR / "default_config_headers.toml", "rb") as file:
-        new_config = tomllib.load(file)
-
+    new_config = hydromt_wflow.data.default_config_headers()
     for key, value in config_out.items():
         set_config(new_config, key, value)
 

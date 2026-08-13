@@ -201,10 +201,7 @@ def test_model_build(
     model_type = _supported_models[model]
     # create folder to store new model
     root = str(tmp_path / model)
-    param_path = data_dir / "parameters_data.yml"
-    mod1 = model_type(
-        root=root, mode="w", data_libs=["artifact_data", param_path.as_posix()]
-    )
+    mod1 = model_type(root=root, mode="w", data_libs=["artifact_data"])
 
     # get ini file
     steps = example_inis[model]

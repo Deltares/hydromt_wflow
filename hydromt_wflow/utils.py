@@ -14,14 +14,11 @@ from hydromt.readers import open_timeseries_from_table
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
-DATA_DIR = Path(__file__).parent / "data"
-
 __all__ = [
     "get_config",
     "set_config",
     "get_grid_from_config",
     "read_csv_output",
-    "DATA_DIR",
 ]
 
 

@@ -4,7 +4,6 @@ import logging
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 import pyflwdir
 import xarray as xr
 from hydromt import stats
@@ -14,7 +13,7 @@ from hydromt.gis.vector_utils import nearest
 from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
 
-from hydromt_wflow.utils import DATA_DIR  # global var
+import hydromt_wflow
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
@@ -612,13 +611,9 @@ def _precip(ds_like, flwdir, da_precip):
 def _discharge(ds_like, flwdir, da_precip, da_climate):
     """Do discharge method."""
     # read clim classes and regression parameters from data dir
-    precip_fn = da_precip.name
     climate_fn = da_climate.name
-    fn_regr = DATA_DIR / "rivwth" / f"regr_{precip_fn}.csv"
-    fn_clim = DATA_DIR / "rivwth" / f"{climate_fn}.csv"
-    clim_map = pd.read_csv(fn_clim, index_col="class")
-    regr_map = pd.read_csv(fn_regr, index_col="source").loc[climate_fn]
-    regr_map = regr_map.set_index("base_class")
+    regr_map = hydromt_wflow.data.regr_chelsa().loc[climate_fn].set_index("base_class")
+    clim_map = hydromt_wflow.data.koppen_geiger()
 
     # get overall catchment climate classification (based on mode)
     # TODO: convert to xarray method by using scipy.stats.mode in xr.apply_ufuncs

@@ -29,15 +29,13 @@ def build_model(
     workflow_yaml: Path,
 ) -> None:
     """Build example Wflow SBM model."""
-    param_path = repo_root / "hydromt_wflow" / "data" / "parameters_data.yml"
-
     # Remove existing staticmaps.nc files in model root
     remove_files([model_root / "staticmaps.nc"])
 
     mod = model(
         root=model_root.as_posix(),
         mode="w+",
-        data_libs=["artifact_data", param_path.as_posix()],
+        data_libs=["artifact_data"],
     )
     _, _, steps = read_workflow_yaml(workflow_yaml.as_posix())
     mod.build(steps=steps)

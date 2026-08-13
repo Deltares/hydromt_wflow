@@ -19,6 +19,7 @@ from hydromt.gis import flw
 from hydromt.gis.vector import GeoDataArray
 from hydromt.model import Model
 
+import hydromt_wflow
 import hydromt_wflow.utils as utils
 from hydromt_wflow import workflows
 from hydromt_wflow.components import (
@@ -32,7 +33,7 @@ from hydromt_wflow.components import (
     WflowStaticmapsComponent,
     WflowTablesComponent,
 )
-from hydromt_wflow.utils import DATA_DIR
+from hydromt_wflow.data import DATA_DIR
 from hydromt_wflow.version_upgrade import upgrade_model
 
 __all__ = ["WflowBaseModel"]
@@ -122,7 +123,7 @@ class WflowBaseModel(Model):
 
         # wflow specific
         self._flwdir = None
-        self.data_catalog.from_yml(DATA_DIR / "parameters_data.yml")
+        self.data_catalog = hydromt_wflow.data.parameters_datacatalog(self.data_catalog)
 
         # Supported Wflow.jl version
         version = self.config.get_value("wflow_version", fallback="1+")
