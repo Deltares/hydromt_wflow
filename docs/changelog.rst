@@ -20,6 +20,7 @@ Added
 - Added ability for users to exclude reservoirs that are outside of the river network, using `exclude_outside_reservoirs` flag. (#777)
 - Added a configurable fraction parameter to exclude cells that have less than a minimum threshold coverage by a waterbody when deriving the area of reservoirs in ``hydromt_wflow.workflows.reservoirs`` (#796)
 - Added ``hydromt_wflow upgrade`` CLI command that copies a model to a new directory and upgrades it to the latest Wflow.jl version without requiring a model instance. (#815)
+- Added ``hydromt_wflow.data`` with functions to access data directly instead of requiring users to know file locations and contents.
 
 Fixed
 -----
