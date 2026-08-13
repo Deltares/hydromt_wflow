@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import logging
 import tomllib
 from pathlib import Path
@@ -35,7 +34,6 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 # Version upgrades in order. Each entry is a tuple of (from_version, to_version).
 _UPGRADES: list[tuple[Version, Version]] = [
     (Version("0.8"), Version("1.0")),
-    (Version("1.0"), Version("1.1")),
 ]
 # The latest Wflow.jl version supported by this hydromt_wflow release
 WFLOW_LATEST_VERSION = _UPGRADES[-1][-1]
@@ -266,11 +264,6 @@ _V0_TO_V1_STATES_SEDIMENT: dict[str, str | None] = {
     "lateral.river.siltload": "river_water_silt__mass",
     "lateral.river.siltstore": "river_bed_silt__mass",
     "lateral.river.outsilt": "river_water_silt__mass_flow_rate",
-}
-
-# v1 to v1.1 renames (only the variables that actually changed)
-_V1_TO_V1_1_SBM: dict[str, str] = {
-    "subsurface_water__volume_flow_rate": "subsurface_water__instantaneous_volume_flow_rate",  # noqa: E501
 }
 
 # staticmap_name to v0 config variable (for reservoir conversion in SBM)
@@ -1162,24 +1155,6 @@ def _convert_tables_v0_to_v1(tables: WflowTablesComponent) -> None:
         logger.debug(f"Renamed table {key} to {new_name}.")
 
 
-def _convert_sbm_config_v1_to_v1_1(config: dict) -> dict:
-    """Convert the config of a Wflow v1.0 model into a Wflow v1.1 format for SBM."""
-    config_out = copy.deepcopy(config)
-
-    for v1, v1_1 in _V1_TO_V1_1_SBM.items():
-        # input.static
-        static = config_out.get("input", {}).get("static", {})
-        if v1 in static:
-            static[v1_1] = static.pop(v1)
-        # state.variables
-        state_vars = config_out.get("state", {}).get("variables", {})
-        if v1 in state_vars:
-            state_vars[v1_1] = state_vars.pop(v1)
-
-    config_out["wflow_version"] = "1.1"
-    return config_out
-
-
 # Helper functions for version detection and validation for the upgrade functions.
 def _is_v1_schema(config: dict) -> bool:
     """Detect the Wflow v1.0 config schema."""
@@ -1390,33 +1365,6 @@ def _upgrade_config_v0_to_v1(
     logger.info(f"Wrote upgraded v1.0 config to {config_path}.")
 
 
-def _upgrade_config_v1_to_v1_1(
-    model_root: Path, model_type: str, config_filename: str
-) -> None:
-    """Upgrade a v1.0 config to v1.1 format and write the result to disk."""
-    config_path = model_root / config_filename
-    config = read_toml(config_path)
-
-    if model_type == "wflow_sbm":
-        config_out = _convert_sbm_config_v1_to_v1_1(config)
-    elif model_type == "wflow_sediment":
-        config_out = copy.deepcopy(config)
-        config_out["wflow_version"] = "1.1"
-    else:
-        raise ValueError(f"Unknown model type: {model_type!r}")
-
-    elevation_name = _get_land_surface_elevation_name(config_out, model_root)
-    if elevation_name is not None:
-        set_config(
-            config=config_out,
-            key="input.static.land_surface__elevation",
-            value=elevation_name,
-        )
-
-    write_toml(config_path, config_out)
-    logger.info(f"Wrote upgraded v1.1 config to {config_path}.")
-
-
 def _upgrade_components_v0_to_v1_sbm(
     model: WflowSbmModel, config_v0: dict, **kwargs
 ) -> None:
@@ -1472,32 +1420,6 @@ def _upgrade_components_v0_to_v1_sediment(
     model.write()
 
 
-def _upgrade_components_v1_to_v1_1(
-    model_type: str,
-    model_root: str | Path,
-    config_filename: str | None,
-    data_libs: dict,
-    options: dict,
-) -> None:
-    setup_basemaps_kwargs = options.get("setup_basemaps")
-    if setup_basemaps_kwargs is None:
-        raise ValueError(
-            "Missing required elevation layer in staticmaps and no "
-            "'setup_basemaps' options were provided. "
-            "Pass options={'1.0_1.1': {'setup_basemaps': {...}}} "
-            "to run setup_basemaps during upgrade."
-        )
-    ModelClass = _get_model_class(model_type)
-    model = ModelClass(
-        str(model_root),
-        config_filename=config_filename,
-        mode="r+",
-        data_libs=data_libs,
-    )
-    model.setup_basemaps(**setup_basemaps_kwargs)
-    model.write()
-
-
 # Main entry point
 def upgrade_model(
     model_root: str | Path,
@@ -1531,6 +1453,7 @@ def upgrade_model(
         Options passed to upgrade functions. Keys should be strings like
         ``"0.8_1.0"`` and values should be dicts of keyword arguments.
     """
+    ModelClass = _get_model_class(model_type)
     model_root = Path(model_root)
     if config_filename is None:
         config_filename = f"{model_type}.toml"
@@ -1553,17 +1476,8 @@ def upgrade_model(
         logger.info("Upgrading config from v0.x to v1.0 format.")
         version = Version("1.0")
 
-    if version < Version("1.1"):
-        _upgrade_config_v1_to_v1_1(
-            model_root,
-            model_type,
-            config_filename,
-        )
-        version = Version("1.1")
-
     # Upgrade component data using previous and updated config (needs initialized Model)
     if config_v0 is not None:
-        ModelClass = _get_model_class(model_type)
         model = ModelClass(
             str(model_root),
             config_filename=config_filename,
@@ -1575,20 +1489,5 @@ def upgrade_model(
             _upgrade_components_v0_to_v1_sbm(model, config_v0, **v0_opts)
         elif model_type == "wflow_sediment":
             _upgrade_components_v0_to_v1_sediment(model, config_v0, **v0_opts)
-
-    # Upgrade component data for v1 to v1.1 if needed
-    config_v1 = read_toml(config_path)
-    requires_setup_basemaps = (
-        _get_land_surface_elevation_name(config_v1, model_root) is None
-    )
-    if requires_setup_basemaps:
-        _opts = validated_options.get((Version("1.0"), Version("1.1")), {})
-        _upgrade_components_v1_to_v1_1(
-            model_type=model_type,
-            model_root=model_root,
-            config_filename=config_filename,
-            data_libs=data_libs,
-            options=_opts,
-        )
 
     logger.info(f"Model upgraded to Wflow.jl v{version}. {model_root=}")

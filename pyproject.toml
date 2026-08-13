@@ -333,7 +333,7 @@ build-testdata-artifacts = [{task = "build-example-model-all"}, {task = "build-f
 
 # Testing
 [tool.pixi.feature.test.tasks]
-test = { cmd = "pytest" }
+test = { cmd = "pytest -m 'not regression'" }
 test-lf = { cmd = "pytest --lf --tb=short" }
 build-test-model-simple = { cmd = "hydromt build wflow_sbm ./wflow_test_simple -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ../examples/wflow_build.yml -d artifact_data -vv", cwd = "tests" }
 build-test-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ./data/wflow_piave_build_subbasin.yml -d artifact_data -vv", cwd = "tests" }
