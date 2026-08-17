@@ -302,7 +302,6 @@ skipping adding gauge specific outputs to the toml."
             "basin__local_drain_direction": "local_drain_direction",
             "subbasin_location__count": "subcatchment",
             "land_surface__slope": "land_slope",
-            "land_surface__elevation": "land_elevation",
         },
     ):
         """
