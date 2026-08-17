@@ -20,6 +20,7 @@ Added
 - Added ability for users to exclude reservoirs that are outside of the river network, using `exclude_outside_reservoirs` flag. (#777)
 - Added a configurable fraction parameter to exclude cells that have less than a minimum threshold coverage by a waterbody when deriving the area of reservoirs in ``hydromt_wflow.workflows.reservoirs`` (#796)
 - Added ``hydromt_wflow upgrade`` CLI command that copies a model to a new directory and upgrades it to the latest Wflow.jl version without requiring a model instance. (#815)
+- **setup_floodplains** (1D) now sets the Wflow.jl ``floodplain__slope`` config entry, pointing to the river slope map since the floodplain slope is for now assumed equal to the river slope.
 
 Fixed
 -----
