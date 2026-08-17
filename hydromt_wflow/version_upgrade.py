@@ -1286,54 +1286,6 @@ def _get_model_class(model_type: str):
     )
 
 
-def _get_land_surface_elevation_name(config: dict, root: Path) -> str | None:
-    """Determine the name of the land surface elevation variable in the staticmaps.
-
-    In Wflow v1.1, the land surface elevation variable is required for all model types.
-    This function checks the config for a user-defined name, and if not found, it looks
-    for common candidate names in the staticmaps dataset.
-
-    Returns
-    -------
-    str | None
-        The name of the land surface elevation variable, or None if not found.
-    """
-    msg = (
-        "Could not find the variable ('input.static.land_surface__elevation') in "
-        "staticmaps or config. Make sure to run 'setup_basemaps' during the upgrade "
-        "to generate the required elevation layer."
-    )
-    configured_name = get_config(
-        key="input.static.land_surface__elevation",
-        config=config,
-        fallback=None,
-    )
-    if configured_name is not None:
-        return configured_name
-
-    path_static = get_config(
-        key="input.path_static",
-        config=config,
-        root=root,
-        abs_path=True,
-        fallback="staticmaps.nc",
-    )
-    if not path_static.exists():
-        logger.warning(f"Could not find staticmaps at {path_static}; " + msg)
-        return None
-
-    with xr.open_dataset(path_static) as staticmaps:
-        for candidate in (
-            "land_surface__elevation",
-            "land_elevation",
-            "wflow_dem",
-        ):
-            if candidate in staticmaps.data_vars:
-                return candidate
-    logger.warning(msg)
-    return None
-
-
 # All `_upgrade_**` functions use the `_convert_**` functions to perform the actual
 # conversion, but they also handle reading/writing configs and accessing model
 # components as needed.

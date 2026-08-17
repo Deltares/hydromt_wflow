@@ -12,7 +12,6 @@ from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.components.config import WflowConfigComponent
-from hydromt_wflow.utils import get_config
 from hydromt_wflow.version_upgrade import (
     _UPGRADES,
     _convert_sbm_config_v0_to_v1,
@@ -115,34 +114,6 @@ class V0ToV1Assertions:
                 sm["reservoir_trapping_efficiency"].raster.mask_nodata(),
             )
         )
-
-
-class V1ToV1_1Assertions:
-    """Assertions that belong to the v1 → v1.1 upgrade step."""
-
-    @staticmethod
-    def assert_sbm_config(
-        upgraded: dict | Path,
-        reference: dict | Path,
-    ) -> None:
-        upgrade_data = upgraded if isinstance(upgraded, dict) else read_toml(upgraded)
-        reference_data = (
-            reference if isinstance(reference, dict) else read_toml(reference)
-        )
-
-        assert_configs_equal(upgrade_data, reference_data)
-        # 'land_surface__elevation' is now a required variable
-        assert (
-            get_config(upgrade_data, "input.static.land_surface__elevation", None)
-            is not None
-        )
-
-    @staticmethod
-    def assert_sediment_config(
-        upgraded: dict | Path,
-        reference: dict | Path,
-    ) -> None:
-        assert_configs_equal(upgraded, reference)
 
 
 class TestUpgradeV0ToV1:
@@ -443,8 +414,8 @@ class TestUpgradeModelPathBased:
 
         upgrade_model(model_dir, "wflow_sbm")
 
-        # Verify config matches the v1.1 reference
-        V1ToV1_1Assertions.assert_sbm_config(
+        # Verify config matches the v1.0 reference
+        V0ToV1Assertions.assert_sbm_config(
             model_dir / "wflow_sbm.toml",
             upgrade_data_dir / "sbm" / "v1_0" / "wflow_sbm.toml",
         )
