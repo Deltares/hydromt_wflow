@@ -325,9 +325,9 @@ test-full-py312 = { features = ["editable", "py312", "extra", "test", "julia"], 
 test-full-py311 = { features = ["editable", "py311", "extra", "test", "julia"], solve-group="py311" }
 
 # Empty test environments for release validation. pip install *.whl[all] into these to test the whl
-test-wheel-py313 = { features = ["py313", "wheel", "julia"], no-default-feature=true }
-test-wheel-py312 = { features = ["py312", "wheel", "julia"], no-default-feature=true }
-test-wheel-py311 = { features = ["py311", "wheel", "julia"], no-default-feature=true }
+test-wheel-py313 = { features = ["py313", "wheel", "pip", "julia"], no-default-feature=true }
+test-wheel-py312 = { features = ["py312", "wheel", "pip", "julia"], no-default-feature=true }
+test-wheel-py311 = { features = ["py311", "wheel", "pip", "julia"], no-default-feature=true }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
