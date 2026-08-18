@@ -6,6 +6,8 @@ try:
     # Rasterio 1.5 installs a broken sys.excepthook that recurses infinitely
     # on interpreter shutdown. Reset it to a safe version that prints the exception
     # and then calls the original hook wrapped in a try-except.
+    # https://github.com/Deltares/hydromt/issues/1452
+    # https://github.com/rasterio/rasterio/issues/3563
     import sys as _sys
     import traceback as _traceback
 
