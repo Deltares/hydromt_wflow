@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 
-from hydromt_wflow import __version__
 from tests.regression.regression_utils import (
     Metric,
     MetricsComparison,
@@ -140,7 +139,5 @@ def test_basin_regression_metrics(basin, request):
 
     report = report_failures(failures)
     if failures:
-        plot_regression_report(
-            basin=basin, save_path=Path(__file__).parent / f"report_{__version__}.png"
-        )
+        plot_regression_report(basin=basin)
     assert not failures, report

@@ -4,7 +4,6 @@ import json
 import math
 import shutil
 import subprocess
-import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -429,7 +428,7 @@ def report_failures(failures: list[str]) -> str:
     underlying output time series) without re-building or re-running any
     model, use `plot_regression_report`, e.g.:
         from tests.regression.regression_utils import plot_regression_report
-        plot_regression_report("<basin>", save_path=Path("report.png"))
+        plot_regression_report("<basin>")
     See also `build_regression_check`, `plot_metric_comparison` and
     `plot_metric_timeseries` for lower-level building blocks.
     """
@@ -460,7 +459,7 @@ def report_failures(failures: list[str]) -> str:
         "  4. Visualize: Plot actual vs. baseline metrics and the underlying output",
         "     time series (reads existing outputs, does not re-run anything):",
         "       from tests.regression.regression_utils import plot_regression_report",
-        "       plot_regression_report('<basin>', save_path=Path('report.png'))",
+        "       plot_regression_report('<basin>')",
         "",
     ]
     return "\n".join(lines)
@@ -674,15 +673,10 @@ def plot_regression_report(
     fig.suptitle(f"Regression report: {basin}")
     fig.tight_layout()
 
-    if save_path is not None:
-        if save_path.exists():
-            save_path = (
-                Path(tempfile.gettempdir())
-                / "wflow_regression"
-                / f"{save_path.stem}_{int(time.time())}.png"
-            )
-            save_path.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(str(save_path), dpi=150)
-        print(f"Regression report saved to {save_path}")
+    if save_path is None:
+        save_path = run_root / "reports" / f"{basin}.png"
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(str(save_path), dpi=150)
+    print(f"Regression report saved to {save_path}")
 
     return fig
