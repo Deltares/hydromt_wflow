@@ -8,6 +8,21 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+
+Added
+-----
+
+Fixed
+-----
+
+Removed
+-------
+
+Changed
+-------
+
+v1.1.0 (18 August 2026)
+=======================
 Added
 -----
 - **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
