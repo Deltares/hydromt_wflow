@@ -8,22 +8,18 @@ import numpy as np
 import pytest
 import xarray as xr
 from hydromt.readers import read_toml
-from hydromt.writers import write_toml
 from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.components.config import WflowConfigComponent
-from hydromt_wflow.utils import get_config
 from hydromt_wflow.version_upgrade import (
     _UPGRADES,
     _convert_sbm_config_v0_to_v1,
     _detect_version_from_config,
-    _get_land_surface_elevation_name,
     _is_v1_schema,
     _upgrade_components_v0_to_v1_sbm,
     _upgrade_components_v0_to_v1_sediment,
     _upgrade_config_v0_to_v1,
-    _upgrade_config_v1_to_v1_1,
     _validate_options,
     upgrade_model,
 )
@@ -118,34 +114,6 @@ class V0ToV1Assertions:
                 sm["reservoir_trapping_efficiency"].raster.mask_nodata(),
             )
         )
-
-
-class V1ToV1_1Assertions:
-    """Assertions that belong to the v1 → v1.1 upgrade step."""
-
-    @staticmethod
-    def assert_sbm_config(
-        upgraded: dict | Path,
-        reference: dict | Path,
-    ) -> None:
-        upgrade_data = upgraded if isinstance(upgraded, dict) else read_toml(upgraded)
-        reference_data = (
-            reference if isinstance(reference, dict) else read_toml(reference)
-        )
-
-        assert_configs_equal(upgrade_data, reference_data)
-        # 'land_surface__elevation' is now a required variable
-        assert (
-            get_config(upgrade_data, "input.static.land_surface__elevation", None)
-            is not None
-        )
-
-    @staticmethod
-    def assert_sediment_config(
-        upgraded: dict | Path,
-        reference: dict | Path,
-    ) -> None:
-        assert_configs_equal(upgraded, reference)
 
 
 class TestUpgradeV0ToV1:
@@ -337,90 +305,6 @@ class TestUpgradeV0ToV1:
         assert (target / "reservoir_hq_2.csv").is_file()
 
 
-class TestUpgradeV1ToV1_1:
-    """Tests _upgrade_v1_to_v1_1 in complete isolation."""
-
-    def test_sbm_config(self, upgrade_data_dir: Path, tmp_path: Path):
-        source = upgrade_data_dir / "sbm" / "v1_0"
-        target = tmp_path / "sbm" / "v1_1"
-        shutil.copytree(source, target)
-        _upgrade_config_v1_to_v1_1(
-            target, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
-        )
-        V1ToV1_1Assertions.assert_sbm_config(
-            upgraded=target / "wflow_sbm.toml",
-            reference=upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
-        )
-
-    def test_sediment_config(self, upgrade_data_dir: Path, tmp_path: Path):
-        source = upgrade_data_dir / "sediment" / "v1_0"
-        target = tmp_path / "sediment" / "v1_1"
-        shutil.copytree(source, target)
-        _upgrade_config_v1_to_v1_1(
-            target, model_type="wflow_sediment", config_filename="wflow_sediment.toml"
-        )
-        V1ToV1_1Assertions.assert_sediment_config(
-            upgraded=target / "wflow_sediment.toml",
-            reference=upgrade_data_dir / "sediment" / "v1_1" / "wflow_sediment.toml",
-        )
-
-    def test_fills_missing_land_surface_elevation_from_existing_staticmaps(
-        self, upgrade_data_dir: Path, tmp_path: Path
-    ):
-        source = upgrade_data_dir / "sbm" / "v1_0"
-        target = tmp_path / "sbm" / "v1_1"
-        shutil.copytree(source, target)
-
-        config = read_toml(target / "wflow_sbm.toml")
-        varname = config["input"]["static"].pop("land_surface__elevation")
-        assert varname == "wflow_dem"
-        write_toml(target / "wflow_sbm.toml", config)
-
-        _upgrade_config_v1_to_v1_1(
-            target, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
-        )
-        after_upgrade = _get_land_surface_elevation_name(config, target)
-        upgraded = read_toml(target / "wflow_sbm.toml")
-        assert after_upgrade == varname
-        assert get_config(upgraded, "input.static.land_surface__elevation") == varname
-
-    def test_logs_setup_basemaps_required_if_no_elevation_layer(
-        self, caplog: pytest.LogCaptureFixture, tmp_path: Path
-    ):
-        root = tmp_path / "model"
-        root.mkdir(parents=True, exist_ok=True)
-        xr.Dataset(
-            data_vars={"dummy": (("y", "x"), np.ones((2, 2), dtype=float))}
-        ).to_netcdf(root / "staticmaps.nc")
-
-        write_toml(
-            root / "wflow_sbm.toml",
-            {
-                "wflow_version": "1.0",
-                "input": {
-                    "path_static": "staticmaps.nc",
-                    "static": {},
-                },
-            },
-        )
-
-        _upgrade_config_v1_to_v1_1(
-            root, model_type="wflow_sbm", config_filename="wflow_sbm.toml"
-        )
-        upgraded = read_toml(root / "wflow_sbm.toml")
-        with caplog.at_level(logging.WARNING):
-            varname = _get_land_surface_elevation_name(upgraded, root)
-            assert varname is None
-            assert (
-                get_config(upgraded, "input.static.land_surface__elevation", None)
-                is None
-            )
-            assert (
-                "Could not find the variable ('input.static.land_surface__elevation')"
-                in caplog.text
-            )
-
-
 @pytest.mark.parametrize(
     ("config_data", "expected"),
     [
@@ -477,7 +361,7 @@ class TestValidateOptions:
 
     @pytest.mark.parametrize(
         "key",
-        ["0.8_1.0", "1.0_1.1"],
+        ["0.8_1.0"],
     )
     def test_valid_keys_coerced_to_version_tuples(self, key: str):
         options = {key: {}}
@@ -530,10 +414,10 @@ class TestUpgradeModelPathBased:
 
         upgrade_model(model_dir, "wflow_sbm")
 
-        # Verify config matches the v1.1 reference
-        V1ToV1_1Assertions.assert_sbm_config(
+        # Verify config matches the v1.0 reference
+        V0ToV1Assertions.assert_sbm_config(
             model_dir / "wflow_sbm.toml",
-            upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
+            upgrade_data_dir / "sbm" / "v1_0" / "wflow_sbm.toml",
         )
 
     def test_sbm_v0_to_latest_writes_staticmaps(
@@ -548,19 +432,6 @@ class TestUpgradeModelPathBased:
 
         assert (model_dir / "staticmaps.nc").is_file()
 
-    def test_sbm_v1_0_to_latest(self, tmp_path: Path, upgrade_data_dir: Path):
-        """v1.0→latest upgrade via path-based API (config-only, no grid changes)."""
-        source = upgrade_data_dir / "sbm" / "v1_0"
-        model_dir = tmp_path / "sbm"
-        shutil.copytree(source, model_dir)
-
-        upgrade_model(model_dir, "wflow_sbm")
-
-        V1ToV1_1Assertions.assert_sbm_config(
-            model_dir / "wflow_sbm.toml",
-            upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
-        )
-
     def test_sediment_v0_to_latest(self, tmp_path: Path, upgrade_data_dir: Path):
         """Full v0→latest upgrade for sediment model."""
         source = upgrade_data_dir / "sediment" / "v0x"
@@ -572,29 +443,16 @@ class TestUpgradeModelPathBased:
         upgraded = WflowSedimentModel(
             model_dir, config_filename="wflow_sediment.toml", mode="r"
         )
-        V1ToV1_1Assertions.assert_sediment_config(
+        V0ToV1Assertions.assert_sediment_config(
             upgraded.config.data,
-            upgrade_data_dir / "sediment" / "v1_1" / "wflow_sediment.toml",
-        )
-
-    def test_sediment_v1_0_to_latest(self, tmp_path: Path, upgrade_data_dir: Path):
-        """v1.0→latest upgrade for sediment model (config-only)."""
-        source = upgrade_data_dir / "sediment" / "v1_0"
-        model_dir = tmp_path / "sediment"
-        shutil.copytree(source, model_dir)
-
-        upgrade_model(model_dir, "wflow_sediment")
-
-        V1ToV1_1Assertions.assert_sediment_config(
-            model_dir / "wflow_sediment.toml",
-            upgrade_data_dir / "sediment" / "v1_1" / "wflow_sediment.toml",
+            upgrade_data_dir / "sediment" / "v1_0" / "wflow_sediment.toml",
         )
 
     def test_skips_if_already_latest(
         self, tmp_path: Path, upgrade_data_dir: Path, caplog: pytest.LogCaptureFixture
     ):
         """upgrade_model() skips when config is already at latest version."""
-        source = upgrade_data_dir / "sbm" / "v1_1"
+        source = upgrade_data_dir / "sbm" / "v1_0"
         model_dir = tmp_path / "sbm"
         shutil.copytree(source, model_dir)
 
@@ -612,9 +470,9 @@ class TestUpgradeModelPathBased:
         # Rename the config file
         (model_dir / "wflow_sbm.toml").rename(model_dir / "custom.toml")
         upgrade_model(model_dir, "wflow_sbm", config_filename="custom.toml")
-        V1ToV1_1Assertions.assert_sbm_config(
+        V0ToV1Assertions.assert_sbm_config(
             model_dir / "custom.toml",
-            upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
+            upgrade_data_dir / "sbm" / "v1_0" / "wflow_sbm.toml",
         )
 
     def test_raises_on_invalid_model_type(self, tmp_path: Path):
@@ -636,9 +494,9 @@ class TestUpgradeModelPathBased:
 
         # Valid options for v0→v1 step (should not raise)
         upgrade_model(model_dir, "wflow_sbm", options={"0.8_1.0": {}})
-        V1ToV1_1Assertions.assert_sbm_config(
+        V0ToV1Assertions.assert_sbm_config(
             model_dir / "wflow_sbm.toml",
-            upgrade_data_dir / "sbm" / "v1_1" / "wflow_sbm.toml",
+            upgrade_data_dir / "sbm" / "v1_0" / "wflow_sbm.toml",
         )
 
     def test_raises_on_invalid_options(self, tmp_path: Path, upgrade_data_dir: Path):

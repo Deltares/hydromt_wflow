@@ -17,7 +17,7 @@ the **temporary storage (ponding) of water on the land surface**, followed by **
 and groundwater recharge**. Although such measures differ in form and scale, their effect is to
 slow overland flow, increase residence time, and promote re-infiltration into the soil.
 
-To better represent these processes, new functionality has been added to the wflow model.
+The wflow model has functionality to represent these processes.
 First, **re-infiltration of overland flow** is now allowed, enabling water that would previously
 be routed laterally downstream to infiltrate back into the soil. Second, a **ponding threshold**
 has been implemented: below a specified water depth, overland flow does not move laterally
@@ -34,7 +34,7 @@ NBS measures that involve surface water retention and infiltration, including:
 - hedgerows / stone lines / springshed revival through trenches and check dams in croplands areas
 - soil bunds / demi-lunes
 
-As a start, two methods have been implemented to set up ponding level in hydromt wflow:
+As a start, two methods were implemented to set up ponding level in hydromt wflow:
 
 - ``setup_ponding_from_map``: creates pond level based on a user specified ``pond_level``
   and a pond location map (raster or vector). The ponding level is applied to all grid cells

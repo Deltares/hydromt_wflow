@@ -241,6 +241,7 @@ clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/examples"] }
 clean-docs-gen = { cmd = ["rm", "-rf", "docs/**/_generated", "||", "true"] }
 
+# Julia
 [tool.pixi.feature.julia.tasks]
 install-wflow-julia = { cmd = ["julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Pkg; Pkg.instantiate(); Pkg.precompile()'], args=["WFLOW_JULIA_REPO"] }
 run-wflow-julia = { cmd = [ "julia", "--project={{ WFLOW_JULIA_REPO }}", "-e", 'using Wflow; Wflow.run(raw"{{ CONFIG_TOML }}")' ], args = ["CONFIG_TOML", "WFLOW_JULIA_REPO"] }
@@ -248,6 +249,7 @@ build-system-test-sbm = { cmd=["hydromt", "build", "wflow_sbm", "{{ ROOT }}", "-
 build-system-test-sediment = { cmd=["hydromt", "update", "wflow_sediment", "{{ SBM_ROOT }}", "-i", "./tests/data/system_test_build_sediment_from_sbm.yml", "-d", "artifact_data", "--fo", "-v" ], args=["SBM_ROOT"] }
 system-test = { depends-on = [
   { task="_remove-dir",                  args=["{{ TEST_ROOT }}"]},
+  { task="install-wflow-julia",         args=["{{ WFLOW_JULIA_REPO }}"] },
   { task="build-system-test-sbm",       args=["{{ TEST_ROOT }}/wflow_sbm"]},
   { task="run-wflow-julia",             args=["{{ TEST_ROOT }}/wflow_sbm/wflow_sbm.toml", "{{ WFLOW_JULIA_REPO }}"]},
   { task="build-system-test-sediment",  args=["{{ TEST_ROOT }}/wflow_sbm"]},
@@ -333,7 +335,7 @@ build-testdata-artifacts = [{task = "build-example-model-all"}, {task = "build-f
 
 # Testing
 [tool.pixi.feature.test.tasks]
-test = { cmd = "pytest" }
+test = { cmd = "pytest -m 'not regression'" }
 test-lf = { cmd = "pytest --lf --tb=short" }
 build-test-model-simple = { cmd = "hydromt build wflow_sbm ./wflow_test_simple -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ../examples/wflow_build.yml -d artifact_data -vv", cwd = "tests" }
 build-test-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -r {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]} -i ./data/wflow_piave_build_subbasin.yml -d artifact_data -vv", cwd = "tests" }

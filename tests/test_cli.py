@@ -98,7 +98,7 @@ class TestUpgradeCLI:
         assert Path(output, "wflow_sediment.toml").is_file()
 
     def test_already_latest(self, runner, tmp_path, upgrade_data_dir):
-        source = str(upgrade_data_dir / "sbm" / "v1_1")
+        source = str(upgrade_data_dir / "sbm" / "v1_0")
         output = str(tmp_path / "already_latest")
         result = runner.invoke(
             main,

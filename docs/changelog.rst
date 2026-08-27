@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v1.1.0 (18 August 2026)
+=======================
 Added
 -----
 - **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
@@ -27,6 +27,7 @@ Fixed
 - The variable set for land surface elevation when using 2D floodplains was incorrectly set to the elevation, instead of the D4 conditioned elevation (#765)
 - Fixed outdated imports in ``hydromt_wflow.components.staticmaps``. (#782)
 - Fixed `hydrography` workflow to correctly remove no data values outside of the model region. (#785)
+
 
 Removed
 -------
