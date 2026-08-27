@@ -517,7 +517,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-08-27 12:35:37,341 - hydromt - log - INFO - HydroMT version: 1.4.1
+2026-08-27 12:37:16,075 - hydromt - log - INFO - HydroMT version: 1.4.1
 </pre></div></div>
 </div>
 </section>
@@ -547,10 +547,10 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-08-27 12:35:37,631 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-08-27 12:35:37,632 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-08-27 12:35:37,669 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-08-27 12:35:37,670 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
+2026-08-27 12:37:16,361 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-08-27 12:37:16,362 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-08-27 12:37:16,397 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-08-27 12:37:16,399 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -637,13 +637,13 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-08-27 12:35:38,443 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Snapping river segments using geom_snapping_tolerance = 0.001.
-2026-08-27 12:35:38,445 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - 0 river segments were snapped. Update `geom_snapping_tolerance` if this leads to issues.
-2026-08-27 12:35:38,445 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Linking 1D river to wflow river
-2026-08-27 12:35:39,946 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving tributaries
-2026-08-27 12:35:40,058 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving lateral subbasins based on subbasin area threshold: 30.0 km2
-2026-08-27 12:35:40,556 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to netcdf_scalar section of toml.
-2026-08-27 12:35:40,575 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__lateral_inflow_volume_flow_rate&#39;] to netcdf_scalar section of toml.
+2026-08-27 12:37:17,150 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Snapping river segments using geom_snapping_tolerance = 0.001.
+2026-08-27 12:37:17,152 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - 0 river segments were snapped. Update `geom_snapping_tolerance` if this leads to issues.
+2026-08-27 12:37:17,152 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Linking 1D river to wflow river
+2026-08-27 12:37:18,634 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving tributaries
+2026-08-27 12:37:18,731 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving lateral subbasins based on subbasin area threshold: 30.0 km2
+2026-08-27 12:37:19,207 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to netcdf_scalar section of toml.
+2026-08-27 12:37:19,227 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__lateral_inflow_volume_flow_rate&#39;] to netcdf_scalar section of toml.
 </pre></div></div>
 </div>
 <p>We can see than in that case the toml was already updated to save the relevant outputs for our new gauges and subcatch:</p>
@@ -771,17 +771,17 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-08-27 12:35:40,862 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-08-27 12:35:40,863 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-08-27 12:35:40,883 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-08-27 12:35:40,884 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
-2026-08-27 12:35:41,102 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Snapping river segments using geom_snapping_tolerance = 0.001.
-2026-08-27 12:35:41,104 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - 0 river segments were snapped. Update `geom_snapping_tolerance` if this leads to issues.
-2026-08-27 12:35:41,104 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Linking 1D river to wflow river
-2026-08-27 12:35:41,146 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving tributaries
-2026-08-27 12:35:41,247 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving lateral subbasins based on subbasin area threshold: 30.0 km2
-2026-08-27 12:35:41,429 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to netcdf_scalar section of toml.
-2026-08-27 12:35:41,447 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__lateral_inflow_volume_flow_rate&#39;] to netcdf_scalar section of toml.
+2026-08-27 12:37:19,495 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-08-27 12:37:19,496 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-08-27 12:37:19,517 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-08-27 12:37:19,518 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
+2026-08-27 12:37:19,734 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Snapping river segments using geom_snapping_tolerance = 0.001.
+2026-08-27 12:37:19,736 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - 0 river segments were snapped. Update `geom_snapping_tolerance` if this leads to issues.
+2026-08-27 12:37:19,736 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Linking 1D river to wflow river
+2026-08-27 12:37:19,779 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving tributaries
+2026-08-27 12:37:19,866 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving lateral subbasins based on subbasin area threshold: 30.0 km2
+2026-08-27 12:37:20,037 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to netcdf_scalar section of toml.
+2026-08-27 12:37:20,056 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Adding [&#39;river_water__lateral_inflow_volume_flow_rate&#39;] to netcdf_scalar section of toml.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -884,11 +884,11 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2026-08-27 12:35:41,734 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
-2026-08-27 12:35:41,734 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2026-08-27 12:35:41,757 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
-2026-08-27 12:35:41,759 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
-2026-08-27 12:35:41,990 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving subbasins based on 1D river nodes snapped to wflow river
+2026-08-27 12:37:20,310 - hydromt.model.model - model - INFO - Initializing wflow_sbm model from hydromt_wflow (v1.0.3.dev0).
+2026-08-27 12:37:20,310 - hydromt.data_catalog.data_catalog - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2026-08-27 12:37:20,331 - hydromt.hydromt_wflow.components.config - config - INFO - Reading model config file from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sbm.toml.
+2026-08-27 12:37:20,333 - hydromt.hydromt_wflow.wflow_base - wflow_base - INFO - Supported Wflow.jl version v1.1.
+2026-08-27 12:37:20,553 - hydromt.hydromt_wflow.workflows.connect - connect - INFO - Deriving subbasins based on 1D river nodes snapped to wflow river
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
