@@ -578,6 +578,10 @@ def test_setup_floodplains_1d(
         )
         == "floodplain_volume"
     )
+    assert (
+        example_wflow_model.config.get_value("input.static.floodplain__slope")
+        == example_wflow_model._MAPS["rivslp"]
+    )
     name = example_wflow_model._MAPS["floodplain_volume"]
     assert np.all(
         example_wflow_model.staticmaps.data[name].flood_depth.values == flood_depths
