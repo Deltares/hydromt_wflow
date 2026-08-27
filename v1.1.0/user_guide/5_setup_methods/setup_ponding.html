@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Setup Ponding &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/5_setup_methods/setup_ponding';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Setup grid from geodataset" href="setup_grid_from_geodataset.html" />
+    <link rel="prev" title="Setup Agroforestry" href="setup_agroforestry.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../1_getting_started_hydromt/index.html">Getting started with HydroMT</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/overview/hydromt_cli.html">Command Line Interface</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../1_getting_started_hydromt/data_catalog.html">Data Catalog</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_prepare_cat.html">Preparing a data catalog</a></li>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_types.html">Supported data types</a></li>
+<li class="toctree-l3"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_catalog/data_existing_cat.html">Predefined catalogs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/models/model_region.html">Model Region</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../2_sbm_model/index.html">Working with the Wflow SBM model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/1_methods_components.html">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/2_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/3_update.html">Updating a model</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../2_sbm_model/4_clip.html">Clipping a model</a></li>
+
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../3_sediment_model/index.html">Working with the Wflow Sediment model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/1_methods_components.html">Model methods and components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/2_build.html">Building a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/3_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../3_sediment_model/4_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../4_pre_and_post_processing/index.html">Pre and postprocessing and visualization</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Technical description</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setup_x.html">Setup Method: setup_x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_lulcmaps.html">Setup_lulcmaps and related methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_agroforestry.html">Setup Agroforestry</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Setup Ponding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_grid_from_geodataset.html">Setup grid from geodataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../6_migration_guide/index.html">Migration Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../6_migration_guide/migration_hydromt.html">Migrating to HydroMT v1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../6_migration_guide/migration_wflow.html">Migrating to Wflow.jl v1.0.0</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Technical description</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Setup Ponding</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="setup-ponding">
+<h1>Setup Ponding<a class="headerlink" href="#setup-ponding" title="Link to this heading">#</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The methods <code class="docutils literal notranslate"><span class="pre">setup_ponding_from_map</span></code> and <code class="docutils literal notranslate"><span class="pre">setup_ponding_from_threshold</span></code>
+will be added in a future release when wflow.jl supports it. The
+documentation for these methods is already included here in anticipation
+of that support.</p>
+</div>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
+<p>Many nature-based solutions (NBS) for water management share a common hydrological mechanism:
+the <strong>temporary storage (ponding) of water on the land surface</strong>, followed by <strong>enhanced infiltration
+and groundwater recharge</strong>. Although such measures differ in form and scale, their effect is to
+slow overland flow, increase residence time, and promote re-infiltration into the soil.</p>
+<p>The wflow model has functionality to represent these processes.
+First, <strong>re-infiltration of overland flow</strong> is now allowed, enabling water that would previously
+be routed laterally downstream to infiltrate back into the soil. Second, a <strong>ponding threshold</strong>
+has been implemented: below a specified water depth, overland flow does not move laterally
+but ponds on the land surface, increasing the potential for infiltration and recharge. When
+this threshold is exceeded, excess water resumes lateral flow.</p>
+<p>This ponding concept provides a flexible, process-based representation of a wide range of
+NBS measures that involve surface water retention and infiltration, including:</p>
+<ul class="simple">
+<li><p>rainwater harvesting</p></li>
+<li><p>terracing</p></li>
+<li><p>small ponds in forested hillslope</p></li>
+<li><p>plastic-lined water harvesting ponds in cropland area</p></li>
+<li><p>hedgerows / stone lines / springshed revival through trenches and check dams in croplands areas</p></li>
+<li><p>soil bunds / demi-lunes</p></li>
+</ul>
+<p>As a start, two methods were implemented to set up ponding level in hydromt wflow:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">setup_ponding_from_map</span></code>: creates pond level based on a user specified <code class="docutils literal notranslate"><span class="pre">pond_level</span></code>
+and a pond location map (raster or vector). The ponding level is applied to all grid cells
+where the ponding map indicates the presence of a pond (all non-nodata values for a raster
+or all features for a vector).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setup_ponding_from_thresholds</span></code>: creates pond level based on a user specified <code class="docutils literal notranslate"><span class="pre">pond_level</span></code>
+and a suitability map derived from landuse and/or hydrography criteria. The topographic
+criteria are based on the elevation, slope and hand maps, and the landuse criteria are
+based on the landuse map. For each criterion, a range of suitable values can be defined,
+and the final ponding suitability is determined by the intersection of all criteria.</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">setup_ponding_from_thresholds</span></code>, the suitability map is derived by combining landuse
+classes with elevation criteria. Elevation criteria including ranges in elevation, slope and
+hand as used in <a class="reference external" href="https://hess.copernicus.org/articles/15/3275/2011/hess-15-3275-2011.pdf">Gharari et al. (2011)</a>
+which defines a hydrological landscape classification than can be useful for NBS:</p>
+<ul class="simple">
+<li><p>Wetland (flat): HAND &lt; 5.9m &amp; slope &lt; 0.129</p></li>
+<li><p>Wetland (sloped): HAND &lt; 5.9m &amp; slope &gt;= 0.129</p></li>
+<li><p>Plateau: HAND &gt;= 5.9m &amp; slope &lt; 0.129</p></li>
+<li><p>Hillslope: HAND &gt;= 5.9m &amp; slope &gt;= 0.129</p></li>
+</ul>
+<figure class="align-default">
+<img alt="../../_images/suitability_maps_piave.png" src="../../_images/suitability_maps_piave.png" />
+</figure>
+</section>
+<section id="example-usage">
+<h2>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading">#</a></h2>
+<section id="setup-ponding-from-map">
+<h3>Setup ponding from map<a class="headerlink" href="#setup-ponding-from-map" title="Link to this heading">#</a></h3>
+<p>In this example, we will set up ponding in a Wflow model based on a user-defined ponding map
+(vector file). We will specify a ponding level that determines the maximum depth at which
+water will pond on the surface.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
+<p>The definition of the method and the arguments is done in a workflow file (YAML format).
+The workflow file can then be used to build or update a model from the command line interface.
+Here our input files have a simple format so we can use file paths instead of data
+catalog entries:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_ponding&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/add_ponding.yaml&quot;</span><span class="w"> </span>-v
+</pre></div>
+</div>
+<p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_ponding.yaml</span></code>) would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_ponding_from_map</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">pond_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./path/to/pond_locations.shp&quot;</span><span class="w"> </span><span class="c1"># polygons with pond locations</span>
+<span class="w">      </span><span class="nt">pond_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"> </span><span class="c1"># ponding level in m</span>
+<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ponding_level&quot;</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Python API</label><div class="sd-tab-content docutils">
+<p>For python, you need to first instantiate a Wflow model and then call the setup methods directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
+
+<span class="c1"># instantiate model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
+    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># add static inflows at GRDC gauges</span>
+<span class="n">model</span><span class="o">.</span><span class="n">setup_ponding_from_map</span><span class="p">(</span>
+    <span class="n">pond_fn</span><span class="o">=</span><span class="s2">&quot;./path/to/pond_locations.shp&quot;</span><span class="p">,</span> <span class="c1"># polygons with pond locations</span>
+    <span class="n">pond_level</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="c1"># ponding level in m</span>
+    <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;ponding_level&quot;</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="setup-ponding-from-thresholds">
+<h3>Setup ponding from thresholds<a class="headerlink" href="#setup-ponding-from-thresholds" title="Link to this heading">#</a></h3>
+<p>In this example, we will set up ponding in a Wflow model based on user-defined suitability
+criteria derived from landuse and hydrography maps. For example in the case of small ponds in forested hillslopes.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
+<p>The definition of the method and the arguments is done in a workflow file (YAML format).
+The workflow file can then be used to build or update a model from the command line interface.
+Here our input files have a simple format so we can use file paths instead of data
+catalog entries:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_ponding&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/add_ponding.yaml&quot;</span><span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
+</pre></div>
+</div>
+<p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_ponding.yaml</span></code>) would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_ponding_from_thresholds</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;vito_2015&quot;</span><span class="w"> </span><span class="c1"># landuse map</span>
+<span class="w">      </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;merit_hydro_ihu&quot;</span><span class="w"> </span><span class="c1"># hydrography data</span>
+<span class="w">      </span><span class="nt">lulc_classes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">111</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">112</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">113</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">114</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">115</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">116</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># closed forest classes in vito_2015</span>
+<span class="w">      </span><span class="nt">elevtn_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(0, 2000)</span><span class="w"> </span><span class="c1"># elevation range in m</span>
+<span class="w">      </span><span class="nt">slope_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(0.129, 0.3)</span><span class="w"> </span><span class="c1"># slope range in m/m</span>
+<span class="w">      </span><span class="nt">hand_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(5.9, 20)</span><span class="w"> </span><span class="c1"># hand range in m</span>
+<span class="w">      </span><span class="nt">pond_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.02</span><span class="w"> </span><span class="c1"># ponding level in m</span>
+<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ponding_level_forested_hillslope&quot;</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Python API</label><div class="sd-tab-content docutils">
+<p>For python, you need to first instantiate a Wflow model and then call the setup methods directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
+
+<span class="c1"># instantiate model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
+    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+    <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># add static inflows at GRDC gauges</span>
+<span class="n">model</span><span class="o">.</span><span class="n">setup_ponding_from_thresholds</span><span class="p">(</span>
+    <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;vito_2015&quot;</span><span class="p">,</span> <span class="c1"># landuse map</span>
+    <span class="n">hydrography_fn</span><span class="o">=</span><span class="s2">&quot;merit_hydro_ihu&quot;</span><span class="p">,</span> <span class="c1"># hydrography data</span>
+    <span class="n">lulc_classes</span><span class="o">=</span><span class="p">[</span><span class="mi">111</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">113</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">116</span><span class="p">],</span> <span class="c1"># closed forest classes in vito_2015</span>
+    <span class="n">elevtn_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="c1"># elevation range in m</span>
+    <span class="n">slope_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.129</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="c1"># slope range in m/m</span>
+    <span class="n">hand_range</span><span class="o">=</span><span class="p">(</span><span class="mf">5.9</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="c1"># hand range in m</span>
+    <span class="n">pond_level</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="c1"># ponding level in m</span>
+    <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;ponding_level_forested_hillslope&quot;</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="setup_agroforestry.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Setup Agroforestry</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="setup_grid_from_geodataset.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Setup grid from geodataset</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-usage">Example usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-ponding-from-map">Setup ponding from map</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-ponding-from-thresholds">Setup ponding from thresholds</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
