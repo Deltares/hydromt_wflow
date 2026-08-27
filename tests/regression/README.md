@@ -142,10 +142,14 @@ Commit the updated files together with the code change that caused the deviation
 When the assertion step fails, the test output explains what exceeded tolerance and
 lists three follow-up options:
 
-1. **Fix the regression** — identify the code change that shifted the output, correct it,
+1. **Visualize and inspect the difference** — if there are any failures, plots of
+   actual vs. baseline metrics and the underlying output time series will by
+   default be created at ``tests/regression/.runs/reports/<basin>.png``.
+
+2. **Fix the regression** — identify the code change that shifted the output, correct it,
    re-run the pipeline, and verify the metrics pass.
 
-2. **Accept the change and regenerate** — if the deviation is expected (e.g. a deliberate
+3. **Accept the change and regenerate** — if the deviation is expected (e.g. a deliberate
    model improvement), regenerate the baseline metrics and commit the updated JSON files:
 
    ```bash
@@ -154,7 +158,7 @@ lists three follow-up options:
 
    Re-run the assertion to confirm the new baseline passes.
 
-3. **Widen tolerances** — if the deviation is within acceptable physical bounds but
+4. **Widen tolerances** — if the deviation is within acceptable physical bounds but
    exceeds the current threshold, update `rel_tol` / `abs_tol` in
    `tests/regression/<basin>/config.json`.
 

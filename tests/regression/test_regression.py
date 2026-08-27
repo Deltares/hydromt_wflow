@@ -19,6 +19,7 @@ from tests.regression.regression_utils import (
     emit_teamcity_stats,
     get_basins_for_profile,
     load_basin_config,
+    plot_regression_report,
     repo_root,
     report_failures,
     resolve_path,
@@ -137,4 +138,6 @@ def test_basin_regression_metrics(basin, request):
     )
 
     report = report_failures(failures)
+    if failures:
+        plot_regression_report(basin=basin)
     assert not failures, report
