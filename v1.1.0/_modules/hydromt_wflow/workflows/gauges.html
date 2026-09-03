@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/gauges';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,7 +425,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.workflows.gauges</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Gauges workflows for Wflow plugin.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Gauges workflows for Wflow plugin."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
@@ -435,10 +435,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">flw</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gauge_map_uparea&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"gauge_map_uparea"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="gauge_map_uparea">
@@ -446,14 +446,14 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">gauge_map_uparea</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-    <span class="n">uparea_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;meta_upstream_area&quot;</span><span class="p">,</span>
+    <span class="n">uparea_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"meta_upstream_area"</span><span class="p">,</span>
     <span class="n">mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">wdw</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">rel_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">abs_error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">fillna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Snap point locations to grid cell.</span>
 
 <span class="sd">    With smallest difference in upstream area within `wdw` around the</span>
@@ -469,7 +469,7 @@
 <span class="sd">    gdf : gpd.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame with gauge points and uparea column.</span>
 <span class="sd">    uparea_name : str, optional</span>
-<span class="sd">        Name of the upstream area variable in ``ds``, by default &quot;meta_upstream_area&quot;.</span>
+<span class="sd">        Name of the upstream area variable in ``ds``, by default "meta_upstream_area".</span>
 <span class="sd">    mask : np.ndarray, optional</span>
 <span class="sd">        Mask cells to apply the uparea snapping, by default None.</span>
 <span class="sd">    wdw : int, optional</span>
@@ -480,7 +480,7 @@
 <span class="sd">    abs_error : float, optional</span>
 <span class="sd">        Absolute error threshold to accept the best matching cell, by default (50 km2).</span>
 <span class="sd">    fillna : bool, optional</span>
-<span class="sd">        Fill NaN values in gdf[&quot;uparea&quot;] with uparea from ds, by default False.</span>
+<span class="sd">        Fill NaN values in gdf["uparea"] with uparea from ds, by default False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -491,65 +491,65 @@
 <span class="sd">    ids_out : np.ndarray</span>
 <span class="sd">        Array of gauge point ids.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;uparea_name </span><span class="si">{</span><span class="n">uparea_name</span><span class="si">}</span><span class="s2"> not found in ds.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"uparea_name </span><span class="si">{</span><span class="n">uparea_name</span><span class="si">}</span><span class="s2"> not found in ds."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;All gauges have NaN values for uparea. Use another method for snapping.&quot;</span>
+            <span class="s2">"All gauges have NaN values for uparea. Use another method for snapping."</span>
         <span class="p">)</span>
 
     <span class="c1"># Original number of gauges</span>
     <span class="n">nb_gauges_before_snapping</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span>
 
-    <span class="c1"># Find if there are any nodata in gdf[&quot;uparea&quot;]</span>
-    <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="c1"># Find if there are any nodata in gdf["uparea"]</span>
+    <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="c1"># Index of gauges with NaN values</span>
-        <span class="n">nodata_gauges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()])</span>
+        <span class="n">nodata_gauges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()])</span>
         <span class="k">if</span> <span class="n">fillna</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Gauges with ID </span><span class="si">{</span><span class="n">nodata_gauges</span><span class="si">}</span><span class="s2"> have NaN values for uparea.&quot;</span>
-                <span class="s2">&quot;Uparea from wflow will be used and they won&#39;t be snapped.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Gauges with ID </span><span class="si">{</span><span class="n">nodata_gauges</span><span class="si">}</span><span class="s2"> have NaN values for uparea."</span>
+                <span class="s2">"Uparea from wflow will be used and they won't be snapped."</span>
             <span class="p">)</span>
             <span class="c1"># Replace nan values in gdf with uparea from wflow</span>
             <span class="n">uparea_wflow</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">wdw</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">uparea_wflow</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">())</span>
+            <span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">uparea_wflow</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Gauges with ID </span><span class="si">{</span><span class="n">nodata_gauges</span><span class="si">}</span><span class="s2"> have NaN values for uparea.&quot;</span>
-                <span class="s2">&quot;They will be ignored.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Gauges with ID </span><span class="si">{</span><span class="n">nodata_gauges</span><span class="si">}</span><span class="s2"> have NaN values for uparea."</span>
+                <span class="s2">"They will be ignored."</span>
             <span class="p">)</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
 
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="c1"># Add mask to ds</span>
     <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">))</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">))</span>
 
     <span class="n">ds_wdw</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">wdw</span><span class="o">=</span><span class="n">wdw</span><span class="p">)</span>
     <span class="c1"># Mask valid cells in ds_wdw</span>
     <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">ds_wdw</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span> <span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+            <span class="n">ds_wdw</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">],</span> <span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
         <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Snapping gauges points to best matching uparea cell within wdw (size=</span><span class="si">{</span><span class="n">wdw</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="sa">f</span><span class="s2">"Snapping gauges points to best matching uparea cell within wdw (size=</span><span class="si">{</span><span class="n">wdw</span><span class="si">}</span><span class="s2">)."</span>
     <span class="p">)</span>
-    <span class="n">upa0</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">))</span>
+    <span class="n">upa0</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"uparea"</span><span class="p">],</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"index"</span><span class="p">))</span>
     <span class="n">upa_dff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_wdw</span><span class="p">[</span><span class="n">uparea_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span> <span class="o">-</span> <span class="n">upa0</span><span class="p">)</span>
     <span class="n">upa_check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="n">upa_dff</span> <span class="o">/</span> <span class="n">upa0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">rel_error</span><span class="p">,</span> <span class="n">upa_dff</span> <span class="o">&lt;=</span> <span class="n">abs_error</span><span class="p">)</span>
 
     <span class="c1"># drop index will all nan values</span>
-    <span class="n">upa_dff</span> <span class="o">=</span> <span class="n">upa_dff</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="n">upa_dff</span> <span class="o">=</span> <span class="n">upa_dff</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"index"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"all"</span><span class="p">)</span>
     <span class="n">upa_check</span> <span class="o">=</span> <span class="n">upa_check</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">upa_dff</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">ds_wdw</span> <span class="o">=</span> <span class="n">ds_wdw</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">upa_dff</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
     <span class="c1"># find best matching uparea cell in window</span>
-    <span class="n">i_wdw</span> <span class="o">=</span> <span class="n">upa_dff</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="s2">&quot;wdw&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="n">i_wdw</span> <span class="o">=</span> <span class="n">upa_dff</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="s2">"wdw"</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
     <span class="n">idx_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">upa_check</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">wdw</span><span class="o">=</span><span class="n">i_wdw</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">idx_valid</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">idx_valid</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> gauge points successfully snapped.&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">idx_valid</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> gauge points successfully snapped."</span>
         <span class="p">)</span>
     <span class="n">i_wdw</span> <span class="o">=</span> <span class="n">i_wdw</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">idx_valid</span><span class="p">)</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_wdw</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">wdw</span><span class="o">=</span><span class="n">i_wdw</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">idx_valid</span><span class="p">)</span>
@@ -570,8 +570,8 @@
 
     <span class="c1"># Final message</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Snapped </span><span class="si">{</span><span class="n">idxs_out</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">nb_gauges_before_snapping</span><span class="si">}</span><span class="s2"> gauge points &quot;</span>
-        <span class="s2">&quot;to best matching uparea cell.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Snapped </span><span class="si">{</span><span class="n">idxs_out</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">nb_gauges_before_snapping</span><span class="si">}</span><span class="s2"> gauge points "</span>
+        <span class="s2">"to best matching uparea cell."</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">da</span><span class="p">,</span> <span class="n">idxs_out</span><span class="p">,</span> <span class="n">ids_out</span></div>
@@ -631,8 +631,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -666,7 +666,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

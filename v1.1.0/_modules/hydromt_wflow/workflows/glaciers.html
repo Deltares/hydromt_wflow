@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/glaciers';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,7 +425,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.workflows.glaciers</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Glaciers workflows for Wflow plugin.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Glaciers workflows for Wflow plugin."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
@@ -433,24 +433,24 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;glaciermaps&quot;</span><span class="p">,</span> <span class="s2">&quot;glacierattrs&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"glaciermaps"</span><span class="p">,</span> <span class="s2">"glacierattrs"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="glaciermaps">
 <a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.glaciers.glaciermaps.html#hydromt_wflow.workflows.glaciers.glaciermaps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">glaciermaps</span><span class="p">(</span>
-    <span class="n">gdf</span><span class="p">:</span> <span class="s2">&quot;gpd.GeoDataFrame&quot;</span><span class="p">,</span>
-    <span class="n">ds_like</span><span class="p">:</span> <span class="s2">&quot;xr.Dataset&quot;</span><span class="p">,</span>
-    <span class="n">id_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;simple_id&quot;</span><span class="p">,</span>
-    <span class="n">elevtn_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elevtn&quot;</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="s2">"gpd.GeoDataFrame"</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="s2">"xr.Dataset"</span><span class="p">,</span>
+    <span class="n">id_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"simple_id"</span><span class="p">,</span>
+    <span class="n">elevtn_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elevtn"</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return glacier maps (see list below) at model resolution.</span>
+<span class="w">    </span><span class="sd">"""Return glacier maps (see list below) at model resolution.</span>
 
 <span class="sd">    The following glacier maps are calculated:</span>
 
@@ -464,14 +464,14 @@
 <span class="sd">        GeoDataFrame containing glacier geometries and attributes.</span>
 <span class="sd">    ds_like : xarray.Dataset</span>
 <span class="sd">        Dataset at model resolution.</span>
-<span class="sd">    id_column : str, optional, one of &quot;simple_id&quot;, &quot;C3S_id&quot;, &quot;RGI_id&quot;, or &quot;GLIMS_id&quot;</span>
+<span class="sd">    id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"</span>
 <span class="sd">        Column used for the glacier IDs, see data/data_sources.yml.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xarray.Dataset</span>
 <span class="sd">        Dataset containing gridded glacier data</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Rasterize the GeoDataFrame to get the areas mask of glaciers with their ids</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
         <span class="n">gdf</span><span class="p">,</span>
@@ -480,28 +480,28 @@
         <span class="n">all_touched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;glacareas&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int32"</span><span class="p">)</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"glacareas"</span><span class="p">)</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
 
     <span class="c1"># Calculate glacier storage for each glacier</span>
-    <span class="c1"># &#39;old&#39; version to calculate storage, by calculating area from the glacier geometry</span>
-    <span class="c1"># proj = partial(pyproj.transform, pyproj.Proj(&#39;epsg:4326&#39;),</span>
-    <span class="c1"># pyproj.Proj(&#39;epsg:3857&#39;))</span>
+    <span class="c1"># 'old' version to calculate storage, by calculating area from the glacier geometry</span>
+    <span class="c1"># proj = partial(pyproj.transform, pyproj.Proj('epsg:4326'),</span>
+    <span class="c1"># pyproj.Proj('epsg:3857'))</span>
     <span class="c1"># def calcStore(polygon, k=0.2055, gamma=1.375, proj=proj):</span>
     <span class="c1">#    return np.int(k * transform(proj, polygon).area ** gamma)</span>
-    <span class="c1"># gdf[&#39;glaciervolume&#39;] = gdf.apply(lambda row: calcStore(row[&#39;geometry&#39;]), axis=1)</span>
+    <span class="c1"># gdf['glaciervolume'] = gdf.apply(lambda row: calcStore(row['geometry']), axis=1)</span>
     <span class="c1"># def convStoremm(polygon, volm3, rhoice=0.9, proj=proj):</span>
     <span class="c1">#    return np.int(rhoice * volm3 / transform(proj, polygon).area * 1000)</span>
-    <span class="c1"># gdf[&#39;glacierstore&#39;] = gdf.apply(lambda row: convStoremm(row[&#39;geometry&#39;],</span>
-    <span class="c1"># row[&#39;glaciervolume&#39;]), axis=1)</span>
-    <span class="c1"># &#39;new&#39; version to calculate storage, because the &#39;old&#39; version is now returning</span>
+    <span class="c1"># gdf['glacierstore'] = gdf.apply(lambda row: convStoremm(row['geometry'],</span>
+    <span class="c1"># row['glaciervolume']), axis=1)</span>
+    <span class="c1"># 'new' version to calculate storage, because the 'old' version is now returning</span>
     <span class="c1"># inf/nan values, using the area listed in the dataset</span>
 
-    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># fix potential geometry errors</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># fix potential geometry errors</span>
     <span class="c1"># TODO: use alternative to calculate area? There seems to be a factor 2 difference</span>
     <span class="c1"># with the AREA column</span>
-    <span class="c1"># gdf[&quot;AREA2&quot;] = gdf.to_crs(3857).area / 1e6  # km2, area calculation</span>
+    <span class="c1"># gdf["AREA2"] = gdf.to_crs(3857).area / 1e6  # km2, area calculation</span>
     <span class="c1"># needs projected crs</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calcStore</span><span class="p">(</span><span class="n">areakm2</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.2055</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">1.375</span><span class="p">):</span>
@@ -510,71 +510,71 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">convStoremm</span><span class="p">(</span><span class="n">areakm2</span><span class="p">,</span> <span class="n">volm3</span><span class="p">,</span> <span class="n">rhoice</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">rhoice</span> <span class="o">*</span> <span class="n">volm3</span> <span class="o">/</span> <span class="p">(</span><span class="n">areakm2</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
 
-    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;glaciervolume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">calcStore</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;AREA&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;glacierstore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">convStoremm</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;AREA&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;glaciervolume&quot;</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">"glaciervolume"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">calcStore</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"AREA"</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">"glacierstore"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">convStoremm</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"AREA"</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">"glaciervolume"</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>
 
     <span class="c1"># Create vector grid (for calculating fraction and storage per grid cell)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;Creating vector grid for calculating glacier fraction and </span><span class="se">\</span>
-<span class="s2">storage per grid cell&quot;</span>
+        <span class="s2">"Creating vector grid for calculating glacier fraction and </span><span class="se">\</span>
+<span class="s2">storage per grid cell"</span>
     <span class="p">)</span>
     <span class="n">elevtn</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">elevtn_name</span><span class="p">]</span>
     <span class="n">idx_valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">elevtn</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="o">!=</span> <span class="n">elevtn</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">gdf_grid</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vector_grid</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_valid</span><span class="p">]</span>
-    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">&quot;glacierfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_valid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">&quot;glacierstore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_valid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>  <span class="c1"># area calculation in projected crs</span>
+    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">"glacierfrac"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_valid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">"glacierstore"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_valid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">gdf_grid</span><span class="p">[</span><span class="s2">"area"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>  <span class="c1"># area calculation in projected crs</span>
 
     <span class="c1"># reproject to match ds_like CRS</span>
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
 
     <span class="c1"># Calculate fraction and storage (i.e. volume) per (vector) grid cell</span>
     <span class="c1"># Looping over each vector GLACIER</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting glacierfrac and store values per glacier.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Setting glacierfrac and store values per glacier."</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">)):</span>
         <span class="n">glacier</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">gridded_glacier</span> <span class="o">=</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">glacier</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
         <span class="n">gridded_glacier</span> <span class="o">=</span> <span class="n">gridded_glacier</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">gridded_glacier</span><span class="o">.</span><span class="n">is_empty</span><span class="p">]</span>
         <span class="n">idxs</span> <span class="o">=</span> <span class="n">gridded_glacier</span><span class="o">.</span><span class="n">index</span>
-        <span class="c1"># logger.debug(f&quot;index: {i}, ID: {glacier[id_column]} // {len(idxs)} cells&quot;)</span>
+        <span class="c1"># logger.debug(f"index: {i}, ID: {glacier[id_column]} // {len(idxs)} cells")</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">idxs</span><span class="p">):</span>
             <span class="n">garea_cell</span> <span class="o">=</span> <span class="n">gridded_glacier</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span>
                 <span class="mi">3857</span>
             <span class="p">)</span><span class="o">.</span><span class="n">area</span>  <span class="c1"># area calculation needs projected crs</span>
             <span class="n">gfrac</span> <span class="o">=</span> <span class="n">garea_cell</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">garea_cell</span><span class="p">)</span>
-            <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">&quot;glacierfrac&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="n">garea_cell</span> <span class="o">/</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">]</span>
+            <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">"glacierfrac"</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">garea_cell</span> <span class="o">/</span> <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">"area"</span><span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">&quot;glacierstore&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="n">gfrac</span> <span class="o">*</span> <span class="n">glacier</span><span class="p">[</span><span class="s2">&quot;glacierstore&quot;</span><span class="p">]</span>
+            <span class="n">gdf_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="s2">"glacierstore"</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">gfrac</span> <span class="o">*</span> <span class="n">glacier</span><span class="p">[</span><span class="s2">"glacierstore"</span><span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># reproject back to original projection</span>
     <span class="c1"># Create the rasterized glacier storage map</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacstore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacstore"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
         <span class="n">gdf_grid</span><span class="p">,</span>
-        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;glacierstore&quot;</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">"glacierstore"</span><span class="p">,</span>
         <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">)</span>
 
     <span class="c1"># Create the rasterized glacier fraction map</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacfracs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacfracs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
         <span class="n">gdf_grid</span><span class="p">,</span>
-        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;glacierfrac&quot;</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">"glacierfrac"</span><span class="p">,</span>
         <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">sindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">)</span>
 
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacareas&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacstore&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacfracs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacareas"</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacstore"</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacfracs"</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds_out</span></div>
 
 
@@ -582,13 +582,13 @@
 <div class="viewcode-block" id="glacierattrs">
 <a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.glaciers.glacierattrs.html#hydromt_wflow.workflows.glaciers.glacierattrs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">glacierattrs</span><span class="p">(</span>
-    <span class="n">gdf</span><span class="p">:</span> <span class="s2">&quot;gpd.GeoDataFrame&quot;</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="s2">"gpd.GeoDataFrame"</span><span class="p">,</span>
     <span class="n">TT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.3</span><span class="p">,</span>
     <span class="n">Cfmax</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.3</span><span class="p">,</span>
     <span class="n">SIfrac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
-    <span class="n">id_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;simple_id&quot;</span><span class="p">,</span>
+    <span class="n">id_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"simple_id"</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return glacier intbls (see list below).</span>
+<span class="w">    </span><span class="sd">"""Return glacier intbls (see list below).</span>
 
 <span class="sd">    The following glacier intbls are calculated:</span>
 
@@ -608,31 +608,31 @@
 <span class="sd">    SIfrac : float, optional</span>
 <span class="sd">        Default value for fraction of snowpack converted into ice and added to \</span>
 <span class="sd">glacier storage.</span>
-<span class="sd">    id_column : str, optional, one of &quot;simple_id&quot;, &quot;C3S_id&quot;, &quot;RGI_id&quot;, or &quot;GLIMS_id&quot;</span>
+<span class="sd">    id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"</span>
 <span class="sd">        Column used for the glacier IDs, see data/data_sources.yml.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    df_out : pandas.DataFrame</span>
 <span class="sd">        DataFrame containing glacier attributes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Initialize output DataFrame with empty values and glacier ID</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="n">id_column</span><span class="p">])),</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;glacId&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;glacTempThresh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;glacCfmax&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;glacSIfrac&quot;</span><span class="p">,</span>
+                <span class="s2">"glacId"</span><span class="p">,</span>
+                <span class="s2">"glacTempThresh"</span><span class="p">,</span>
+                <span class="s2">"glacCfmax"</span><span class="p">,</span>
+                <span class="s2">"glacSIfrac"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;glacId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">id_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">"glacId"</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">id_column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="c1"># Fill in other attributes</span>
-    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;glacTempThresh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">TT</span><span class="p">))</span>
-    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;glacCfmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">Cfmax</span><span class="p">))</span>
-    <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;glacSIfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">SIfrac</span><span class="p">))</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">"glacTempThresh"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">TT</span><span class="p">))</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">"glacCfmax"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">Cfmax</span><span class="p">))</span>
+    <span class="n">df_out</span><span class="p">[</span><span class="s2">"glacSIfrac"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">SIfrac</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">df_out</span></div>
 
@@ -691,8 +691,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -726,7 +726,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

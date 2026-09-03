@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -49,7 +49,7 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/5_setup_methods/setup_lulcmaps';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -830,7 +830,7 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 <p>The definition of the method and the arguments is done in a workflow file (YAML format).
 The workflow file can then be used to build or update a model from the command line interface.
 For example, using the pre-defined <code class="docutils literal notranslate"><span class="pre">artifact_data</span></code> catalog:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_landuse&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;artifact_data&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/update_landuse.yaml&quot;</span><span class="w"> </span>-v
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">"./path/to/model_to_update"</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">"./path/to/model_with_landuse"</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">"artifact_data"</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">"./path/to/update_landuse.yaml"</span><span class="w"> </span>-v
 </pre></div>
 </div>
 <p>A minimal example of how to use the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> method in a workflow file:</p>
@@ -883,29 +883,29 @@ Python API</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowSbmModel</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-  <span class="n">root</span><span class="o">=</span><span class="s2">&quot;path/to/model_to_update&quot;</span><span class="p">,</span>
-  <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
-  <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">]</span>
+  <span class="n">root</span><span class="o">=</span><span class="s2">"path/to/model_to_update"</span><span class="p">,</span>
+  <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
+  <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">"artifact_data"</span><span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>A minimal example of how to use the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps</span><span class="p">(</span>
-  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
-  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;globcover_mapping_default&quot;</span>
+  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">"globcover"</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">"globcover_mapping_default"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>Another example using the <code class="docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector</span></code>. Here we will also save the rasterized
 version of the landuse map to a file and only prepare a couple of parameters:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps_from_vector</span><span class="p">(</span>
-  <span class="n">lulc_vector_fn</span><span class="o">=</span><span class="s2">&quot;local_landuse_vector.shp&quot;</span><span class="p">,</span>
-  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;local_landuse_mapping.csv&quot;</span><span class="p">,</span>
+  <span class="n">lulc_vector_fn</span><span class="o">=</span><span class="s2">"local_landuse_vector.shp"</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">"local_landuse_mapping.csv"</span><span class="p">,</span>
   <span class="n">lulc_res</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
   <span class="n">save_raster_lulc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
   <span class="n">lulc_vars</span><span class="o">=</span><span class="p">[</span>
-    <span class="s2">&quot;land_manning_n&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;vegetation_crop_factor&quot;</span>
+    <span class="s2">"land_manning_n"</span><span class="p">,</span>
+    <span class="s2">"vegetation_crop_factor"</span>
   <span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
@@ -917,16 +917,16 @@ in globcover we can keep twelve as the paddy class value in the merged landuse m
 <p>Adding paddies also requires to add extra parameters related to paddy management and
 update some of the soil parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_lulcmaps_with_paddy</span><span class="p">(</span>
-  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
-  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;globcover_mapping_default&quot;</span><span class="p">,</span>
-  <span class="n">paddy_fn</span><span class="o">=</span><span class="s2">&quot;glcnmo&quot;</span><span class="p">,</span>
-  <span class="n">paddy_mapping_fn</span><span class="o">=</span><span class="s2">&quot;paddy_mapping_default&quot;</span><span class="p">,</span>
+  <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">"globcover"</span><span class="p">,</span>
+  <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">"globcover_mapping_default"</span><span class="p">,</span>
+  <span class="n">paddy_fn</span><span class="o">=</span><span class="s2">"glcnmo"</span><span class="p">,</span>
+  <span class="n">paddy_mapping_fn</span><span class="o">=</span><span class="s2">"paddy_mapping_default"</span><span class="p">,</span>
   <span class="n">paddy_class</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
   <span class="n">output_paddy_class</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
   <span class="n">paddy_waterlevels</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">&quot;demand_paddy_h_min&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
-    <span class="s2">&quot;demand_paddy_h_opt&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
-    <span class="s2">&quot;demand_paddy_h_max&quot;</span><span class="p">:</span> <span class="mi">80</span>
+    <span class="s2">"demand_paddy_h_min"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s2">"demand_paddy_h_opt"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="s2">"demand_paddy_h_max"</span><span class="p">:</span> <span class="mi">80</span>
   <span class="p">},</span>
   <span class="n">wflow_thicknesslayers</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
   <span class="n">target_conductivity</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
@@ -1787,8 +1787,8 @@ experimental data, Hydrol. Earth Syst. Sci., 26, 5647–5667. <a class="referenc
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1822,7 +1822,7 @@ experimental data, Hydrol. Earth Syst. Sci., 26, 5647–5667. <a class="referenc
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

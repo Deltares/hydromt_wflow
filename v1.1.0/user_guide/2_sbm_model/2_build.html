@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -47,7 +47,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/2_sbm_model/2_build';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -537,7 +537,7 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_basemaps</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
 <span class="w">      </span><span class="nt">basin_index_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro_index</span><span class="w"> </span><span class="c1"># source of basin index corresponding to hydrography_fn</span>
-<span class="w">      </span><span class="nt">upscale_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default &#39;ihu&#39;</span>
+<span class="w">      </span><span class="nt">upscale_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default 'ihu'</span>
 <span class="w">      </span><span class="nt">res</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution</span>
 <span class="w">      </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="c1"># model region</span>
 <span class="w">        </span><span class="nt">subbasin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">12.2051</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">45.8331</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># derive a subbasin with its outlet at the given x,y coordinates</span>
@@ -548,19 +548,19 @@ to a model component with the same name.</p>
 <span class="w">      </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
 <span class="w">      </span><span class="nt">river_geom_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_rivers_lin</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
 <span class="w">      </span><span class="nt">river_upa</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
-<span class="w">      </span><span class="nt">rivdph_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
+<span class="w">      </span><span class="nt">rivdph_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {'powlaw', 'manning', 'gvf'}</span>
 <span class="w">      </span><span class="nt">min_rivdph</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
 <span class="w">      </span><span class="nt">min_rivwth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
 <span class="w">      </span><span class="nt">slope_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
 <span class="w">      </span><span class="nt">smooth_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
-<span class="w">      </span><span class="nt">river_routing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinematic_wave</span><span class="w">   </span><span class="c1"># {&#39;kinematic_wave&#39;, &#39;local_inertial&#39;}</span>
+<span class="w">      </span><span class="nt">river_routing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinematic_wave</span><span class="w">   </span><span class="c1"># {'kinematic_wave', 'local_inertial'}</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_river_roughness</span><span class="p">:</span>
 
 <span class="w">  </span><span class="c1"># - setup_floodplains: # if 2D floodplains are required</span>
 <span class="w">  </span><span class="c1">#     hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
 <span class="w">  </span><span class="c1">#     floodplain_type: 2d #  # If two-dimensional floodplains are required</span>
-<span class="w">  </span><span class="c1">#     elevtn_map: land_elevation  # {&#39;land_elevation&#39;, &#39;meta_subgrid_elevation&#39;}</span>
+<span class="w">  </span><span class="c1">#     elevtn_map: land_elevation  # {'land_elevation', 'meta_subgrid_elevation'}</span>
 
 <span class="w">  </span><span class="c1"># - setup_floodplains: # if 1D floodplains are required</span>
 <span class="w">  </span><span class="c1">#     hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
@@ -577,7 +577,7 @@ to a model component with the same name.</p>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_reservoirs_simple_control</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">reservoirs_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>
-<span class="w">      </span><span class="nt">timeseries_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gww</span><span class="w">           </span><span class="c1"># additional source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.</span>
+<span class="w">      </span><span class="nt">timeseries_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gww</span><span class="w">           </span><span class="c1"># additional source for reservoir are timeseries to compute reservoirs, Either 'gww' using gwwapi or 'jrc' using hydroengine.</span>
 <span class="w">      </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_reservoirs_no_control</span><span class="p">:</span>
@@ -620,20 +620,20 @@ to a model component with the same name.</p>
 <span class="w">      </span><span class="nt">skip_pet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">         </span><span class="c1"># if True, only temperature is prepared.</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_constant_pars</span><span class="p">:</span>
-<span class="w">      </span><span class="s">&quot;subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">      </span><span class="s">&quot;snowpack__degree_day_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.75653</span>
-<span class="w">      </span><span class="s">&quot;soil_surface_water__infiltration_reduction_parameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.038</span>
-<span class="w">      </span><span class="s">&quot;vegetation_canopy_water__mean_evaporation_to_mean_precipitation_ratio&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.11</span>
-<span class="w">      </span><span class="s">&quot;compacted_soil_surface_water__infiltration_capacity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">      </span><span class="s">&quot;soil_water_saturated_zone_bottom__max_leakage_volume_flux&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">      </span><span class="s">&quot;soil_wet_root__sigmoid_function_shape_parameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-500</span>
-<span class="w">      </span><span class="s">&quot;atmosphere_air__snowfall_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">      </span><span class="s">&quot;atmosphere_air__snowfall_temperature_interval&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">      </span><span class="s">&quot;snowpack__melting_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">      </span><span class="s">&quot;snowpack__liquid_water_holding_capacity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
-<span class="w">      </span><span class="s">&quot;glacier_ice__degree_day_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="s">&quot;glacier_firn_accumulation__snowpack_dry_snow_leq_depth_fraction&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.001</span>
-<span class="w">      </span><span class="s">&quot;glacier_ice__melting_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="s">"subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="s">"snowpack__degree_day_coefficient"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.75653</span>
+<span class="w">      </span><span class="s">"soil_surface_water__infiltration_reduction_parameter"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.038</span>
+<span class="w">      </span><span class="s">"vegetation_canopy_water__mean_evaporation_to_mean_precipitation_ratio"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.11</span>
+<span class="w">      </span><span class="s">"compacted_soil_surface_water__infiltration_capacity"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">      </span><span class="s">"soil_water_saturated_zone_bottom__max_leakage_volume_flux"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="s">"soil_wet_root__sigmoid_function_shape_parameter"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-500</span>
+<span class="w">      </span><span class="s">"atmosphere_air__snowfall_temperature_threshold"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="s">"atmosphere_air__snowfall_temperature_interval"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="s">"snowpack__melting_temperature_threshold"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="s">"snowpack__liquid_water_holding_capacity"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">      </span><span class="s">"glacier_ice__degree_day_coefficient"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="s">"glacier_firn_accumulation__snowpack_dry_snow_leq_depth_fraction"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.001</span>
+<span class="w">      </span><span class="s">"glacier_ice__melting_temperature_threshold"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 </pre></div>
 </div>
 <p>For an example of how to build a model using this configuration file, see the example notebook: <a class="reference internal" href="../../_examples/build_model.html#example-build-model"><span class="std std-ref">here</span></a>.</p>
@@ -753,8 +753,8 @@ with the <strong>data_libs</strong> option in the [global] sections.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -788,7 +788,7 @@ with the <strong>data_libs</strong> option in the [global] sections.</p></li>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

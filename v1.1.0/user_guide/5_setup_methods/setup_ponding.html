@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -47,7 +47,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/5_setup_methods/setup_ponding';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -561,15 +561,15 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 The workflow file can then be used to build or update a model from the command line interface.
 Here our input files have a simple format so we can use file paths instead of data
 catalog entries:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_ponding&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/add_ponding.yaml&quot;</span><span class="w"> </span>-v
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">"./path/to/model_to_update"</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">"./path/to/model_with_ponding"</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">"./path/to/add_ponding.yaml"</span><span class="w"> </span>-v
 </pre></div>
 </div>
 <p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_ponding.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_ponding_from_map</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">pond_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./path/to/pond_locations.shp&quot;</span><span class="w"> </span><span class="c1"># polygons with pond locations</span>
+<span class="w">      </span><span class="nt">pond_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"./path/to/pond_locations.shp"</span><span class="w"> </span><span class="c1"># polygons with pond locations</span>
 <span class="w">      </span><span class="nt">pond_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"> </span><span class="c1"># ponding level in m</span>
-<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ponding_level&quot;</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
+<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">"ponding_level"</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
 </pre></div>
 </div>
 </div>
@@ -581,15 +581,15 @@ Python API</label><div class="sd-tab-content docutils">
 
 <span class="c1"># instantiate model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+    <span class="s2">"./path/to/model_to_update"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># add static inflows at GRDC gauges</span>
 <span class="n">model</span><span class="o">.</span><span class="n">setup_ponding_from_map</span><span class="p">(</span>
-    <span class="n">pond_fn</span><span class="o">=</span><span class="s2">&quot;./path/to/pond_locations.shp&quot;</span><span class="p">,</span> <span class="c1"># polygons with pond locations</span>
+    <span class="n">pond_fn</span><span class="o">=</span><span class="s2">"./path/to/pond_locations.shp"</span><span class="p">,</span> <span class="c1"># polygons with pond locations</span>
     <span class="n">pond_level</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="c1"># ponding level in m</span>
-    <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;ponding_level&quot;</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
+    <span class="n">output_name</span><span class="o">=</span><span class="s2">"ponding_level"</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -608,20 +608,20 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 The workflow file can then be used to build or update a model from the command line interface.
 Here our input files have a simple format so we can use file paths instead of data
 catalog entries:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_ponding&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/add_ponding.yaml&quot;</span><span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">"./path/to/model_to_update"</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">"./path/to/model_with_ponding"</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">"./path/to/add_ponding.yaml"</span><span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
 </pre></div>
 </div>
 <p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_ponding.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_ponding_from_thresholds</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;vito_2015&quot;</span><span class="w"> </span><span class="c1"># landuse map</span>
-<span class="w">      </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;merit_hydro_ihu&quot;</span><span class="w"> </span><span class="c1"># hydrography data</span>
+<span class="w">      </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"vito_2015"</span><span class="w"> </span><span class="c1"># landuse map</span>
+<span class="w">      </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"merit_hydro_ihu"</span><span class="w"> </span><span class="c1"># hydrography data</span>
 <span class="w">      </span><span class="nt">lulc_classes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">111</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">112</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">113</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">114</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">115</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">116</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># closed forest classes in vito_2015</span>
 <span class="w">      </span><span class="nt">elevtn_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(0, 2000)</span><span class="w"> </span><span class="c1"># elevation range in m</span>
 <span class="w">      </span><span class="nt">slope_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(0.129, 0.3)</span><span class="w"> </span><span class="c1"># slope range in m/m</span>
 <span class="w">      </span><span class="nt">hand_range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">(5.9, 20)</span><span class="w"> </span><span class="c1"># hand range in m</span>
 <span class="w">      </span><span class="nt">pond_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.02</span><span class="w"> </span><span class="c1"># ponding level in m</span>
-<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ponding_level_forested_hillslope&quot;</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
+<span class="w">      </span><span class="nt">output_name</span><span class="p">:</span><span class="w"> </span><span class="s">"ponding_level_forested_hillslope"</span><span class="w"> </span><span class="c1"># name of the output variable in the model staticmaps</span>
 </pre></div>
 </div>
 </div>
@@ -633,21 +633,21 @@ Python API</label><div class="sd-tab-content docutils">
 
 <span class="c1"># instantiate model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
-    <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;artifact_data&quot;</span><span class="p">],</span>
+    <span class="s2">"./path/to/model_to_update"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
+    <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">"artifact_data"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="c1"># add static inflows at GRDC gauges</span>
 <span class="n">model</span><span class="o">.</span><span class="n">setup_ponding_from_thresholds</span><span class="p">(</span>
-    <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;vito_2015&quot;</span><span class="p">,</span> <span class="c1"># landuse map</span>
-    <span class="n">hydrography_fn</span><span class="o">=</span><span class="s2">&quot;merit_hydro_ihu&quot;</span><span class="p">,</span> <span class="c1"># hydrography data</span>
+    <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">"vito_2015"</span><span class="p">,</span> <span class="c1"># landuse map</span>
+    <span class="n">hydrography_fn</span><span class="o">=</span><span class="s2">"merit_hydro_ihu"</span><span class="p">,</span> <span class="c1"># hydrography data</span>
     <span class="n">lulc_classes</span><span class="o">=</span><span class="p">[</span><span class="mi">111</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">113</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">115</span><span class="p">,</span> <span class="mi">116</span><span class="p">],</span> <span class="c1"># closed forest classes in vito_2015</span>
     <span class="n">elevtn_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span> <span class="c1"># elevation range in m</span>
     <span class="n">slope_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.129</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="c1"># slope range in m/m</span>
     <span class="n">hand_range</span><span class="o">=</span><span class="p">(</span><span class="mf">5.9</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="c1"># hand range in m</span>
     <span class="n">pond_level</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="c1"># ponding level in m</span>
-    <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;ponding_level_forested_hillslope&quot;</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
+    <span class="n">output_name</span><span class="o">=</span><span class="s2">"ponding_level_forested_hillslope"</span><span class="p">,</span> <span class="c1"># name of the output variable in the model staticmaps</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -746,8 +746,8 @@ Python API</label><div class="sd-tab-content docutils">
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -781,7 +781,7 @@ Python API</label><div class="sd-tab-content docutils">
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/components/staticmaps';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,7 +425,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.components.staticmaps</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Staticmaps component module.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Staticmaps component module."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -445,31 +445,31 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.components.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_mask_layer</span><span class="p">,</span> <span class="n">test_equal_grid_data</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowStaticmapsComponent&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"WflowStaticmapsComponent"</span><span class="p">]</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="WflowStaticmapsComponent">
 <a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WflowStaticmapsComponent</span><span class="p">(</span><span class="n">GridComponent</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wflow staticmaps component.</span>
+<span class="w">    </span><span class="sd">"""Wflow staticmaps component.</span>
 
 <span class="sd">    Inherits from the HydroMT-core GridComponent model-component.</span>
 <span class="sd">    It is used for setting, creating, writing, and reading static and cyclic data for a</span>
 <span class="sd">    Wflow model on a regular grid. The component data, stored in the ``data``</span>
 <span class="sd">    property of this class, is of the hydromt.gis.raster.RasterDataset type which</span>
 <span class="sd">    is an extension of xarray.Dataset for regular grid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">,</span>
-        <span class="n">region_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms/region.geojson&quot;</span><span class="p">,</span>
+        <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"staticmaps.nc"</span><span class="p">,</span>
+        <span class="n">region_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"staticgeoms/region.geojson"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a WflowStaticmapsComponent.</span>
+<span class="w">        </span><span class="sd">"""Initialize a WflowStaticmapsComponent.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -477,11 +477,11 @@
 <span class="sd">            HydroMT model instance</span>
 <span class="sd">        filename : str</span>
 <span class="sd">            The path to use for reading and writing of component data by default.</span>
-<span class="sd">            By default &quot;staticmaps.nc&quot;.</span>
+<span class="sd">            By default "staticmaps.nc".</span>
 <span class="sd">        region_filename : str</span>
 <span class="sd">            The path to use for reading and writing of the region data by default.</span>
-<span class="sd">            By default &quot;staticgeoms/region.geojson&quot;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            By default "staticgeoms/region.geojson".</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
@@ -497,7 +497,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read staticmaps model data.</span>
+<span class="w">        </span><span class="sd">"""Read staticmaps model data.</span>
 
 <span class="sd">        Checks the path of the file in the config toml using both ``input.path_static``</span>
 <span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
@@ -508,12 +508,12 @@
 <span class="sd">        ----------</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments to be passed to the `read_nc` method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Sort which path/ filename is actually the one used</span>
         <span class="c1"># Hierarchy is: 1: config, 2: default</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"input.path_static"</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
         <span class="c1"># Check for input dir</span>
-        <span class="n">p_input</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p_input</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"dir_input"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">""</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
         <span class="c1"># Supercharge with parent method</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
@@ -531,7 +531,7 @@
         <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write staticmaps model data.</span>
+<span class="w">        </span><span class="sd">"""Write staticmaps model data.</span>
 
 <span class="sd">        Checks the path of the file in the config toml using both ``input.path_static``</span>
 <span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
@@ -549,16 +549,16 @@
 <span class="sd">            ``dir_input`` folder. By default None.</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments to be passed to the `write_nc` method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Solve pathing same as read</span>
         <span class="c1"># Hierarchy is: 1: signature, 2: config, 3: default</span>
         <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">filename</span>
-            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"input.path_static"</span><span class="p">)</span>
             <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
         <span class="p">)</span>
         <span class="c1"># Check for input dir</span>
-        <span class="n">p_input</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">p_input</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"dir_input"</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="s2">""</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
         <span class="c1"># Supercharge with the base grid component write method</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
@@ -571,7 +571,7 @@
 
         <span class="c1"># Set the config entry to the correct path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
-            <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span>
+            <span class="s2">"input.path_static"</span><span class="p">,</span>
             <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">p_input</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
         <span class="p">)</span></div>
 
@@ -584,23 +584,23 @@
         <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data to the staticmaps.</span>
+<span class="w">        </span><span class="sd">"""Add data to the staticmaps.</span>
 
 <span class="sd">        All layers of grid must have identical spatial coordinates. If basin data is</span>
 <span class="sd">        available the grid will be masked to that upon setting.</span>
 
 <span class="sd">        The first fix is when data with a time axis is being added. Since Wflow.jl</span>
 <span class="sd">        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as</span>
-<span class="sd">        the dimension name starts with &quot;time&quot;. In this function, a check is done if a</span>
+<span class="sd">        the dimension name starts with "time". In this function, a check is done if a</span>
 <span class="sd">        time axis with that exact shape is already present in the grid object, and will</span>
 <span class="sd">        use that dimension (and its name) to set the data. If a time dimension does not</span>
 <span class="sd">        yet exist with that shape, it is created following the format</span>
-<span class="sd">        &quot;time_{length_data}&quot;.</span>
+<span class="sd">        "time_{length_data}".</span>
 
 <span class="sd">        The other fix is that when the model is updated with a different number of</span>
 <span class="sd">        layers, this is not automatically updated correctly. With this fix, the old</span>
 <span class="sd">        layer dimension is removed (including all associated data), and the new data is</span>
-<span class="sd">        added with the correct &quot;layer&quot; dimension.</span>
+<span class="sd">        added with the correct "layer" dimension.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -609,69 +609,69 @@
 <span class="sd">        name : str, optional</span>
 <span class="sd">            Name of new map layer, this is used to overwrite the name of a DataArray</span>
 <span class="sd">            and ignored if data is a Dataset</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_grid</span><span class="p">()</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">name_required</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name_required</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to set </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> data without a name&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to set </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> data without a name"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot set data of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot set data of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Check for cyclic data</span>
-        <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
             <span class="c1"># Raise error if the dimension does not have a supported length</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">365</span><span class="p">,</span> <span class="mi">366</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Length of cyclic dataset (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="si">}</span><span class="s2">) is not supported by &quot;</span>
-                    <span class="s2">&quot;Wflow.jl. Ensure the data has length 12, 365, or 366&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Length of cyclic dataset (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="si">}</span><span class="s2">) is not supported by "</span>
+                    <span class="s2">"Wflow.jl. Ensure the data has length 12, 365, or 366"</span>
                 <span class="p">)</span>
-            <span class="n">tname</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
+            <span class="n">tname</span> <span class="o">=</span> <span class="s2">"time"</span>
             <span class="n">time_axes</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
             <span class="p">}</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">time_axes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="n">tname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;time_</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">time_axes</span> <span class="k">else</span> <span class="n">tname</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">time_axes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">tname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"time_</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">time_axes</span> <span class="k">else</span> <span class="n">tname</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">k</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                    <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">time_axes</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">time_axes</span><span class="p">)</span>
+                    <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">time_axes</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">time_axes</span><span class="p">)</span>
                 <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">tname</span> <span class="o">=</span> <span class="n">k</span>
 
-            <span class="k">if</span> <span class="n">tname</span> <span class="o">!=</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">tname</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">tname</span> <span class="o">!=</span> <span class="s2">"time"</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename_dims</span><span class="p">({</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">tname</span><span class="p">})</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
                     <span class="p">{</span><span class="n">tname</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">tname</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)}</span>
                 <span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;layer&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s2">&quot;layer&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="s2">"layer"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="s2">"layer"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"layer"</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"layer"</span><span class="p">]):</span>
                 <span class="n">vars_to_drop</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="s2">&quot;layer&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
+                    <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">if</span> <span class="s2">"layer"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span>
                 <span class="p">]</span>
                 <span class="c1"># Drop variables</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Replacing &#39;layer&#39; coordinate, dropping variables </span><span class="se">\</span>
-<span class="s2">(</span><span class="si">{</span><span class="n">vars_to_drop</span><span class="si">}</span><span class="s2">) associated with old coordinate&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Replacing 'layer' coordinate, dropping variables </span><span class="se">\</span>
+<span class="s2">(</span><span class="si">{</span><span class="n">vars_to_drop</span><span class="si">}</span><span class="s2">) associated with old coordinate"</span>
                 <span class="p">)</span>
                 <span class="c1"># Use `_data` as `data` cannot be set</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_drop</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_drop</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"layer"</span><span class="p">])</span>
 
         <span class="c1"># Check if north is really up and south therefore is down</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">flipud</span><span class="p">()</span>
 
         <span class="c1"># Determine the masking layer</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">get_mask_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basins&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">get_mask_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"basins"</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># Set the data per layer</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Replacing grid map: </span><span class="si">{</span><span class="n">dvar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Replacing grid map: </span><span class="si">{</span><span class="n">dvar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">:</span>
                     <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
@@ -682,8 +682,8 @@
 
 <div class="viewcode-block" id="WflowStaticmapsComponent.drop_vars">
 <a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.drop_vars">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">drop_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;raise&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"raise"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Drop variables from the grid.</span>
 
 <span class="sd">        This method is a wrapper around the xarray.Dataset.drop_vars method.</span>
@@ -693,10 +693,10 @@
 <span class="sd">        names : list of str</span>
 <span class="sd">            List of variable names to drop from the grid.</span>
 <span class="sd">        errors : str, optional {raise, ignore}</span>
-<span class="sd">            How to handle errors. If &#39;raise&#39;, raises a ValueError error if any of the</span>
-<span class="sd">            variable passed are not in the dataset. If &#39;ignore&#39;, any given names that</span>
+<span class="sd">            How to handle errors. If 'raise', raises a ValueError error if any of the</span>
+<span class="sd">            variable passed are not in the dataset. If 'ignore', any given names that</span>
 <span class="sd">            are in the dataset are dropped and no error is raised.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span></div>
 
 
@@ -707,13 +707,13 @@
         <span class="n">region</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">inverse_clip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">crs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4326</span><span class="p">,</span>
-        <span class="n">basins_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subcatchment&quot;</span><span class="p">,</span>
-        <span class="n">flwdir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local_drain_direction&quot;</span><span class="p">,</span>
-        <span class="n">reservoir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+        <span class="n">basins_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"subcatchment"</span><span class="p">,</span>
+        <span class="n">flwdir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"local_drain_direction"</span><span class="p">,</span>
+        <span class="n">reservoir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"reservoir_area_id"</span><span class="p">,</span>
         <span class="n">reservoir_maps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Clip staticmaps to region.</span>
 
 <span class="sd">        Staticmaps are clipped to the region defined in the `region` argument. If</span>
@@ -731,31 +731,31 @@
 <span class="sd">        region : dict</span>
 <span class="sd">            The region to clip to.</span>
 <span class="sd">        inverse_clip: bool, optional</span>
-<span class="sd">            Flag to perform &quot;inverse clipping&quot;: removing an upstream part of the model</span>
+<span class="sd">            Flag to perform "inverse clipping": removing an upstream part of the model</span>
 <span class="sd">            instead of the subbasin itself, by default False</span>
 <span class="sd">        crs: int, optional</span>
 <span class="sd">            Default crs of the model in case it cannot be read.</span>
 <span class="sd">        basins_name: str, optional</span>
 <span class="sd">            Name of the basin/subbasin variable in the staticmaps data, by default</span>
-<span class="sd">            &quot;subcatchment&quot;</span>
+<span class="sd">            "subcatchment"</span>
 <span class="sd">        flwdir_name: str, optional</span>
 <span class="sd">            Name of the flow direction variable in the staticmaps data, by default</span>
-<span class="sd">            &quot;local_drain_direction&quot;</span>
+<span class="sd">            "local_drain_direction"</span>
 <span class="sd">        reservoir_name: str, optional</span>
 <span class="sd">            Name of the reservoir id variable in the staticmaps data, by default</span>
-<span class="sd">            &quot;reservoir_area_id&quot;</span>
+<span class="sd">            "reservoir_area_id"</span>
 <span class="sd">        reservoir_maps: list of str, optional</span>
 <span class="sd">            List of map names in the wflow model grid to be treated as reservoirs.</span>
 <span class="sd">            These maps are removed if empty after clipping.</span>
 <span class="sd">        **kwargs: dict</span>
 <span class="sd">            Additional keyword arguments passed to</span>
 <span class="sd">            :py:meth:`~hydromt.raster.Raster.clip_geom`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># translate basin and outlet kinds to geom</span>
         <span class="c1"># get basin geometry and clip data</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clipping staticmaps to region: </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Clipping staticmaps to region: </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">kind</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">region</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;basin&quot;</span><span class="p">,</span> <span class="s2">&quot;subbasin&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"basin"</span><span class="p">,</span> <span class="s2">"subbasin"</span><span class="p">]:</span>
             <span class="c1"># parse_region_basin does not return xy, only geom...</span>
             <span class="c1"># should be fixed in core</span>
             <span class="n">region_kwargs</span> <span class="o">=</span> <span class="n">_parse_region_value</span><span class="p">(</span>
@@ -771,35 +771,35 @@
                 <span class="n">flwdir_name</span><span class="o">=</span><span class="n">flwdir_name</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">region_kwargs</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;bbox&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"bbox"</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Kind &#39;bbox&#39; for the region is not recommended as it can lead &quot;</span>
-                <span class="s2">&quot;to mistakes in the catchment delineation. Use carefully.&quot;</span>
+                <span class="s2">"Kind 'bbox' for the region is not recommended as it can lead "</span>
+                <span class="s2">"to mistakes in the catchment delineation. Use carefully."</span>
             <span class="p">)</span>
             <span class="n">geom</span> <span class="o">=</span> <span class="n">parse_region_bbox</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;geom&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"geom"</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Kind &#39;geom&#39; for the region is not recommended as it can lead &quot;</span>
-                <span class="s2">&quot;to mistakes in the catchment delineation. Use carefully.&quot;</span>
+                <span class="s2">"Kind 'geom' for the region is not recommended as it can lead "</span>
+                <span class="s2">"to mistakes in the catchment delineation. Use carefully."</span>
             <span class="p">)</span>
             <span class="n">geom</span> <span class="o">=</span> <span class="n">parse_region_geom</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;wflow region kind not understood or supported: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Use &#39;basin&#39;, &#39;subbasin&#39;, &#39;bbox&#39; or &#39;geom&#39;.&quot;</span>
+                <span class="sa">f</span><span class="s2">"wflow region kind not understood or supported: </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Use 'basin', 'subbasin', 'bbox' or 'geom'."</span>
             <span class="p">)</span>
 
         <span class="c1"># Remove upstream part from model if inverse_clip</span>
         <span class="k">if</span> <span class="n">inverse_clip</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Performing inverse clipping of staticmaps&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Performing inverse clipping of staticmaps"</span><span class="p">)</span>
             <span class="n">basins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
-            <span class="n">geom</span> <span class="o">=</span> <span class="n">basins</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">)</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">basins</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"difference"</span><span class="p">)</span>
 
         <span class="c1"># clip based on subbasin args, geom or bbox</span>
         <span class="n">ds_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">ds_grid</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="n">ds_grid</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
         <span class="n">ds_grid</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">ds_grid</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+            <span class="n">ds_grid</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
         <span class="p">)</span>
         <span class="n">ds_grid</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="n">_FillValue</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
@@ -810,19 +810,19 @@
             <span class="n">reservoir</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">reservoir_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">reservoir</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;No reservoirs present in the clipped model, removing them from &quot;</span>
-                    <span class="s2">&quot;staticmaps.&quot;</span>
+                    <span class="s2">"No reservoirs present in the clipped model, removing them from "</span>
+                    <span class="s2">"staticmaps."</span>
                 <span class="p">)</span>
                 <span class="n">ds_grid</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">reservoir_maps</span><span class="p">)</span>
 
         <span class="c1"># Re-derive flwdir after clipping (add pits at edges)</span>
         <span class="n">_flwdir</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span>
             <span class="n">ds_grid</span><span class="p">[</span><span class="n">flwdir_name</span><span class="p">],</span>
-            <span class="n">ftype</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">,</span>
+            <span class="n">ftype</span><span class="o">=</span><span class="s2">"infer"</span><span class="p">,</span>
             <span class="n">check_ftype</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">mask</span><span class="o">=</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">ds_grid</span><span class="p">[</span><span class="n">flwdir_name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">_flwdir</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="s2">&quot;ldd&quot;</span><span class="p">)</span>
+        <span class="n">ds_grid</span><span class="p">[</span><span class="n">flwdir_name</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">_flwdir</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="s2">"ldd"</span><span class="p">)</span>
 
         <span class="c1"># Check CRS</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -841,7 +841,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">**</span><span class="n">rename</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map the names of the data variables to new ones.</span>
+<span class="w">        </span><span class="sd">"""Map the names of the data variables to new ones.</span>
 
 <span class="sd">        This method however does not change the new names in the config file.</span>
 <span class="sd">        To update config file entries, you can use it together</span>
@@ -852,7 +852,7 @@
 <span class="sd">        rename : dict, optional</span>
 <span class="sd">            Keyword arguments that map the old names to the new names.</span>
 <span class="sd">            So &lt; old-name &gt; = &lt; new-name &gt;.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Check whether they are in the maps</span>
         <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">rename</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -860,14 +860,14 @@
                 <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
                 <span class="n">_</span> <span class="o">=</span> <span class="n">rename</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not rename </span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s2">, not found in data&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not rename </span><span class="si">{</span><span class="n">not_found</span><span class="si">}</span><span class="s2">, not found in data"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="o">**</span><span class="n">rename</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowStaticmapsComponent.test_equal">
 <a class="viewcode-back" href="../../../api/advanced/_generated/hydromt_wflow.components.WflowStaticmapsComponent.html#hydromt_wflow.components.WflowStaticmapsComponent.test_equal">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ModelComponent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test if two staticmaps components are equal.</span>
+<span class="w">        </span><span class="sd">"""Test if two staticmaps components are equal.</span>
 
 <span class="sd">        Checks the model component type as well as the data variables and their values.</span>
 
@@ -881,10 +881,10 @@
 <span class="sd">        tuple[bool, Dict[str, str]]</span>
 <span class="sd">            True if the components are equal, and a dict with the associated errors per</span>
 <span class="sd">            property checked.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">errors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
-            <span class="n">errors</span><span class="p">[</span><span class="s2">&quot;__class__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;other does not inherit from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="n">errors</span><span class="p">[</span><span class="s2">"__class__"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"other does not inherit from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2">."</span>
 
         <span class="c1"># Check dimensions</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">data_errors</span> <span class="o">=</span> <span class="n">test_equal_grid_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
@@ -948,8 +948,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -983,7 +983,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

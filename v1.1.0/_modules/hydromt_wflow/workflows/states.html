@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/states';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,7 +425,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.workflows.states</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Workflow for wflow model states.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Workflow for wflow model states."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -435,7 +435,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_grid_from_config</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;prepare_cold_states&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"prepare_cold_states"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="prepare_cold_states">
@@ -444,10 +444,10 @@
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mask_name_land</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subcatchment&quot;</span><span class="p">,</span>
-    <span class="n">mask_name_river</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;river_mask&quot;</span><span class="p">,</span>
+    <span class="n">mask_name_land</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"subcatchment"</span><span class="p">,</span>
+    <span class="n">mask_name_river</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"river_mask"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prepare cold states for Wflow.</span>
 
 <span class="sd">    Compute cold states variables:</span>
@@ -511,65 +511,65 @@
 <span class="sd">        Dataset containing the cold states.</span>
 <span class="sd">    dict</span>
 <span class="sd">        Config dictionary with the cold states variable names.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Defaults</span>
     <span class="n">nodata</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
-    <span class="n">dtype</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="s2">"float32"</span>
 
     <span class="c1"># Times</span>
     <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># states time = starttime for Wflow.jl &gt; 0.7.0)</span>
-        <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
-            <span class="n">starttime</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">starttime</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"starttime"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
             <span class="n">timestamp</span> <span class="o">=</span> <span class="n">starttime</span>  <span class="c1"># - pd.Timedelta(seconds=timestepsecs)</span>
         <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No timestamp provided and no starttime in config.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No timestamp provided and no starttime in config."</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
-    <span class="n">timestepsecs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time.timestepsecs&quot;</span><span class="p">,</span> <span class="mi">86400</span><span class="p">)</span>
+    <span class="n">timestepsecs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"time.timestepsecs"</span><span class="p">,</span> <span class="mi">86400</span><span class="p">)</span>
 
     <span class="c1"># Create empty dataset</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
 
     <span class="c1"># Base output config dict for states</span>
     <span class="n">states_config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;state.variables.soil_water_saturated_zone__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_saturated_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.snowpack_dry_snow__leq_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;snow_leq_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.soil_surface__temperature&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_temp&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.soil_layer_water_unsaturated_zone__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_unsaturated_depth&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-        <span class="s2">&quot;state.variables.snowpack_liquid_water__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;snow_water_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.vegetation_canopy_water__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;vegetation_water_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.subsurface_water__volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;subsurface_q&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-        <span class="s2">&quot;state.variables.land_surface_water__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;land_h&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state.variables.river_water__instantaneous_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;river_instantaneous_q&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-        <span class="s2">&quot;state.variables.river_water__depth&quot;</span><span class="p">:</span> <span class="s2">&quot;river_h&quot;</span><span class="p">,</span>
+        <span class="s2">"state.variables.soil_water_saturated_zone__depth"</span><span class="p">:</span> <span class="s2">"soil_saturated_depth"</span><span class="p">,</span>
+        <span class="s2">"state.variables.snowpack_dry_snow__leq_depth"</span><span class="p">:</span> <span class="s2">"snow_leq_depth"</span><span class="p">,</span>
+        <span class="s2">"state.variables.soil_surface__temperature"</span><span class="p">:</span> <span class="s2">"soil_temp"</span><span class="p">,</span>
+        <span class="s2">"state.variables.soil_layer_water_unsaturated_zone__depth"</span><span class="p">:</span> <span class="s2">"soil_unsaturated_depth"</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+        <span class="s2">"state.variables.snowpack_liquid_water__depth"</span><span class="p">:</span> <span class="s2">"snow_water_depth"</span><span class="p">,</span>
+        <span class="s2">"state.variables.vegetation_canopy_water__depth"</span><span class="p">:</span> <span class="s2">"vegetation_water_depth"</span><span class="p">,</span>
+        <span class="s2">"state.variables.subsurface_water__volume_flow_rate"</span><span class="p">:</span> <span class="s2">"subsurface_q"</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+        <span class="s2">"state.variables.land_surface_water__depth"</span><span class="p">:</span> <span class="s2">"land_h"</span><span class="p">,</span>
+        <span class="s2">"state.variables.river_water__instantaneous_volume_flow_rate"</span><span class="p">:</span> <span class="s2">"river_instantaneous_q"</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+        <span class="s2">"state.variables.river_water__depth"</span><span class="p">:</span> <span class="s2">"river_h"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="c1"># Map with constant values or zeros for basin</span>
     <span class="n">zeromap</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;soil_temp&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;snow_leq_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;snow_water_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;vegetation_water_depth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;land_h&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_temp"</span><span class="p">,</span>
+        <span class="s2">"snow_leq_depth"</span><span class="p">,</span>
+        <span class="s2">"snow_water_depth"</span><span class="p">,</span>
+        <span class="s2">"vegetation_water_depth"</span><span class="p">,</span>
+        <span class="s2">"land_h"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">land_routing</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;land_routing&quot;</span><span class="p">,</span> <span class="s2">&quot;kinematic_wave&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">land_routing</span> <span class="o">==</span> <span class="s2">&quot;local_inertial&quot;</span><span class="p">:</span>
-        <span class="n">zeromap</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;land_instantaneous_qx&quot;</span><span class="p">,</span> <span class="s2">&quot;land_instantaneous_qy&quot;</span><span class="p">])</span>
+    <span class="n">land_routing</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"land_routing"</span><span class="p">,</span> <span class="s2">"kinematic_wave"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">land_routing</span> <span class="o">==</span> <span class="s2">"local_inertial"</span><span class="p">:</span>
+        <span class="n">zeromap</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"land_instantaneous_qx"</span><span class="p">,</span> <span class="s2">"land_instantaneous_qy"</span><span class="p">])</span>
         <span class="n">states_config</span><span class="p">[</span>
-            <span class="s2">&quot;state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;land_instantaneous_qx&quot;</span>
+            <span class="s2">"state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">"land_instantaneous_qx"</span>
         <span class="n">states_config</span><span class="p">[</span>
-            <span class="s2">&quot;state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;land_instantaneous_qy&quot;</span>
+            <span class="s2">"state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">"land_instantaneous_qy"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">zeromap</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;land_instantaneous_q&quot;</span><span class="p">])</span>
+        <span class="n">zeromap</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"land_instantaneous_q"</span><span class="p">])</span>
         <span class="n">states_config</span><span class="p">[</span>
-            <span class="s2">&quot;state.variables.land_surface_water__instantaneous_volume_flow_rate&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;land_instantaneous_q&quot;</span>
+            <span class="s2">"state.variables.land_surface_water__instantaneous_volume_flow_rate"</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">"land_instantaneous_q"</span>
 
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">zeromap</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;soil_temp&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">"soil_temp"</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="mf">10.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -586,49 +586,49 @@
     <span class="c1"># soil_unsaturated_depth (zero per layer)</span>
     <span class="c1"># layers are based on brooks_corey_c parameter</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil_layer_water__brooks_corey_exponent&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_layer_water__brooks_corey_exponent"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">usld</span> <span class="o">=</span> <span class="n">full_like</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">usld</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">usld</span><span class="p">[</span><span class="s2">"layer"</span><span class="p">]:</span>
         <span class="n">usld</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">sl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name_land</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_unsaturated_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usld</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"soil_unsaturated_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">usld</span>
 
     <span class="c1"># Compute other soil states</span>
     <span class="c1"># Get required variables from config</span>
     <span class="n">st</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil__thickness&quot;</span><span class="p">,</span>
+        <span class="s2">"soil__thickness"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil_water__saturated_volume_fraction&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_water__saturated_volume_fraction"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">tr</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil_water__residual_volume_fraction&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_water__residual_volume_fraction"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ksh</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio&quot;</span><span class="p">,</span>
+        <span class="s2">"subsurface_water__horizontal_to_vertical_saturated_hydraulic_conductivity_ratio"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ksv</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil_surface_water__vertical_saturated_hydraulic_conductivity&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_surface_water__vertical_saturated_hydraulic_conductivity"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter&quot;</span><span class="p">,</span>
+        <span class="s2">"soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">sl</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-        <span class="s2">&quot;land_surface__slope&quot;</span><span class="p">,</span>
+        <span class="s2">"land_surface__slope"</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
     <span class="p">)</span>
@@ -637,7 +637,7 @@
     <span class="n">swd</span> <span class="o">=</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="n">st</span> <span class="o">*</span> <span class="p">(</span><span class="n">ts</span> <span class="o">-</span> <span class="n">tr</span><span class="p">)</span>
     <span class="n">swd</span> <span class="o">=</span> <span class="n">swd</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name_land</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
     <span class="n">swd</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_saturated_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">swd</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"soil_saturated_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">swd</span>
 
     <span class="c1"># subsurface_q</span>
     <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">st</span> <span class="o">-</span> <span class="n">swd</span> <span class="o">/</span> <span class="p">(</span><span class="n">ts</span> <span class="o">-</span> <span class="n">tr</span><span class="p">))</span>
@@ -647,17 +647,17 @@
     <span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">f</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">st</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">area_grid</span><span class="p">()))</span>
     <span class="n">ssf</span> <span class="o">=</span> <span class="n">ssf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name_land</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
     <span class="n">ssf</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subsurface_q&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssf</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">"subsurface_q"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssf</span>
 
     <span class="c1"># River</span>
-    <span class="n">zeromap_riv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river_instantaneous_q&quot;</span><span class="p">,</span> <span class="s2">&quot;river_h&quot;</span><span class="p">]</span>
+    <span class="n">zeromap_riv</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"river_instantaneous_q"</span><span class="p">,</span> <span class="s2">"river_h"</span><span class="p">]</span>
     <span class="c1"># 1D floodplain</span>
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;floodplain_1d__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="n">zeromap_riv</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;floodplain_instantaneous_q&quot;</span><span class="p">,</span> <span class="s2">&quot;floodplain_h&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"floodplain_1d__flag"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">zeromap_riv</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"floodplain_instantaneous_q"</span><span class="p">,</span> <span class="s2">"floodplain_h"</span><span class="p">])</span>
         <span class="n">states_config</span><span class="p">[</span>
-            <span class="s2">&quot;state.variables.floodplain_water__instantaneous_volume_flow_rate&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;floodplain_instantaneous_q&quot;</span>
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.floodplain_water__depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;floodplain_h&quot;</span>
+            <span class="s2">"state.variables.floodplain_water__instantaneous_volume_flow_rate"</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">"floodplain_instantaneous_q"</span>
+        <span class="n">states_config</span><span class="p">[</span><span class="s2">"state.variables.floodplain_water__depth"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"floodplain_h"</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">zeromap_riv</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">da_param</span> <span class="o">=</span> <span class="n">grid_from_constant</span><span class="p">(</span>
@@ -672,55 +672,55 @@
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_param</span>
 
     <span class="c1"># reservoir</span>
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"reservoir__flag"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">rl</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;reservoir_water_surface__initial_elevation&quot;</span><span class="p">,</span>
+            <span class="s2">"reservoir_water_surface__initial_elevation"</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rl</span> <span class="o">=</span> <span class="n">rl</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rl</span> <span class="o">!=</span> <span class="n">rl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
         <span class="n">rl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;reservoir_water_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rl</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">"reservoir_water_level"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rl</span>
 
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.reservoir_water_surface__elevation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;reservoir_water_level&quot;</span>
+        <span class="n">states_config</span><span class="p">[</span><span class="s2">"state.variables.reservoir_water_surface__elevation"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"reservoir_water_level"</span>
         <span class="p">)</span>
 
     <span class="c1"># glacier</span>
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;glacier__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"glacier__flag"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">gs_vn</span> <span class="o">=</span> <span class="n">get_grid_from_config</span><span class="p">(</span>
-            <span class="s2">&quot;glacier_ice__initial_leq_depth&quot;</span><span class="p">,</span>
+            <span class="s2">"glacier_ice__initial_leq_depth"</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">grid</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">gs_vn</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">gs_vn</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacier_leq_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">gs_vn</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">glacstore</span> <span class="o">=</span> <span class="n">grid_from_constant</span><span class="p">(</span>
                 <span class="n">ds_like</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="mf">5500.0</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"glacier_leq_depth"</span><span class="p">,</span>
                 <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
                 <span class="n">mask</span><span class="o">=</span><span class="n">mask_name_land</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacier_leq_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glacstore</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="s2">"glacier_leq_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">glacstore</span>
 
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.glacier_ice__leq_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;glacier_leq_depth&quot;</span>
+        <span class="n">states_config</span><span class="p">[</span><span class="s2">"state.variables.glacier_ice__leq_depth"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"glacier_leq_depth"</span>
 
     <span class="c1"># paddy</span>
-    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;water_demand.paddy__flag&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"water_demand.paddy__flag"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="n">h_paddy</span> <span class="o">=</span> <span class="n">grid_from_constant</span><span class="p">(</span>
             <span class="n">ds_like</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demand_paddy_h&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"demand_paddy_h"</span><span class="p">,</span>
             <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
             <span class="n">mask</span><span class="o">=</span><span class="n">mask_name_land</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;demand_paddy_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_paddy</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">"demand_paddy_h"</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_paddy</span>
 
-        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.variables.paddy_surface_water__depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;demand_paddy_h&quot;</span>
+        <span class="n">states_config</span><span class="p">[</span><span class="s2">"state.variables.paddy_surface_water__depth"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"demand_paddy_h"</span>
 
     <span class="c1"># Add time dimension</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">timestamp</span><span class="p">]))</span>
@@ -782,8 +782,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -817,7 +817,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

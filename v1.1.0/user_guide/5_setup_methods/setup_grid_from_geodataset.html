@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -47,7 +47,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/5_setup_methods/setup_grid_from_geodataset';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -585,19 +585,19 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 The workflow file can then be used to build or update a model from the command line interface.
 Here our input files have a simple format so we can use file paths instead of data
 catalog entries:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./path/to/model_with_inflows&quot;</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;./path/to/add_inflows.yaml&quot;</span><span class="w"> </span>-v
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sbm<span class="w"> </span><span class="s2">"./path/to/model_to_update"</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">"./path/to/model_with_inflows"</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">"./path/to/add_inflows.yaml"</span><span class="w"> </span>-v
 </pre></div>
 </div>
 <p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_inflows.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_grid_from_geodataset</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./path/to/static_inflows.csv&quot;</span><span class="w"> </span><span class="c1"># dataframe with the inflow values</span>
-<span class="w">      </span><span class="nt">locations_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./path/to/model_to_update/staticgeoms/gauges_grdc.geojson&quot;</span><span class="w"> </span><span class="c1"># corresponding locations file</span>
-<span class="w">      </span><span class="nt">index_col</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;grdc_no&quot;</span><span class="w"> </span><span class="c1"># column in the geodataset attributes that contains the location index matching the variable file</span>
-<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;inflow&quot;</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
+<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"./path/to/static_inflows.csv"</span><span class="w"> </span><span class="c1"># dataframe with the inflow values</span>
+<span class="w">      </span><span class="nt">locations_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"./path/to/model_to_update/staticgeoms/gauges_grdc.geojson"</span><span class="w"> </span><span class="c1"># corresponding locations file</span>
+<span class="w">      </span><span class="nt">index_col</span><span class="p">:</span><span class="w"> </span><span class="s">"grdc_no"</span><span class="w"> </span><span class="c1"># column in the geodataset attributes that contains the location index matching the variable file</span>
+<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">"inflow"</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
 <span class="w">      </span><span class="nt">fill_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"> </span><span class="c1"># fill value for the other grid cells</span>
 <span class="w">      </span><span class="nt">output_names</span><span class="p">:</span>
-<span class="w">        </span><span class="s">&quot;river_water__external_inflow_volume_flow_rate&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;river_inflow&quot;</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
+<span class="w">        </span><span class="s">"river_water__external_inflow_volume_flow_rate"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"river_inflow"</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
 </pre></div>
 </div>
 </div>
@@ -609,18 +609,18 @@ Python API</label><div class="sd-tab-content docutils">
 
 <span class="c1"># instantiate model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+    <span class="s2">"./path/to/model_to_update"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># add static inflows at GRDC gauges</span>
 <span class="n">model</span><span class="o">.</span><span class="n">setup_grid_from_geodataset</span><span class="p">(</span>
-    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">&quot;./path/to/static_inflows.csv&quot;</span><span class="p">,</span> <span class="c1"># dataframe with the inflow values</span>
-    <span class="n">locations_fn</span><span class="o">=</span><span class="s2">&quot;./path/to/model_to_update/staticgeoms/gauges_grdc.geojson&quot;</span><span class="p">,</span> <span class="c1"># corresponding locations file</span>
-    <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;grdc_no&quot;</span><span class="p">,</span> <span class="c1"># column in the geodataset attributes that contains the location index matching the variable file</span>
-    <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;inflow&quot;</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
+    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">"./path/to/static_inflows.csv"</span><span class="p">,</span> <span class="c1"># dataframe with the inflow values</span>
+    <span class="n">locations_fn</span><span class="o">=</span><span class="s2">"./path/to/model_to_update/staticgeoms/gauges_grdc.geojson"</span><span class="p">,</span> <span class="c1"># corresponding locations file</span>
+    <span class="n">index_col</span><span class="o">=</span><span class="s2">"grdc_no"</span><span class="p">,</span> <span class="c1"># column in the geodataset attributes that contains the location index matching the variable file</span>
+    <span class="n">variable</span><span class="o">=</span><span class="s2">"inflow"</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
     <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># fill value for the other grid cells</span>
-    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;river_water__external_inflow_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;river_inflow&quot;</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">"river_water__external_inflow_volume_flow_rate"</span><span class="p">:</span> <span class="s2">"river_inflow"</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -705,14 +705,14 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 <p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_reservoir_demand.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_grid_from_geodataset</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./path/to/cyclic_reservoir_demand.csv&quot;</span><span class="w"> </span><span class="c1"># dataframe with the demand values</span>
-<span class="w">      </span><span class="nt">locations_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;reservoir_outlet_id&quot;</span><span class="w"> </span><span class="c1"># corresponding locations map in staticmaps</span>
-<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;reservoir_demand_cyclic&quot;</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
+<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"./path/to/cyclic_reservoir_demand.csv"</span><span class="w"> </span><span class="c1"># dataframe with the demand values</span>
+<span class="w">      </span><span class="nt">locations_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"reservoir_outlet_id"</span><span class="w"> </span><span class="c1"># corresponding locations map in staticmaps</span>
+<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">"reservoir_demand_cyclic"</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
 <span class="w">      </span><span class="nt">fill_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-1</span><span class="w"> </span><span class="c1"># fill value for the other grid cells (lake)</span>
 <span class="w">      </span><span class="nt">nodata_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-9999</span><span class="w"> </span><span class="c1"># nodata values for the cells that are not in the mask</span>
-<span class="w">      </span><span class="nt">mask</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;reservoir_outlet_id&quot;</span><span class="w"> </span><span class="c1"># map to use as mask for the output grid (only the cells with a value in this map will be filled, the others will be set to nodata_value)</span>
+<span class="w">      </span><span class="nt">mask</span><span class="p">:</span><span class="w"> </span><span class="s">"reservoir_outlet_id"</span><span class="w"> </span><span class="c1"># map to use as mask for the output grid (only the cells with a value in this map will be filled, the others will be set to nodata_value)</span>
 <span class="w">      </span><span class="nt">output_names</span><span class="p">:</span>
-<span class="w">        </span><span class="s">&quot;reservoir_water_demand__required_downstream_volume_flow_rate&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;reservoir_demand_cyclic&quot;</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
+<span class="w">        </span><span class="s">"reservoir_water_demand__required_downstream_volume_flow_rate"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"reservoir_demand_cyclic"</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
 </pre></div>
 </div>
 </div>
@@ -724,19 +724,19 @@ Python API</label><div class="sd-tab-content docutils">
 
 <span class="c1"># instantiate model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
+    <span class="s2">"./path/to/model_to_update"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># add cyclic reservoir demand at reservoir outlet locations</span>
 <span class="n">model</span><span class="o">.</span><span class="n">setup_grid_from_geodataset</span><span class="p">(</span>
-    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">&quot;./path/to/cyclic_reservoir_demand.csv&quot;</span><span class="p">,</span> <span class="c1"># dataframe with the demand values</span>
-    <span class="n">locations_fn</span><span class="o">=</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span> <span class="c1"># corresponding locations map in staticmaps</span>
-    <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;reservoir_demand_cyclic&quot;</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
+    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">"./path/to/cyclic_reservoir_demand.csv"</span><span class="p">,</span> <span class="c1"># dataframe with the demand values</span>
+    <span class="n">locations_fn</span><span class="o">=</span><span class="s2">"reservoir_outlet_id"</span><span class="p">,</span> <span class="c1"># corresponding locations map in staticmaps</span>
+    <span class="n">variable</span><span class="o">=</span><span class="s2">"reservoir_demand_cyclic"</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
     <span class="n">fill_value</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># fill value for the other grid cells (lake)</span>
     <span class="n">nodata_value</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="c1"># nodata values for the cells that are not in the mask</span>
-    <span class="n">mask</span><span class="o">=</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span> <span class="c1"># map to use as mask for the output grid (only the cells with a value in this map will be filled, the others will be set to nodata_value)</span>
-    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reservoir_water_demand__required_downstream_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_demand_cyclic&quot;</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
+    <span class="n">mask</span><span class="o">=</span><span class="s2">"reservoir_outlet_id"</span><span class="p">,</span> <span class="c1"># map to use as mask for the output grid (only the cells with a value in this map will be filled, the others will be set to nodata_value)</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">"reservoir_water_demand__required_downstream_volume_flow_rate"</span><span class="p">:</span> <span class="s2">"reservoir_demand_cyclic"</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -763,14 +763,14 @@ Command Line Interface (CLI)</label><div class="sd-tab-content docutils">
 <p>The workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_reservoir_outflows.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_grid_from_geodataset</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;forcing_reservoir_outflows&quot;</span><span class="w"> </span><span class="c1"># data catalog entry for the netcdf file</span>
-<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;outflow&quot;</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
+<span class="w">      </span><span class="nt">geodataset_fn</span><span class="p">:</span><span class="w"> </span><span class="s">"forcing_reservoir_outflows"</span><span class="w"> </span><span class="c1"># data catalog entry for the netcdf file</span>
+<span class="w">      </span><span class="nt">variable</span><span class="p">:</span><span class="w"> </span><span class="s">"outflow"</span><span class="w"> </span><span class="c1"># name of the input variable in the geodataset</span>
 <span class="w">      </span><span class="nt">nodata_value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">np.nan</span><span class="w"> </span><span class="c1"># nodata value outside of the mask</span>
-<span class="w">      </span><span class="nt">mask</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;reservoir_outlet_id&quot;</span><span class="w"> </span><span class="c1"># map to use as mask for the output grid</span>
+<span class="w">      </span><span class="nt">mask</span><span class="p">:</span><span class="w"> </span><span class="s">"reservoir_outlet_id"</span><span class="w"> </span><span class="c1"># map to use as mask for the output grid</span>
 <span class="w">      </span><span class="nt">output_names</span><span class="p">:</span>
-<span class="w">        </span><span class="s">&quot;reservoir_water__outgoing_observed_volume_flow_rate&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;reservoir_outflow&quot;</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
+<span class="w">        </span><span class="s">"reservoir_water__outgoing_observed_volume_flow_rate"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"reservoir_outflow"</span><span class="w"> </span><span class="c1"># wflow variable and name in staticmaps</span>
 <span class="w">      </span><span class="nt">resample_time_kwargs</span><span class="p">:</span><span class="w"> </span><span class="c1"># time resampling arguments if the time steps of the input variable do not match the model time steps (e.g. hourly vs daily)</span>
-<span class="w">        </span><span class="nt">downsampling</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mean&quot;</span>
+<span class="w">        </span><span class="nt">downsampling</span><span class="p">:</span><span class="w"> </span><span class="s">"mean"</span>
 </pre></div>
 </div>
 </div>
@@ -782,20 +782,20 @@ Python API</label><div class="sd-tab-content docutils">
 
 <span class="c1"># instantiate model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">WflowSbmModel</span><span class="p">(</span>
-    <span class="s2">&quot;./path/to/model_to_update&quot;</span><span class="p">,</span>
-    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r+&quot;</span><span class="p">,</span>
-    <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;my_data_catalog&quot;</span><span class="p">]</span> <span class="c1"># make sure to include the data library where the netcdf file is catalogued</span>
+    <span class="s2">"./path/to/model_to_update"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">"r+"</span><span class="p">,</span>
+    <span class="n">data_libs</span><span class="o">=</span><span class="p">[</span><span class="s2">"my_data_catalog"</span><span class="p">]</span> <span class="c1"># make sure to include the data library where the netcdf file is catalogued</span>
 <span class="p">)</span>
 
 <span class="c1"># add forcing reservoir outflows at reservoir outlet locations</span>
 <span class="n">model</span><span class="o">.</span><span class="n">setup_grid_from_geodataset</span><span class="p">(</span>
-    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">&quot;forcing_reservoir_outflows&quot;</span><span class="p">,</span> <span class="c1"># data catalog entry for the netcdf file</span>
-    <span class="n">variable</span><span class="o">=</span><span class="s2">&quot;outflow&quot;</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
+    <span class="n">geodataset_fn</span><span class="o">=</span><span class="s2">"forcing_reservoir_outflows"</span><span class="p">,</span> <span class="c1"># data catalog entry for the netcdf file</span>
+    <span class="n">variable</span><span class="o">=</span><span class="s2">"outflow"</span><span class="p">,</span> <span class="c1"># name of the input variable in the geodataset</span>
     <span class="n">nodata_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="c1"># nodata value outside of the mask</span>
-    <span class="n">mask</span><span class="o">=</span><span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span> <span class="c1"># map to use as mask for the output grid</span>
-    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;reservoir_water__outgoing_observed_volume_flow_rate&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outflow&quot;</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
+    <span class="n">mask</span><span class="o">=</span><span class="s2">"reservoir_outlet_id"</span><span class="p">,</span> <span class="c1"># map to use as mask for the output grid</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">{</span><span class="s2">"reservoir_water__outgoing_observed_volume_flow_rate"</span><span class="p">:</span> <span class="s2">"reservoir_outflow"</span><span class="p">}</span> <span class="c1"># wflow variable and name in staticmaps</span>
     <span class="n">resample_time_kwargs</span><span class="o">=</span><span class="p">{</span> <span class="c1"># time resampling arguments if the time steps of the input variable do not match the model time steps (e.g. hourly vs daily)</span>
-        <span class="s2">&quot;downsampling&quot;</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span>
+        <span class="s2">"downsampling"</span><span class="p">:</span> <span class="s2">"mean"</span>
     <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
@@ -896,8 +896,8 @@ Python API</label><div class="sd-tab-content docutils">
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -931,7 +931,7 @@ Python API</label><div class="sd-tab-content docutils">
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

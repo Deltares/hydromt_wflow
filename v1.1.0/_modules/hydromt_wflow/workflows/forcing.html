@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/forcing';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,7 +425,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.workflows.forcing</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Forcing workflow for wflow.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Forcing workflow for wflow."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
@@ -433,9 +433,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.model.processes.meteo</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample_time</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="sa">f</span><span class="s2">"hydromt.</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;spatial_interpolation&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"pet"</span><span class="p">,</span> <span class="s2">"spatial_interpolation"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="pet">
@@ -443,11 +443,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">pet</span><span class="p">(</span>
     <span class="n">pet</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"D"</span><span class="p">,</span>
     <span class="n">mask_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">chunksize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Resample and reproject PET to the grid of ds_like.</span>
 
 <span class="sd">    Parameters</span>
@@ -457,7 +457,7 @@
 <span class="sd">    ds_like : xr.Dataset</span>
 <span class="sd">        Dataset with the grid to reproject to.</span>
 <span class="sd">    freq : str, optional</span>
-<span class="sd">        Resampling frequency, by default &quot;D&quot;.</span>
+<span class="sd">        Resampling frequency, by default "D".</span>
 <span class="sd">    mask_name : str, optional</span>
 <span class="sd">        Name of the mask variable in ds_like, by default None.</span>
 <span class="sd">    chunksize : int, optional</span>
@@ -468,24 +468,24 @@
 <span class="sd">    -------</span>
 <span class="sd">    pet_out : xr.DataArray</span>
 <span class="sd">        Resampled and reprojected PET data array.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">chunksize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">pet</span> <span class="o">=</span> <span class="n">pet</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">chunksize</span><span class="p">})</span>
+        <span class="n">pet</span> <span class="o">=</span> <span class="n">pet</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">chunksize</span><span class="p">})</span>
 
-    <span class="k">if</span> <span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dim0</span> <span class="o">!=</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;First pet dim should be &quot;time&quot;, not </span><span class="si">{</span><span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dim0</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dim0</span> <span class="o">!=</span> <span class="s2">"time"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'First pet dim should be "time", not </span><span class="si">{</span><span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dim0</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># change nodata</span>
     <span class="n">pet</span> <span class="o">=</span> <span class="n">pet</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pet</span> <span class="o">!=</span> <span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
     <span class="c1"># Minimum is zero</span>
-    <span class="n">pet_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fmax</span><span class="p">(</span><span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest_index&quot;</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">pet_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fmax</span><span class="p">(</span><span class="n">pet</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"nearest_index"</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># resample time</span>
-    <span class="n">resample_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="n">resample_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">resample_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">upsampling</span><span class="o">=</span><span class="s2">&quot;bfill&quot;</span><span class="p">,</span> <span class="n">downsampling</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+        <span class="n">resample_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">upsampling</span><span class="o">=</span><span class="s2">"bfill"</span><span class="p">,</span> <span class="n">downsampling</span><span class="o">=</span><span class="s2">"sum"</span><span class="p">)</span>
         <span class="n">pet_out</span> <span class="o">=</span> <span class="n">resample_time</span><span class="p">(</span><span class="n">pet_out</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">conserve_mass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">resample_kwargs</span><span class="p">)</span>
         <span class="c1"># nodata is lost in resampling, set it back</span>
         <span class="n">pet_out</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -496,8 +496,8 @@
         <span class="n">pet_out</span> <span class="o">=</span> <span class="n">pet_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
 
     <span class="c1"># Attributes</span>
-    <span class="n">pet_out</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;pet&quot;</span>
-    <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;mm&quot;</span><span class="p">)</span>
+    <span class="n">pet_out</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"pet"</span>
+    <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">"mm"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pet_out</span></div>
 
@@ -512,23 +512,23 @@
     <span class="n">nnearest</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="n">p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
     <span class="n">remove_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">cov</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0 Exp(10000.)&quot;</span><span class="p">,</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1.0 Exp(10000.)"</span><span class="p">,</span>
     <span class="n">src_drift</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">trg_drift</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mask_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Interpolate spatial forcing data from station observations to a regular grid.</span>
 
 <span class="sd">    This workflow uses the wradlib.ipol.interpolate function in wradlib. \</span>
 <span class="sd">    It wraps the following interpolation types into a single function:</span>
-<span class="sd">    - &quot;nearest&quot;: nearest-neighbour interpolation, also works with a single station.</span>
-<span class="sd">    - &quot;idw&quot;: inverse-distance weighing using 1 / distance ** p.</span>
-<span class="sd">    - &quot;linear&quot;: linear interpolation using scipy.interpolate.LinearNDInterpolator, \</span>
+<span class="sd">    - "nearest": nearest-neighbour interpolation, also works with a single station.</span>
+<span class="sd">    - "idw": inverse-distance weighing using 1 / distance ** p.</span>
+<span class="sd">    - "linear": linear interpolation using scipy.interpolate.LinearNDInterpolator, \</span>
 <span class="sd">    may result in missing values when station coverage is limited.</span>
-<span class="sd">    - &quot;ordinarykriging&quot;: interpolate using Ordinary Kriging, see wradlib documentation \</span>
+<span class="sd">    - "ordinarykriging": interpolate using Ordinary Kriging, see wradlib documentation \</span>
 <span class="sd">    for a full explanation: `wradlib.ipol.OrdinaryKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html&gt;`</span>
-<span class="sd">    - &quot;externaldriftkriging&quot;: Kriging interpolation including an external drift, see \</span>
+<span class="sd">    - "externaldriftkriging": Kriging interpolation including an external drift, see \</span>
 <span class="sd">    wradlib documentation for a full explanation: `wradlib.ipol.ExternalDriftKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html&gt;`</span>
 
 <span class="sd">    Parameters</span>
@@ -538,8 +538,8 @@
 <span class="sd">    ds_like : xr.Dataset</span>
 <span class="sd">        Target dataset defining the grid for interpolation.</span>
 <span class="sd">    interp_type : str</span>
-<span class="sd">        Interpolation method. Options: &quot;nearest&quot;, &quot;idw&quot;, &quot;linear&quot;, \</span>
-<span class="sd">        &quot;ordinarykriging&quot;, &quot;externaldriftkriging&quot;.</span>
+<span class="sd">        Interpolation method. Options: "nearest", "idw", "linear", \</span>
+<span class="sd">        "ordinarykriging", "externaldriftkriging".</span>
 <span class="sd">    nnearest : int, optional</span>
 <span class="sd">        Maximum number of neighbors for interpolation. Default is 4.</span>
 <span class="sd">    p : float, optional</span>
@@ -547,7 +547,7 @@
 <span class="sd">    remove_missing : bool, optional</span>
 <span class="sd">        Whether to mask NaN values in the input data. Default is False.</span>
 <span class="sd">    cov : str, optional</span>
-<span class="sd">        Covariance model for Kriging. Default is &#39;1.0 Exp(10000.)&#39;.</span>
+<span class="sd">        Covariance model for Kriging. Default is '1.0 Exp(10000.)'.</span>
 <span class="sd">    src_drift : np.ndarray, optional</span>
 <span class="sd">        External drift values at source points (stations).</span>
 <span class="sd">    trg_drift : np.ndarray, optional</span>
@@ -563,32 +563,32 @@
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    `wradlib.ipol.interpolate &lt;https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate&gt;`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">wradlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">wrl</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
-            <span class="s2">&quot;The wradlib package is required for spatial interpolation.&quot;</span>
+            <span class="s2">"The wradlib package is required for spatial interpolation."</span>
         <span class="p">)</span>
 
     <span class="c1"># Specify wradlib interpolation classes</span>
     <span class="n">interpolation_classes</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;nearest&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Nearest</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;remove_missing&quot;</span><span class="p">]},</span>
-        <span class="s2">&quot;idw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Idw</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">]},</span>
-        <span class="s2">&quot;ordinarykriging&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">OrdinaryKriging</span><span class="p">,</span>
-            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">],</span>
+        <span class="s2">"nearest"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"obj"</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Nearest</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="s2">"linear"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"obj"</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"remove_missing"</span><span class="p">]},</span>
+        <span class="s2">"idw"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"obj"</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Idw</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"nnearest"</span><span class="p">,</span> <span class="s2">"p"</span><span class="p">]},</span>
+        <span class="s2">"ordinarykriging"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"obj"</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">OrdinaryKriging</span><span class="p">,</span>
+            <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"cov"</span><span class="p">,</span> <span class="s2">"nnearest"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;externaldriftkriging&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">ExternalDriftKriging</span><span class="p">,</span>
-            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;src_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;trg_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_missing&quot;</span><span class="p">],</span>
+        <span class="s2">"externaldriftkriging"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"obj"</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">ExternalDriftKriging</span><span class="p">,</span>
+            <span class="s2">"args"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"cov"</span><span class="p">,</span> <span class="s2">"nnearest"</span><span class="p">,</span> <span class="s2">"src_drift"</span><span class="p">,</span> <span class="s2">"trg_drift"</span><span class="p">,</span> <span class="s2">"remove_missing"</span><span class="p">],</span>
         <span class="p">},</span>
     <span class="p">}</span>
 
     <span class="c1"># Reproject forcing data to match the target CRS</span>
     <span class="n">crs</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
-    <span class="n">forcing</span> <span class="o">=</span> <span class="n">forcing</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="n">forcing</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">)</span>
 
     <span class="c1"># Extract station coordinates</span>
     <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">forcing</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
@@ -600,15 +600,15 @@
         <span class="n">basins</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
         <span class="n">nb_inside</span> <span class="o">=</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">basins</span><span class="o">.</span><span class="n">union_all</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;of which </span><span class="si">{</span><span class="n">nb_inside</span><span class="si">}</span><span class="s2"> are located inside the basin.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data, "</span>
+            <span class="sa">f</span><span class="s2">"of which </span><span class="si">{</span><span class="n">nb_inside</span><span class="si">}</span><span class="s2"> are located inside the basin."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">forcing</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Forcing data contains NaN values. &quot;</span>
-            <span class="s2">&quot;These will be skipped during interpolation.&quot;</span>
+            <span class="s2">"Forcing data contains NaN values. "</span>
+            <span class="s2">"These will be skipped during interpolation."</span>
         <span class="p">)</span>
 
     <span class="c1"># Extract grid coordinates</span>
@@ -620,32 +620,32 @@
     <span class="c1"># Validate interpolation type</span>
     <span class="k">if</span> <span class="n">interp_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">interpolation_classes</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unsupported interpolation type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Choose from: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">interpolation_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unsupported interpolation type '</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">'. "</span>
+            <span class="sa">f</span><span class="s2">"Choose from: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">interpolation_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
     <span class="c1"># Prepare interpolation arguments</span>
-    <span class="n">ipclass</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">&quot;obj&quot;</span><span class="p">]</span>
-    <span class="n">required_args</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">&quot;args&quot;</span><span class="p">]</span>
+    <span class="n">ipclass</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">"obj"</span><span class="p">]</span>
+    <span class="n">required_args</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">"args"</span><span class="p">]</span>
 
     <span class="n">interp_args_all</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;nnearest&quot;</span><span class="p">:</span> <span class="n">nnearest</span><span class="p">,</span>
-        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
-        <span class="s2">&quot;remove_missing&quot;</span><span class="p">:</span> <span class="n">remove_missing</span><span class="p">,</span>
-        <span class="s2">&quot;cov&quot;</span><span class="p">:</span> <span class="n">cov</span><span class="p">,</span>
-        <span class="s2">&quot;src_drift&quot;</span><span class="p">:</span> <span class="n">src_drift</span><span class="p">,</span>
-        <span class="s2">&quot;trg_drift&quot;</span><span class="p">:</span> <span class="n">trg_drift</span><span class="p">,</span>
+        <span class="s2">"nnearest"</span><span class="p">:</span> <span class="n">nnearest</span><span class="p">,</span>
+        <span class="s2">"p"</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+        <span class="s2">"remove_missing"</span><span class="p">:</span> <span class="n">remove_missing</span><span class="p">,</span>
+        <span class="s2">"cov"</span><span class="p">:</span> <span class="n">cov</span><span class="p">,</span>
+        <span class="s2">"src_drift"</span><span class="p">:</span> <span class="n">src_drift</span><span class="p">,</span>
+        <span class="s2">"trg_drift"</span><span class="p">:</span> <span class="n">trg_drift</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">required_args</span><span class="p">:</span>
         <span class="n">interp_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">interp_args_all</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">required_args</span><span class="p">}</span>
-        <span class="n">interp_args_log</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">interp_args</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">interp_args_log</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">interp_args</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Starting interpolation with type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">interp_args_log</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="sa">f</span><span class="s2">"Starting interpolation with type '</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">' (</span><span class="si">{</span><span class="n">interp_args_log</span><span class="si">}</span><span class="s2">)."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">interp_args</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting interpolation with type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Starting interpolation with type '</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span>
 
     <span class="c1"># Perform interpolation using wradlib</span>
     <span class="n">interpolated</span> <span class="o">=</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
@@ -659,15 +659,15 @@
     <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">interpolated_reshaped</span><span class="p">,</span>
         <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">forcing</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="n">forcing</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">y_coords</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">:</span> <span class="n">x_coords</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">],</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="c1"># Set metadata</span>
-    <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">da_forcing</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">da_forcing</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"float32"</span><span class="p">)</span>
     <span class="n">da_forcing</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="n">da_forcing</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
 
@@ -733,8 +733,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -768,7 +768,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>

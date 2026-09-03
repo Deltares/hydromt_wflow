@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=066b352c" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
@@ -46,7 +46,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/soilparams';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/Deltares/hydromt_wflow/gh-pages/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.1.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -425,15 +425,15 @@
                 <article class="bd-article">
                   
   <h1>Source code for hydromt_wflow.workflows.soilparams</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Functions for individual soil parameters.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Functions for individual soil parameters."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.gis</span><span class="w"> </span><span class="kn">import</span> <span class="n">raster_utils</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;ksat_horizontal_ratio&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ksatver_vegetation&quot;</span><span class="p">,</span>
+    <span class="s2">"ksat_horizontal_ratio"</span><span class="p">,</span>
+    <span class="s2">"ksatver_vegetation"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -444,7 +444,7 @@
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">resampling_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create KsatHorfrac map.</span>
+<span class="w">    </span><span class="sd">"""Create KsatHorfrac map.</span>
 
 <span class="sd">    Based on the data properties of the WflowSbmModel.</span>
 
@@ -462,7 +462,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    xr.DataArray</span>
 <span class="sd">        A xarray DataArray containing the scaled KsatHorFrac values.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Transfer data to a logarithmic scale</span>
     <span class="n">da</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
     <span class="c1"># Reproject the data</span>
@@ -474,9 +474,9 @@
     <span class="n">da</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">da</span><span class="p">)</span>
 
     <span class="c1"># Fill all nodata holes in the map</span>
-    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"linear"</span><span class="p">)</span>
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span>
-        <span class="n">dim</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">"extrapolate"</span>
     <span class="p">)</span>
 
     <span class="c1"># Set the default no fill value for doubles</span>
@@ -487,7 +487,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_kv_at_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">kv_0</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate the kv value at a certain depth.</span>
 
 <span class="sd">    Value is based on the kv at the surface, the f parameter that describes the</span>
@@ -506,7 +506,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    kv_z</span>
 <span class="sd">        The kv value at the requested depth</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">exp_arg</span> <span class="o">=</span> <span class="o">-</span><span class="n">f</span> <span class="o">*</span> <span class="n">depth</span>
     <span class="c1"># Clip exponent to float64-safe range</span>
     <span class="n">exp_arg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">exp_arg</span><span class="p">,</span> <span class="o">-</span><span class="mi">700</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
@@ -516,7 +516,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_kvfrac</span><span class="p">(</span><span class="n">kv_depth</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the kvfrac.</span>
+<span class="w">    </span><span class="sd">"""Calculate the kvfrac.</span>
 
 <span class="sd">    Based on the kv value at a certain depth and the target value.</span>
 
@@ -531,7 +531,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    kvfrac:</span>
 <span class="sd">        The value which kv_depths needs to be multiplied with to reach the target value</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">kvfrac</span> <span class="o">=</span> <span class="n">target</span> <span class="o">/</span> <span class="n">kv_depth</span>
     <span class="k">return</span> <span class="n">kvfrac</span>
 
@@ -539,7 +539,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">update_kvfrac</span><span class="p">(</span>
     <span class="n">ds_model</span><span class="p">,</span> <span class="n">kv0_mask</span><span class="p">,</span> <span class="n">f_mask</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">,</span> <span class="n">target_conductivity</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate kvfrac values for each layer.</span>
 
 <span class="sd">    Done such that the bottom of the layer equals to the target_conductivity.</span>
@@ -564,15 +564,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    da_kvfrac</span>
 <span class="sd">        Maps for each layer with the required kvfrac value</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Convert to np.array</span>
     <span class="n">wflow_thicknesslayers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wflow_thicknesslayers</span><span class="p">)</span>
     <span class="n">target_conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target_conductivity</span><span class="p">)</span>
 
     <span class="c1"># Prepare empty dataarray</span>
-    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster_utils</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">])</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster_utils</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">"soil_brooks_corey_c"</span><span class="p">])</span>
     <span class="c1"># Set all values to 1</span>
-    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">"elevtn"</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">)</span>
 
     <span class="c1"># Get the actual depths</span>
     <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">wflow_thicknesslayers</span><span class="p">)</span>
@@ -602,7 +602,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_ks_veg</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI</span><span class="p">,</span> <span class="n">alfa</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
 
 <span class="sd">    Parameters</span>
@@ -623,7 +623,7 @@
 <span class="sd">    ks : [xr.DataSet, float]</span>
 <span class="sd">        saturated hydraulic conductivity based on soil and vegetation [cm/d].</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># get the saturated hydraulic conductivity with fully developed vegetation.</span>
     <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span>
         <span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ksat_vertical</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
@@ -642,7 +642,7 @@
     <span class="n">alfa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span>
     <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].</span>
 
 <span class="sd">    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
@@ -665,23 +665,23 @@
 <span class="sd">    ks : [xr.DataSet, float]</span>
 <span class="sd">        saturated hydraulic conductivity based on soil and vegetation [mm/d].</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sndppt</span> <span class="o">!=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">_FillValue</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="c1"># reproject to model resolution</span>
-    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"average"</span><span class="p">)</span>
     <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="c1"># interpolate to fill missing values</span>
-    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;rio_idw&quot;</span><span class="p">)</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">"rio_idw"</span><span class="p">)</span>
     <span class="c1"># mask outside basin</span>
-    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">"basins"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># mean annual lai is required (see fig 1 in Bonetti et al. 2021)</span>
-    <span class="n">LAI_mean</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">LAI_mean</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">"LAI"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="n">LAI_mean</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mf">255.0</span><span class="p">)</span>
 
     <span class="c1"># in this function, Ksatver should be provided in cm/d</span>
     <span class="n">ksatver_vegetation</span> <span class="o">=</span> <span class="n">get_ks_veg</span><span class="p">(</span>
-        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">"ksat_vertical"</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
     <span class="p">)</span>
 
     <span class="c1"># convert back from cm/d to mm/d</span>
@@ -743,8 +743,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -778,7 +778,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>
