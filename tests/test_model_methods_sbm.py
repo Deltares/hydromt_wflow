@@ -1281,7 +1281,7 @@ def test_setup_agroforestry(
     example_wflow_model.setup_agroforestry(
         agroforestry_fn=agroforestry_testdata,
         agroforestry_class=1,
-        landuse_class_filter=[14], # update cropland only within polygons
+        landuse_class_filter=[14],  # update cropland only within polygons
         output_names_suffix="gdf_filter",
     )
     lulc_filter = staticdata["meta_landuse_gdf_filter"]

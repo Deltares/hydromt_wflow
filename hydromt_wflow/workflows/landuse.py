@@ -651,12 +651,11 @@ def add_agroforestry_to_landuse(
         agroforestry_class = 1
     else:
         agro_da = agro_da.where(agro_da == agroforestry_class, agro_da.raster.nodata)
-    
+
     # Filter landuse classes within the agroforestry mask
     if len(landuse_class_filter) > 0:
         agro_da = agro_da.where(
-            ds_like["landuse"].isin(landuse_class_filter),
-            agro_da.raster.nodata
+            ds_like["landuse"].isin(landuse_class_filter), agro_da.raster.nodata
         )
 
     # Burn in the agroforestry areas in the landuse map

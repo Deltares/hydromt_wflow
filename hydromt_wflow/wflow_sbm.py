@@ -1648,7 +1648,7 @@ setting new flood_depth dimensions"
             columns of the mapping tables. For example if the suffix is "agroforestry",
             all variables in landuse_vars will be renamed to "landuse_agroforestry",
             "vegetation_kext_agroforestry", etc.
-        """ # noqa: E501
+        """  # noqa: E501
         # Check that landuse map is present
         if lulcmap_name in self.staticmaps.data:
             # update the internal mapping

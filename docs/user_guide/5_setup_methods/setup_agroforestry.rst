@@ -35,7 +35,7 @@ that will be used as examples.
 
 .. figure:: ../../_static/setup_agroforestry.png
 
-.. note:: 
+.. note::
 
     This method works at the WFLOW MODEL RESOLUTION. It modifies the wflow landuse map
     by reprojecting the agroforestry raster file (mode method) or rasterizing the
@@ -169,7 +169,7 @@ Here are three examples of how to use the ``setup_agroforestry`` method in a Hyd
                 output_agroforestry_class=15, # new landuse class for agroforestry areas
                 agroforestry_mapping_fn="agroforestry_mapping_default" # default agroforestry lookup table
             )
-        
+
         Lastly, you need to write the updated model:
 
         .. code-block:: python
