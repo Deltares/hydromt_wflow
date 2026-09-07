@@ -1251,11 +1251,11 @@ def test_setup_agroforestry(
     tmp_path: Path,
     agroforestry_testdata: gpd.GeoDataFrame,
 ):
-    # Read the data
+    ### Read the data
     example_wflow_model.read()
     example_wflow_model.root.set(tmp_path, mode="w")
 
-    # Use the method with geodataframe
+    ### Use the method with geodataframe
     example_wflow_model.setup_agroforestry(
         agroforestry_fn=agroforestry_testdata,
         agroforestry_class=1,
@@ -1263,6 +1263,7 @@ def test_setup_agroforestry(
     )
 
     staticdata = example_wflow_model.staticmaps.data
+    lulc_no_filter = staticdata["meta_landuse_gdf_default"]
 
     assert "vegetation_crop_factor_gdf_default" in example_wflow_model.staticmaps.data
     centroid = utils.planar_operation_in_utm(
@@ -1276,7 +1277,22 @@ def test_setup_agroforestry(
     assert np.all(da["vegetation_crop_factor_gdf_default"].values == 1.09)
     assert np.all(da["vegetation_feddes_alpha_h1_gdf_default"].values == 0)
 
-    # Test with xarray and mix of class values
+    ### Test with geodataframe and landuse filter
+    example_wflow_model.setup_agroforestry(
+        agroforestry_fn=agroforestry_testdata,
+        agroforestry_class=1,
+        landuse_class_filter=[14], # update cropland only within polygons
+        output_names_suffix="gdf_filter",
+    )
+    lulc_filter = staticdata["meta_landuse_gdf_filter"]
+
+    # Less agroforestry cells with filter
+    n_lulc_no_filter = lulc_no_filter.where(lulc_no_filter == 1, np.nan).count().item()
+    n_lulc_filter = lulc_filter.where(lulc_filter == 1, np.nan).count().item()
+
+    assert n_lulc_filter < n_lulc_no_filter
+
+    ### Test with xarray and mix of class values
     agroforestry_xr = staticdata.raster.rasterize(
         gdf=agroforestry_testdata,
         col_name="agroforestry",
