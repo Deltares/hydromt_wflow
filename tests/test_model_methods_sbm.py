@@ -1402,8 +1402,13 @@ def test_setup_ponding_from_map(
 
     assert "ponding_level_local_inertial" in example_wflow_model.staticmaps.data
     pond_map = example_wflow_model.staticmaps.data["ponding_level_local_inertial"]
-    assert pond_map.raster.mask_nodata().max().values == 0.2
-    assert pond_map.raster.mask_nodata().min().values == 0.000
+    assert pond_map.raster.mask_nodata().max().item() == 0.2
+    assert pond_map.raster.mask_nodata().min().item() == 0.000
+
+    # Check for high res vector resampling
+    # In this test case, not all cells are fully covered by ponds so values can vary
+    # between 0 and 0.2 (and nan)
+    assert np.unique(pond_map.raster.mask_nodata().values).size > 3
 
     # check number of cells with ponding level > min_pond_level
     num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.000)

@@ -1756,12 +1756,23 @@ setting new flood_depth dimensions"
 
         # Rasterize ponding data if vector
         if isinstance(pond_data, gpd.GeoDataFrame):
+            # First get fraction of wflow cells covered by ponds
+            pond_fraction = self.staticmaps.data.raster.rasterize_geometry(
+                pond_data,
+                method="fraction",
+                nodata=0,
+            )
+            # hydromt bug, frac can be > 1
+            pond_fraction = pond_fraction.clip(min=0, max=1)
+            # Rasterize to wflow grid
             pond_data = self.staticmaps.data.raster.rasterize(
                 pond_data,
                 col_name="index",
                 nodata=-9999,
                 all_touched=False,
             )
+        else:
+            pond_fraction = None
 
         # Create pond mask
         pond_mask = pond_data != pond_data.raster.nodata
@@ -1771,6 +1782,7 @@ setting new flood_depth dimensions"
             suitability=pond_mask,
             ds_like=self.staticmaps.data,
             pond_level=pond_level,
+            pond_fraction=pond_fraction,
             basin_mask_name=self._MAPS["basins"],
         )
 
