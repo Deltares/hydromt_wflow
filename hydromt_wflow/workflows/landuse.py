@@ -571,7 +571,7 @@ def add_agroforestry_to_landuse(
     ds_like: xr.Dataset,
     agroforestry_class: int | None,
     output_agroforestry_class: int | None = None,
-    landuse_class_filter: list[int] = [],
+    landuse_class_filter: list[int] | None = None,
     df_agroforestry_mapping: pd.DataFrame | None = None,
     df_lulc_mapping: pd.DataFrame | None = None,
     lulc_mix_classes: list[int] | None = None,
@@ -595,9 +595,9 @@ def add_agroforestry_to_landuse(
     output_agroforestry_class : int, optional
         ID of the agroforestry class in the output landuse map. If not provided,
         the `agroforestry_class` will be used.
-    landuse_class_filter: list[int]
+    landuse_class_filter : list[int], optional
         List of landuse classes in the wflow landuse map to convert to agroforestry.
-        If empty, all landuse classes will be converted to agroforestry.
+        If None, all landuse classes will be converted to agroforestry.
     df_agroforestry_mapping : pd.DataFrame, optional
         Mapping table with landuse values for agroforestry class.
         If None, the values will be derived based on a
@@ -618,6 +618,7 @@ def add_agroforestry_to_landuse(
     # Initialise
     lulc_mix_classes = lulc_mix_classes or []
     lulc_mix_fractions = lulc_mix_fractions or []
+    landuse_class_filter = landuse_class_filter or []
 
     # Get output agroforestry class
     if output_agroforestry_class is None:

@@ -1537,7 +1537,7 @@ setting new flood_depth dimensions"
         agroforestry_fn: str | xr.DataArray | gpd.GeoDataFrame,
         agroforestry_class: int | None = None,
         output_agroforestry_class: int | None = None,
-        landuse_class_filter: list[int] = [],
+        landuse_class_filter: list[int] | None = None,
         agroforestry_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mix_classes: list[int] | None = None,
