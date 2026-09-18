@@ -499,13 +499,35 @@ The <code class="docutils literal notranslate"><span class="pre">setup_agrofores
 areas into the land use configuration of the model. By specifying agroforestry regions,
 users can modify land use characteristics to better represent the influence of agroforestry
 practices on hydrological processes.</p>
-<p>Users can provide agroforestry areas either through a raster file or a vector file.
-For example, users can use global land cover datasets that include agroforestry classes,
-convert all agricultural areas of their landuse to agroforestry areas, or use custom
-shapefiles delineating agroforestry zones.</p>
+<p>Users can provide agroforestry zones either through a raster file or a vector file. It is
+also possible to convert only specific landuse types within the designated area.</p>
+<p>Examples of raster files that can be used include:</p>
+<ul class="simple">
+<li><p>land cover map that includes an agroforestry class</p></li>
+<li><p>map of agroforestry areas</p></li>
+<li><p>subcatchment map in combination with landuse type to convert (e.g. convert all
+agricultural areas in this subcatchment to agroforestry)</p></li>
+<li><p>land cover map in which a whole landuse class can be converted to agroforestry
+(e.g. convert all agricultural areas to agroforestry)</p></li>
+</ul>
+<p>Examples of vector files that can be used include:</p>
+<ul class="simple">
+<li><p>polygons delineating agroforestry zones</p></li>
+<li><p>polygons delineating subcatchments in combination with landuse type to convert (e.g.
+convert all agricultural areas in this subcatchment to agroforestry)</p></li>
+</ul>
+<p>The figure below shows a wflow landuse map (from Globcover) and agroforestry zones
+that will be used as examples.</p>
 <figure class="align-default">
 <img alt="../../_images/setup_agroforestry.png" src="../../_images/setup_agroforestry.png" />
 </figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method works at the WFLOW MODEL RESOLUTION. It modifies the wflow landuse map
+by reprojecting the agroforestry raster file (mode method) or rasterizing the
+agroforestry polygons at the model resolution (all_touched=False). Wflow landuse
+parameters are then updated for the new agroforestry cells only.</p>
+</div>
 </section>
 <section id="agroforestry-parameters-and-lookup-table">
 <h2>Agroforestry parameters and lookup table<a class="headerlink" href="#agroforestry-parameters-and-lookup-table" title="Link to this heading">#</a></h2>
@@ -566,9 +588,10 @@ use the esa_worldcover_mapping_default lookup table with a mix of 75% cropland (
 </section>
 <section id="example-usage">
 <h2>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading">#</a></h2>
-<p>Here are two examples of how to use the <code class="docutils literal notranslate"><span class="pre">setup_agroforestry</span></code> method in a Hydromt Wflow model:</p>
+<p>Here are three examples of how to use the <code class="docutils literal notranslate"><span class="pre">setup_agroforestry</span></code> method in a Hydromt Wflow model:</p>
 <ol class="arabic simple">
 <li><p>Using a vector file to define agroforestry areas and a mix of 90% cropland and 10% shrubs of the esa_worldcover_mapping_default lookup table.</p></li>
+<li><p>Same as above, but only cropland cells (class 14 in globcover) will be converted to agroforestry areas within the polygons.</p></li>
 <li><p>Converting all agricultural areas in the catchment above (class 14 in globcover) to agroforestry areas and using the default agroforestry lookup table.</p></li>
 </ol>
 <div class="sd-tab-set docutils">
@@ -593,6 +616,18 @@ For example, using the pre-defined <code class="docutils literal notranslate"><s
 </pre></div>
 </div>
 <p>For our second example, the workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_agroforestry.yaml</span></code>) would look like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_agroforestry</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">agroforestry_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;agroforestry</span><span class="nv"> </span><span class="s">areas&quot;</span><span class="w"> </span><span class="c1"># data catalog entry</span>
+<span class="w">      </span><span class="nt">output_agroforestry_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span><span class="w"> </span><span class="c1"># new landuse class for agroforestry areas</span>
+<span class="w">      </span><span class="nt">landuse_class_filter</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">14</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># only convert cropland cells in agroforestry_fn</span>
+<span class="w">      </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;esa_worldcover_mapping_default&quot;</span><span class="w"> </span><span class="c1"># esa_worldcover lookup table</span>
+<span class="w">      </span><span class="nt">lulc_mix_classes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">40</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">20</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># cropland, shrubs classes in esa_worldcover</span>
+<span class="w">      </span><span class="nt">lulc_mix_fractions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.9</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0.1</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># 90% cropland, 10% shrubs</span>
+<span class="w">      </span><span class="nt">output_names_suffix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;agroforestry&quot;</span><span class="w"> </span><span class="c1"># suffix for the new staticmap names</span>
+</pre></div>
+</div>
+<p>For our third example, the workflow YAML file (<code class="docutils literal notranslate"><span class="pre">add_agroforestry.yaml</span></code>) would look like this:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setup_agroforestry</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">agroforestry_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;globcover&quot;</span><span class="w"> </span><span class="c1"># globcover landuse raster</span>
@@ -628,6 +663,18 @@ Python API</label><div class="sd-tab-content docutils">
 </div>
 <p>For our second example, the python code would look like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_agroforestry</span><span class="p">(</span>
+    <span class="n">agroforestry_fn</span><span class="o">=</span><span class="s2">&quot;agroforestry areas&quot;</span><span class="p">,</span> <span class="c1"># data catalog entry</span>
+    <span class="n">output_agroforestry_class</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="c1"># new landuse class for agroforestry areas</span>
+    <span class="n">landuse_class_filter</span><span class="o">=</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="c1"># only convert cropland cells in agroforestry_fn</span>
+    <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="s2">&quot;esa_worldcover_mapping_default&quot;</span><span class="p">,</span> <span class="c1"># esa_worldcover lookup table</span>
+    <span class="n">lulc_mix_classes</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="c1"># cropland, shrubs classes in esa_worldcover</span>
+    <span class="n">lulc_mix_fractions</span><span class="o">=</span><span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="c1"># 90% cropland, 10% shrubs</span>
+    <span class="n">output_names_suffix</span><span class="o">=</span><span class="s2">&quot;agroforestry&quot;</span> <span class="c1"># suffix for the new staticmap names</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>For our third example, the python code would look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">setup_agroforestry</span><span class="p">(</span>
     <span class="n">agroforestry_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span> <span class="c1"># globcover landuse raster</span>
     <span class="n">agroforestry_class</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="c1"># globcover agricultural class</span>
     <span class="n">output_agroforestry_class</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="c1"># new landuse class for agroforestry areas</span>
@@ -635,8 +682,16 @@ Python API</label><div class="sd-tab-content docutils">
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>Lastly, you need to write the updated model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
 </div>
 </div>
+</div>
+<p>The output landuse map from the different examples are (agroforestry zones in purple):</p>
+<figure class="align-default">
+<img alt="../../_images/setup_agroforestry_outputs.png" src="../../_images/setup_agroforestry_outputs.png" />
+</figure>
 </section>
 </section>
 
