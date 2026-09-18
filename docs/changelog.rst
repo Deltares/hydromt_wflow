@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
 
 Fixed
 -----

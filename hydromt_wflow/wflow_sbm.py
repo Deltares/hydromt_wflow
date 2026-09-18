@@ -1537,6 +1537,7 @@ setting new flood_depth dimensions"
         agroforestry_fn: str | xr.DataArray | gpd.GeoDataFrame,
         agroforestry_class: int | None = None,
         output_agroforestry_class: int | None = None,
+        landuse_class_filter: list[int] | None = None,
         agroforestry_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mix_classes: list[int] | None = None,
@@ -1548,7 +1549,12 @@ setting new flood_depth dimensions"
         Add agroforestry to landuse maps and parameters.
 
         Agroforestry zones can be provided as a raster or vector dataset that will be
-        reprojected / rasterized to the model resolution.
+        reprojected (mode) / rasterized (all touched=False) to the model resolution.
+
+        The user can also filter which landuse classes should be converted within the
+        agroforestry zones (e.g. only cropland, or all) with ``landuse_class_filter``.
+
+        This method works at LOW RESOLUTION (wflow model and not original landuse map).
 
         For parameter mapping, users have three options:
 
@@ -1560,7 +1566,10 @@ setting new flood_depth dimensions"
         - If no mapping table is provided either via `agroforestry_mapping_fn` or
           `lulc_mapping_fn`, a default mapping table for agroforestry will be used.
 
-        Adds model layers:
+        See the `Technical Documentation <https://deltares.github.io/hydromt_wflow/stable/user_guide/5_setup_methods/setup_agroforestry.html>`_
+        for details.
+
+        Updates model layers:
 
         * **landuse** map:
             Landuse class [-]
@@ -1616,6 +1625,9 @@ setting new flood_depth dimensions"
         output_agroforestry_class : int, optional
             Landuse class value for agroforestry fields in the output landuse map.
             If None (default), the `agroforestry_class` is used.
+        landuse_class_filter: list[int]
+            List of landuse classes in the wflow landuse map to convert to agroforestry.
+            If empty, all landuse classes will be converted to agroforestry.
         agroforestry_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from agroforestry to landuse parameter
             values.
@@ -1636,7 +1648,7 @@ setting new flood_depth dimensions"
             columns of the mapping tables. For example if the suffix is "agroforestry",
             all variables in landuse_vars will be renamed to "landuse_agroforestry",
             "vegetation_kext_agroforestry", etc.
-        """
+        """  # noqa: E501
         # Check that landuse map is present
         if lulcmap_name in self.staticmaps.data:
             # update the internal mapping
@@ -1700,6 +1712,7 @@ setting new flood_depth dimensions"
             ds_like=self.staticmaps.data.rename(inv_rename),
             agroforestry_class=agroforestry_class,
             output_agroforestry_class=output_agroforestry_class,
+            landuse_class_filter=landuse_class_filter,
             df_agroforestry_mapping=df_agro_mapping,
             df_lulc_mapping=df_lulc_mapping,
             lulc_mix_classes=lulc_mix_classes,
