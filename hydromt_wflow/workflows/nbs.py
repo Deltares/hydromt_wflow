@@ -297,6 +297,7 @@ def ponding_level_from_suitability(
     suitability: xr.DataArray,
     ds_like: xr.Dataset,
     pond_level: float = 0.2,
+    pond_fraction: xr.DataArray | None = None,
     basin_mask_name: str = "basins",
 ) -> xr.DataArray:
     """Assign ponding level based on NBS suitability map.
@@ -309,6 +310,12 @@ def ponding_level_from_suitability(
         Wflow staticmaps for reprojection.
     pond_level : float, optional
         Ponding level to assign to suitable areas, by default 0.2
+    pond_fraction : xr.DataArray, optional
+        Fraction of each cell in ds_like covered by ponds. Used to scale the ponding
+        level. By default None to assume the whole cell is covered by ponds.
+    basin_mask_name : str, optional
+        Name of the basin mask in `ds_like` for calculating ponding coverage, by default
+        "basins".
 
     Returns
     -------
@@ -327,6 +334,12 @@ def ponding_level_from_suitability(
 
     # Reproject to match Wflow staticmaps grid
     ponding_level = ponding_level.raster.reproject_like(ds_like, method="average")
+
+    # Scale ponding level by pond fraction if provided
+    if pond_fraction is not None:
+        ponding_level = ponding_level.where(
+            ponding_level == ponding_level.raster.nodata, ponding_level * pond_fraction
+        )
 
     # Ponding coverage
     # calculate extent of the area where changes occur
