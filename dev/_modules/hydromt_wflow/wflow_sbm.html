@@ -4625,6 +4625,7 @@
             <span class="n">lapse_rate</span><span class="o">=</span><span class="n">lapse_rate</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># resample time after pet workflow</span>
         <span class="p">)</span>
+        <span class="n">temp_in</span> <span class="o">=</span> <span class="n">temp_in</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;penman-monteith&quot;</span> <span class="ow">in</span> <span class="n">pet_method</span><span class="p">:</span>
             <span class="c1"># also downscaled temp_min and temp_max for Penman needed</span>
@@ -4655,7 +4656,7 @@
                 <span class="n">lapse_rate</span><span class="o">=</span><span class="n">lapse_rate</span><span class="p">,</span>
                 <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># resample time after pet workflow</span>
             <span class="p">)</span>
-            <span class="n">temp_max_in</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;temp_max&quot;</span>
+            <span class="n">temp_max_in</span> <span class="o">=</span> <span class="n">temp_max_in</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;temp_max&quot;</span><span class="p">)</span>
 
             <span class="n">temp_min_in</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">meteo</span><span class="o">.</span><span class="n">temp</span><span class="p">(</span>
                 <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;temp_min&quot;</span><span class="p">],</span>
@@ -4665,7 +4666,7 @@
                 <span class="n">lapse_rate</span><span class="o">=</span><span class="n">lapse_rate</span><span class="p">,</span>
                 <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># resample time after pet workflow</span>
             <span class="p">)</span>
-            <span class="n">temp_min_in</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;temp_min&quot;</span>
+            <span class="n">temp_min_in</span> <span class="o">=</span> <span class="n">temp_min_in</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;temp_min&quot;</span><span class="p">)</span>
 
             <span class="n">temp_in</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="n">temp_in</span><span class="p">,</span> <span class="n">temp_max_in</span><span class="p">,</span> <span class="n">temp_min_in</span><span class="p">],</span> <span class="n">compat</span><span class="o">=</span><span class="s2">&quot;override&quot;</span><span class="p">)</span>
 
