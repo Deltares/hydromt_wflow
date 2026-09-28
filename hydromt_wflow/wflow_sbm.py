@@ -4119,6 +4119,7 @@ using 'variable' argument."
             lapse_rate=lapse_rate,
             freq=None,  # resample time after pet workflow
         )
+        temp_in = temp_in.rename("temp")
 
         if "penman-monteith" in pet_method:
             # also downscaled temp_min and temp_max for Penman needed
@@ -4149,7 +4150,7 @@ using 'variable' argument."
                 lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_max_in["name"] = "temp_max"
+            temp_max_in = temp_max_in.rename("temp_max")
 
             temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
@@ -4159,7 +4160,7 @@ using 'variable' argument."
                 lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_min_in["name"] = "temp_min"
+            temp_min_in = temp_min_in.rename("temp_min")
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 

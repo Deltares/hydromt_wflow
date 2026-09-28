@@ -204,13 +204,14 @@ class TestWindVariableResolution:
         ds = _make_ds("temp", "temp_min", "temp_max", "rh", "kin", "wind")
         # When all required vars including 'wind' are present, no error should fire
         model = _make_model(ds_override=ds)
+        pet_mock = MagicMock(return_value=_make_var("pet"))
 
         with (
             patch("hydromt.model.processes.meteo.temp", return_value=_make_var("temp")),
-            patch("hydromt.model.processes.meteo.pet", return_value=_make_var("pet")),
+            patch("hydromt.model.processes.meteo.pet", pet_mock),
             patch(
                 "hydromt.model.processes.meteo.resample_time",
-                return_value=_make_var("temp"),
+                side_effect=lambda da, *a, **k: da,  # just return as is
             ),
         ):
             WflowSbmModel.setup_temp_pet_forcing(
@@ -225,13 +226,14 @@ class TestWindVariableResolution:
             "temp", "temp_min", "temp_max", "rh", "kin", "wind10_u", "wind10_v"
         )
         model = _make_model(ds_override=ds)
+        pet_mock = MagicMock(return_value=_make_var("pet"))
 
         with (
             patch("hydromt.model.processes.meteo.temp", return_value=_make_var("temp")),
-            patch("hydromt.model.processes.meteo.pet", return_value=_make_var("pet")),
+            patch("hydromt.model.processes.meteo.pet", pet_mock),
             patch(
                 "hydromt.model.processes.meteo.resample_time",
-                return_value=_make_var("temp"),
+                side_effect=lambda da, *a, **k: da,  # just return as is
             ),
         ):
             WflowSbmModel.setup_temp_pet_forcing(
@@ -274,7 +276,7 @@ class TestWindVariableResolution:
             patch("hydromt.model.processes.meteo.pet", pet_mock),
             patch(
                 "hydromt.model.processes.meteo.resample_time",
-                return_value=_make_var("temp"),
+                side_effect=lambda da, *a, **k: da,  # just return as is
             ),
         ):
             WflowSbmModel.setup_temp_pet_forcing(
@@ -374,16 +376,15 @@ class TestPenmanMonteithSubdaily:
         }
         ds = _make_ds(*var_map[pm_method], freq="D")
         model = _make_model(ds_override=ds)
-
-        temp_da = _make_var("temp")
-        temp_ds = xr.Dataset(
-            {"temp": temp_da, "temp_max": temp_da, "temp_min": temp_da}
-        )
+        pet_mock = MagicMock(return_value=_make_var("pet"))
 
         with (
-            patch("hydromt.model.processes.meteo.temp", return_value=temp_ds),
-            patch("hydromt.model.processes.meteo.pet", return_value=_make_var("pet")),
-            patch("hydromt.model.processes.meteo.resample_time", return_value=temp_da),
+            patch("hydromt.model.processes.meteo.temp", return_value=_make_var("temp")),
+            patch("hydromt.model.processes.meteo.pet", pet_mock),
+            patch(
+                "hydromt.model.processes.meteo.resample_time",
+                side_effect=lambda da, *a, **k: da,  # just return as is
+            ),
         ):
             # Should NOT raise
             WflowSbmModel.setup_temp_pet_forcing(
@@ -391,3 +392,7 @@ class TestPenmanMonteithSubdaily:
                 temp_pet_fn="dummy_source",
                 pet_method=pm_method,
             )
+
+        # All three temperature variables must reach pet()
+        temp_arg = pet_mock.call_args.kwargs["temp"]
+        assert {"temp", "temp_min", "temp_max"} <= set(temp_arg.data_vars)
