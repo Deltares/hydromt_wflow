@@ -11,9 +11,11 @@ Unreleased
 
 Added
 -----
+- **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
 
 Fixed
 -----
+- **setup_temp_pet_forcing**: use xarray's rename method to rename DataArrays instead of setting the name attribute to prevent errors.
 
 Removed
 -------
