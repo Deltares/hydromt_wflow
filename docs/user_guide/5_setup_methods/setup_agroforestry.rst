@@ -12,12 +12,36 @@ areas into the land use configuration of the model. By specifying agroforestry r
 users can modify land use characteristics to better represent the influence of agroforestry
 practices on hydrological processes.
 
-Users can provide agroforestry areas either through a raster file or a vector file.
-For example, users can use global land cover datasets that include agroforestry classes,
-convert all agricultural areas of their landuse to agroforestry areas, or use custom
-shapefiles delineating agroforestry zones.
+Users can provide agroforestry zones either through a raster file or a vector file. It is
+also possible to convert only specific landuse types within the designated area.
+
+Examples of raster files that can be used include:
+
+- land cover map that includes an agroforestry class
+- map of agroforestry areas
+- subcatchment map in combination with landuse type to convert (e.g. convert all
+  agricultural areas in this subcatchment to agroforestry)
+- land cover map in which a whole landuse class can be converted to agroforestry
+  (e.g. convert all agricultural areas to agroforestry)
+
+Examples of vector files that can be used include:
+
+- polygons delineating agroforestry zones
+- polygons delineating subcatchments in combination with landuse type to convert (e.g.
+  convert all agricultural areas in this subcatchment to agroforestry)
+
+The figure below shows a wflow landuse map (from Globcover) and agroforestry zones
+that will be used as examples.
 
 .. figure:: ../../_static/setup_agroforestry.png
+
+.. note::
+
+    This method works at the WFLOW MODEL RESOLUTION. It modifies the wflow landuse map
+    by reprojecting the agroforestry raster file (mode method) or rasterizing the
+    agroforestry polygons at the model resolution (all_touched=False). Wflow landuse
+    parameters are then updated for the new agroforestry cells only.
+
 
 Agroforestry parameters and lookup table
 ----------------------------------------
@@ -38,10 +62,11 @@ use the esa_worldcover_mapping_default lookup table with a mix of 75% cropland (
 
 Example usage
 -------------
-Here are two examples of how to use the ``setup_agroforestry`` method in a Hydromt Wflow model:
+Here are three examples of how to use the ``setup_agroforestry`` method in a Hydromt Wflow model:
 
 1. Using a vector file to define agroforestry areas and a mix of 90% cropland and 10% shrubs of the esa_worldcover_mapping_default lookup table.
-2. Converting all agricultural areas in the catchment above (class 14 in globcover) to agroforestry areas and using the default agroforestry lookup table.
+2. Same as above, but only cropland cells (class 14 in globcover) will be converted to agroforestry areas within the polygons.
+3. Converting all agricultural areas in the catchment above (class 14 in globcover) to agroforestry areas and using the default agroforestry lookup table.
 
 .. tab-set::
 
@@ -69,6 +94,20 @@ Here are two examples of how to use the ``setup_agroforestry`` method in a Hydro
                   output_names_suffix: "agroforestry" # suffix for the new staticmap names
 
         For our second example, the workflow YAML file (``add_agroforestry.yaml``) would look like this:
+
+        .. code-block:: yaml
+
+            steps:
+              - setup_agroforestry:
+                  agroforestry_fn: "agroforestry areas" # data catalog entry
+                  output_agroforestry_class: 15 # new landuse class for agroforestry areas
+                  landuse_class_filter: [14] # only convert cropland cells in agroforestry_fn
+                  lulc_mapping_fn: "esa_worldcover_mapping_default" # esa_worldcover lookup table
+                  lulc_mix_classes: [40, 20] # cropland, shrubs classes in esa_worldcover
+                  lulc_mix_fractions: [0.9, 0.1] # 90% cropland, 10% shrubs
+                  output_names_suffix: "agroforestry" # suffix for the new staticmap names
+
+        For our third example, the workflow YAML file (``add_agroforestry.yaml``) would look like this:
 
         .. code-block:: yaml
 
@@ -111,8 +150,32 @@ Here are two examples of how to use the ``setup_agroforestry`` method in a Hydro
         .. code-block:: python
 
             model.setup_agroforestry(
+                agroforestry_fn="agroforestry areas", # data catalog entry
+                output_agroforestry_class=15, # new landuse class for agroforestry areas
+                landuse_class_filter=[14] # only convert cropland cells in agroforestry_fn
+                lulc_mapping_fn="esa_worldcover_mapping_default", # esa_worldcover lookup table
+                lulc_mix_classes=[40, 20], # cropland, shrubs classes in esa_worldcover
+                lulc_mix_fractions=[0.9, 0.1], # 90% cropland, 10% shrubs
+                output_names_suffix="agroforestry" # suffix for the new staticmap names
+            )
+
+        For our third example, the python code would look like this:
+
+        .. code-block:: python
+
+            model.setup_agroforestry(
                 agroforestry_fn="globcover", # globcover landuse raster
                 agroforestry_class=14, # globcover agricultural class
                 output_agroforestry_class=15, # new landuse class for agroforestry areas
                 agroforestry_mapping_fn="agroforestry_mapping_default" # default agroforestry lookup table
             )
+
+        Lastly, you need to write the updated model:
+
+        .. code-block:: python
+
+            model.write()
+
+The output landuse map from the different examples are (agroforestry zones in purple):
+
+.. figure:: ../../_static/setup_agroforestry_outputs.png
