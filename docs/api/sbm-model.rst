@@ -88,7 +88,7 @@ Sets up soil-related data including soil maps and hydraulic properties.
 
 
 Nature-Based Solutions
-----------------------
+======================
 Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.
 
 .. note::

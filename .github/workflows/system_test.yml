@@ -80,7 +80,7 @@ jobs:
           echo "Found wheel: ${wheels[0]}"
 
       - name: Setup pixi
-        uses: prefix-dev/setup-pixi@v0.10.1
+        uses: prefix-dev/setup-pixi@v0.10.2
         with:
           pixi-version: "v0.72.0"
           environments: ${{ env.ENV_NAME }}
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Julia
         uses: julia-actions/setup-julia@v3
         with:
-          version: 1.12
+          version: 1.13
 
       - name: Install Wflow.jl
         run: pixi run install-wflow-julia ./Wflow.jl/Wflow
