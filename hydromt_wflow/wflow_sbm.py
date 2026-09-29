@@ -1540,6 +1540,7 @@ class WflowSbmModel(WflowBaseModel):
         agroforestry_fn: str | xr.DataArray | gpd.GeoDataFrame,
         agroforestry_class: int | None = None,
         output_agroforestry_class: int | None = None,
+        landuse_class_filter: list[int] | None = None,
         agroforestry_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_mix_classes: list[int] | None = None,
@@ -1551,7 +1552,12 @@ class WflowSbmModel(WflowBaseModel):
         Add agroforestry to landuse maps and parameters.
 
         Agroforestry zones can be provided as a raster or vector dataset that will be
-        reprojected / rasterized to the model resolution.
+        reprojected (mode) / rasterized (all touched=False) to the model resolution.
+
+        The user can also filter which landuse classes should be converted within the
+        agroforestry zones (e.g. only cropland, or all) with ``landuse_class_filter``.
+
+        This method works at LOW RESOLUTION (wflow model and not original landuse map).
 
         For parameter mapping, users have three options:
 
@@ -1563,7 +1569,10 @@ class WflowSbmModel(WflowBaseModel):
         - If no mapping table is provided either via `agroforestry_mapping_fn` or
           `lulc_mapping_fn`, a default mapping table for agroforestry will be used.
 
-        Adds model layers:
+        See the `Technical Documentation <https://deltares.github.io/hydromt_wflow/stable/user_guide/5_setup_methods/setup_agroforestry.html>`_
+        for details.
+
+        Updates model layers:
 
         * **landuse** map:
             Landuse class [-]
@@ -1619,6 +1628,9 @@ class WflowSbmModel(WflowBaseModel):
         output_agroforestry_class : int, optional
             Landuse class value for agroforestry fields in the output landuse map.
             If None (default), the `agroforestry_class` is used.
+        landuse_class_filter: list[int]
+            List of landuse classes in the wflow landuse map to convert to agroforestry.
+            If empty, all landuse classes will be converted to agroforestry.
         agroforestry_mapping_fn : str, Path, pd.DataFrame, optional
             Path to a mapping csv file from agroforestry to landuse parameter
             values.
@@ -1639,7 +1651,7 @@ class WflowSbmModel(WflowBaseModel):
             columns of the mapping tables. For example if the suffix is "agroforestry",
             all variables in landuse_vars will be renamed to "landuse_agroforestry",
             "vegetation_kext_agroforestry", etc.
-        """
+        """  # noqa: E501
         # Check that landuse map is present
         if lulcmap_name in self.staticmaps.data:
             # update the internal mapping
@@ -1703,6 +1715,7 @@ class WflowSbmModel(WflowBaseModel):
             ds_like=self.staticmaps.data.rename(inv_rename),
             agroforestry_class=agroforestry_class,
             output_agroforestry_class=output_agroforestry_class,
+            landuse_class_filter=landuse_class_filter,
             df_agroforestry_mapping=df_agro_mapping,
             df_lulc_mapping=df_lulc_mapping,
             lulc_mix_classes=lulc_mix_classes,
@@ -4109,6 +4122,7 @@ using 'variable' argument."
             lapse_rate=lapse_rate,
             freq=None,  # resample time after pet workflow
         )
+        temp_in = temp_in.rename("temp")
 
         if "penman-monteith" in pet_method:
             # also downscaled temp_min and temp_max for Penman needed
@@ -4139,7 +4153,7 @@ using 'variable' argument."
                 lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_max_in["name"] = "temp_max"
+            temp_max_in = temp_max_in.rename("temp_max")
 
             temp_min_in = hydromt.model.processes.meteo.temp(
                 ds["temp_min"],
@@ -4149,7 +4163,7 @@ using 'variable' argument."
                 lapse_rate=lapse_rate,
                 freq=None,  # resample time after pet workflow
             )
-            temp_min_in["name"] = "temp_min"
+            temp_min_in = temp_min_in.rename("temp_min")
 
             temp_in = xr.merge([temp_in, temp_max_in, temp_min_in], compat="override")
 
