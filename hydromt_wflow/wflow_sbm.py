@@ -10,7 +10,6 @@ import geopandas as gpd
 import hydromt
 import numpy as np
 import pandas as pd
-import pyflwdir
 import xarray as xr
 from hydromt import hydromt_step
 from hydromt.error import NoDataException, NoDataStrategy
@@ -373,6 +372,10 @@ class WflowSbmModel(WflowBaseModel):
         * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
           (for 2D floodplains)
 
+        For 1D floodplains, the ``floodplain__slope`` config entry is also set to
+        point to the river slope map, as the floodplain slope is for now assumed to
+        be equal to the river slope.
+
         Required setup methods:
 
         * :py:meth:`~WflowSbmModel.setup_rivers`
@@ -412,8 +415,8 @@ class WflowSbmModel(WflowBaseModel):
         """
         if self.config.get_value("model.river_routing") != "local_inertial":
             raise ValueError(
-                "Floodplains (1d or 2d) are currently only supported with \
-local inertial river routing"
+                "Floodplains (1d or 2d) are currently only supported with "
+                "local inertial river routing"
             )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         var = "floodplain_water__sum_of_volume_per_depth"
@@ -431,10 +434,6 @@ local inertial river routing"
             floodplain_1d = True
             land_routing = "kinematic_wave"
 
-            if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
-                logger.warning("This method requires pyflwdir >= 0.5.6")
-                return
-
             logger.info("Preparing 1D river floodplain_volume map.")
 
             # read data
@@ -450,13 +449,13 @@ local inertial river routing"
             )
             if new_river_upa is None:
                 raise ValueError(
-                    "No value for `river_upa` specified, and the value cannot \
-be inferred from the grid attributes"
+                    "No value for `river_upa` specified, and the value cannot "
+                    "be inferred from the grid attributes"
                 )
             elif new_river_upa != river_upa and river_upa is not None:
                 raise ValueError(
-                    f"Value specified for river_upa ({river_upa}) is different from \
-the value found in the grid ({new_river_upa})"
+                    f"Value specified for river_upa ({river_upa}) is different from "
+                    f"the value found in the grid ({new_river_upa})"
                 )
             logger.debug(f"Using river_upa value value of: {new_river_upa}")
 
@@ -475,15 +474,19 @@ the value found in the grid ({new_river_upa})"
             # flood_depth values is not working properly if this is the case
             if self._MAPS["floodplain_volume"] in self.staticmaps.data:
                 logger.warning(
-                    "Layer `floodplain_volume` already in grid, removing layer \
-and `flood_depth` dimension to ensure correctly \
-setting new flood_depth dimensions"
+                    "Layer `floodplain_volume` already in grid, removing layer "
+                    "and `flood_depth` dimension to ensure correctly "
+                    "setting new flood_depth dimensions"
                 )
                 self._grid = self._grid.drop_dims("flood_depth")
 
             da_fldpln.name = self._MAPS["floodplain_volume"]
             self.staticmaps.set(da_fldpln)
             self._update_config_variable_name(da_fldpln.name)
+
+            # Wflow v1.1 kinematic wave floodplain routing requires a floodplain
+            # slope input; for now this is set equal to the river slope
+            self.config.set("input.static.floodplain__slope", self._MAPS["rivslp"])
 
         elif floodplain_type == "2d":
             floodplain_1d = False
