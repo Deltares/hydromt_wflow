@@ -72,6 +72,7 @@ object SystemTestPrCheckStable : BuildType({
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.latest.release%")
+        param("hydromt_wflow.pr.target.branch.filter", "+:refs/heads/release/*")
         param("regression.profile", "pr")
         text("status.check.name", "Regression test (Wflow.jl @ %wflow.latest.release%)", allowEmpty = false)
     }
@@ -84,6 +85,7 @@ object SystemTestPrCheckDev : BuildType({
 
     params {
         param("wflow.cli.branch.filter", "+:%wflow.dev.branch%")
+        param("hydromt_wflow.pr.target.branch.filter", "+:refs/heads/main")
         param("regression.profile", "pr")
         text("status.check.name", "Regression test (Wflow.jl @ %wflow.dev.branch%)", allowEmpty = false)
     }
@@ -107,9 +109,7 @@ object SystemTestDev : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
-            branchFilter = """
-                +:refs/heads/main
-            """.trimIndent()
+            branchFilter = "+:<default>"
         }
     }
 })
@@ -132,9 +132,7 @@ object SystemTestLatestRelease : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
-            branchFilter = """
-                +:refs/heads/release/*
-            """.trimIndent()
+            branchFilter = "+:<default>"
         }
     }
 })
@@ -157,9 +155,7 @@ object SystemTestOldestSupported : BuildType({
             }
             triggerBuild = always()
             withPendingChangesOnly = false
-            branchFilter = """
-                +:refs/tags/*
-            """.trimIndent()
+            branchFilter = "+:<default>"
         }
     }
 })
@@ -275,6 +271,9 @@ object GitHubPrTemplate : Template({
 
     params {
         text("status.check.name", "", allowEmpty = false)
+        text("hydromt_wflow.pr.target.branch.filter", "",
+            description = "Newline-delimited +|-:ref rules for PR target branches this build handles. Must be set per build type, and must not overlap between PR check build types.",
+            allowEmpty = false)
     }
 
     triggers {
@@ -303,10 +302,7 @@ object GitHubPrTemplate : Template({
             vcsRootExtId = "${HydromtWflow.id}"
             provider = github {
                 authType = vcsRoot()
-                filterTargetBranch = """
-                    +:refs/heads/main
-                    +:refs/heads/release/*
-                """.trimIndent()
+                filterTargetBranch = "%hydromt_wflow.pr.target.branch.filter%"
                 filterAuthorRole = PullRequests.GitHubRoleFilter.MEMBER
                 ignoreDrafts = true
             }
