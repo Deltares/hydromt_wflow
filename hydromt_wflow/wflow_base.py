@@ -1889,7 +1889,11 @@ one variable and variables list is not provided."
         """
         logger.info(f"Setting up map sum for '{output_name}' from maps: {maps}.")
         # Compute the sum
-        da_sum = sum(self.staticmaps.data.get(m).raster.mask_nodata(0) for m in maps)
+        ds = xr.Dataset()
+        # apply .raster/mask_nodata() to each map before summing
+        for m in maps:
+            ds[m] = self.staticmaps.data.get(m).raster.mask_nodata()
+        da_sum = ds.to_array().sum(dim="variable", skipna=True, min_count=1)
         da_sum = da_sum.fillna(nodata)
         da_sum.raster.set_nodata(nodata)
         # Add to staticmaps

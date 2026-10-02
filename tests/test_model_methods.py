@@ -721,9 +721,7 @@ def test_setup_map_sum(
     # Checks
     da_sum = example_wflow_model.staticmaps.data.get("sum_map")
     assert da_sum is not None
-    assert (
-        len(np.unique(da_sum.values)) == 3
-    )  # (-9999, 0, 3) = (nodata, basinfill, sum)
+    assert len(np.unique(da_sum.values)) == 2  # (-9999, 3) = (nodata, sum)
     assert da_sum.raster.nodata == -9999
     assert (
         example_wflow_model.config.get_value(
