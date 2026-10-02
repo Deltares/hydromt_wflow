@@ -302,6 +302,9 @@ Additional high-level utilities to modify model geometry, link external models, 
     * - :py:meth:`~WflowSbmModel.setup_grid_from_geodataset`
       -  Setup static/cyclic/forcing from geodataset to add parameters from direct data.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
+    * - :py:meth:`~WflowSbmModel.setup_map_sum`
+      -  Prepare a map by summing layers in staticmaps.
+      - :py:meth:`~WflowSbmModel.setup_basemaps`
     * - :py:meth:`~WflowSbmModel.clip`
       -  Clip a sub-region of an existing model.
       -
