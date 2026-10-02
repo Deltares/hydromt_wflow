@@ -152,15 +152,6 @@ Nature-Based Solutions
 ----------------------
 Defines methods to add nature-based solutions (NBS) such as agroforestry, or ponding areas, and update related parameters.
 
-
-.. note::
-
-   The methods ``setup_ponding_from_map`` and ``setup_ponding_from_threshold``
-   will be added in a future release when wflow.jl supports it. The
-   documentation for these methods is already included here in anticipation
-   of that support.
-
-
 .. list-table::
     :widths: 20 60 20
     :header-rows: 1
@@ -172,8 +163,6 @@ Defines methods to add nature-based solutions (NBS) such as agroforestry, or pon
     * - :py:meth:`~WflowSbmModel.setup_agroforestry`
       - Add agroforestry areas and update landuse and related parameters.
       - :py:meth:`~WflowSbmModel.setup_lulcmaps` or equivalent
-
-.. Uncomment when ponding is supported by wflow.jl and the setup methods are added back again
     * - :py:meth:`~WflowSbmModel.setup_ponding_from_map`
       - Set ponding water levels based on a raster or vector pond location map.
       - :py:meth:`~WflowSbmModel.setup_basemaps`
