@@ -696,3 +696,38 @@ def test_setup_grid_from_geodataset_forcing(
         )
         == "reservoir_outflow"
     )
+
+
+def test_setup_map_sum(
+    example_wflow_model: WflowSbmModel,
+):
+    # Create some static maps to sum
+    map1 = example_wflow_model.staticmaps.data.get("glacier_fraction")
+    map1 = map1.raster.mask_nodata() * 0 + 1
+    map2 = map1 * 2
+    map2 = map2.fillna(-1)
+    map2.raster.set_nodata(-1)
+
+    example_wflow_model.staticmaps.set(map1.rename("map1"))
+    example_wflow_model.staticmaps.set(map2.rename("map2"))
+
+    # Call the setup_map_sum method
+    example_wflow_model.setup_map_sum(
+        maps=["map1", "map2"],
+        output_name="sum_map",
+        wflow_variable="industry__gross_water_demand_volume_flux",
+    )
+
+    # Checks
+    da_sum = example_wflow_model.staticmaps.data.get("sum_map")
+    assert da_sum is not None
+    assert (
+        len(np.unique(da_sum.values)) == 3
+    )  # (-9999, 0, 3) = (nodata, basinfill, sum)
+    assert da_sum.raster.nodata == -9999
+    assert (
+        example_wflow_model.config.get_value(
+            "input.static.industry__gross_water_demand_volume_flux"
+        )
+        == "sum_map"
+    )

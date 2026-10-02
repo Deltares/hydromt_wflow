@@ -1868,6 +1868,37 @@ one variable and variables list is not provided."
             col2raster_name = col2raster
         self.staticmaps.set(da_area.rename(col2raster_name))
 
+    @hydromt_step
+    def setup_map_sum(
+        self,
+        maps: list[str],
+        output_name: str,
+        wflow_variable: str | None = None,
+        nodata: int | float = -9999,
+    ):
+        """Prepare a map by summing layers in staticmaps.
+
+        Parameters
+        ----------
+        maps : list[str]
+            List of map names in staticmaps to sum.
+        output_name : str
+            Name of the output map.
+        wflow_variable : str | None, optional
+            Corresponding Wflow.jl variable name, by default None.
+        """
+        logger.info(f"Setting up map sum for '{output_name}' from maps: {maps}.")
+        # Compute the sum
+        da_sum = sum(self.staticmaps.data.get(m).raster.mask_nodata(0) for m in maps)
+        da_sum = da_sum.fillna(nodata)
+        da_sum.raster.set_nodata(nodata)
+        # Add to staticmaps
+        self.staticmaps.set(da_sum.rename(output_name))
+        # Update config if a corresponding Wflow.jl variable is provided
+        if wflow_variable:
+            self._update_naming({wflow_variable: output_name})
+            self._update_config_variable_name(output_name)
+
     ## WFLOW other step methods (clip and upgrade)
     @hydromt_step
     def clip(
