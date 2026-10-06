@@ -42,7 +42,7 @@ classifiers = [
 ]
 
 # Core dependencies
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 dependencies = [
   "affine<3.0",
   "dask",
@@ -296,6 +296,9 @@ pandoc = "*"
 gdal = ">=3.5"
 
 # Extra python environments
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
 [tool.pixi.feature.py313.dependencies]
 python = "3.13.*"
 
@@ -314,18 +317,21 @@ default         = { features = ["editable", "py313", "dist", "lint", "extra", "e
 docs            = { features = ["editable", "py313", "docs", "examples", "extra"], solve-group="py313" }
 full            = { features = ["editable", "py313", "extra"], solve-group="py313" }
 slim            = { features = ["editable", "py313"], solve-group="py313" }
+test-slim-py314 = { features = ["editable", "py314", "test"], solve-group="py314" }
 test-slim-py313 = { features = ["editable", "py313", "test"], solve-group="py313" }
 test-slim-py312 = { features = ["editable", "py312", "test"], solve-group="py312" }
 test-slim-py311 = { features = ["editable", "py311", "test"], solve-group="py311" }
 
+test-full-py314 = { features = ["editable", "py314", "extra", "test", "julia"], solve-group="py314" }
 test-full-py313 = { features = ["editable", "py313", "extra", "test", "julia"], solve-group="py313" }
 test-full-py312 = { features = ["editable", "py312", "extra", "test", "julia"], solve-group="py312" }
 test-full-py311 = { features = ["editable", "py311", "extra", "test", "julia"], solve-group="py311" }
 
 # Empty test environments for release validation. pip install *.whl[all] into these to test the whl
-test-wheel-py313 = { features = ["py313", "pip", "julia", "test"], solve-group="py313", no-default-feature=true }
-test-wheel-py312 = { features = ["py312", "pip", "julia", "test"], solve-group="py312", no-default-feature=true }
-test-wheel-py311 = { features = ["py311", "pip", "julia", "test"], solve-group="py311", no-default-feature=true }
+test-wheel-py314 = { features = ["py314", "pip", "julia", "test"], no-default-feature=true }
+test-wheel-py313 = { features = ["py313", "pip", "julia", "test"], no-default-feature=true }
+test-wheel-py312 = { features = ["py312", "pip", "julia", "test"], no-default-feature=true }
+test-wheel-py311 = { features = ["py311", "pip", "julia", "test"], no-default-feature=true }
 
 [tool.pixi.feature.examples.tasks]
 build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
