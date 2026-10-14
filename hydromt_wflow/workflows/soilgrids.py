@@ -19,22 +19,20 @@ __all__ = [
     "update_soil_with_paddy",
 ]
 
-# soilgrids_2017
-soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-soildepth_mm = 10.0 * soildepth_cm
-# for 2017 - midpoint and midpoint surface are equal to original
-soildepth_cm_midpoint = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-soildepth_mm_midpoint = 10.0 * soildepth_cm
-soildepth_mm_midpoint_surface = 10.0 * soildepth_cm
+#Legacy: can be attached as attributes in the data catalog
+_SOIL_DEPTH_EDGES_CM = {
+    "soilgrids":      np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]),
+    "soilgrids_2020": np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]),
+}
+
+_SOIL_LAYER_TYPE = {
+    "soilgrids":"point",
+    "soilgrids_2020":"interval"
+}
+
+# Not depth-related; kept as live module constants.
 M_minmax = 10000.0
 nodata = -9999.0
-
-# default z [cm] of soil layers wflow_sbm: 10, 40, 120, > 120
-# mapping of wflow_sbm parameter soil_brooks_corey_c to soil layer SoilGrids
-c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
-# c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,
-# averages are taken instead.
-
 
 def concat_layers(
     ds: xr.Dataset,
@@ -43,6 +41,11 @@ def concat_layers(
 ):
     """
     Preprocess functions to concat soilgrids along a layer dimension.
+
+    The number of layers is read from the data (``{var}_sl{i}`` variables) so any
+    source works regardless of ``soil_fn`` (7 for soilgrids 2017, 6 for
+    soilgrids_2020, 3 for the OpenLandMap-derived nc, ...) so long as the
+    convention is followed.
 
     Parameters
     ----------
@@ -53,10 +56,7 @@ def concat_layers(
     variables : list
         List of soil properties to concat.
     """
-    if soil_fn == "soilgrids_2020":
-        nb_sl = 6
-    else:
-        nb_sl = 7
+    nb_sl = _count_sl_layers(ds)
     ds = ds.assign_coords(sl=np.arange(1, nb_sl + 1))
 
     for var in variables:
@@ -76,7 +76,7 @@ def concat_layers(
     return ds
 
 
-def average_soillayers_block(ds, soilthickness):
+def average_soillayers_block(ds, soilthickness, soildepth_cm):
     """
     Determine weighted average of soil property at different depths over soil thickness.
 
@@ -87,10 +87,12 @@ def average_soillayers_block(ds, soilthickness):
 
     Parameters
     ----------
-    ds: xarray.Dataset
+    ds: single var xarray.Dataset or xarray.DataArray
         Dataset containing soil property over each soil depth profile [sl1 - sl6].
     soilthickness : xarray.DataArray
         Dataset containing soil thickness [cm].
+    soildepth_cm : np.ndarray
+        Depth-interval edges [cm] of the soil source.
 
     Returns
     -------
@@ -102,14 +104,19 @@ def average_soillayers_block(ds, soilthickness):
     # set NaN values to 0.0 (to avoid RuntimeWarning in comparison soildepth)
     d = soilthickness.fillna(0.0)
 
+    # Extend the deepest layer down to soilthickness so the 
+    # now allowing for the case where soilthickness exceeds the deepest soil property layer
+    edges = np.asarray(soildepth_cm, dtype=float).copy()
+    edges[-1] = 1.0e6
+
     for i in ds.sl:
         da_sum = da_sum + (
-            (soildepth_cm[i] - soildepth_cm[i - 1])
+            (edges[i] - edges[i - 1])
             * ds.sel(sl=i)
-            * (d >= soildepth_cm[i])
-            + (d - soildepth_cm[i - 1])
+            * (d >= edges[i])
+            + (d - edges[i - 1])
             * ds.sel(sl=i)
-            * ((d < soildepth_cm[i]) & (d > soildepth_cm[i - 1]))
+            * ((d < edges[i]) & (d > edges[i - 1]))
         )
 
     da_av = xr.apply_ufunc(
@@ -126,7 +133,7 @@ def average_soillayers_block(ds, soilthickness):
     return da_av
 
 
-def average_soillayers(ds, soilthickness):
+def average_soillayers(ds, soilthickness, soildepth_cm):
     """
     Determine weighted average of soil property at different depths over soil thickness.
 
@@ -143,6 +150,8 @@ def average_soillayers(ds, soilthickness):
         Dataset containing soil property at each soil depth [sl1 - sl7].
     soilthickness : xarray.DataArray
         Dataset containing soil thickness [cm].
+    soildepth_cm : np.ndarray
+        Depth-interval edges [cm] of the soil source.
 
     Returns
     -------
@@ -154,7 +163,7 @@ def average_soillayers(ds, soilthickness):
     # set NaN values to 0.0 (to avoid RuntimeWarning in comparison soildepth)
     d = soilthickness.fillna(0.0)
 
-    for i in range(1, len(ds.sl)):  # range(1, 7):
+    for i in range(1, len(ds.sl)):
         da_sum = da_sum + (
             (soildepth_cm[i] - soildepth_cm[i - 1])
             * (ds.sel(sl=i) + ds.sel(sl=i + 1))
@@ -236,7 +245,7 @@ def brooks_corey_layers(
     ds_like: xarray.Dataset
         Dataset at model resolution for reprojection.
     soil_fn: str
-        soilgrids version {'soilgrids', 'soilgrids_2020'}
+        soilgrids version {'soilgrids', 'soilgrids_2020'} or a source with metadata on structure.
     wflow_layers: list
         List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
     soildepth_cm: np.array
@@ -247,6 +256,8 @@ def brooks_corey_layers(
     ds_c : xarray.Dataset
         Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.
     """
+    is_interval = _layer_type(ds, soil_fn) == "interval"
+
     # Get pore size distribution index
     lambda_sl_hr = pore_size_distribution_index_layers(ds, thetas_sl)
     lambda_sl = np.log(lambda_sl_hr)
@@ -273,8 +284,10 @@ def brooks_corey_layers(
     # Compute the thickness of the last layer
     wflow_thickness.append(2000 - wflow_depths[-2])
 
-    # Soil data depth
-    soildepth = soildepth_cm * 10
+    # Soil data depth; extend deepest layer to the deepest wflow layer so layers
+    # below the property data inherit the deepest measured value.
+    soildepth = (soildepth_cm * 10).astype(float).copy()
+    soildepth[-1] = max(soildepth[-1], wflow_depths[-1])
 
     # make empty dataarray for soil_brooks_corey_c for the 4 sbm layers
     ds_c = raster_utils.full(
@@ -293,7 +306,7 @@ def brooks_corey_layers(
         bottom_depth = wflow_depths[nl + 1]
         c_nl_sum = None
         for d in range(len(soildepth) - 1):
-            if soil_fn == "soilgrids_2020":
+            if is_interval:
                 c_av = c_sl.sel(sl=d + 1)
             else:
                 c_av = (c_sl.sel(sl=d + 1) + c_sl.sel(sl=d + 2)) / 2
@@ -450,6 +463,42 @@ def constrain_M(M, popt_0, M_minmax):
     M = xr.where(M < 0, M_minmax, M)
     return M
 
+def _count_sl_layers(ds: xr.Dataset) -> int:
+    """Number of soil layers: from a concat 'sl' dim, else the '{var}_sl{i}' vars."""
+    if "sl" in ds.dims:
+        return int(ds.sizes["sl"])
+    idx = [int(name.split("_sl")[-1]) for name in ds.data_vars if "_sl" in name]
+    return max(idx)
+
+
+def _calc_depth(ds: xr.Dataset, soil_fn: str) -> np.ndarray:
+    """Soil depth-interval edges [cm]; prefer the self-describing attr, else registry."""
+    if "soil_depth_edges_cm" in ds.attrs:
+        return np.asarray(ds.attrs["soil_depth_edges_cm"], dtype=float)
+    return np.asarray(_SOIL_DEPTH_EDGES_CM[soil_fn], dtype=float)
+
+
+def _layer_type(ds: xr.Dataset, soil_fn: str) -> str:
+    """'point' (values at depths, e.g. sg 2017) or 'interval' (averages between edges e.g. sg 2020)."""
+    lt = ds.attrs.get("soil_layer_type") or _SOIL_LAYER_TYPE.get(soil_fn)
+    if lt is None:  # neither attr nor registry -> infer from layer count
+        lt = "point" if _count_sl_layers(ds) == len(_calc_depth(ds, soil_fn)) else "interval"
+    return lt
+
+
+def _calc_midpoint(ds: xr.Dataset, soil_fn: str) -> np.ndarray:
+    """Layer midpoints [cm]: the edges for point data, interval centres otherwise."""
+    edges = _calc_depth(ds, soil_fn)
+    if _layer_type(ds, soil_fn) == "point":
+        return edges.copy()
+    return (edges[:-1] + edges[1:]) / 2.0
+
+
+def _calc_surface(ds: xr.Dataset, soildepth_cm_midpoint: np.ndarray) -> np.ndarray:
+    """Surface-referenced midpoints [cm]: midpoints with the shallowest layer pinned to 0."""
+    surf = np.asarray(soildepth_cm_midpoint, dtype=float).copy()
+    surf[0] = 0.0
+    return surf
 
 def soilgrids(
     ds: xr.Dataset,
@@ -461,18 +510,22 @@ def soilgrids(
     """
     Return soil parameter maps at model resolution.
 
-    Based on soil properties from SoilGrids datasets.
-    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties
-    at 7 specific depths, while soilgrids_2020 provides soil properties averaged over
-    6 depth intervals.
-    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,
-    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m:
-    Global gridded soil information based on machine learning,
-    PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
-    Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio,
-    E. and Rossiter, D., 2020. SoilGrids 2.0:
-    producing quality-assessed soil information for the globe. SOIL Discussions,
-    pp.1-37. https://doi.org/10.5194/soil-2020-65.
+    Based on layered soil property datasets. Originally built for ISRIC SoilGrids --
+    that ``{property}_sl{layer}`` naming stays core and is reused by regional datasets
+    (e.g. SLGA, CSIRO Australia). The workflow handles an arbitrary layering scheme
+    (any number of layers, point or interval), with no soilgrids-specific hardcoding.
+
+    Depth structure is read from the source when self-described
+    (``ds.attrs["soil_depth_edges_cm"]`` and ``soil_layer_type`` in {"point",
+    "interval"}); otherwise it falls back to a registry for "soilgrids" (2017, 7 point
+    depths) and "soilgrids_2020" (6 interval averages). Where ``soilthickness`` runs
+    deeper than the property data, the deepest layer is extended down to it.
+
+    Input variables ``{property}_sl{layer}`` (e.g. ``bd_sl1``) plus ``soilthickness``
+    [cm]: bd [g/cm3], oc [%], ph [-], clyppt/sltppt/sndppt [%].
+
+    Refs: Hengl et al. (2017) https://doi.org/10.1371/journal.pone.0169748;
+    de Sousa et al. (2020) https://doi.org/10.5194/soil-2020-65.
 
     A ``soil_mapping`` table can optionally be provided to derive parameters based
     on soil texture classes. A default table *soil_mapping_default* is available
@@ -491,8 +544,8 @@ def soilgrids(
             [mm-1] (fitted with numpy linalg regression), bounds are checked
         - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore
             size distribution index for the wflow_sbm soil layers.
-        - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil
-            depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at the
+            source layer midpoint depths [z] (cm)
         - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
             sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay,
             5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand,
@@ -506,27 +559,23 @@ def soilgrids(
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculation ksat_vertical .
+        PTF to use for calculation ksat_vertical.
     soil_fn : str
-        soilgrids version {'soilgrids', 'soilgrids_2020'}
+        Source name. Registry key for legacy "soilgrids"/"soilgrids_2020" when the
+        depth structure is not self-described in ds.attrs, and the label in meta_ maps.
     wflow_layers : list
-        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
+        Soil layer thicknesses [mm] over which soil_brooks_corey_c is computed.
 
     Returns
     -------
     ds_out : xarray.Dataset
         Dataset containing gridded soil parameters.
     """
-    if soil_fn == "soilgrids_2020":
-        # use midpoints of depth intervals for soilgrids_2020.
-        soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
-        soildepth_cm_midpoint_surface = np.array([0, 10.0, 22.5, 45.0, 80.0, 150.0])
-        soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_mm_midpoint_surface = 10.0 * soildepth_cm_midpoint_surface
-    else:
-        soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_cm_midpoint = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_mm_midpoint_surface = 10.0 * soildepth_cm
+    soildepth_cm = _calc_depth(ds, soil_fn)
+    soildepth_cm_midpoint = _calc_midpoint(ds, soil_fn)
+    soildepth_cm_midpoint_surface = _calc_surface(ds, soildepth_cm_midpoint)
+    soildepth_mm_midpoint_surface = 10.0 * soildepth_cm_midpoint_surface
+    layer_type = _layer_type(ds, soil_fn)
 
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
@@ -550,10 +599,10 @@ def soilgrids(
         keep_attrs=True,
     )
 
-    if soil_fn == "soilgrids_2020":
-        thetas = average_soillayers_block(thetas_sl, ds["soilthickness"])
+    if layer_type == "interval":
+        thetas = average_soillayers_block(thetas_sl, ds["soilthickness"], soildepth_cm)
     else:
-        thetas = average_soillayers(thetas_sl, ds["soilthickness"])
+        thetas = average_soillayers(thetas_sl, ds["soilthickness"], soildepth_cm)
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["theta_s"] = thetas.astype(np.float32)
 
@@ -568,10 +617,10 @@ def soilgrids(
         keep_attrs=True,
     )
 
-    if soil_fn == "soilgrids_2020":
-        thetar = average_soillayers_block(thetar_sl, ds["soilthickness"])
+    if layer_type == "interval":
+        thetar = average_soillayers_block(thetar_sl, ds["soilthickness"], soildepth_cm)
     else:
-        thetar = average_soillayers(thetar_sl, ds["soilthickness"])
+        thetar = average_soillayers(thetar_sl, ds["soilthickness"], soildepth_cm)
     thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["theta_r"] = thetar.astype(np.float32)
 
@@ -643,20 +692,15 @@ def soilgrids(
     M = constrain_M(M, popt_0, M_minmax)
     ds_out["f"] = ((thetas - thetar) / M).astype(np.float32)
 
-    # wflow soil map is based on USDA soil classification
-    # soilmap = ds["tax_usda"].raster.interpolate_na()
-    # soilmap = soilmap.raster.reproject_like(ds_like, method="mode")
-    # ds_out["wflow_soil"] = soilmap.astype(np.float32)
-
     # wflow_soil map is based on soil texture calculated with percentage
     # sand, silt, clay
     # clay, silt percentages averaged over soil thickness
-    if soil_fn == "soilgrids_2020":
-        clay_av = average_soillayers_block(ds["clyppt"], ds["soilthickness"])
-        silt_av = average_soillayers_block(ds["sltppt"], ds["soilthickness"])
+    if layer_type == "interval":
+        clay_av = average_soillayers_block(ds["clyppt"], ds["soilthickness"], soildepth_cm)
+        silt_av = average_soillayers_block(ds["sltppt"], ds["soilthickness"], soildepth_cm)
     else:
-        clay_av = average_soillayers(ds["clyppt"], ds["soilthickness"])
-        silt_av = average_soillayers(ds["sltppt"], ds["soilthickness"])
+        clay_av = average_soillayers(ds["clyppt"], ds["soilthickness"], soildepth_cm)
+        silt_av = average_soillayers(ds["sltppt"], ds["soilthickness"], soildepth_cm)
 
     # calc soil texture
     soil_texture = xr.apply_ufunc(
@@ -716,10 +760,7 @@ def soilgrids_brooks_corey(
     ds_out : xarray.Dataset
         Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.
     """
-    if soil_fn == "soilgrids_2020" or soil_fn == "soilgrids":
-        soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-    else:
-        raise ValueError("Only soilgrids_2020 and soilgrids are supported.")
+    soildepth_cm = _calc_depth(ds, soil_fn)
 
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
     ds = ds.raster.mask_nodata()
