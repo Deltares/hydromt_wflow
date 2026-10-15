@@ -729,3 +729,27 @@ def test_setup_map_sum(
         )
         == "sum_map"
     )
+
+
+def test_setup_map_sum_errors(
+    example_wflow_model: WflowSbmModel,
+):
+    # Test with empty maps list
+    with pytest.raises(
+        ValueError, match="The 'maps' parameter must be a non-empty list."
+    ):
+        example_wflow_model.setup_map_sum(
+            maps=[],
+            output_name="sum_map",
+            wflow_variable=None,
+        )
+
+    # Test with a map not in staticmaps
+    with pytest.raises(
+        ValueError, match="Map 'non_existent_map' not found in staticmaps."
+    ):
+        example_wflow_model.setup_map_sum(
+            maps=["non_existent_map"],
+            output_name="sum_map",
+            wflow_variable=None,
+        )

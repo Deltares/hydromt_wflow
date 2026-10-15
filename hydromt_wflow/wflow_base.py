@@ -1887,11 +1887,17 @@ one variable and variables list is not provided."
         wflow_variable : str | None, optional
             Corresponding Wflow.jl variable name, by default None.
         """
+        # Check that maps is a list and that it is not empty
+        if not isinstance(maps, list) or not maps:
+            raise ValueError("The 'maps' parameter must be a non-empty list.")
+
         logger.info(f"Setting up map sum for '{output_name}' from maps: {maps}.")
         # Compute the sum
         ds = xr.Dataset()
         # apply .raster/mask_nodata() to each map before summing
         for m in maps:
+            if m not in self.staticmaps.data:
+                raise ValueError(f"Map '{m}' not found in staticmaps.")
             ds[m] = self.staticmaps.data.get(m).raster.mask_nodata()
         da_sum = ds.to_array().sum(dim="variable", skipna=True, min_count=1)
         da_sum = da_sum.fillna(nodata)
