@@ -1827,7 +1827,9 @@ setting new flood_depth dimensions"
         criteria. The topographic criteria are based on the elevation, slope and hand
         maps, and the landuse criteria are based on the landuse map. For each criterion,
         a range of suitable values can be defined, and the final ponding suitability is
-        determined by the intersection of all criteria.
+        determined by the intersection of all criteria (at the resolution of the
+        original data or at hydrography data if both landuse and hydrography data are
+        provided.)
 
         Adds model layers:
 
