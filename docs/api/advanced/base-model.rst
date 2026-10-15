@@ -58,6 +58,7 @@ Setup methods
    WflowBaseModel.setup_constant_pars
    WflowBaseModel.setup_grid_from_raster
    WflowBaseModel.setup_areamap
+   WflowBaseModel.setup_map_sum
 
 .. autoclass:: hydromt_wflow.WflowBaseModel
    :members:

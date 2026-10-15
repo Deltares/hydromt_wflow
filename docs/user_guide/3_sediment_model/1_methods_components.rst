@@ -157,9 +157,12 @@ Other methods
     * - :py:meth:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
       - :py:meth:`~WflowSedimentModel.setup_basemaps`
-    * - :py:meth:`~WflowSbmModel.setup_grid_from_geodataset`
+    * - :py:meth:`~WflowSedimentModel.setup_grid_from_geodataset`
       -  Setup static/cyclic/forcing from geodataset to add parameters from direct data.
-      - :py:meth:`~WflowSbmModel.setup_basemaps`
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
+    * - :py:meth:`~WflowSedimentModel.setup_map_sum`
+      -  Prepare a map by summing layers in staticmaps.
+      - :py:meth:`~WflowSedimentModel.setup_basemaps`
     * - :py:meth:`~WflowSedimentModel.clip`
       -  Clip a sub-region of an existing model.
       -
