@@ -424,6 +424,7 @@
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_areamap.html">hydromt_wflow.WflowSbmModel.setup_areamap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_raster.html">hydromt_wflow.WflowSbmModel.setup_grid_from_raster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset.html">hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_map_sum.html">hydromt_wflow.WflowSbmModel.setup_map_sum</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html">hydromt_wflow.WflowSbmModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.clip.html">hydromt_wflow.WflowSbmModel.clip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.build.html">hydromt_wflow.WflowSbmModel.build</a></li>
@@ -458,6 +459,7 @@
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_geodataset.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_geodataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_map_sum.html">hydromt_wflow.WflowSedimentModel.setup_map_sum</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.clip.html">hydromt_wflow.WflowSedimentModel.clip</a></li>
 </ul>
 </details></li>
@@ -486,6 +488,7 @@
 <li class="toctree-l3"><a class="reference internal" href="advanced/_generated/hydromt_wflow.WflowBaseModel.setup_constant_pars.html">hydromt_wflow.WflowBaseModel.setup_constant_pars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="advanced/_generated/hydromt_wflow.WflowBaseModel.setup_grid_from_raster.html">hydromt_wflow.WflowBaseModel.setup_grid_from_raster</a></li>
 <li class="toctree-l3"><a class="reference internal" href="advanced/_generated/hydromt_wflow.WflowBaseModel.setup_areamap.html">hydromt_wflow.WflowBaseModel.setup_areamap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced/_generated/hydromt_wflow.WflowBaseModel.setup_map_sum.html">hydromt_wflow.WflowBaseModel.setup_map_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="advanced/model-components.html">Components</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -905,10 +908,13 @@ of that support.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset.html#hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset" title="hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_grid_from_geodataset</span></code></a>(...)</p></td>
 <td><p>Add data variable from <code class="docutils literal notranslate"><span class="pre">geodataset_fn</span></code> to grid object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html#hydromt_wflow.WflowSbmModel.setup_1dmodel_connection" title="hydromt_wflow.WflowSbmModel.setup_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_1dmodel_connection</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_map_sum.html#hydromt_wflow.WflowSbmModel.setup_map_sum" title="hydromt_wflow.WflowSbmModel.setup_map_sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_map_sum</span></code></a>(maps, output_name)</p></td>
+<td><p>Prepare a map by summing layers in staticmaps.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html#hydromt_wflow.WflowSbmModel.setup_1dmodel_connection" title="hydromt_wflow.WflowSbmModel.setup_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.setup_1dmodel_connection</span></code></a>(...)</p></td>
 <td><p>Connect wflow to a 1D model by deriving linked subcatch (and tributaries).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip" title="hydromt_wflow.WflowSbmModel.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.clip</span></code></a>(region[, inverse_clip, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSbmModel.clip.html#hydromt_wflow.WflowSbmModel.clip" title="hydromt_wflow.WflowSbmModel.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSbmModel.clip</span></code></a>(region[, inverse_clip, ...])</p></td>
 <td><p>Clip model to region.</p></td>
 </tr>
 </tbody>
@@ -988,7 +994,7 @@ These allow for fine-grained reading, writing, modification, and inspection of c
 They are particularly useful when working interactively in Python, for example when updating
 specific configuration parameters, clipping static maps, or inspecting the forcing data.</p>
 <p>Each component exposes a <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute, which holds the underlying model data
-(e.g. <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, or <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.2.1.dev0.dev+g199fc53c8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a>),
+(e.g. <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, or <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.2.1.dev0.dev+g199fc53c8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a>),
 and supports a common set of I/O and manipulation methods such as
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code>, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">set()</span></code>.</p>
 <p>For general I/O at the model level, refer to:

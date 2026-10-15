@@ -424,6 +424,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.setup_areamap.html">hydromt_wflow.WflowSbmModel.setup_areamap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_raster.html">hydromt_wflow.WflowSbmModel.setup_grid_from_raster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset.html">hydromt_wflow.WflowSbmModel.setup_grid_from_geodataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.setup_map_sum.html">hydromt_wflow.WflowSbmModel.setup_map_sum</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.setup_1dmodel_connection.html">hydromt_wflow.WflowSbmModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.clip.html">hydromt_wflow.WflowSbmModel.clip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSbmModel.build.html">hydromt_wflow.WflowSbmModel.build</a></li>
@@ -458,6 +459,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_geodataset.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_geodataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSedimentModel.setup_map_sum.html">hydromt_wflow.WflowSedimentModel.setup_map_sum</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_generated/hydromt_wflow.WflowSedimentModel.clip.html">hydromt_wflow.WflowSedimentModel.clip</a></li>
 </ul>
 </details></li>
@@ -486,6 +488,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../_generated/hydromt_wflow.WflowBaseModel.setup_constant_pars.html">hydromt_wflow.WflowBaseModel.setup_constant_pars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../_generated/hydromt_wflow.WflowBaseModel.setup_grid_from_raster.html">hydromt_wflow.WflowBaseModel.setup_grid_from_raster</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../_generated/hydromt_wflow.WflowBaseModel.setup_areamap.html">hydromt_wflow.WflowBaseModel.setup_areamap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../_generated/hydromt_wflow.WflowBaseModel.setup_map_sum.html">hydromt_wflow.WflowBaseModel.setup_map_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../model-components.html">Components</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -688,8 +691,8 @@
 <li><p><strong>ds</strong> (<em>xr.Dataset</em>) – hydrography dataset containing “flwdir”, “uparea”, “elevtn” variables;</p></li>
 <li><p><strong>ds_model</strong> (<em>xr.Dataset</em><em>, </em><em>optional</em>) – Model dataset with output grid, must contain “rivmsk”, “rivwth”, “rivlen”
 for subgrid must contain “x_out”, “y_out”.</p></li>
-<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – minimum threshold to define the river when calculating HAND, by default 30 [km2]</p></li>
-<li><p><strong>flood_depths</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – minimum threshold to define the river when calculating HAND, by default 30 [km2]</p></li>
+<li><p><strong>flood_depths</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]</p></li>
 <li><p><strong>dtype</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.5)"><em>numpy.dtype</em></a><em>, </em><em>optional</em>) – output dtype</p></li>
 </ul>
 </dd>

@@ -2341,6 +2341,50 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col2raster_name</span><span class="p">))</span></div>
 
 
+<div class="viewcode-block" id="WflowBaseModel.setup_map_sum">
+<a class="viewcode-back" href="../../api/advanced/base-model.html#hydromt_wflow.WflowBaseModel.setup_map_sum">[docs]</a>
+    <span class="nd">@hydromt_step</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_map_sum</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">maps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">output_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">wflow_variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Prepare a map by summing layers in staticmaps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        maps : list[str]</span>
+<span class="sd">            List of map names in staticmaps to sum.</span>
+<span class="sd">        output_name : str</span>
+<span class="sd">            Name of the output map.</span>
+<span class="sd">        wflow_variable : str | None, optional</span>
+<span class="sd">            Corresponding Wflow.jl variable name, by default None.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Check that maps is a list and that it is not empty</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">maps</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The 'maps' parameter must be a non-empty list."</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Setting up map sum for '</span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2">' from maps: </span><span class="si">{</span><span class="n">maps</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="c1"># Compute the sum</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
+        <span class="c1"># apply .raster/mask_nodata() to each map before summing</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Map '</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">' not found in staticmaps."</span><span class="p">)</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+        <span class="n">da_sum</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"variable"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">da_sum</span> <span class="o">=</span> <span class="n">da_sum</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
+        <span class="n">da_sum</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
+        <span class="c1"># Add to staticmaps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">da_sum</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">output_name</span><span class="p">))</span>
+        <span class="c1"># Update config if a corresponding Wflow.jl variable is provided</span>
+        <span class="k">if</span> <span class="n">wflow_variable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_variable</span><span class="p">:</span> <span class="n">output_name</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">output_name</span><span class="p">)</span></div>
+
+
     <span class="c1">## WFLOW other step methods (clip and upgrade)</span>
 <div class="viewcode-block" id="WflowBaseModel.clip">
 <a class="viewcode-back" href="../../api/advanced/base-model.html#hydromt_wflow.WflowBaseModel.clip">[docs]</a>
