@@ -371,6 +371,58 @@ def kv_layers(ds, thetas, ptf_name):
     return ds_out
 
 
+def air_entry_pressure(
+    ds: xr.Dataset,
+    thetas: xr.DataArray,
+    ptf_name: str,
+) -> xr.DataArray:
+    """
+    Determine soil air-entry pressure for each SoilGrids layer.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing clay and sand percentages at each soil layer.
+    thetas : xarray.DataArray
+        Saturated water content at each soil layer [-].
+    ptf_name : {"brakensiek", "clapp"}
+        Pedotransfer function used to calculate air-entry pressure.
+
+    Returns
+    -------
+    xarray.DataArray
+        Air-entry pressure head [cm] at each soil layer.
+    """
+    if ptf_name == "brakensiek":
+        ds_out = xr.apply_ufunc(
+            ptf.air_entry_pressure_brakensiek,
+            ds["clyppt"],
+            ds["sndppt"],
+            thetas,
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+        )
+    elif ptf_name == "clapp":
+        ds_out = xr.apply_ufunc(
+            ptf.air_entry_pressure_clapp_hornberger,
+            ds["clyppt"],
+            ds["sndppt"],
+            dask="parallelized",
+            output_dtypes=[float],
+            keep_attrs=True,
+        )
+    else:
+        raise ValueError(
+            f"Unknown air-entry pressure PTF {ptf_name!r}; "
+            "expected 'brakensiek' or 'clapp'."
+        )
+
+    ds_out.name = "soil_hb"
+    ds_out.raster.set_nodata(np.nan)
+    return ds_out
+
+
 def func(x, b):
     return np.exp(-b * x)
 
@@ -457,6 +509,7 @@ def soilgrids(
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
     wflow_layers: list[int] = [100, 300, 800],
+    ptf_hb: str | None = None,
 ):
     """
     Return soil parameter maps at model resolution.
@@ -491,6 +544,7 @@ def soilgrids(
             [mm-1] (fitted with numpy linalg regression), bounds are checked
         - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore
             size distribution index for the wflow_sbm soil layers.
+        - **soil_hb** : optional air-entry pressure head [cm].
         - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil
             depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
         - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
@@ -511,12 +565,21 @@ def soilgrids(
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
         List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
+    ptf_hb : {"brakensiek", "clapp"}, optional
+        PTF used to calculate air-entry pressure. If omitted, no air-entry pressure
+        map is generated and Wflow uses its default value of -10 cm.
 
     Returns
     -------
     ds_out : xarray.Dataset
         Dataset containing gridded soil parameters.
     """
+    if ptf_hb not in (None, "brakensiek", "clapp"):
+        raise ValueError(
+            f"Unknown air-entry pressure PTF {ptf_hb!r}; "
+            "expected 'brakensiek', 'clapp', or None."
+        )
+
     if soil_fn == "soilgrids_2020":
         # use midpoints of depth intervals for soilgrids_2020.
         soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
@@ -556,6 +619,17 @@ def soilgrids(
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["theta_s"] = thetas.astype(np.float32)
+
+    if ptf_hb is not None:
+        logger.info("calculate and resample air-entry pressure")
+        hb_sl = air_entry_pressure(ds, thetas_sl, ptf_hb)
+        if soil_fn == "soilgrids_2020":
+            hb = average_soillayers_block(hb_sl, ds["soilthickness"])
+        else:
+            hb = average_soillayers(hb_sl, ds["soilthickness"])
+        hb = hb.raster.reproject_like(ds_like, method="average")
+        hb.attrs["units"] = "cm"
+        ds_out["soil_hb"] = hb.astype(np.float32)
 
     logger.info("calculate and resample theta_r")
     thetar_sl = xr.apply_ufunc(
