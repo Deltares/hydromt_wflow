@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_soilmaps**: optionally derive spatially varying soil air-entry pressure from SoilGrids using the Rawls and Brakensiek or Clapp and Hornberger pedotransfer function.
 - **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
 - **setup_map_sum**: method to prepare a map by summing layers in staticmaps.
 

@@ -890,6 +890,33 @@ def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
         )
 
 
+@pytest.mark.parametrize("ptf_hb", [None, "clapp"])
+def test_setup_soilmaps_air_entry_pressure(
+    example_wflow_model: WflowSbmModel,
+    tmp_path: Path,
+    ptf_hb: str | None,
+):
+    example_wflow_model.read()
+    example_wflow_model.root.set(tmp_path, mode="w")
+
+    example_wflow_model.setup_soilmaps(ptf_hb=ptf_hb)
+
+    has_soil_hb = "soil_hb" in example_wflow_model.staticmaps.data
+    assert has_soil_hb is (ptf_hb is not None)
+    static_config = example_wflow_model.config.data.get("input", {}).get("static", {})
+    wflow_name = "soil_water__air_entry_pressure_head"
+    if ptf_hb is None:
+        assert wflow_name not in static_config
+    else:
+        assert static_config[wflow_name] == "soil_hb"
+        soil_hb = example_wflow_model.staticmaps.data["soil_hb"]
+        assert soil_hb.dtype == np.float32
+        values = soil_hb.values
+        valid = values != soil_hb.raster.nodata
+        assert np.any(valid)
+        assert np.all(values[valid] < 0)
+
+
 def test_setup_lulc_paddy(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Read the data
     example_wflow_model.read()
