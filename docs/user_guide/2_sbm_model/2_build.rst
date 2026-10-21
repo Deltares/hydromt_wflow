@@ -45,7 +45,7 @@ to a model component with the same name.
 .. literalinclude:: /_examples/wflow_build.yml
    :language: yaml
 
-For an example of how to build a model using this configuration file, see the example notebook: :ref:`here <example-build_model>`.
+For an example of how to build a model using this configuration file, see the example notebook: :ref:`here <example-build_model_cli>`.
 
 Selecting data
 --------------
@@ -71,4 +71,5 @@ Examples
 To know more about building a Wflow-SBM model from scratch, check the following examples:
 
 - :ref:`Optional first step: preparing flow directions from DEM <example-prepare_ldd>`
-- :ref:`Building a Wflow SBM model from command line <example-build_model>`
+- :ref:`Building a Wflow SBM model from command line <example-build_model_cli>`
+- :ref:`Building a Wflow SBM model step by step using Python <example-build_model_python>`
