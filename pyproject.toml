@@ -328,7 +328,7 @@ test-wheel-py312 = { features = ["py312", "pip", "julia", "test"], solve-group="
 test-wheel-py311 = { features = ["py311", "pip", "julia", "test"], solve-group="py311", no-default-feature=true }
 
 [tool.pixi.feature.examples.tasks]
-build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
+build-example-model-full = { cmd = "hydromt build wflow_sbm ./wflow_test_cli_full -i wflow_build.yml -d artifact_data -vv",  cwd = "examples" }
 build-example-model-sbm = { cmd = "python scripts/generate_example_models.py sbm" }
 build-example-model-sediment = { cmd = "python scripts/generate_example_models.py sediment" }
 build-example-model-clipped = { cmd = "python scripts/generate_example_models.py clip" }
