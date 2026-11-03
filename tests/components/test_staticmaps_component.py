@@ -179,7 +179,7 @@ def test_wflow_staticmaps_component_update_names(
     # Rename some variables
     component.update_names(layer1="foo", layer2="bar")
 
-    # Assert it succeded
+    # Assert it succeeded
     assert "foo" in component.data.data_vars
     assert "bar" in component.data.data_vars
 
@@ -243,7 +243,7 @@ def test_wflow_staticmaps_component_read_empty(
     # Read the data
     type(component.model.config).get_value = MagicMock(return_value="")
     component.read()
-    # Assert that its an emptry Dataset
+    # Assert that its an empty Dataset
     assert isinstance(component.data, xr.Dataset)
     assert len(component.data) == 0
 

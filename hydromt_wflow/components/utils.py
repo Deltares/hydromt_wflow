@@ -98,7 +98,7 @@ def get_mask_layer(mask: str | xr.DataArray | None, *args) -> xr.DataArray | Non
     for ds in args:
         if mask in ds:
             return ds[mask] != ds[mask].raster.nodata
-    return None  # Nothin found
+    return None  # Nothing found
 
 
 def align_grid_with_region(

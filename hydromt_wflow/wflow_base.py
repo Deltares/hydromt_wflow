@@ -1637,7 +1637,7 @@ one variable and variables list is not provided."
         """
         Add data variable from ``geodataset_fn`` to grid object.
 
-        Prepares a static/cyclic/forcing grid layer at specificied point locations.
+        Prepares a static/cyclic/forcing grid layer at specified point locations.
         A GeoDataset including the locations and the variable to rasterize can be used.
         Alternatively, locations can be provided as a separate geodataframe or as a
         layer already present in the staticmaps (e.g. gauges locations or reservoir
@@ -1763,7 +1763,7 @@ one variable and variables list is not provided."
                 if index_col is not None:
                     gdf_locs = gdf_locs.set_index(index_col)
 
-            # Index is required to contruct GeoDataArray
+            # Index is required to construct GeoDataArray
             if gdf_locs.index.name is None:
                 gdf_locs.index.name = "stations"
 
@@ -1941,11 +1941,11 @@ one variable and variables list is not provided."
         clip_states: bool, optional
             Flag to clip the states to the new grid extent, by default True
         reservoir_maps: dict[str, str | None] = {},
-            Dictionnary of staticmap names in the wflow model staticmaps and
+            Dictionary of staticmap names in the wflow model staticmaps and
             corresponding wflow input variables to be treated as
             reservoirs. These maps are removed if empty after clipping.
         reservoir_states: dict[str, str | None] = {},
-            Dictionnary of state names in the wflow model states and corresponding
+            Dictionary of state names in the wflow model states and corresponding
             wflow state variables to be treated as reservoirs.
             These states are removed if no reservoir was found after clipping.
         crs: int, optional

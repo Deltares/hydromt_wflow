@@ -35,7 +35,7 @@ For more information on the format changes, see this section in the HydroMT migr
 
 How to upgrade
 ^^^^^^^^^^^^^^
-In general, we advise to switch to the new YAML format by re-using and adapting the new template files provided in the HydroMT-Wflow examples folder:
+In general, we advise to switch to the new YAML format by reusing and adapting the new template files provided in the HydroMT-Wflow examples folder:
 
 - :download:`Wflow-SBM Build yml </_examples/wflow_build.yml>`
 - :download:`Wflow-Sediment Build yml </_examples/wflow_sediment_build.yml>`
@@ -54,7 +54,7 @@ If you do wish to update an existing file, you will have to do this manually. He
   - ``setup_rivers``: sets up the river network and cross-sections
   - ``setup_river_roughness``: sets up manning roughness of the river
 - ``setup_lulcmaps`` and equivalent: the parameters have changed. User-defined land use mapping tables will need to update the name of the columns.
-- ``setup_constant_pars``: the paramaters are now the Wflow.jl parameter names rather than a name that HydroMT adds to the staticmaps.
+- ``setup_constant_pars``: the parameters are now the Wflow.jl parameter names rather than a name that HydroMT adds to the staticmaps.
 - ``setup_other_demand`` and ``setup_lulcmaps_with_paddy``: some of the variables have been renamed (e.g. ``industry_net``, ``demand_paddy_h_min``).
 
 Data Catalog Format Changes

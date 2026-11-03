@@ -54,7 +54,7 @@ def test_wflow_forcing_component_set_errors(
     # Setup
     component = WflowForcingComponent(mock_model, region_component="staticmaps")
 
-    # staticmaps doesnt have time dim
+    # staticmaps doesn't have time dim
     # No time dim should error
     da_no_time = forcing_layer.isel(time=0, drop=True)
     with pytest.raises(

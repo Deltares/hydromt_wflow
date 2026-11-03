@@ -178,8 +178,8 @@ Components
 ----------
 
 If you are using python, you can access and update the model data using the components such as ``config``, ``staticmaps`` etc.
-This is for example useful for computing statictics, plotting etc.
-The components data are usually xarray, dictionnary or geopandas objects and can be accessed via the data property: `model.staticmaps.data`.
+This is for example useful for computing statistics, plotting etc.
+The components data are usually xarray, dictionary or geopandas objects and can be accessed via the data property: `model.staticmaps.data`.
 The components of the WflowSbmModel are:
 
 
