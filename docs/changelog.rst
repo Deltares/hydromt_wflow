@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
+- **setup_map_sum**: method to prepare a map by summing layers in staticmaps.
 
 Fixed
 -----
