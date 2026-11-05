@@ -1232,8 +1232,8 @@ def merge_reservoirs_sediment(
         else:
             # all parameters for sediment should be in both
             logger.warning(
-                f"Reservoir layer {layer} is not present in either the new dataset or"
-                "the wflow model. Skipping adding new reservoirs. Consider overwritting"
+                f"Reservoir layer {layer} is not present in either the new dataset or "
+                "the wflow model. Skipping adding new reservoirs. Consider overwriting "
                 "to solve this issue."
             )
             return None

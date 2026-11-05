@@ -1944,7 +1944,7 @@ setting new flood_depth dimensions"
         Currently only directly cyclic LAI data is supported.
 
         If `lulc_fn` is provided, mapping tables from landuse classes to LAI values
-        will be derived from the LULC data. These tables can then be re-used later if
+        will be derived from the LULC data. These tables can then be reused later if
         you would like to add new LAI maps derived from this mapping table and new
         landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values
         can be assigned for all landuse classes and based on a large enough sample of
@@ -2367,7 +2367,7 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
 'oc_sl*' [%], pH 'ph_sl*' [-], sand content 'sndppt_sl*' [%] and soil thickness \
 'soilthickness' [cm].
 
-        A ``soil_mapping_fn`` can optionnally be provided to derive parameters based
+        A ``soil_mapping_fn`` can optionally be provided to derive parameters based
         on soil texture classes. A default table *soil_mapping_default* is available
         to derive the infiltration capacity of the soil.
 
@@ -3867,7 +3867,7 @@ using 'variable' argument."
                 if index_col is not None:
                     gdf_stations = gdf_stations.set_index(index_col)
 
-            # Index is required to contruct GeoDataArray
+            # Index is required to construct GeoDataArray
             if gdf_stations.index.name is None:
                 gdf_stations.index.name = "stations"
 

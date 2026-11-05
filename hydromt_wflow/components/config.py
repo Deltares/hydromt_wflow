@@ -114,7 +114,7 @@ class WflowConfigComponent(ConfigComponent):
         else:
             logger.warning(
                 f"No config was found at {read_path.as_posix()}. "
-                "It wil be initialized as empty dict"
+                "It will be initialized as empty dict"
             )
             return
 

@@ -323,7 +323,7 @@ def buffer_basin_mask(
         iterations=basin_buffer_cells,
     ).astype(basin_mask.dtype)
 
-    # Replace values with shrinked mask
+    # Replace values with shrunk mask
     basin_mask = basin_mask.copy()
     basin_mask.values = basin_mask_values
     if np.sum(basin_mask_values) == 0:

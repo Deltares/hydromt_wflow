@@ -172,7 +172,7 @@ def domestic_from_population(
     gross_per_capita: float | list[float],
     net_per_capita: float | list[float],
 ) -> tuple:
-    """Create domestic water demand maps from statitics per capita.
+    """Create domestic water demand maps from statistics per capita.
 
     Parameters
     ----------
@@ -561,7 +561,7 @@ def classify_pixels(
         # Calculate relative area
         relative_area = da_area2model / da_area2model.raster.area_grid()
 
-        # Classify pixels with a 1 where it exceeds the threshold, and 0 where it doesnt
+        # Classify pixels with 1 where it exceeds the threshold, and 0 where it doesn't
         da_irr_model = xr.where(relative_area >= threshold, 1, 0)
 
     # Else resample using nearest

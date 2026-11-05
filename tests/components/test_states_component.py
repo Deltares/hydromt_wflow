@@ -194,7 +194,7 @@ def test_wflow_states_component_write(
 
     written_data = xr.open_dataset(file)
     assert "test_layer" in written_data
-    # rename dims is True so x, y get renamed when writting
+    # rename dims is True so x, y get renamed when writing
     assert "latitude" in written_data
     assert np.all(written_data["test_layer"].values == grid_dummy_data.values)
 
