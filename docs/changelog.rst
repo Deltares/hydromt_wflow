@@ -12,6 +12,8 @@ Unreleased
 Added
 -----
 - **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
+- **setup_ponding_from_map** and **setup_ponding_from_thresholds**: methods to prepare ponding level based on a raster/vector
+  location map or based on landuse/hydrography thresholds. PR #22
 - **setup_map_sum**: method to prepare a map by summing layers in staticmaps.
 
 Fixed
@@ -30,8 +32,6 @@ Added
 -----
 - **setup_agroforestry**: method to add agroforestry areas to landuse maps and update related vegetation parameters. PR #2
 - **setup_subbasins**: method to delineate subbasins based on streamorder, pfafstetter or area threshold. PR #7
-- **setup_ponding_from_map** and **setup_ponding_from_thresholds**: methods to prepare ponding level based on a raster/vector
-  location map or based on landuse/hydrography thresholds. PR #22
 - **setup_grid_from_geodataset**: method to set static/cyclic/forcing grid data from a geodataset. PR #20
 - Before writing the forcing to disk, throw an error for any missing values (#748)
 - Added upgrade support for the latest Wflow.jl v1.1 (#765)
