@@ -9,9 +9,10 @@ List of examples
 For a static (non-interactive) view of the examples, follow one of the links below:
 
 
-.. dropdown:: **Build model from command line interface**
+.. dropdown:: **Build model**
 
-   - :ref:`Build a Wflow SBM model from scratch <example-build_model>`
+   - :ref:`Build a Wflow SBM model from scratch using the command line interface <example-build_model_cli>`
+   - :ref:`Build a Wflow SBM model from scratch using Python <example-build_model_python>`
    - :ref:`Build a Wflow sediment model <example-build_sediment>`
 
 .. dropdown:: **Update model from command line interface**
@@ -41,7 +42,8 @@ For a static (non-interactive) view of the examples, follow one of the links bel
    :caption: Building a model
    :hidden:
 
-   /_examples/build_model
+   /_examples/build_model_cli
+   /_examples/build_model_python
    /_examples/build_sediment
 
 .. toctree::
