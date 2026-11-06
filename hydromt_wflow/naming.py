@@ -165,6 +165,9 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_name": "soil_layer_water__brooks_corey_exponent",
         "hydromt_name": "soil_brooks_corey_c",
     },
+    "soil_hb": {
+        "wflow_name": "soil_water__air_entry_pressure_head",
+    },
     "soil_cf": {
         "wflow_name": "soil_surface_water__infiltration_reduction_parameter",
     },

@@ -2,8 +2,13 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+import xarray as xr
 
-from hydromt_wflow.workflows.soilgrids import do_curve_fit
+from hydromt_wflow.workflows.soilgrids import (
+    air_entry_pressure,
+    do_curve_fit,
+    soilgrids,
+)
 
 
 def generate_data(b: float = 0.2, n: int = 50):
@@ -56,3 +61,32 @@ def test_lstsq_fallback_when_curve_fit_fails():
         b_est = do_curve_fit(x, y)
 
     assert np.isclose(b_est, b_true, atol=1e-3)
+
+
+def test_air_entry_pressure():
+    coords = {"sl": [1], "y": [0.0], "x": [0.0]}
+    ds = xr.Dataset(
+        {
+            "clyppt": (("sl", "y", "x"), [[[20.0]]]),
+            "sndppt": (("sl", "y", "x"), [[[40.0]]]),
+        },
+        coords=coords,
+    )
+    ds.raster.set_spatial_dims(x_dim="x", y_dim="y")
+    thetas = xr.DataArray(
+        [[[0.45]]],
+        dims=("sl", "y", "x"),
+        coords=coords,
+    )
+    thetas.raster.set_spatial_dims(x_dim="x", y_dim="y")
+
+    result = air_entry_pressure(ds, thetas, "brakensiek")
+
+    assert result.name == "soil_hb"
+    assert np.isnan(result.raster.nodata)
+    assert np.isclose(result.values[0, 0, 0], -26.57336805)
+
+
+def test_soilgrids_rejects_unknown_air_entry_pressure_ptf():
+    with pytest.raises(ValueError, match="expected 'brakensiek', 'clapp', or None"):
+        soilgrids(xr.Dataset(), xr.Dataset(), ptf_hb="unknown")

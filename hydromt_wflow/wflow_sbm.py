@@ -2340,7 +2340,9 @@ Run setup_soilmaps first"
             "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
             "soil_layer_water__brooks_corey_exponent": "soil_brooks_corey_c",
+            "soil_water__air_entry_pressure_head": "soil_hb",
         },
+        ptf_hb: str | None = None,
     ):
         """
         Derive several (layered) soil parameters.
@@ -2351,8 +2353,11 @@ Run setup_soilmaps first"
 
         Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
         ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
-        "brakensiek" and "cosby". "soilgrids" provides data at 7 specific depths,
-        while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        "brakensiek" and "cosby". Optionally, ``ptf_hb`` can be set to
+        "brakensiek" or "clapp" to derive spatially varying air-entry pressure.
+        If omitted, Wflow uses its default air-entry pressure of -10 cm.
+        "soilgrids" provides data at 7 specific depths, while "soilgrids_2020"
+        provides data averaged over 6 depth intervals.
         This leads to small changes in the workflow:
         (1) M parameter uses midpoint depths in soilgrids_2020 versus \
 specific depths in soilgrids,
@@ -2389,6 +2394,8 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
         * **soil_brooks_corey_c_n** map:
             Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
+        * **soil_hb** map:
+            optional air-entry pressure head [cm]
         * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
             [mm/day] at soil depths [z] of ``soil_fn`` data
             [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
@@ -2423,6 +2430,9 @@ a map for each of the wflow_sbm soil layers (n in total)
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
+        ptf_hb : {"brakensiek", "clapp"}, optional
+            Pedotransfer function used to calculate air-entry pressure. If omitted,
+            no map or TOML entry is generated and Wflow uses its default of -10 cm.
         """
         logger.info("Preparing soil parameter maps.")
         self._update_naming(output_names)
@@ -2435,6 +2445,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
             wflow_layers=wflow_thicknesslayers,
+            ptf_hb=ptf_hb,
         ).reset_coords(drop=True)
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.staticmaps.set(dsout.rename(rmdict))
