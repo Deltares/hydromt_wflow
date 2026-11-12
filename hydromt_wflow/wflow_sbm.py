@@ -3459,6 +3459,7 @@ using 'variable' argument."
         geom_snapping_tolerance: float = 0.001,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
+        id_column: str | None = None,
         mapname: str = "1dmodel",
         update_toml: bool = True,
         toml_output: str = "netcdf_scalar",
@@ -3478,7 +3479,10 @@ using 'variable' argument."
             subcatchments are derived based on the 1driver nodes (used as
             gauges locations). With this method, large tributaries can also be derived
             separately using the `add_tributaries` option and adding a `area_max`
-            threshold for the tributaries.
+            threshold for the tributaries. The nodes can also be provided directly as
+            Point geometries in `river1d_fn` instead of river lines, in which case
+            `id_column` sets the subbasin and gauge IDs and the subbasins may cover
+            the entire wflow model.
 
         If `add_tributary` option is on, you can decide to include or exclude the
         upstream boundary of the 1d river as an additional tributary using the
@@ -3512,8 +3516,8 @@ using 'variable' argument."
         Parameters
         ----------
         river1d_fn : str, Path, gpd.GeoDataFrame
-            GeodataFrame with the 1D model river network and nodes where to derive
-            subbasins for connection_method **nodes**.
+            GeodataFrame with the 1D model river network, or with the Point geometries
+            of the 1D model nodes for connection_method **nodes**.
         connection_method : str, default subbasin_area
             Method to connect wflow to the 1D model. Available methods are {
                 'subbasin_area', 'nodes'}.
@@ -3535,6 +3539,11 @@ using 'variable' argument."
         include_river_boundaries : bool, default True
             If True, include the upstream boundary(ies) of the 1d river as an
             additional tributary(ies).
+        id_column : str, optional
+            Column of the Point geometries in `river1d_fn` with the integer IDs (eg the
+            1D model node IDs) used as subbasin and gauge values. Only used if
+            `river1d_fn` contains Point geometries, by default the points are numbered
+            from 1.
         mapname : str, default 1dmodel
             Name of the map to save the subcatchments and tributaries in the wflow model
             staticmaps and geoms (subcatchment_{mapname}).
@@ -3578,6 +3587,7 @@ using 'variable' argument."
             geom_snapping_tolerance=geom_snapping_tolerance,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
+            id_column=id_column,
             **kwargs,
         )
 

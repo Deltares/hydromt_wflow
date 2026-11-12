@@ -873,6 +873,66 @@ def test_setup_1dmodel_connection_other(
     assert len(example_wflow_model.geoms.data["subcatchment_1dmodel"]) == 1
 
 
+def test_setup_1dmodel_connection_points(
+    example_wflow_model: WflowSbmModel, nodes1d: gpd.GeoDataFrame
+):
+    """Connect the nodes method to Point geometries with their own ids."""
+    # add the model outlet as a node so that the nodes cover the entire model
+    outlet = example_wflow_model.geoms.get("outlets").to_crs(nodes1d.crs)
+    outlet = outlet.assign(node_id=999)[["node_id", "geometry"]]
+    nodes = pd.concat([nodes1d, outlet], ignore_index=True)
+
+    # test nodes method with points
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=nodes,
+        connection_method="nodes",
+        id_column="node_id",
+        mapname="1dmodel",
+        update_toml=False,
+        max_dist=5000,
+    )
+
+    assert "gauges_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_1dmodel" in example_wflow_model.geoms.data
+    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms.data
+
+    assert len(example_wflow_model.geoms.get("gauges_1dmodel")) == 7
+    assert len(example_wflow_model.geoms.get("subcatchment_1dmodel")) == 7
+    # the node ids are used as gauge and subcatchment ids
+    node_ids = set(nodes["node_id"])
+    gauges = example_wflow_model.geoms.get("gauges_1dmodel")
+    subcatch = example_wflow_model.geoms.get("subcatchment_1dmodel")
+    assert set(gauges["value"]) == node_ids
+    assert set(subcatch["value"]) == node_ids
+
+
+def test_setup_1dmodel_connection_points_errors(
+    example_wflow_model: WflowSbmModel,
+    nodes1d: gpd.GeoDataFrame,
+    rivers1d: gpd.GeoDataFrame,
+):
+    """Check the errors for invalid Point geometries or ids in the nodes method."""
+    # (river1d, connection_method, error message)
+    cases = [
+        (nodes1d, "subbasin_area", "require connection_method 'nodes'"),
+        (pd.concat([nodes1d, rivers1d]), "nodes", "cannot be mixed with lines"),
+        (nodes1d.assign(node_id=1), "nodes", "must be unique"),
+        (
+            nodes1d.iloc[[0, 0]].assign(node_id=[1, 2]),
+            "nodes",
+            "snapped to the same wflow river cell",
+        ),
+    ]
+    for river1d, connection_method, message in cases:
+        with pytest.raises(ValueError, match=message):
+            example_wflow_model.setup_1dmodel_connection(
+                river1d_fn=river1d,
+                connection_method=connection_method,
+                id_column="node_id",
+                mapname="1dmodel",
+            )
+
+
 def test_skip_nodata_reservoir(clipped_wflow_model: WflowSbmModel):
     # Using the clipped_wflow_model as the reservoirs are not in this model
     clipped_wflow_model.setup_reservoirs_simple_control(
