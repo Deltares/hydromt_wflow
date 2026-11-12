@@ -270,16 +270,8 @@ def connect_subbasin_area(
     return (flwdir_mask, gdf_tributaries)
 
 
-def connect_nodes(
-    ds_model: xr.Dataset,
-    gdf_riv: gpd.GeoDataFrame,
-    flwdir: xr.DataArray,
-    flwdir_mask: xr.DataArray,
-    **kwargs,
-) -> xr.DataArray:
-    """Derive wflow subbasins for each 1d river node."""
-    # Get the nodes from gdf_riv
-    logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
+def derive_river_nodes(gdf_riv: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Derive the nodes (start and end points) of the 1d river lines."""
     # from multiline to line
     gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
     nodes = []
@@ -292,14 +284,76 @@ def connect_nodes(
     # Drop duplicates geometry
     gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
     gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
+    return gdf_nodes
+
+
+def derive_point_nodes(
+    ds_model: xr.Dataset, gdf_points: gpd.GeoDataFrame, id_column: str | None = None
+) -> gpd.GeoDataFrame:
+    """
+    Derive the nodes from the 1d model Point geometries.
+
+    The values of `id_column` are used as node ids (numbered from 1 if None). Points
+    outside the wflow basin are skipped.
+    """
+    # Get the nodes and their ids
+    ids = gdf_points[id_column] if id_column else np.arange(1, len(gdf_points) + 1)
+    gdf_nodes = gdf_points.set_index(ids)
+    if not (
+        pd.api.types.is_integer_dtype(gdf_nodes.index)
+        and gdf_nodes.index.is_unique
+        and gdf_nodes.index.min() >= 1
+    ):
+        raise ValueError("Node ids must be unique positive integers.")
+    # Skip the nodes outside the wflow basin
+    idxs = ds_model.raster.xy_to_idx(
+        xs=gdf_nodes.geometry.x.values,
+        ys=gdf_nodes.geometry.y.values,
+        mask_outside=True,
+    )
+    inside = idxs >= 0
+    inside[inside] = ds_model["basins"].values.flat[idxs[inside]] > 0
+    if not inside.all():
+        logger.warning(
+            f"Skipping {(~inside).sum()} node(s) outside the wflow basin, "
+            f"ids: {gdf_nodes.index[~inside].tolist()}"
+        )
+    if not inside.any():
+        raise ValueError("None of the nodes are within the wflow basin.")
+    return gdf_nodes[inside]
+
+
+def connect_nodes(
+    ds_model: xr.Dataset,
+    gdf_nodes: gpd.GeoDataFrame,
+    flwdir: FlwdirRaster,
+    flwdir_mask: FlwdirRaster,
+    unique_cells: bool = False,
+    **kwargs,
+) -> tuple[xr.DataArray, gpd.GeoDataFrame]:
+    """
+    Derive wflow subbasins for the nodes (indexed by their id).
+
+    The nodes are snapped to the wflow river. Nested nodes only get their own
+    incremental area. If `unique_cells` is True, nodes snapped to the same wflow river
+    cell raise an error. Returns the subbasin map and the snapped nodes.
+    """
+    logger.info("Deriving subbasins based on nodes snapped to wflow river")
     # Snap the nodes to the wflow river
     _, idxs, ids = flw.gauge_map(
         ds_model,
         xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
+        ids=gdf_nodes.index.values.astype(np.int32),
         stream=ds_model["rivmsk"].values,
         flwdir=flwdir,
         **kwargs,
     )
+    same_cell = pd.Series(idxs).duplicated(keep=False).values
+    if unique_cells and same_cell.any():
+        raise ValueError(
+            f"Nodes with ids {ids[same_cell].tolist()} are snapped to the same "
+            "wflow river cell. Check the location of the nodes."
+        )
     # Derive subbasins
     da_subbasins, _ = flw.basin_map(
         ds_model,
@@ -309,81 +363,7 @@ def connect_nodes(
         stream=ds_model["rivmsk"].values,
     )
     da_subbasins.raster.set_crs(ds_model.raster.crs)
-    return da_subbasins
-
-
-def connect_points(
-    ds_model: xr.Dataset,
-    gdf_points: gpd.GeoDataFrame,
-    flwdir: FlwdirRaster,
-    id_column: str | None = None,
-    **kwargs,
-) -> tuple[xr.DataArray, gpd.GeoDataFrame]:
-    """
-    Derive wflow subbasins for user-provided connection points.
-
-    The points are snapped to the closest downstream wflow river cell. Each point gets
-    the area draining to it that is not already drained by an upstream point (eg a
-    reservoir located upstream of another connection point). The values of
-    `id_column` are used as subbasin and gauge IDs so they can be mapped directly to
-    the 1D model node IDs. If `id_column` is None, the points are numbered from 1.
-    Points that are not located within the wflow basin are skipped with a warning.
-
-    Returns the subbasin map and the snapped points indexed by their ID.
-    """
-    logger.info("Deriving subbasins based on connection points snapped to wflow river")
-    gdf_points = gdf_points.reset_index(drop=True)
-    if id_column is None:
-        ids = pd.Series(np.arange(1, len(gdf_points) + 1), index=gdf_points.index)
-    elif id_column not in gdf_points.columns:
-        raise ValueError(f"id_column '{id_column}' not found in the connection points.")
-    else:
-        ids = gdf_points[id_column]
-    if not pd.api.types.is_integer_dtype(ids):
-        raise ValueError(f"Values in id_column '{id_column}' must be integers.")
-    if (ids <= 0).any() or (ids > np.iinfo(np.int32).max).any():
-        raise ValueError("Connection point IDs must be between 1 and 2147483647.")
-    if ids.duplicated().any():
-        dup = sorted(ids[ids.duplicated()].unique().tolist())
-        raise ValueError(
-            f"Connection point IDs must be unique, found duplicates: {dup}"
-        )
-
-    # Only keep the points inside the wflow basin
-    xs, ys = gdf_points.geometry.x.values, gdf_points.geometry.y.values
-    idxs = ds_model.raster.xy_to_idx(xs=xs, ys=ys, mask_outside=True)
-    inside = idxs >= 0
-    inside[inside] = ds_model["basins"].values.flat[idxs[inside]] > 0
-    if not inside.all():
-        logger.warning(
-            f"{(~inside).sum()} connection point(s) are not within the wflow basin "
-            f"and are skipped, IDs: {ids[~inside].tolist()}"
-        )
-    if not inside.any():
-        raise ValueError("None of the connection points are within the wflow basin.")
-    ids = ids[inside].values.astype(np.int32)
-    xs, ys = xs[inside], ys[inside]
-
-    # Snap the points to the wflow river
-    _, idxs, ids = flw.gauge_map(
-        ds_model,
-        xy=(xs, ys),
-        ids=ids,
-        stream=ds_model["rivmsk"].values,
-        flwdir=flwdir,
-        **kwargs,
-    )
-    snapped_dup = pd.Series(idxs).duplicated(keep=False).values
-    if snapped_dup.any():
-        raise ValueError(
-            "Connection points with IDs "
-            f"{sorted(ids[snapped_dup].tolist())} are snapped to the same wflow river "
-            "cell. Check the location of the points or increase the model resolution."
-        )
-
-    # Derive subbasins, nested points only get their own incremental area
-    da_subbasins, _ = flw.basin_map(ds_model, flwdir=flwdir, idxs=idxs, ids=ids)
-    da_subbasins.raster.set_crs(ds_model.raster.crs)
+    # Snapped nodes
     gdf_snapped = gpd.GeoDataFrame(
         index=ids,
         geometry=gpd.points_from_xy(*ds_model.raster.idx_to_xy(idxs)),
@@ -649,11 +629,13 @@ def wflow_1dmodel_connection(
         gdf_riv = gdf_riv.clip(basin_mask.raster.vectorize())
 
     if is_points:
-        da_subbasins, gdf_tributaries = connect_points(
+        gdf_nodes = derive_point_nodes(ds_model, gdf_riv, id_column)
+        da_subbasins, gdf_tributaries = connect_nodes(
             ds_model=ds_model,
-            gdf_points=gdf_riv,
+            gdf_nodes=gdf_nodes,
             flwdir=flwdir,
-            id_column=id_column,
+            flwdir_mask=flwdir,
+            unique_cells=True,
             **kwargs,
         )
     elif connection_method == "subbasin_area" or add_tributaries == True:
@@ -682,9 +664,9 @@ def wflow_1dmodel_connection(
             flwdir_mask=flwdir_mask, area_max=area_max, ds_model=ds_model
         )
     elif connection_method == "nodes" and not is_points:
-        da_subbasins = connect_nodes(
+        da_subbasins, _ = connect_nodes(
             ds_model=ds_model,
-            gdf_riv=gdf_riv,
+            gdf_nodes=derive_river_nodes(gdf_riv),
             flwdir=flwdir,
             flwdir_mask=flwdir_mask,
             **kwargs,
