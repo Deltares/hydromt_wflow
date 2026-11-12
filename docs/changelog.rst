@@ -13,6 +13,7 @@ Added
 -----
 - **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
 - **setup_map_sum**: method to prepare a map by summing layers in staticmaps.
+- **setup_1dmodel_connection**: the ``nodes`` connection method now also accepts Point geometries (eg the nodes of a Ribasim model) instead of river lines. The ``id_column`` option uses the 1D model node IDs as subcatchment and gauge IDs, the subbasins may cover the entire wflow model and a discharge gauge is added at every point.
 
 Fixed
 -----
