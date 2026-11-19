@@ -13,7 +13,7 @@ Added
 -----
 - **setup_agroforestry**: possibility to convert only selected landuse classes to agroforestry within polygons.
 - **setup_ponding_from_map** and **setup_ponding_from_thresholds**: methods to prepare ponding level based on a raster/vector
-  location map or based on landuse/hydrography thresholds. PR #22
+  location map or based on landuse/hydrography thresholds. PR #846
 - **setup_map_sum**: method to prepare a map by summing layers in staticmaps.
 
 Fixed

@@ -1432,12 +1432,14 @@ def test_setup_ponding_from_map(
 
     assert (
         example_wflow_model.config.get_value(
-            "input.static.land_surface_water_flow_threshold__depth"
+            "input.static.land_surface_depression__max_depth"
         )
         == "ponding_level_local_inertial"
     )
     assert (
-        example_wflow_model.config.get_value("model.reinfiltration_surfacewater__flag")
+        example_wflow_model.config.get_value(
+            "model.land_surface_water_reinfiltration__flag"
+        )
         == True
     )
 
@@ -1484,12 +1486,14 @@ def test_setup_ponding_from_thresholds(example_wflow_model: WflowSbmModel):
 
     assert (
         example_wflow_model.config.get_value(
-            "input.static.land_surface_water_flow_threshold__depth"
+            "input.static.land_surface_depression__max_depth"
         )
         == "ponding_level_flat_wetlands"
     )
     assert (
-        example_wflow_model.config.get_value("model.reinfiltration_surfacewater__flag")
+        example_wflow_model.config.get_value(
+            "model.land_surface_water_reinfiltration__flag"
+        )
         == True
     )
 

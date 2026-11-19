@@ -128,7 +128,7 @@ _V0_TO_V1_INPUT_SBM: dict[str, str | None] = {
     "lateral.land.elevation": "land_surface_water_flow__ground_elevation",
     "vertical.altitude": "land_surface__elevation",
     "lateral.land.slope": "land_surface__slope",
-    "lateral.land.h_thresh": "land_surface_water_flow_threshold__depth",
+    "lateral.land.h_thresh": "land_surface_depression__max_depth",
     # river
     "lateral.river.floodplain.volume": "floodplain_water__sum_of_volume_per_depth",
     "lateral.river.floodplain.n": "floodplain_water_flow__manning_n_parameter",
@@ -403,7 +403,7 @@ _V0_TO_V1_MODEL_OPTIONS_SBM: dict[str, str | list[str] | None] = {
     ],
     "h_thresh": [
         "river_water_flow_threshold__depth",
-        "land_surface_water_flow_threshold__depth",
+        "land_surface_depression__max_depth",
     ],
     "froude_limit": [
         "river_water_flow__froude_limit_flag",

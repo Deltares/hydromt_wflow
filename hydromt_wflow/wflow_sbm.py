@@ -1760,7 +1760,7 @@ setting new flood_depth dimensions"
             Name of the output ponding level map, by default "ponding_level".
         """
         logger.info("Preparing ponding map based on provided pond location map.")
-        wflow_var = "land_surface_water_flow_threshold__depth"
+        wflow_var = "land_surface_depression__max_depth"
 
         # Read ponding location data
         pond_data = self._get_raster_or_vector_data(
@@ -1804,7 +1804,7 @@ setting new flood_depth dimensions"
         self.staticmaps.set(ponding_level.rename(output_name))
 
         # Update config
-        self.config.set("model.reinfiltration_surfacewater__flag", True)
+        self.config.set("model.land_surface_water_reinfiltration__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
@@ -1877,7 +1877,7 @@ setting new flood_depth dimensions"
             Name of the output ponding level map, by default "ponding_level".
         """
         logger.info("Preparing ponding map based on suitability thresholds.")
-        wflow_var = "land_surface_water_flow_threshold__depth"
+        wflow_var = "land_surface_depression__max_depth"
 
         # Read hydrography data if needed
         if any([elevtn_range, slope_range, hand_range]):
@@ -1938,7 +1938,7 @@ setting new flood_depth dimensions"
         self.staticmaps.set(ponding_level.rename(output_name))
 
         # Update config
-        self.config.set("model.reinfiltration_surfacewater__flag", True)
+        self.config.set("model.land_surface_water_reinfiltration__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
