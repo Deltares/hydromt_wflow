@@ -428,7 +428,10 @@ def reservoir_id_maps(
 
 def _validate_reservoir_timeseries_fn(timeseries_fn: str | None) -> None:
     if timeseries_fn == "gww":
-        raise ValueError("Global Water Watch (gww) has shut down; use Global Surface Water JRC, 'jrc', instead.")
+        raise ValueError(
+            "Global Water Watch (gww) has shut down; "
+            "use Global Surface Water JRC, 'jrc', instead."
+        )
 
 
 def reservoir_simple_control_parameters(
