@@ -687,6 +687,13 @@ please use 'jrc' or None."
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
 
+        if not df_ts.empty:
+            logger.warning(
+                f"JRC time series from hydroengine end in {df_ts.index.max().year}; "
+                "the most recent Global Surface Water years (2022-2024) are not "
+                "included."
+            )
+
     if timeseries_fn == "gww":
         # get bounds from gdf input as JSON object that can be used in
         # post request with the gww api
