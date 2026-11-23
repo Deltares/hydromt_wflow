@@ -426,6 +426,11 @@ def reservoir_id_maps(
     return ds_out, gdf
 
 
+def _validate_reservoir_timeseries_fn(timeseries_fn: str | None) -> None:
+    if timeseries_fn == "gww":
+        raise ValueError("Global Water Watch (gww) has shut down; use Global Surface Water JRC, 'jrc', instead.")
+
+
 def reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
     ds_reservoirs: xr.Dataset,
@@ -438,6 +443,8 @@ def reservoir_simple_control_parameters(
 earth observation data.
     Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
 using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+    Note: Global Water Watch via gwwapi is currently shut down; selecting ``gww``
+    raises a ValueError directing users to ``jrc``.
 
     The following reservoir attributes are calculated:
 
@@ -465,8 +472,10 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     timeseries_fn : str, optional
         Name of database from which time series of reservoir surface water area
         will be retrieved.
-        Currently available: ['jrc', 'gww']
-        Defaults to Deltares' Global Water Watch database.
+        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global
+        Water Watch via gwwapi and currently raises a ValueError because the service has
+        shut down.
+        Defaults to None, using the reservoir data source directly.
     output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
@@ -478,6 +487,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     gdf_out : geopandas.GeoDataFrame
         GeoDataFrame containing reservoir parameters.
     """
+    _validate_reservoir_timeseries_fn(timeseries_fn)
     layers = (
         ["waterbody_id"] + RESERVOIR_COMMON_PARAMETERS + RESERVOIR_CONTROL_PARAMETERS
     )
@@ -524,6 +534,8 @@ def compute_reservoir_simple_control_parameters(
 earth observation data.
     Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
 using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+    Note: Global Water Watch via gwwapi is currently shut down; selecting ``gww``
+    raises a ValueError directing users to ``jrc``.
 
     The following reservoir attributes are calculated:
 
@@ -549,8 +561,10 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     timeseries_fn : str, optional
         Name of database from which time series of reservoir surface water area
         will be retrieved.
-        Currently available: ['jrc', 'gww']
-        Defaults to Deltares' Global Water Watch database.
+        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global
+        Water Watch via gwwapi and currently raises a ValueError because the service has
+        shut down.
+        Defaults to None, using the reservoir data source directly.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
     perc_min: int, optional
@@ -564,6 +578,8 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     df_out : pandas.DataFrame
         DataFrame containing reservoir parameters.
     """
+    _validate_reservoir_timeseries_fn(timeseries_fn)
+
     if timeseries_fn == "jrc":
         try:
             import hydroengine as he
@@ -588,7 +604,7 @@ reservoir timeseries."
     elif timeseries_fn is not None:
         raise ValueError(
             f"timeseries_fn argument {timeseries_fn} not understood, \
-please use one of [gww, jrc] or None."
+please use 'jrc' or None."
         )
     else:
         logger.debug(

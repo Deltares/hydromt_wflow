@@ -940,6 +940,8 @@ setting new flood_depth dimensions"
         HydroMT based on time series of reservoir surface water area.
         These time series can be retrieved from either the hydroengine or the gwwapi,
         based on the Hylak_id the reservoir, found in the GrandD database.
+        Note: Global Water Watch via gwwapi is currently shut down; selecting ``gww``
+        raises an error directing users to ``jrc``.
 
         The required variables for computation of the parameters with time series data
         are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database
@@ -992,7 +994,7 @@ setting new flood_depth dimensions"
               'Dis_avg' [m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3],
               'Capacity_min' [m3], 'Dam_height' [m]
 
-        timeseries_fn : {'gww', 'hydroengine', None}, optional
+        timeseries_fn : {'gww', 'jrc', None}, optional
             Download and use time series of reservoir surface water area to calculate
             and overwrite the reservoir volume/areas of the data source. Timeseries are
             either downloaded from Global Water Watch 'gww' (using gwwapi package) or

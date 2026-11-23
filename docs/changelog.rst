@@ -16,6 +16,8 @@ Added
 
 Fixed
 -----
+- **setup_reservoirs_simple_control**: report that Global Water Watch has shut down and
+  direct users to JRC when ``timeseries_fn="gww"`` is selected.
 - **setup_temp_pet_forcing**: use xarray's rename method to rename DataArrays instead of setting the name attribute to prevent errors.
 
 Removed
