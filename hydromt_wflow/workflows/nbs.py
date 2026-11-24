@@ -2,6 +2,7 @@
 
 import logging
 
+import geopandas as gpd
 import numpy as np
 import pyflwdir
 import xarray as xr
@@ -197,6 +198,17 @@ def _hydrography_suitability(
     return suitability_hydro
 
 
+def _apply_nbs_mask(
+    suitability: xr.DataArray,
+    nbs_mask: gpd.GeoDataFrame,
+) -> xr.DataArray:
+    """Apply NBS mask to the suitability map."""
+    if nbs_mask is not None:
+        mask = suitability.raster.geometry_mask(nbs_mask)
+        suitability = suitability.raster.mask(mask)
+    return suitability
+
+
 def nbs_suitability_from_thresholds(
     landuse: xr.DataArray | None = None,
     hydro_data: xr.Dataset | None = None,
@@ -205,6 +217,7 @@ def nbs_suitability_from_thresholds(
     slope_range: tuple[float, float] | None = None,
     hand_range: tuple[float, float] | None = None,
     river_upa: float = 30,
+    nbs_mask: gpd.GeoDataFrame | None = None,
     basin_mask: xr.DataArray | None = None,
 ) -> xr.DataArray:
     """Derive NBS suitability based on threshold criteria.
@@ -228,6 +241,13 @@ def nbs_suitability_from_thresholds(
     river_upa : float, optional
         Minimum upstream area threshold for the river map [km2]. By default 30. Used
         to define drains for hand calculation.
+    nbs_mask : gpd.GeoDataFrame, optional
+        GeoDataFrame defining the area for NBS suitability calculation, by default None
+        to consider the entire region.
+    basin_mask : xr.DataArray, optional
+        Basin mask of the wflow model. Used to compute the coverage of suitable areas
+        within the model when provided.
+
 
     Returns
     -------
@@ -269,6 +289,10 @@ def nbs_suitability_from_thresholds(
         raise ValueError(
             "At least one of landuse or hydro_data with criteria must be provided."
         )
+
+    # Apply NBS mask if provided
+    if nbs_mask is not None:
+        suitability = _apply_nbs_mask(suitability, nbs_mask)
 
     suitability.name = "nbs_suitability"
     suitability.attrs = {

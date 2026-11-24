@@ -278,6 +278,13 @@ def agroforestry_testdata() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
+def pond_mask_testdata() -> gpd.GeoDataFrame:
+    bbox1 = [11.841, 45.807, 12.209, 45.975]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1)], crs="EPSG:4326")
+    return gdf
+
+
+@pytest.fixture
 def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
     # Also for linux the data is in the normal example folder
     return gpd.read_file(example_data_dir / "rivers.geojson")

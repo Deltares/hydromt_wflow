@@ -1498,6 +1498,29 @@ def test_setup_ponding_from_thresholds(example_wflow_model: WflowSbmModel):
     )
 
 
+def test_setup_ponding_from_thresholds_with_mask(
+    example_wflow_model: WflowSbmModel,
+    pond_mask_testdata: gpd.GeoDataFrame,
+):
+    # landuse only
+    # cropland in downstream region with mask
+    example_wflow_model.setup_ponding_from_thresholds(
+        lulc_fn="vito_2015",
+        mask_fn=pond_mask_testdata,
+        lulc_classes=[40],  # cropland
+        pond_level=0.2,
+        output_name="ponding_level_downstream",
+    )
+
+    assert "ponding_level_downstream" in example_wflow_model.staticmaps.data
+    pond_map = example_wflow_model.staticmaps.data["ponding_level_downstream"]
+    assert pond_map.raster.mask_nodata().max().values <= 0.2
+    assert pond_map.raster.mask_nodata().min().values == 0.0
+
+    num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.0)
+    assert num_pond_cells > 0  # 146
+
+
 def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmp_path: Path):
     # Create states
     example_wflow_model.setup_cold_states()

@@ -1812,6 +1812,7 @@ setting new flood_depth dimensions"
         self,
         lulc_fn: str | Path | xr.DataArray,
         hydrography_fn: str | Path | xr.DataArray | xr.Dataset | None = None,
+        mask_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_classes: list[int] | None = None,
         elevtn_range: tuple[float, float] | None = None,
         slope_range: tuple[float, float] | None = None,
@@ -1853,6 +1854,10 @@ setting new flood_depth dimensions"
             * Required variables: 'elevtn' [m]
             * Optional variables: 'flwdir', 'lndslp' [m/m], 'hand' [m], 'uparea' [km2]
 
+        mask_fn: str | Path | gpd.GeoDataFrame | None = None,
+            GeoDataFrame or name in data catalog / path to (basin) mask. This is used to
+            limit the ponding calculation to the specified (basin) area. If None, the
+            entire region is considered.
         lulc_classes : list[int], optional
             List of landuse classes that are suitable for ponding, by default None (no
             criterion).
@@ -1903,6 +1908,14 @@ setting new flood_depth dimensions"
                 lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
             )
 
+        # Read mask if needed
+        if mask_fn is not None:
+            nbs_mask = self.data_catalog.get_geodataframe(
+                mask_fn, geom=self.region, buffer=1e4
+            )
+        else:
+            nbs_mask = None
+
         # Check for river_upa
         wflow_river_upa = self.staticmaps.data[self._MAPS["rivmsk"]].attrs.get(
             "river_upa", river_upa
@@ -1922,6 +1935,7 @@ setting new flood_depth dimensions"
             slope_range=slope_range,
             hand_range=hand_range,
             river_upa=wflow_river_upa,
+            nbs_mask=nbs_mask,
             basin_mask=self.staticmaps.data[self._MAPS["basins"]],
         )
 
