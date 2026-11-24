@@ -166,10 +166,6 @@ Optional packages include:
 - **wradlib** - provides radar rainfall processing and interpolation tools.
 - **pyet** - adds evapotranspiration computation support.
 
-Use ``timeseries_fn: jrc`` for JRC time series (requires optional ``hydroengine``).
-``timeseries_fn: None`` uses reservoir data directly.
-Note: Global Water Watch (gww) has shut down and is no longer supported.
-
 To install these optional dependencies, you can use the following uv/pip commands:
 
 .. tab-set::
