@@ -202,10 +202,7 @@ def test_setup_reservoirs_no_control(
 
 
 test_reservoirs_simple_control_sources = [
-    pytest.param(
-        "gww",
-        marks=pytest.mark.skip(reason="Global Water Watch has shut down; use 'jrc'."),
-    ),
+    pytest.param("gww"),
     pytest.param(
         "jrc",
         marks=pytest.mark.skipif(

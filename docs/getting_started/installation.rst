@@ -162,15 +162,13 @@ such as additional data sources or hydrological processing functions.
 
 Optional packages include:
 
-- **gwwapi** - provides access to Global Water Watch reservoir datasets
-  (currently shut down).
 - **hydroengine** - enables integration with Google Earth Engine.
 - **wradlib** - provides radar rainfall processing and interpolation tools.
 - **pyet** - adds evapotranspiration computation support.
 
 Use ``timeseries_fn: jrc`` for JRC time series (requires optional ``hydroengine``).
-``timeseries_fn: None`` uses reservoir data directly; ``gww`` raises an error.
-Note: Global Water Watch via ``gwwapi`` is currently shut down.
+``timeseries_fn: None`` uses reservoir data directly.
+Note: Global Water Watch (gww) has shut down and is no longer supported.
 
 To install these optional dependencies, you can use the following uv/pip commands:
 

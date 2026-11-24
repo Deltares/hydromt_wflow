@@ -938,10 +938,10 @@ setting new flood_depth dimensions"
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
-        These time series can be retrieved from either the hydroengine or the gwwapi,
+        These time series can be retrieved from the hydroengine (JRC),
         based on the Hylak_id the reservoir, found in the GrandD database.
-        Note: Global Water Watch via gwwapi is currently shut down; selecting ``gww``
-        raises an error directing users to ``jrc``.
+        Note: Global Water Watch (gww) via gwwapi is shut down; selecting ``gww``
+        logs an error and falls back to ``None`` (reservoir database attributes).
 
         The required variables for computation of the parameters with time series data
         are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database
@@ -997,8 +997,9 @@ setting new flood_depth dimensions"
         timeseries_fn : {'gww', 'jrc', None}, optional
             Download and use time series of reservoir surface water area to calculate
             and overwrite the reservoir volume/areas of the data source. Timeseries are
-            either downloaded from Global Water Watch 'gww' (using gwwapi package) or
-            JRC 'jrc' (using hydroengine package). By default None.
+            downloaded from JRC 'jrc' (using hydroengine package). The legacy
+            Global Water Watch 'gww' option has shut down; selecting it logs an error
+            and falls back to None. By default None.
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
             reservoirs_fn data.
