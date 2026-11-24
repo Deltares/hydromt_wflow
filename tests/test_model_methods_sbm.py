@@ -1409,6 +1409,11 @@ def test_setup_ponding_from_map(
     example_wflow_model: WflowSbmModel,
     agroforestry_testdata: gpd.GeoDataFrame,
 ):
+    # Assume model where reinfiltration is on
+    example_wflow_model.config.set(
+        "model.land_surface_water_reinfiltration__flag", True
+    )
+
     # Using vector data directly
     example_wflow_model.setup_ponding_from_map(
         pond_fn=agroforestry_testdata,
@@ -1436,6 +1441,7 @@ def test_setup_ponding_from_map(
         )
         == "ponding_level_local_inertial"
     )
+    # Flag for reinfiltration should still be True
     assert (
         example_wflow_model.config.get_value(
             "model.land_surface_water_reinfiltration__flag"
@@ -1492,9 +1498,9 @@ def test_setup_ponding_from_thresholds(example_wflow_model: WflowSbmModel):
     )
     assert (
         example_wflow_model.config.get_value(
-            "model.land_surface_water_reinfiltration__flag"
+            "model.land_surface_water_reinfiltration__flag", False
         )
-        == True
+        == False
     )
 
 

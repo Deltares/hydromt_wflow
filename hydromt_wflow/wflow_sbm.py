@@ -1803,14 +1803,23 @@ setting new flood_depth dimensions"
         # Set the grid
         self.staticmaps.set(ponding_level.rename(output_name))
 
+        # Check reinfiltration flag
+        flag = self.config.get_value(
+            "model.land_surface_water_reinfiltration__flag", False
+        )
+        if not flag:
+            logger.warning(
+                "Reinfiltration flag is not set. Effect of ponding will be limited."
+                "When enabling the reinfiltration flag, we suggest first checking "
+                "model results before adding ponding."
+            )
         # Update config
-        self.config.set("model.land_surface_water_reinfiltration__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
     def setup_ponding_from_thresholds(
         self,
-        lulc_fn: str | Path | xr.DataArray,
+        lulc_fn: str | Path | xr.DataArray | None = None,
         hydrography_fn: str | Path | xr.DataArray | xr.Dataset | None = None,
         mask_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_classes: list[int] | None = None,
@@ -1904,6 +1913,11 @@ setting new flood_depth dimensions"
 
         # Read landuse data if needed
         if lulc_classes is not None:
+            if lulc_fn is None:
+                raise ValueError(
+                    "Landuse data is required to apply landuse criteria. "
+                    "Please provide a landuse dataset with the `lulc_fn` argument."
+                )
             landuse = self.data_catalog.get_rasterdataset(
                 lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
             )
@@ -1951,8 +1965,17 @@ setting new flood_depth dimensions"
         # Set the grid
         self.staticmaps.set(ponding_level.rename(output_name))
 
+        # Check reinfiltration flag
+        flag = self.config.get_value(
+            "model.land_surface_water_reinfiltration__flag", False
+        )
+        if not flag:
+            logger.warning(
+                "Reinfiltration flag is not set. Effect of ponding will be limited."
+                "When enabling the reinfiltration flag, we suggest first checking "
+                "model results before adding ponding."
+            )
         # Update config
-        self.config.set("model.land_surface_water_reinfiltration__flag", True)
         self._update_config_variable_name(output_name)
 
     @hydromt_step
