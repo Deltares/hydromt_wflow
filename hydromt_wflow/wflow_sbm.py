@@ -994,11 +994,11 @@ setting new flood_depth dimensions"
               'Dis_avg' [m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3],
               'Capacity_min' [m3], 'Dam_height' [m]
 
-        timeseries_fn : {'gww', 'jrc', None}, optional
+        timeseries_fn : {'jrc', None}, optional
             Download and use time series of reservoir surface water area to calculate
             and overwrite the reservoir volume/areas of the data source. Timeseries are
             downloaded from JRC 'jrc' (using hydroengine package). The legacy
-            Global Water Watch 'gww' option has shut down; selecting it logs an error
+            The legacy Global Water Watch 'gww' option has shut down; selecting it logs an error
             and falls back to None. By default None.
         overwrite_existing : bool, optional
             If False (default), update existing reservoirs in the model with the new
