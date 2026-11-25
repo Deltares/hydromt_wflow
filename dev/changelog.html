@@ -468,6 +468,11 @@
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p><strong>setup_reservoirs_simple_control</strong>: Global Water Watch has shut down; selecting
+<code class="docutils literal notranslate"><span class="pre">timeseries_fn=&quot;gww&quot;</span></code> now logs an error and falls back to the reservoir database
+attributes (<code class="docutils literal notranslate"><span class="pre">timeseries_fn=None</span></code>). Use <code class="docutils literal notranslate"><span class="pre">jrc</span></code> for reservoir time series.</p></li>
+<li><p><strong>setup_reservoirs_simple_control</strong>: log a warning that JRC time series retrieved via
+hydroengine do not include the most recent years (2022-2024) of the dataset.</p></li>
 <li><p><strong>setup_temp_pet_forcing</strong>: use xarray’s rename method to rename DataArrays instead of setting the name attribute to prevent errors.</p></li>
 </ul>
 </section>

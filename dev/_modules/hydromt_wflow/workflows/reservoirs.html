@@ -426,14 +426,12 @@
   <h1>Source code for hydromt_wflow.workflows.reservoirs</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Reservoir workflows for Wflow plugin."""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
@@ -855,6 +853,18 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_reservoir_timeseries_fn</span><span class="p">(</span><span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fall back to the reservoir database if the retired 'gww' source is selected."""</span>
+    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">"gww"</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">"Global Water Watch (gww) has shut down and is no longer supported; "</span>
+            <span class="s2">"falling back to the reservoir database attributes (timeseries_fn=None). "</span>
+            <span class="s2">"Use 'jrc' to retrieve reservoir time series from JRC."</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">timeseries_fn</span>
+
+
 <div class="viewcode-block" id="reservoir_simple_control_parameters">
 <a class="viewcode-back" href="../../../api/advanced/workflows/_generated/hydromt_wflow.workflows.reservoirs.reservoir_simple_control_parameters.html#hydromt_wflow.workflows.reservoirs.reservoir_simple_control_parameters">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">reservoir_simple_control_parameters</span><span class="p">(</span>
@@ -867,8 +877,8 @@
 
 <span class="sd">    When specified, some of the reservoir attributes can be derived from \</span>
 <span class="sd">earth observation data.</span>
-<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \</span>
-<span class="sd">using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
+<span class="sd">    Currently only JRC (Peker, 2016) using hydroengine is supported.</span>
+<span class="sd">    Note: Previously supported Global Water Watch (gww) via gwwapi is shut down</span>
 
 <span class="sd">    The following reservoir attributes are calculated:</span>
 
@@ -896,8 +906,10 @@
 <span class="sd">    timeseries_fn : str, optional</span>
 <span class="sd">        Name of database from which time series of reservoir surface water area</span>
 <span class="sd">        will be retrieved.</span>
-<span class="sd">        Currently available: ['jrc', 'gww']</span>
-<span class="sd">        Defaults to Deltares' Global Water Watch database.</span>
+<span class="sd">        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global</span>
+<span class="sd">        Water Watch via gwwapi, which has shut down: selecting it logs an error and</span>
+<span class="sd">        falls back to ``None``.</span>
+<span class="sd">        Defaults to None, using the reservoir data source directly.</span>
 <span class="sd">    output_folder: Path, optional</span>
 <span class="sd">        Folder to save the reservoir time series data and parameter accuracy as .csv</span>
 <span class="sd">        files. If None, no file will be saved.</span>
@@ -909,6 +921,7 @@
 <span class="sd">    gdf_out : geopandas.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame containing reservoir parameters.</span>
 <span class="sd">    """</span>
+    <span class="n">timeseries_fn</span> <span class="o">=</span> <span class="n">_resolve_reservoir_timeseries_fn</span><span class="p">(</span><span class="n">timeseries_fn</span><span class="p">)</span>
     <span class="n">layers</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">[</span><span class="s2">"waterbody_id"</span><span class="p">]</span> <span class="o">+</span> <span class="n">RESERVOIR_COMMON_PARAMETERS</span> <span class="o">+</span> <span class="n">RESERVOIR_CONTROL_PARAMETERS</span>
     <span class="p">)</span>
@@ -954,8 +967,8 @@
 
 <span class="sd">    When specified, some of the reservoir attributes can be derived from \</span>
 <span class="sd">earth observation data.</span>
-<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \</span>
-<span class="sd">using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
+<span class="sd">    Currently only JRC (Peker, 2016) using hydroengine is supported.</span>
+<span class="sd">    Note: Previously supported Global Water Watch (gww) via gwwapi is shut down</span>
 
 <span class="sd">    The following reservoir attributes are calculated:</span>
 
@@ -981,8 +994,10 @@
 <span class="sd">    timeseries_fn : str, optional</span>
 <span class="sd">        Name of database from which time series of reservoir surface water area</span>
 <span class="sd">        will be retrieved.</span>
-<span class="sd">        Currently available: ['jrc', 'gww']</span>
-<span class="sd">        Defaults to Deltares' Global Water Watch database.</span>
+<span class="sd">        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global</span>
+<span class="sd">        Water Watch via gwwapi, which has shut down: selecting it logs an error and</span>
+<span class="sd">        falls back to ``None``.</span>
+<span class="sd">        Defaults to None, using the reservoir data source directly.</span>
 <span class="sd">    perc_norm : int, optional</span>
 <span class="sd">        Percentile for normal (operational) surface area</span>
 <span class="sd">    perc_min: int, optional</span>
@@ -996,6 +1011,8 @@
 <span class="sd">    df_out : pandas.DataFrame</span>
 <span class="sd">        DataFrame containing reservoir parameters.</span>
 <span class="sd">    """</span>
+    <span class="n">timeseries_fn</span> <span class="o">=</span> <span class="n">_resolve_reservoir_timeseries_fn</span><span class="p">(</span><span class="n">timeseries_fn</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">"jrc"</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">hydroengine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">he</span>
@@ -1007,20 +1024,10 @@
 <span class="s2">reservoir timeseries."</span>
             <span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">"gww"</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">gwwapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span> <span class="k">as</span> <span class="n">cli</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">gwwapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Using reservoir timeseries from GWW via gwwapi."</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">"gwwapi package not found, cannot download gww reservoir timeseries."</span>
-            <span class="p">)</span>
     <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"timeseries_fn argument </span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2"> not understood, </span><span class="se">\</span>
-<span class="s2">please use one of [gww, jrc] or None."</span>
+<span class="s2">please use 'jrc' or None."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -1100,49 +1107,12 @@
                     <span class="sa">f</span><span class="s2">"No HydroEngine time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!"</span>
                 <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">"gww"</span><span class="p">:</span>
-        <span class="c1"># get bounds from gdf input as JSON object that can be used in</span>
-        <span class="c1"># post request with the gww api</span>
-        <span class="n">gdf_bounds</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-            <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">ccw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">__geo_interface__</span>
-        <span class="p">)</span>
-        <span class="c1"># get reservoirs within these bounds</span>
-        <span class="n">gww_reservoirs</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">get_reservoirs_by_geom</span><span class="p">(</span><span class="n">gdf_bounds</span><span class="p">)</span>
-        <span class="c1"># from the response, create a dictionary, linking the gww_id to the hylak_id</span>
-        <span class="c1"># (used in the default reservoir database)</span>
-        <span class="n">idlink</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">k</span><span class="p">[</span><span class="s2">"properties"</span><span class="p">][</span><span class="s2">"source_id"</span><span class="p">]:</span> <span class="n">k</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gww_reservoirs</span><span class="p">[</span><span class="s2">"features"</span><span class="p">]</span>
-        <span class="p">}</span>
-
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"waterbody_id"</span><span class="p">])):</span>
-            <span class="n">ids</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"waterbody_id"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Downloading Global Water Watch time series for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">"</span>
-                <span class="p">)</span>
-                <span class="n">time_series</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">get_reservoir_ts_monthly</span><span class="p">(</span>
-                    <span class="n">idlink</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"Hylak_id"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
-                <span class="p">)</span>
-
-                <span class="c1"># Append series to df_ts which will contain all time series</span>
-                <span class="c1"># of all downloaded reservoirs, with an outer join on the datetime index</span>
-                <span class="n">ts_series</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">(</span>
-                    <span class="n">time_series</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s1">'Hylak_id'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-                <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">ts_series</span><span class="p">],</span> <span class="n">join</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-                <span class="c1"># Compute stats</span>
-                <span class="n">area_series</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">(</span><span class="n">time_series</span><span class="p">)[</span><span class="s2">"area"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-                <span class="n">area_series_nozeros</span> <span class="o">=</span> <span class="n">area_series</span><span class="p">[</span><span class="n">area_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">"maxarea"</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">"normarea"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
-                    <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
-                <span class="p">)</span>
-                <span class="n">df_eo</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">"minarea"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
-                    <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No GWW time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"JRC time series from hydroengine end in </span><span class="si">{</span><span class="n">df_ts</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="s2">"the most recent Global Surface Water years (2022-2024) are not "</span>
+                <span class="s2">"included as hydroengine's API doesn't support this."</span>
+            <span class="p">)</span>
 
     <span class="c1"># Sort timeseries dataframe (will be saved to root as .csv later)</span>
     <span class="n">df_ts</span> <span class="o">=</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>

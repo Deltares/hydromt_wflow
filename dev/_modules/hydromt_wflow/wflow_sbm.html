@@ -1383,8 +1383,10 @@
 
 <span class="sd">        In case the wflow parameters are not directly available they can be computed by</span>
 <span class="sd">        HydroMT based on time series of reservoir surface water area.</span>
-<span class="sd">        These time series can be retrieved from either the hydroengine or the gwwapi,</span>
+<span class="sd">        These time series can be retrieved from the hydroengine (JRC),</span>
 <span class="sd">        based on the Hylak_id the reservoir, found in the GrandD database.</span>
+<span class="sd">        Note: Global Water Watch (gww) via gwwapi is shut down; selecting ``gww``</span>
+<span class="sd">        logs an error and falls back to ``None`` (reservoir database attributes).</span>
 
 <span class="sd">        The required variables for computation of the parameters with time series data</span>
 <span class="sd">        are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database</span>
@@ -1437,11 +1439,12 @@
 <span class="sd">              'Dis_avg' [m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3],</span>
 <span class="sd">              'Capacity_min' [m3], 'Dam_height' [m]</span>
 
-<span class="sd">        timeseries_fn : {'gww', 'hydroengine', None}, optional</span>
+<span class="sd">        timeseries_fn : {'jrc', None}, optional</span>
 <span class="sd">            Download and use time series of reservoir surface water area to calculate</span>
 <span class="sd">            and overwrite the reservoir volume/areas of the data source. Timeseries are</span>
-<span class="sd">            either downloaded from Global Water Watch 'gww' (using gwwapi package) or</span>
-<span class="sd">            JRC 'jrc' (using hydroengine package). By default None.</span>
+<span class="sd">            downloaded from JRC 'jrc' (using hydroengine package). The legacy</span>
+<span class="sd">            The legacy Global Water Watch 'gww' option has shut down; selecting it logs an error</span>
+<span class="sd">            and falls back to None. By default None.</span>
 <span class="sd">        overwrite_existing : bool, optional</span>
 <span class="sd">            If False (default), update existing reservoirs in the model with the new</span>
 <span class="sd">            reservoirs_fn data.</span>
