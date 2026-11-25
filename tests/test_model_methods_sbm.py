@@ -21,13 +21,6 @@ from hydromt_wflow.wflow_sbm import WflowSbmModel
 pytestmark = pytest.mark.integration  # all tests in this module are integration tests
 
 try:
-    import gwwapi  # noqa: F401
-
-    HAS_GWW_API = True
-except ImportError:
-    HAS_GWW_API = False
-
-try:
     import hydroengine  # noqa: F401
 
     HAS_HYDROENGINE = True
@@ -209,10 +202,7 @@ def test_setup_reservoirs_no_control(
 
 
 test_reservoirs_simple_control_sources = [
-    pytest.param(
-        "gww",
-        marks=pytest.mark.skipif(not HAS_GWW_API, reason="gwwapi not installed"),
-    ),
+    pytest.param("gww"),
     pytest.param(
         "jrc",
         marks=pytest.mark.skipif(

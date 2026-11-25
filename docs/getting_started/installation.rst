@@ -162,7 +162,6 @@ such as additional data sources or hydrological processing functions.
 
 Optional packages include:
 
-- **gwwapi** - provides access to Global Water Watch reservoir datasets.
 - **hydroengine** - enables integration with Google Earth Engine.
 - **wradlib** - provides radar rainfall processing and interpolation tools.
 - **pyet** - adds evapotranspiration computation support.

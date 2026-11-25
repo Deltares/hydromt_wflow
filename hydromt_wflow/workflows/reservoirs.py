@@ -1,13 +1,11 @@
 """Reservoir workflows for Wflow plugin."""
 
-import json
 import logging
 from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import shapely
 import xarray as xr
 
 from hydromt_wflow import utils
@@ -426,6 +424,18 @@ def reservoir_id_maps(
     return ds_out, gdf
 
 
+def _resolve_reservoir_timeseries_fn(timeseries_fn: str | None) -> str | None:
+    """Fall back to the reservoir database if the retired 'gww' source is selected."""
+    if timeseries_fn == "gww":
+        logger.error(
+            "Global Water Watch (gww) has shut down and is no longer supported; "
+            "falling back to the reservoir database attributes (timeseries_fn=None). "
+            "Use 'jrc' to retrieve reservoir time series from JRC."
+        )
+        return None
+    return timeseries_fn
+
+
 def reservoir_simple_control_parameters(
     gdf: gpd.GeoDataFrame,
     ds_reservoirs: xr.Dataset,
@@ -436,8 +446,8 @@ def reservoir_simple_control_parameters(
 
     When specified, some of the reservoir attributes can be derived from \
 earth observation data.
-    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
-using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+    Currently only JRC (Peker, 2016) using hydroengine is supported.
+    Note: Previously supported Global Water Watch (gww) via gwwapi is shut down
 
     The following reservoir attributes are calculated:
 
@@ -465,8 +475,10 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     timeseries_fn : str, optional
         Name of database from which time series of reservoir surface water area
         will be retrieved.
-        Currently available: ['jrc', 'gww']
-        Defaults to Deltares' Global Water Watch database.
+        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global
+        Water Watch via gwwapi, which has shut down: selecting it logs an error and
+        falls back to ``None``.
+        Defaults to None, using the reservoir data source directly.
     output_folder: Path, optional
         Folder to save the reservoir time series data and parameter accuracy as .csv
         files. If None, no file will be saved.
@@ -478,6 +490,7 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     gdf_out : geopandas.GeoDataFrame
         GeoDataFrame containing reservoir parameters.
     """
+    timeseries_fn = _resolve_reservoir_timeseries_fn(timeseries_fn)
     layers = (
         ["waterbody_id"] + RESERVOIR_COMMON_PARAMETERS + RESERVOIR_CONTROL_PARAMETERS
     )
@@ -522,8 +535,8 @@ def compute_reservoir_simple_control_parameters(
 
     When specified, some of the reservoir attributes can be derived from \
 earth observation data.
-    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
-using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+    Currently only JRC (Peker, 2016) using hydroengine is supported.
+    Note: Previously supported Global Water Watch (gww) via gwwapi is shut down
 
     The following reservoir attributes are calculated:
 
@@ -549,8 +562,10 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     timeseries_fn : str, optional
         Name of database from which time series of reservoir surface water area
         will be retrieved.
-        Currently available: ['jrc', 'gww']
-        Defaults to Deltares' Global Water Watch database.
+        Use ``jrc`` for JRC via hydroengine. The legacy ``gww`` value refers to Global
+        Water Watch via gwwapi, which has shut down: selecting it logs an error and
+        falls back to ``None``.
+        Defaults to None, using the reservoir data source directly.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
     perc_min: int, optional
@@ -564,6 +579,8 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
     df_out : pandas.DataFrame
         DataFrame containing reservoir parameters.
     """
+    timeseries_fn = _resolve_reservoir_timeseries_fn(timeseries_fn)
+
     if timeseries_fn == "jrc":
         try:
             import hydroengine as he
@@ -575,20 +592,10 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 reservoir timeseries."
             )
 
-    elif timeseries_fn == "gww":
-        try:
-            from gwwapi import client as cli
-            from gwwapi import utils
-
-            logger.info("Using reservoir timeseries from GWW via gwwapi.")
-        except Exception:
-            raise ImportError(
-                "gwwapi package not found, cannot download gww reservoir timeseries."
-            )
     elif timeseries_fn is not None:
         raise ValueError(
             f"timeseries_fn argument {timeseries_fn} not understood, \
-please use one of [gww, jrc] or None."
+please use 'jrc' or None."
         )
     else:
         logger.debug(
@@ -668,49 +675,12 @@ please use one of [gww, jrc] or None."
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
 
-    if timeseries_fn == "gww":
-        # get bounds from gdf input as JSON object that can be used in
-        # post request with the gww api
-        gdf_bounds = json.dumps(
-            shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__
-        )
-        # get reservoirs within these bounds
-        gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
-        # from the response, create a dictionary, linking the gww_id to the hylak_id
-        # (used in the default reservoir database)
-        idlink = {
-            k["properties"]["source_id"]: k["id"] for k in gww_reservoirs["features"]
-        }
-
-        for i in range(len(gdf["waterbody_id"])):
-            ids = str(gdf["waterbody_id"].iloc[i])
-            try:
-                logger.debug(
-                    f"Downloading Global Water Watch time series for reservoir {ids}"
-                )
-                time_series = cli.get_reservoir_ts_monthly(
-                    idlink[int(gdf["Hylak_id"].iloc[i])]
-                )
-
-                # Append series to df_ts which will contain all time series
-                # of all downloaded reservoirs, with an outer join on the datetime index
-                ts_series = utils.to_timeseries(
-                    time_series, name=f"{int(gdf['Hylak_id'].iloc[i])}"
-                ).drop_duplicates()
-                df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
-
-                # Compute stats
-                area_series = utils.to_timeseries(time_series)["area"].to_numpy()
-                area_series_nozeros = area_series[area_series > 0]
-                df_eo.loc[i, "maxarea"] = area_series_nozeros.max()
-                df_eo.loc[i, "normarea"] = np.percentile(
-                    area_series_nozeros, perc_norm, axis=0
-                )
-                df_eo.loc[i, "minarea"] = np.percentile(
-                    area_series_nozeros, perc_min, axis=0
-                )
-            except Exception:
-                logger.warning(f"No GWW time series available for reservoir {ids}!")
+        if not df_ts.empty:
+            logger.warning(
+                f"JRC time series from hydroengine end in {df_ts.index.max().year}; "
+                "the most recent Global Surface Water years (2022-2024) are not "
+                "included as hydroengine's API doesn't support this."
+            )
 
     # Sort timeseries dataframe (will be saved to root as .csv later)
     df_ts = df_ts.sort_index()
