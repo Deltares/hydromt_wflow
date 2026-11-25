@@ -679,7 +679,7 @@ please use 'jrc' or None."
             logger.warning(
                 f"JRC time series from hydroengine end in {df_ts.index.max().year}; "
                 "the most recent Global Surface Water years (2022-2024) are not "
-                "included."
+                "included as hydroengine's API doesn't support this."
             )
 
     # Sort timeseries dataframe (will be saved to root as .csv later)
