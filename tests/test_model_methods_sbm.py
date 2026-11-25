@@ -1395,88 +1395,126 @@ def test_setup_agroforestry_exceptions(
         )
 
 
-# def test_setup_ponding_from_map(
-#     example_wflow_model: WflowSbmModel,
-#     agroforestry_testdata: gpd.GeoDataFrame,
-# ):
-#     # Using vector data directly
-#     example_wflow_model.setup_ponding_from_map(
-#         pond_fn=agroforestry_testdata,
-#         pond_level=0.2,
-#         output_name="ponding_level_local_inertial",
-#     )
+def test_setup_ponding_from_map(
+    example_wflow_model: WflowSbmModel,
+    agroforestry_testdata: gpd.GeoDataFrame,
+):
+    # Assume model where reinfiltration is on
+    example_wflow_model.config.set(
+        "model.land_surface_water_reinfiltration__flag", True
+    )
 
-#     assert "ponding_level_local_inertial" in example_wflow_model.staticmaps.data
-#     pond_map = example_wflow_model.staticmaps.data["ponding_level_local_inertial"]
-#     assert pond_map.raster.mask_nodata().max().values == 0.2
-#     assert pond_map.raster.mask_nodata().min().values == 0.000
+    # Using vector data directly
+    example_wflow_model.setup_ponding_from_map(
+        pond_fn=agroforestry_testdata,
+        pond_level=0.2,
+        output_name="ponding_level_local_inertial",
+    )
 
-#     # check number of cells with ponding level > min_pond_level
-#     num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.000)
-#     assert num_pond_cells > 0  # 15
+    assert "ponding_level_local_inertial" in example_wflow_model.staticmaps.data
+    pond_map = example_wflow_model.staticmaps.data["ponding_level_local_inertial"]
+    assert pond_map.raster.mask_nodata().max().item() == 0.2
+    assert pond_map.raster.mask_nodata().min().item() == 0.000
 
-#     assert (
-#         example_wflow_model.config.get_value(
-#             "input.static.land_surface_water_flow_threshold__depth"
-#         )
-#         == "ponding_level_local_inertial"
-#     )
-#     assert (
-#         example_wflow_model.config.get_value("model.reinfiltration_surfacewater__flag")
-#         == True
-#     )
+    # Check for high res vector resampling
+    # In this test case, not all cells are fully covered by ponds so values can vary
+    # between 0 and 0.2 (and nan)
+    assert np.unique(pond_map.raster.mask_nodata().values).size > 3
 
-#     # Using raster directly
-#     pop = example_wflow_model.data_catalog.get_rasterdataset("ghs_pop_2015")
-#     pop = pop.where(pop > 0, pop.raster.nodata)
+    # check number of cells with ponding level > min_pond_level
+    num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.000)
+    assert num_pond_cells > 0  # 15
 
-#     example_wflow_model.setup_ponding_from_map(
-#         pond_fn=pop,
-#         pond_level=0.1,
-#         output_name="ponding_level_pop",
-#     )
+    assert (
+        example_wflow_model.config.get_value(
+            "input.static.land_surface_depression__max_depth"
+        )
+        == "ponding_level_local_inertial"
+    )
+    # Flag for reinfiltration should still be True
+    assert (
+        example_wflow_model.config.get_value(
+            "model.land_surface_water_reinfiltration__flag"
+        )
+        == True
+    )
 
-#     assert "ponding_level_pop" in example_wflow_model.staticmaps.data
-#     pond_map = example_wflow_model.staticmaps.data["ponding_level_pop"]
-#     assert pond_map.raster.mask_nodata().max().values == 0.1
-#     assert pond_map.raster.mask_nodata().min().values == 0
+    # Using raster directly
+    pop = example_wflow_model.data_catalog.get_rasterdataset("ghs_pop_2015")
+    pop = pop.where(pop > 0, pop.raster.nodata)
 
-#     num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0)
-#     assert num_pond_cells > 0  # 1012
+    example_wflow_model.setup_ponding_from_map(
+        pond_fn=pop,
+        pond_level=0.1,
+        output_name="ponding_level_pop",
+    )
+
+    assert "ponding_level_pop" in example_wflow_model.staticmaps.data
+    pond_map = example_wflow_model.staticmaps.data["ponding_level_pop"]
+    assert pond_map.raster.mask_nodata().max().values == 0.1
+    assert pond_map.raster.mask_nodata().min().values == 0
+
+    num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0)
+    assert num_pond_cells > 0  # 1012
 
 
-# def test_setup_ponding_from_thresholds(example_wflow_model: WflowSbmModel):
-#     # landuse + hydrography
-#     # cropland in flat wetlands
-#     example_wflow_model.setup_ponding_from_thresholds(
-#         lulc_fn="vito_2015",
-#         hydrography_fn="merit_hydro_ihu",
-#         lulc_classes=[40],  # cropland
-#         elevtn_range=(0, 2000),
-#         slope_range=(0, 0.129),
-#         hand_range=(0, 5.9),
-#         pond_level=0.2,
-#         output_name="ponding_level_flat_wetlands",
-#     )
+def test_setup_ponding_from_thresholds(example_wflow_model: WflowSbmModel):
+    # landuse + hydrography
+    # cropland in flat wetlands
+    example_wflow_model.setup_ponding_from_thresholds(
+        lulc_fn="vito_2015",
+        hydrography_fn="merit_hydro_ihu",
+        lulc_classes=[40],  # cropland
+        elevtn_range=(0, 2000),
+        slope_range=(0, 0.129),
+        hand_range=(0, 5.9),
+        pond_level=0.2,
+        output_name="ponding_level_flat_wetlands",
+    )
 
-#     assert "ponding_level_flat_wetlands" in example_wflow_model.staticmaps.data
-#     pond_map = example_wflow_model.staticmaps.data["ponding_level_flat_wetlands"]
-#     assert pond_map.raster.mask_nodata().max().values <= 0.2
-#     assert pond_map.raster.mask_nodata().min().values == 0.0
+    assert "ponding_level_flat_wetlands" in example_wflow_model.staticmaps.data
+    pond_map = example_wflow_model.staticmaps.data["ponding_level_flat_wetlands"]
+    assert pond_map.raster.mask_nodata().max().values <= 0.2
+    assert pond_map.raster.mask_nodata().min().values == 0.0
 
-#     num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.0)
-#     assert num_pond_cells > 0  # 39
+    num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.0)
+    assert num_pond_cells > 0  # 39
 
-#     assert (
-#         example_wflow_model.config.get_value(
-#             "input.static.land_surface_water_flow_threshold__depth"
-#         )
-#         == "ponding_level_flat_wetlands"
-#     )
-#     assert (
-#         example_wflow_model.config.get_value("model.reinfiltration_surfacewater__flag")
-#         == True
-#     )
+    assert (
+        example_wflow_model.config.get_value(
+            "input.static.land_surface_depression__max_depth"
+        )
+        == "ponding_level_flat_wetlands"
+    )
+    assert (
+        example_wflow_model.config.get_value(
+            "model.land_surface_water_reinfiltration__flag", False
+        )
+        == False
+    )
+
+
+def test_setup_ponding_from_thresholds_with_mask(
+    example_wflow_model: WflowSbmModel,
+    pond_mask_testdata: gpd.GeoDataFrame,
+):
+    # landuse only
+    # cropland in downstream region with mask
+    example_wflow_model.setup_ponding_from_thresholds(
+        lulc_fn="vito_2015",
+        mask_fn=pond_mask_testdata,
+        lulc_classes=[40],  # cropland
+        pond_level=0.2,
+        output_name="ponding_level_downstream",
+    )
+
+    assert "ponding_level_downstream" in example_wflow_model.staticmaps.data
+    pond_map = example_wflow_model.staticmaps.data["ponding_level_downstream"]
+    assert pond_map.raster.mask_nodata().max().values <= 0.2
+    assert pond_map.raster.mask_nodata().min().values == 0.0
+
+    num_pond_cells = np.sum(pond_map.raster.mask_nodata().values > 0.0)
+    assert num_pond_cells > 0  # 146
 
 
 def test_setup_cold_states(example_wflow_model: WflowSbmModel, tmp_path: Path):

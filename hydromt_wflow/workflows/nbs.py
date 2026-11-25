@@ -2,6 +2,7 @@
 
 import logging
 
+import geopandas as gpd
 import numpy as np
 import pyflwdir
 import xarray as xr
@@ -197,6 +198,17 @@ def _hydrography_suitability(
     return suitability_hydro
 
 
+def _apply_nbs_mask(
+    suitability: xr.DataArray,
+    nbs_mask: gpd.GeoDataFrame,
+) -> xr.DataArray:
+    """Apply NBS mask to the suitability map."""
+    if nbs_mask is not None:
+        mask = suitability.raster.geometry_mask(nbs_mask)
+        suitability = suitability.raster.mask(mask)
+    return suitability
+
+
 def nbs_suitability_from_thresholds(
     landuse: xr.DataArray | None = None,
     hydro_data: xr.Dataset | None = None,
@@ -205,6 +217,7 @@ def nbs_suitability_from_thresholds(
     slope_range: tuple[float, float] | None = None,
     hand_range: tuple[float, float] | None = None,
     river_upa: float = 30,
+    nbs_mask: gpd.GeoDataFrame | None = None,
     basin_mask: xr.DataArray | None = None,
 ) -> xr.DataArray:
     """Derive NBS suitability based on threshold criteria.
@@ -228,6 +241,13 @@ def nbs_suitability_from_thresholds(
     river_upa : float, optional
         Minimum upstream area threshold for the river map [km2]. By default 30. Used
         to define drains for hand calculation.
+    nbs_mask : gpd.GeoDataFrame, optional
+        GeoDataFrame defining the area for NBS suitability calculation, by default None
+        to consider the entire region.
+    basin_mask : xr.DataArray, optional
+        Basin mask of the wflow model. Used to compute the coverage of suitable areas
+        within the model when provided.
+
 
     Returns
     -------
@@ -270,6 +290,10 @@ def nbs_suitability_from_thresholds(
             "At least one of landuse or hydro_data with criteria must be provided."
         )
 
+    # Apply NBS mask if provided
+    if nbs_mask is not None:
+        suitability = _apply_nbs_mask(suitability, nbs_mask)
+
     suitability.name = "nbs_suitability"
     suitability.attrs = {
         "long_name": (
@@ -297,6 +321,7 @@ def ponding_level_from_suitability(
     suitability: xr.DataArray,
     ds_like: xr.Dataset,
     pond_level: float = 0.2,
+    pond_fraction: xr.DataArray | None = None,
     basin_mask_name: str = "basins",
 ) -> xr.DataArray:
     """Assign ponding level based on NBS suitability map.
@@ -309,6 +334,12 @@ def ponding_level_from_suitability(
         Wflow staticmaps for reprojection.
     pond_level : float, optional
         Ponding level to assign to suitable areas, by default 0.2
+    pond_fraction : xr.DataArray, optional
+        Fraction of each cell in ds_like covered by ponds. Used to scale the ponding
+        level. By default None to assume the whole cell is covered by ponds.
+    basin_mask_name : str, optional
+        Name of the basin mask in `ds_like` for calculating ponding coverage, by default
+        "basins".
 
     Returns
     -------
@@ -327,6 +358,12 @@ def ponding_level_from_suitability(
 
     # Reproject to match Wflow staticmaps grid
     ponding_level = ponding_level.raster.reproject_like(ds_like, method="average")
+
+    # Scale ponding level by pond fraction if provided
+    if pond_fraction is not None:
+        ponding_level = ponding_level.where(
+            ponding_level == ponding_level.raster.nodata, ponding_level * pond_fraction
+        )
 
     # Ponding coverage
     # calculate extent of the area where changes occur
