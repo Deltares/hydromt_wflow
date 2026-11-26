@@ -301,6 +301,7 @@ def derive_point_nodes(
     gdf_nodes = gdf_points.set_index(ids)
     if not (
         pd.api.types.is_integer_dtype(gdf_nodes.index)
+        and not gdf_nodes.index.hasnans
         and gdf_nodes.index.is_unique
         and gdf_nodes.index.min() >= 1
     ):

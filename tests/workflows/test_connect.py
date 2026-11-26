@@ -94,7 +94,10 @@ def test_derive_point_nodes_outside_basin(ds_model, gdf_points):
         connect.derive_point_nodes(ds_model, outside, id_column="node_id")
 
 
-@pytest.mark.parametrize("node_ids", [[1, 1], [0, 1], [1.5, 2.5]])
+@pytest.mark.parametrize(
+    "node_ids",
+    [[1, 1], [0, 1], [1.5, 2.5], pd.Series([1, pd.NA], dtype="Int64")],
+)
 def test_derive_point_nodes_invalid_ids(ds_model, gdf_points, node_ids):
     """Test that node ids must be unique positive integers."""
     gdf_points["node_id"] = node_ids
@@ -140,7 +143,7 @@ def test_wflow_1dmodel_connection_invalid_geom(ds_model):
     multipoint_gdf = gpd.GeoDataFrame(
         geometry=[MultiPoint([(0.5, 1.5), (3.5, 1.5)])], crs="EPSG:4326"
     )
-    with pytest.raises(ValueError, match="non-line geometries"):
+    with pytest.raises(ValueError, match="require connection_method 'nodes'"):
         connect.wflow_1dmodel_connection(
             multipoint_gdf, ds_model, connection_method="nodes"
         )
