@@ -136,9 +136,7 @@ def test_wflow_1dmodel_connection_invalid_geom(ds_model):
     """Test that empty and non-line/non-point geometries are rejected."""
     empty_gdf = gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
     with pytest.raises(ValueError, match="empty"):
-        connect.wflow_1dmodel_connection(
-            empty_gdf, ds_model, connection_method="nodes"
-        )
+        connect.wflow_1dmodel_connection(empty_gdf, ds_model, connection_method="nodes")
 
     multipoint_gdf = gpd.GeoDataFrame(
         geometry=[MultiPoint([(0.5, 1.5), (3.5, 1.5)])], crs="EPSG:4326"
