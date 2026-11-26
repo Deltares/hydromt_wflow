@@ -563,10 +563,13 @@ def wflow_1dmodel_connection(
     --------
     hydromt.gis.flw.gauge_map
     """
+    if gdf_riv.empty:
+        raise ValueError("Input 'gdf_riv' is empty.")
     # Nodes can be provided directly as points instead of derived from river lines
     is_point = gdf_riv.geom_type == "Point"
+    is_line = gdf_riv.geom_type.isin(["LineString", "MultiLineString"])
     is_points = bool(is_point.all())
-    if is_point.any() and not (is_points and connection_method == "nodes"):
+    if not (is_points and connection_method == "nodes") and not is_line.all():
         raise ValueError(
             "Point geometries cannot be mixed with lines and require "
             "connection_method 'nodes'."

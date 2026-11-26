@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt.gis import flw
-from shapely.geometry import LineString
+from shapely.geometry import LineString, MultiPoint
 
 from hydromt_wflow.workflows import connect
 
@@ -127,3 +127,20 @@ def test_connect_nodes_unique_cells(ds_model, flwdir, gdf_points):
 
     with pytest.raises(ValueError, match="snapped to the same wflow river cell"):
         connect.connect_nodes(ds_model, nodes, flwdir, flwdir, unique_cells=True)
+
+
+def test_wflow_1dmodel_connection_invalid_geom(ds_model):
+    """Test that empty and non-line/non-point geometries are rejected."""
+    empty_gdf = gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
+    with pytest.raises(ValueError, match="empty"):
+        connect.wflow_1dmodel_connection(
+            empty_gdf, ds_model, connection_method="nodes"
+        )
+
+    multipoint_gdf = gpd.GeoDataFrame(
+        geometry=[MultiPoint([(0.5, 1.5), (3.5, 1.5)])], crs="EPSG:4326"
+    )
+    with pytest.raises(ValueError, match="non-line geometries"):
+        connect.wflow_1dmodel_connection(
+            multipoint_gdf, ds_model, connection_method="nodes"
+        )
