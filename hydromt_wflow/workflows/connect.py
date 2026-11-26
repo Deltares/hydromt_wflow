@@ -270,16 +270,8 @@ def connect_subbasin_area(
     return (flwdir_mask, gdf_tributaries)
 
 
-def connect_nodes(
-    ds_model: xr.Dataset,
-    gdf_riv: gpd.GeoDataFrame,
-    flwdir: xr.DataArray,
-    flwdir_mask: xr.DataArray,
-    **kwargs,
-) -> xr.DataArray:
-    """Derive wflow subbasins for each 1d river node."""
-    # Get the nodes from gdf_riv
-    logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
+def derive_river_nodes(gdf_riv: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Derive the nodes (start and end points) of the 1d river lines."""
     # from multiline to line
     gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
     nodes = []
@@ -292,14 +284,77 @@ def connect_nodes(
     # Drop duplicates geometry
     gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
     gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
+    return gdf_nodes
+
+
+def derive_point_nodes(
+    ds_model: xr.Dataset, gdf_points: gpd.GeoDataFrame, id_column: str | None = None
+) -> gpd.GeoDataFrame:
+    """
+    Derive the nodes from the 1d model Point geometries.
+
+    The values of `id_column` are used as node ids (numbered from 1 if None). Points
+    outside the wflow basin are skipped.
+    """
+    # Get the nodes and their ids
+    ids = gdf_points[id_column] if id_column else np.arange(1, len(gdf_points) + 1)
+    gdf_nodes = gdf_points.set_index(ids)
+    if not (
+        pd.api.types.is_integer_dtype(gdf_nodes.index)
+        and not gdf_nodes.index.hasnans
+        and gdf_nodes.index.is_unique
+        and gdf_nodes.index.min() >= 1
+    ):
+        raise ValueError("Node ids must be unique positive integers.")
+    # Skip the nodes outside the wflow basin
+    idxs = ds_model.raster.xy_to_idx(
+        xs=gdf_nodes.geometry.x.values,
+        ys=gdf_nodes.geometry.y.values,
+        mask_outside=True,
+    )
+    inside = idxs >= 0
+    inside[inside] = ds_model["basins"].values.flat[idxs[inside]] > 0
+    if not inside.all():
+        logger.warning(
+            f"Skipping {(~inside).sum()} node(s) outside the wflow basin, "
+            f"ids: {gdf_nodes.index[~inside].tolist()}"
+        )
+    if not inside.any():
+        raise ValueError("None of the nodes are within the wflow basin.")
+    return gdf_nodes[inside]
+
+
+def connect_nodes(
+    ds_model: xr.Dataset,
+    gdf_nodes: gpd.GeoDataFrame,
+    flwdir: FlwdirRaster,
+    flwdir_mask: FlwdirRaster,
+    unique_cells: bool = False,
+    **kwargs,
+) -> tuple[xr.DataArray, gpd.GeoDataFrame]:
+    """
+    Derive wflow subbasins for the nodes (indexed by their id).
+
+    The nodes are snapped to the wflow river. Nested nodes only get their own
+    incremental area. If `unique_cells` is True, nodes snapped to the same wflow river
+    cell raise an error. Returns the subbasin map and the snapped nodes.
+    """
+    logger.info("Deriving subbasins based on nodes snapped to wflow river")
     # Snap the nodes to the wflow river
     _, idxs, ids = flw.gauge_map(
         ds_model,
         xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
+        ids=gdf_nodes.index.values.astype(np.int32),
         stream=ds_model["rivmsk"].values,
         flwdir=flwdir,
         **kwargs,
     )
+    same_cell = pd.Series(idxs).duplicated(keep=False).values
+    if unique_cells and same_cell.any():
+        raise ValueError(
+            f"Nodes with ids {ids[same_cell].tolist()} are snapped to the same "
+            "wflow river cell. Check the location of the nodes."
+        )
     # Derive subbasins
     da_subbasins, _ = flw.basin_map(
         ds_model,
@@ -309,7 +364,13 @@ def connect_nodes(
         stream=ds_model["rivmsk"].values,
     )
     da_subbasins.raster.set_crs(ds_model.raster.crs)
-    return da_subbasins
+    # Snapped nodes
+    gdf_snapped = gpd.GeoDataFrame(
+        index=ids,
+        geometry=gpd.points_from_xy(*ds_model.raster.idx_to_xy(idxs)),
+        crs=ds_model.raster.crs,
+    )
+    return da_subbasins, gdf_snapped
 
 
 def buffer_basin_mask(
@@ -418,6 +479,39 @@ def subbasin_preprocess_river_geometry(
     return gdf_riv
 
 
+def _validate_area_max(
+    ds_model: xr.Dataset, flwdir: FlwdirRaster, area_max: float
+) -> float:
+    """Derive `uparea` if missing and ensure `area_max` exceeds `river_upa`."""
+    if "uparea" not in ds_model:
+        logger.info(
+            "upstream area map not found in 'ds_model' and will be derived on the fly."
+        )
+        uparea = flwdir.upstream_area(unit="km2")
+        ds_model["uparea"] = xr.Variable(ds_model.raster.dims, uparea)
+
+    riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
+    if riv_upa is None:
+        riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
+        riv_upa = float(riv_upa.min())
+    if area_max >= riv_upa:
+        return area_max
+
+    new_area_max = np.ceil(riv_upa / 0.5) * 0.5
+    # Add 5% buffer to avoid getting subbasins slightly smaller than riv_upa
+    # and therefore which won't have river cells
+    new_area_max = new_area_max * 1.05
+    logger.warning(
+        f"The area_max {area_max} is smaller than the minimum upstream area of "
+        f"the wflow river {riv_upa} which means tributaries will "
+        "not be connected to the wflow river. Changing and setting area_max to "
+        f"{new_area_max} km2. "
+        f"To keep {area_max} km2 threshold, please update the wflow model to "
+        "include more detailed rivers."
+    )
+    return new_area_max
+
+
 def wflow_1dmodel_connection(
     gdf_riv: gpd.GeoDataFrame,
     ds_model: xr.Dataset,
@@ -427,6 +521,7 @@ def wflow_1dmodel_connection(
     geom_snapping_tolerance: float = 0.001,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
+    id_column: str | None = None,
     **kwargs,
 ) -> xr.Dataset:
     """
@@ -443,7 +538,9 @@ def wflow_1dmodel_connection(
         subcatchments are derived based on the 1driver nodes (used as gauges
         locations). With this method, large tributaries can also be derived separately
         using the add_tributaries option and adding a area_max threshold for the
-        tributaries.
+        tributaries. The nodes can also be provided directly as Point geometries
+        instead of river lines, in which case `id_column` sets the subbasin and gauge
+        IDs and the subbasins may cover the entire wflow model.
 
     If `add_tributary` option is on, you can decide to include or exclude the upstream
     boundary of the 1d river as an additional tributary using the
@@ -455,7 +552,8 @@ def wflow_1dmodel_connection(
     Parameters
     ----------
     gdf_riv : gpd.GeoDataFrame
-        River geometry.
+        River geometry, or Point geometries of the nodes for connection_method
+        **nodes**.
     ds_model : xr.Dataset
         Model dataset with 'flwdir', 'rivmsk', 'rivlen', 'basins' and 'uparea'
         (optional).
@@ -479,6 +577,10 @@ def wflow_1dmodel_connection(
     include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
+    id_column : str, optional
+        Column of the Point geometries with the integer IDs (eg the 1D model node
+        IDs) used as subbasin and gauge values. Only used if `gdf_riv` contains
+        Point geometries, by default the points are numbered from 1.
     **kwargs
         Additional keyword arguments passed to the snapping method
         hydromt.gis.flw.gauge_map. See its documentation for more information.
@@ -489,110 +591,108 @@ def wflow_1dmodel_connection(
         Dataset with variables 'subcatch' for the subbasin map, 'subcatch_riv' for the
         subbasin map masked with river cells to be able to save river output with wflow
         and 'gauges' for the tributaries outflow locations (add_tributaries True or
-        subbasin_area method).
+        subbasin_area method) or for all the nodes (Point geometries).
 
     See Also
     --------
     hydromt.gis.flw.gauge_map
     """
+    if gdf_riv.empty:
+        raise ValueError("Input 'gdf_riv' is empty.")
+    # Nodes can be provided directly as points instead of derived from river lines
+    is_point = gdf_riv.geom_type == "Point"
+    is_line = gdf_riv.geom_type.isin(["LineString", "MultiLineString"])
+    is_points = bool(is_point.all())
+    if not (is_points and connection_method == "nodes") and not is_line.all():
+        raise ValueError(
+            "Point geometries cannot be mixed with lines and require "
+            "connection_method 'nodes'."
+        )
+
     # Check variables in 'ds_model'
     dvars_model = ["flwdir", "rivmsk", "rivlen", "basins"]
     if not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
     # Derive flwdir
     flwdir = flw.flwdir_from_da(ds_model["flwdir"])
-    # Check for uparea and derive on the fly if needed
-    if "uparea" not in ds_model:
-        logger.info(
-            "upstream area map not found in 'ds_model' and will be derived on the fly."
-        )
-        uparea = flwdir.upstream_area(unit="km2")
-        ds_model["uparea"] = xr.Variable(ds_model.raster.dims, uparea)
-
-    # Check that the max_area is larger than the wflow river threshold
-    # Get from attrs if available for newer wflow models built with hydromt
-    riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
-    if riv_upa is None:
-        # Derive from the uparea and rivmsk
-        riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
-        riv_upa = float(riv_upa.min())
-    if area_max < riv_upa:
-        new_area_max = np.ceil(riv_upa / 0.5) * 0.5
-        # Add 5% buffer to avoid getting subbasins slightly smaller than riv_upa
-        # and therefore which won't have river cells
-        new_area_max = new_area_max * 1.05
-        logger.warning(
-            f"The area_max {area_max} is smaller than the minimum upstream area of "
-            f"the wflow river {riv_upa} which means tributaries will "
-            "not be connected to the wflow river. Changing and setting area_max to "
-            f"{new_area_max} km2. "
-            f"To keep {area_max} km2 threshold, please update the wflow model to "
-            "include more detailed rivers."
-        )
-        area_max = new_area_max
 
     # Reproject
     if gdf_riv.crs != ds_model.raster.crs:
         gdf_riv = gdf_riv.to_crs(ds_model.raster.crs)
-    # merge multilinestrings in gdf_riv to linestrings to ease processing later on
-    if any(gdf_riv.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
-        logger.debug(
-            "'gdf_riv' contains MultiLineStrings which will be converted into"
-            "LineStrings."
-        )
-        gdf_riv = gdf_riv.explode(index_parts=True).reset_index(drop=True)
 
-    # Basin mask and clip river geometry
-    basin_mask = ds_model["basins"]
-    if basin_buffer_cells > 0:
-        basin_mask = buffer_basin_mask(
-            basin_mask=basin_mask, basin_buffer_cells=basin_buffer_cells
-        )
-    gdf_riv = gdf_riv.clip(basin_mask.raster.vectorize())
-
-    if connection_method == "subbasin_area" or add_tributaries == True:
-        riv1d = subbasin_preprocess_river_geometry(
-            gdf_riv=gdf_riv,
-            basin_buffer_cells=basin_buffer_cells,
-            geom_snapping_tolerance=geom_snapping_tolerance,
-        )
-
-        # Obtain flwdir_mask from 'riv1d'
-        flwdir_mask, gdf_tributaries = connect_subbasin_area(
+    if is_points:
+        gdf_nodes = derive_point_nodes(ds_model, gdf_riv, id_column)
+        da_subbasins, gdf_tributaries = connect_nodes(
             ds_model=ds_model,
-            riv1d=riv1d,
+            gdf_nodes=gdf_nodes,
             flwdir=flwdir,
-            area_max=area_max,
-            include_river_boundaries=include_river_boundaries,
+            flwdir_mask=flwdir,
+            unique_cells=True,
             **kwargs,
         )
     else:
-        # Use the entire model as flwdir_mask
-        flwdir_mask, gdf_tributaries = flwdir, gpd.GeoDataFrame()
+        area_max = _validate_area_max(ds_model, flwdir, area_max)
 
-    # Derive subbasins
-    if connection_method == "subbasin_area":
-        da_subbasins = flwdir_mask_to_subbasins(
-            flwdir_mask=flwdir_mask, area_max=area_max, ds_model=ds_model
-        )
-    elif connection_method == "nodes":
-        da_subbasins = connect_nodes(
-            ds_model=ds_model,
-            gdf_riv=gdf_riv,
-            flwdir=flwdir,
-            flwdir_mask=flwdir_mask,
-            **kwargs,
-        )
+        # merge multilinestrings in gdf_riv to linestrings to ease processing later on
+        if any(gdf_riv.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
+            logger.debug(
+                "'gdf_riv' contains MultiLineStrings which will be converted into"
+                "LineStrings."
+            )
+            gdf_riv = gdf_riv.explode(index_parts=True).reset_index(drop=True)
 
-    # Check if the output is not covering the entire model domain
-    valid_subbasins = (da_subbasins != da_subbasins.raster.nodata).sum()
-    valid_basinmask = (ds_model["flwdir"] != ds_model["flwdir"].raster.nodata).sum()
+        # Basin mask and clip river geometry
+        basin_mask = ds_model["basins"]
+        if basin_buffer_cells > 0:
+            basin_mask = buffer_basin_mask(
+                basin_mask=basin_mask, basin_buffer_cells=basin_buffer_cells
+            )
+        gdf_riv = gdf_riv.clip(basin_mask.raster.vectorize())
 
-    if valid_subbasins >= valid_basinmask:
-        raise ValueError(
-            "The entire model domain is assigned to subbasins. If this should not be "
-            "the case, try setting other parameter values or modifying 'gdf_riv'."
-        )
+        if connection_method == "subbasin_area" or add_tributaries == True:
+            riv1d = subbasin_preprocess_river_geometry(
+                gdf_riv=gdf_riv,
+                basin_buffer_cells=basin_buffer_cells,
+                geom_snapping_tolerance=geom_snapping_tolerance,
+            )
+
+            # Obtain flwdir_mask from 'riv1d'
+            flwdir_mask, gdf_tributaries = connect_subbasin_area(
+                ds_model=ds_model,
+                riv1d=riv1d,
+                flwdir=flwdir,
+                area_max=area_max,
+                include_river_boundaries=include_river_boundaries,
+                **kwargs,
+            )
+        else:
+            # Use the entire model as flwdir_mask
+            flwdir_mask, gdf_tributaries = flwdir, gpd.GeoDataFrame()
+
+        # Derive subbasins
+        if connection_method == "subbasin_area":
+            da_subbasins = flwdir_mask_to_subbasins(
+                flwdir_mask=flwdir_mask, area_max=area_max, ds_model=ds_model
+            )
+        elif connection_method == "nodes":
+            da_subbasins, _ = connect_nodes(
+                ds_model=ds_model,
+                gdf_nodes=derive_river_nodes(gdf_riv),
+                flwdir=flwdir,
+                flwdir_mask=flwdir_mask,
+                **kwargs,
+            )
+
+        # Check if the output is not covering the entire model domain
+        valid_subbasins = (da_subbasins != da_subbasins.raster.nodata).sum()
+        valid_basinmask = (ds_model["flwdir"] != ds_model["flwdir"].raster.nodata).sum()
+
+        if valid_subbasins >= valid_basinmask:
+            raise ValueError(
+                "The entire model domain is assigned to subbasins. If this should not "
+                "be the case, try setting other parameter values or modifying "
+                "'gdf_riv'."
+            )
 
     # Check if all subbasins have a wflow river cell
     gdf_subcatch = da_subbasins.raster.vectorize()

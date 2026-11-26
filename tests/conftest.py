@@ -284,6 +284,15 @@ def rivers1d(example_data_dir: Path) -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
+def nodes1d(rivers1d: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    # The unique ends of the 1d river as nodes with their own ids
+    nodes = rivers1d.boundary.explode(index_parts=False)
+    nodes = nodes[~nodes.duplicated()]
+    ids = 100 + np.arange(len(nodes))
+    return gpd.GeoDataFrame({"node_id": ids}, geometry=nodes.values, crs=nodes.crs)
+
+
+@pytest.fixture
 def rivers1d_projected(test_data_dir: Path) -> gpd.GeoDataFrame:
     return gpd.read_file(test_data_dir / "1d-river-3857.geojson")
 
