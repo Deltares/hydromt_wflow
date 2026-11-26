@@ -147,3 +147,19 @@ def test_wflow_1dmodel_connection_invalid_geom(ds_model):
         connect.wflow_1dmodel_connection(
             multipoint_gdf, ds_model, connection_method="nodes"
         )
+
+
+def test_validate_area_max(ds_model, flwdir):
+    """Test deriving uparea on the fly and bumping area_max below river_upa."""
+    # With river_upa attribute set, area_max below it is bumped (ceil to 0.5 * 1.05)
+    ds_model["rivmsk"].attrs["river_upa"] = 10.0
+    assert connect._validate_area_max(ds_model, flwdir, area_max=15.0) == 15.0
+    assert connect._validate_area_max(ds_model, flwdir, area_max=5.0) == 10.5
+    assert "uparea" in ds_model
+
+    # Without river_upa attr or uparea, both are derived from flwdir and rivmsk
+    ds_no_upa = ds_model.drop_vars("uparea")
+    ds_no_upa["rivmsk"].attrs.pop("river_upa")
+    riv_upa = connect._validate_area_max(ds_no_upa, flwdir, area_max=0.0)
+    assert "uparea" in ds_no_upa
+    assert riv_upa > 0

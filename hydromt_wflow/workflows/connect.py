@@ -479,6 +479,39 @@ def subbasin_preprocess_river_geometry(
     return gdf_riv
 
 
+def _validate_area_max(
+    ds_model: xr.Dataset, flwdir: FlwdirRaster, area_max: float
+) -> float:
+    """Derive `uparea` if missing and ensure `area_max` exceeds `river_upa`."""
+    if "uparea" not in ds_model:
+        logger.info(
+            "upstream area map not found in 'ds_model' and will be derived on the fly."
+        )
+        uparea = flwdir.upstream_area(unit="km2")
+        ds_model["uparea"] = xr.Variable(ds_model.raster.dims, uparea)
+
+    riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
+    if riv_upa is None:
+        riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
+        riv_upa = float(riv_upa.min())
+    if area_max >= riv_upa:
+        return area_max
+
+    new_area_max = np.ceil(riv_upa / 0.5) * 0.5
+    # Add 5% buffer to avoid getting subbasins slightly smaller than riv_upa
+    # and therefore which won't have river cells
+    new_area_max = new_area_max * 1.05
+    logger.warning(
+        f"The area_max {area_max} is smaller than the minimum upstream area of "
+        f"the wflow river {riv_upa} which means tributaries will "
+        "not be connected to the wflow river. Changing and setting area_max to "
+        f"{new_area_max} km2. "
+        f"To keep {area_max} km2 threshold, please update the wflow model to "
+        "include more detailed rivers."
+    )
+    return new_area_max
+
+
 def wflow_1dmodel_connection(
     gdf_riv: gpd.GeoDataFrame,
     ds_model: xr.Dataset,
@@ -582,35 +615,8 @@ def wflow_1dmodel_connection(
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
     # Derive flwdir
     flwdir = flw.flwdir_from_da(ds_model["flwdir"])
-    # Check for uparea and derive on the fly if needed
-    if "uparea" not in ds_model:
-        logger.info(
-            "upstream area map not found in 'ds_model' and will be derived on the fly."
-        )
-        uparea = flwdir.upstream_area(unit="km2")
-        ds_model["uparea"] = xr.Variable(ds_model.raster.dims, uparea)
-
-    # Check that the max_area is larger than the wflow river threshold
-    # Get from attrs if available for newer wflow models built with hydromt
-    riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
-    if riv_upa is None:
-        # Derive from the uparea and rivmsk
-        riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
-        riv_upa = float(riv_upa.min())
-    if not is_points and area_max < riv_upa:
-        new_area_max = np.ceil(riv_upa / 0.5) * 0.5
-        # Add 5% buffer to avoid getting subbasins slightly smaller than riv_upa
-        # and therefore which won't have river cells
-        new_area_max = new_area_max * 1.05
-        logger.warning(
-            f"The area_max {area_max} is smaller than the minimum upstream area of "
-            f"the wflow river {riv_upa} which means tributaries will "
-            "not be connected to the wflow river. Changing and setting area_max to "
-            f"{new_area_max} km2. "
-            f"To keep {area_max} km2 threshold, please update the wflow model to "
-            "include more detailed rivers."
-        )
-        area_max = new_area_max
+    if not is_points:
+        area_max = _validate_area_max(ds_model, flwdir, area_max)
 
     # Reproject
     if gdf_riv.crs != ds_model.raster.crs:

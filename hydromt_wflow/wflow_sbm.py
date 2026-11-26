@@ -3510,7 +3510,8 @@ using 'variable' argument."
         * **subcatchment_river_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model for river cells only.
         * **gauges_{mapname}** map/geom, optional: outlets of the tributaries
-          flowing into the 1D model.
+          flowing into the 1D model, or all snapped nodes when Point geometries are
+          provided.
 
         Required setup methods:
 
