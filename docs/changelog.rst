@@ -22,6 +22,7 @@ Fixed
 - **setup_reservoirs_simple_control**: log a warning that JRC time series retrieved via
   hydroengine do not include the most recent years (2022-2024) of the dataset.
 - **setup_temp_pet_forcing**: use xarray's rename method to rename DataArrays instead of setting the name attribute to prevent errors.
+- Remove the trailing space from the Wflow standard name for ``pits`` (``basin_pit_location__mask``), in the naming table and in the v0 to v1 upgrade. Issue #872
 
 Removed
 -------

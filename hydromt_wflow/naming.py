@@ -68,7 +68,7 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "hydromt_name": "rivmsk",
     },
     "pits": {
-        "wflow_name": "basin_pit_location__mask ",
+        "wflow_name": "basin_pit_location__mask",
     },
     # atmosphere / forcing
     "precip": {
