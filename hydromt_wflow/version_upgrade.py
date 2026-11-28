@@ -55,7 +55,7 @@ _V0_TO_V1_INPUT_SBM: dict[str, str | None] = {
     "lateral.river.reservoir.areas": "reservoir_area__count",
     "lateral.river.reservoir.locs": "reservoir_location__count",
     "river_location": "river_location__mask",
-    "pits": "basin_pit_location__mask ",
+    "pits": "basin_pit_location__mask",
     # atmosphere / forcing
     "vertical.precipitation": "atmosphere_water__precipitation_volume_flux",
     "vertical.temperature": "atmosphere_air__temperature",
