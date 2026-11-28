@@ -13,9 +13,11 @@ from packaging.version import Version
 
 from hydromt_wflow import WflowSbmModel, WflowSedimentModel
 from hydromt_wflow.components.config import WflowConfigComponent
+from hydromt_wflow.naming import WFLOW_NAMES
 from hydromt_wflow.utils import get_config
 from hydromt_wflow.version_upgrade import (
     _UPGRADES,
+    _V0_TO_V1_INPUT_SBM,
     _convert_sbm_config_v0_to_v1,
     _detect_version_from_config,
     _get_land_surface_elevation_name,
@@ -649,3 +651,13 @@ class TestUpgradeModelPathBased:
 
         with pytest.raises(ValueError, match="Unknown upgrade versions"):
             upgrade_model(model_dir, "wflow_sbm", options={"9.9_10.0": {}})
+
+
+@pytest.mark.parametrize("flow", ["infiltration", "exfiltration"])
+def test_river_bed_conductance_names_match_v0_upgrade(flow):
+    # The v0 key lateral.subsurface.<flow>_conductance and the HydroMT map
+    # river_bed_<flow>_conductance are the same river boundary parameter in
+    # Wflow.jl (river_water__<flow>_conductance).
+    expected = f"river_water__{flow}_conductance"
+    assert _V0_TO_V1_INPUT_SBM[f"lateral.subsurface.{flow}_conductance"] == expected
+    assert WFLOW_NAMES[f"river_bed_{flow}_conductance"]["wflow_name"] == expected

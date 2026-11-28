@@ -22,6 +22,7 @@ Fixed
 - **setup_reservoirs_simple_control**: log a warning that JRC time series retrieved via
   hydroengine do not include the most recent years (2022-2024) of the dataset.
 - **setup_temp_pet_forcing**: use xarray's rename method to rename DataArrays instead of setting the name attribute to prevent errors.
+- Map ``river_bed_infiltration_conductance`` to ``river_water__infiltration_conductance`` and ``river_bed_exfiltration_conductance`` to ``river_water__exfiltration_conductance``; the two were swapped. Issue #873
 
 Removed
 -------
