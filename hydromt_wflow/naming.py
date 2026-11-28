@@ -394,10 +394,10 @@ WFLOW_NAMES: dict[str, dict[str, str | None]] = {
         "wflow_name": "river_bottom__elevation",
     },
     "river_bed_exfiltration_conductance": {
-        "wflow_name": "river_water__infiltration_conductance",
+        "wflow_name": "river_water__exfiltration_conductance",
     },
     "river_bed_infiltration_conductance": {
-        "wflow_name": "river_water__exfiltration_conductance",
+        "wflow_name": "river_water__infiltration_conductance",
     },
     "groundwater_specific_yield": {
         "wflow_name": "subsurface_water__specific_yield",
